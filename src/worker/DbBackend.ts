@@ -7,8 +7,6 @@ import initSqlJs, {
 import { SQLiteFS } from "absurd-sql";
 import IndexedDBBackend from "absurd-sql/dist/indexeddb-backend";
 
-import { migrationsTable } from "./types";
-
 const colors = ["yellow", "cyan", "magenta"];
 
 export class DbBackend {
@@ -44,14 +42,6 @@ export class DbBackend {
       PRAGMA page_size=${32 * 1024};
       PRAGMA cache_size=-${10 * 1024};
       PRAGMA foreign_keys=ON;
-    `);
-
-    this.sqlExec(`
-      CREATE TABLE IF NOT EXISTS ${migrationsTable} (
-        id INTEGER PRIMARY KEY,
-        name varchar(20) NOT NULL,
-        migratedAt INTEGER NOT NULL
-      )
     `);
   }
 

@@ -23,6 +23,8 @@ import {
   ICommand,
 } from "../commands";
 import { generateInsert } from "./sqlHelpers";
+import { IMigration } from "../types";
+import { runMigrations } from "./runMigrations";
 
 export interface ISharedState {
   messagesFromWorker$: Observable<IOutputWorkerMessage>;
@@ -30,6 +32,7 @@ export interface ISharedState {
   stop$: Subject<void>;
   isStopped: boolean;
   dbName: string;
+  migrations: IMigration[];
 }
 
 export interface IDbState {
@@ -48,10 +51,12 @@ export const initDb = async ({
   dbName,
   worker,
   wasmUrl,
+  migrations,
 }: {
   dbName: string;
   worker: Worker;
   wasmUrl: string;
+  migrations?: [];
 }): Promise<IDbState> => {
   initBackend(worker);
 
@@ -99,15 +104,20 @@ export const initDb = async ({
     )
   );
 
-  return {
+  const state: IDbState = {
     sharedState: {
       messagesFromWorker$,
       messagesToWorker$,
       stop$,
       isStopped: false,
       dbName,
+      migrations: migrations || [],
     },
   };
+
+  await runMigrations(state);
+
+  return state;
 };
 
 const runCommand = (state: IDbState, command: ICommand) => {

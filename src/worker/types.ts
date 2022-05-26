@@ -22,5 +22,3 @@ export type IOutputWorkerMessage =
 export type IInputWorkerMessage =
   | { type: "initialize"; dbName: string; wasmUrl: string }
   | { type: "command"; data: ICommand };
-
-export const migrationsTable = "migrations";
