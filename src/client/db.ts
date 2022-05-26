@@ -25,10 +25,13 @@ import {
 import { generateInsert } from "./sqlHelpers";
 import { IMigration } from "../types";
 import { runMigrations } from "./runMigrations";
+import { BroadcastChannel } from "broadcast-channel";
+import { getBroadcastCh$ } from "./utils";
 
 export interface ISharedState {
   messagesFromWorker$: Observable<IOutputWorkerMessage>;
   messagesToWorker$: Subject<IInputWorkerMessage>;
+  eventsCh$: Observable<BroadcastChannel<string[]>>;
   stop$: Subject<void>;
   isStopped: boolean;
   dbName: string;
@@ -36,7 +39,10 @@ export interface ISharedState {
 }
 
 export interface IDbState {
-  transactionId?: string;
+  transaction?: {
+    id: string;
+    touchedTables: Set<string>;
+  };
   suppressLog?: boolean;
   sharedState: ISharedState;
 }
@@ -46,6 +52,17 @@ const chunk = <T>(array: Array<T>, chunkSize: number): T[][] =>
     .fill(null)
     .map((_, index) => index * chunkSize)
     .map((begin) => array.slice(begin, begin + chunkSize));
+
+const notifyTables = async (state: IDbState, tables: string[]) => {
+  return lastValueFrom(
+    state.sharedState.eventsCh$.pipe(
+      first(),
+      switchMap(async (ch) => {
+        await ch.postMessage(tables);
+      })
+    )
+  );
+};
 
 export const initDb = async ({
   dbName,
@@ -109,6 +126,7 @@ export const initDb = async ({
       messagesFromWorker$,
       messagesToWorker$,
       stop$,
+      eventsCh$: getBroadcastCh$(dbName, stop$),
       isStopped: false,
       dbName,
       migrations: migrations || [],
@@ -176,12 +194,12 @@ export const runInTransaction = async <T>(
   state: IDbState,
   func: (state: IDbState) => Promise<T>
 ) => {
-  if (state.transactionId) {
+  if (state.transaction?.id) {
     // we already in transaction
     return await func(state);
   }
 
-  state = { ...state, transactionId: nanoid() };
+  state = { ...state, transaction: { id: nanoid(), touchedTables: new Set() } };
 
   await runCommand(state, buildTransactionCommand(state, "startTransaction"));
 
@@ -192,6 +210,9 @@ export const runInTransaction = async <T>(
       state,
       buildTransactionCommand(state, "commitTransaction")
     );
+
+    // dont await so notification happens after function return
+    void notifyTables(state, [...state.transaction!.touchedTables]);
 
     return res;
   } catch (e) {
@@ -206,8 +227,23 @@ export const runInTransaction = async <T>(
   }
 };
 
-export const runQueries = (state: IDbState, queries: Sql[]) => {
-  return runCommand(state, buildExecQueriesCommand(state, queries));
+export const runQueries = async (state: IDbState, queries: Sql[]) => {
+  const tables = [...new Set(queries.flatMap((q) => q.tables))];
+
+  if (state.transaction) {
+    for (const t of tables) {
+      state.transaction.touchedTables.add(t);
+    }
+  }
+
+  const res = await runCommand(state, buildExecQueriesCommand(state, queries));
+
+  if (!state.transaction) {
+    // dont await so notification happens after function return
+    void notifyTables(state, tables);
+  }
+
+  return res;
 };
 
 export const runQuery = async (state: IDbState, query: Sql) => {

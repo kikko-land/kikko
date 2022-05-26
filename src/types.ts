@@ -1,5 +1,7 @@
+import { IDbState } from "./client/db";
+
 export type IMigration = {
-  up: (db: IQueryExecuter) => Promise<void>;
+  up: (state: IDbState) => Promise<void>;
   id: number;
   name: string;
 };
