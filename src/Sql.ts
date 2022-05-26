@@ -1,7 +1,10 @@
 // Code is taken and adopted from https://github.com/blakeembrey/sql-template-tag
-
 export type Value = string | number | null;
-export type RawValue = Value | Sql;
+export type RawValue = Value | Sql | SqlTable;
+
+export class SqlTable {
+  constructor(public tableName: string) {}
+}
 
 /**
  * A SQL instance can be nested within each other to build SQL strings.
@@ -9,6 +12,7 @@ export type RawValue = Value | Sql;
 export class Sql {
   values: Value[];
   strings: string[];
+  tables: string[];
 
   constructor(
     rawStrings: ReadonlyArray<string>,
@@ -27,19 +31,37 @@ export class Sql {
     }
 
     const valuesLength = rawValues.reduce<number>(
-      (len, value) => len + (value instanceof Sql ? value.values.length : 1),
+      (len, value) =>
+        len +
+        (value instanceof Sql
+          ? value.values.length
+          : value instanceof SqlTable
+          ? 0
+          : 1),
+      0
+    );
+    const tablesLength = rawValues.reduce<number>(
+      (len, value) =>
+        len +
+        (value instanceof Sql
+          ? value.tables.length
+          : value instanceof SqlTable
+          ? 1
+          : 0),
       0
     );
 
     this.values = new Array(valuesLength);
     this.strings = new Array(valuesLength + 1);
+    this.tables = new Array(tablesLength);
 
     this.strings[0] = rawStrings[0];
 
     // Iterate over rw values, strings, and children. The value is always
     // positioned between two strings, e.g. `index + 1`.
     let i = 0,
-      pos = 0;
+      pos = 0,
+      tableI = 0;
     while (i < rawValues.length) {
       const child = rawValues[i++];
       const rawString = rawStrings[i];
@@ -57,6 +79,10 @@ export class Sql {
 
         // Append raw string to current string.
         this.strings[pos] += rawString;
+      } else if (child instanceof SqlTable) {
+        this.strings[pos] += child.tableName + rawString;
+
+        this.tables[tableI++] = child.tableName;
       } else {
         this.values[pos++] = child;
         this.strings[pos] = rawString;
@@ -112,6 +138,10 @@ export function join(
  * Create raw SQL statement.
  */
 export function raw(value: string) {
+  return new SqlTable(value);
+}
+
+export function table(value: string) {
   return new Sql([value], []);
 }
 

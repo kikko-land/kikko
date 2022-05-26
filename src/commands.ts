@@ -1,6 +1,6 @@
 import { nanoid } from "nanoid";
-import { Sql } from "../Sql";
-import { IDbState } from "./example";
+import { IDbState } from "./client/db";
+import { Sql } from "./Sql";
 
 type IBaseCommand = {
   suppressLog?: boolean;
