@@ -1,5 +1,5 @@
 {
-  "name": "orm",
+  "name": "@anlamli/orm",
   "version": "1.0.0",
   "main": "dist/index.js",
   "author": "Sergey Popov",

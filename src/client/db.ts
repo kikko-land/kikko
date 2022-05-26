@@ -9,6 +9,7 @@ import {
   of,
   ReplaySubject,
   share,
+  startWith,
   Subject,
   switchMap,
   takeUntil,
@@ -27,6 +28,7 @@ import { IMigration } from "../types";
 import { runMigrations } from "./runMigrations";
 import { BroadcastChannel } from "broadcast-channel";
 import { getBroadcastCh$ } from "./utils";
+import { QueryExecResult } from "@harika-org/sql.js";
 
 export interface ISharedState {
   messagesFromWorker$: Observable<IOutputWorkerMessage>;
@@ -228,35 +230,57 @@ export const runInTransaction = async <T>(
 };
 
 export const runQueries = async (state: IDbState, queries: Sql[]) => {
-  const tables = [...new Set(queries.flatMap((q) => q.tables))];
-
-  if (state.transaction) {
-    for (const t of tables) {
-      state.transaction.touchedTables.add(t);
-    }
-  }
-
   const res = await runCommand(state, buildExecQueriesCommand(state, queries));
 
-  if (!state.transaction) {
-    // dont await so notification happens after function return
-    void notifyTables(state, tables);
-  }
-
   return res;
+};
+export const runQueries$ = (state: IDbState, queries: Sql[]) => {
+  const tables = new Set(queries.flatMap((q) => q.tables));
+
+  // TODO extract
+  return state.sharedState.eventsCh$.pipe(
+    switchMap((ch) => {
+      return new Observable<string[]>((subscriber) => {
+        const func = (data: string[]) => {
+          subscriber.next(data);
+        };
+
+        ch.addEventListener("message", func);
+
+        return () => {
+          void ch.close();
+        };
+      });
+    }),
+    filter((changesInTables) =>
+      changesInTables.some((table) => tables.has(table))
+    ),
+    startWith(undefined),
+    switchMap(async () => {
+      return runQueries(state, queries);
+    }),
+    takeUntil(state.sharedState.stop$)
+  );
 };
 
 export const runQuery = async (state: IDbState, query: Sql) => {
   return (await runQueries(state, [query]))[0];
 };
+export const runQuery$ = async (state: IDbState, query: Sql) => {
+  return runQueries$(state, [query]).pipe(map((list) => list[0]));
+};
 
-export const insertRecords = (
+export const insertRecords = async (
   state: IDbState,
   table: string,
   objs: Record<string, any>[],
   replace: boolean = false
 ) => {
   if (objs.length === 0) return;
+
+  if (state.transaction) {
+    state.transaction.touchedTables.add(table);
+  }
 
   // sqlite max vars = 32766
   // Let's take table columns count to 20, so 20 * 1000 will fit the restriction
@@ -269,15 +293,17 @@ export const insertRecords = (
     }
   };
 
-  return chunked.length > 1 ? runInTransaction(state, toExec) : toExec(state);
+  await (chunked.length > 1 ? runInTransaction(state, toExec) : toExec(state));
+
+  if (!state.transaction) {
+    // dont await so notification happens after function return
+    void notifyTables(state, [table]);
+  }
 };
 
-export const getRecords = async <T extends Record<string, any>>(
-  state: IDbState,
-  query: Sql
+const mapToRecords = <T extends Record<string, any>>(
+  result: QueryExecResult
 ) => {
-  const [result] = await runQuery(state, query);
-
   return (result?.values?.map((res) => {
     let obj: Record<string, any> = {};
 
@@ -288,6 +314,20 @@ export const getRecords = async <T extends Record<string, any>>(
     return obj;
   }) || []) as T[];
 };
+
+export const getRecords = async <T extends Record<string, any>>(
+  state: IDbState,
+  query: Sql
+) => {
+  const [result] = await runQuery(state, query);
+
+  return mapToRecords<T>(result);
+};
+
+export const getRecords$ = async <T extends Record<string, any>>(
+  state: IDbState,
+  query: Sql
+) => {};
 
 export const suppressLog = <T>(
   state: IDbState,
