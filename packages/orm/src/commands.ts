@@ -1,6 +1,6 @@
 import { nanoid } from "nanoid";
 import { IDbState } from "./client/types";
-import { Sql } from "./Sql";
+import { Sql, Value } from "./Sql";
 
 type IBaseCommand = {
   suppressLog?: boolean;
@@ -27,9 +27,10 @@ type ITransactionCommand =
   | ICommitTransactionCommand
   | IRollbackTransactionCommand;
 
+export type ITransferredQuery = { values: Value[]; text: string };
 export type IExecQueriesCommand = IBaseCommand & {
   type: "runQueries";
-  queries: Sql[];
+  queries: ITransferredQuery[];
   spawnTransaction?: boolean;
   transactionId?: string;
   commandId: string;
@@ -62,7 +63,7 @@ export const buildRunQueriesCommand = (
 ): IExecQueriesCommand => {
   return {
     type: "runQueries",
-    queries,
+    queries: queries.map((q) => ({ values: q.values, text: q.text })),
     spawnTransaction: queries.length > 1 && !state.transaction,
     transactionId: state.transaction?.id,
     commandId: nanoid(),

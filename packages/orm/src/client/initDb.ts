@@ -13,12 +13,14 @@ import { IOutputWorkerMessage, IInputWorkerMessage } from "../worker/types";
 import { runMigrations } from "./runMigrations";
 import { getBroadcastCh$ } from "./utils";
 import { IDbState } from "./types";
+import { IMigration } from "../types";
+import { nanoid } from "nanoid";
 
 export type IInitDbConfig = {
   dbName: string;
   worker: Worker;
   wasmUrl: string;
-  migrations?: [];
+  migrations?: IMigration[];
 };
 
 export const initDb = async ({
@@ -75,6 +77,7 @@ export const initDb = async ({
 
   const state: IDbState = {
     sharedState: {
+      clientId: nanoid(),
       messagesFromWorker$,
       messagesToWorker$,
       stop$,
@@ -84,6 +87,8 @@ export const initDb = async ({
       migrations: migrations || [],
     },
   };
+
+  console.log("Running migrations..");
 
   await runMigrations(state);
 

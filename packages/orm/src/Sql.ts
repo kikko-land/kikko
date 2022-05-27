@@ -162,9 +162,6 @@ export const empty = raw("");
 /**
  * Create a SQL object from a template string.
  */
-export default function sql(
-  strings: ReadonlyArray<string>,
-  ...values: RawValue[]
-) {
+export function sql(strings: ReadonlyArray<string>, ...values: RawValue[]) {
   return new Sql(strings, values);
 }

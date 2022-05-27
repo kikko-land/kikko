@@ -4,10 +4,10 @@ import { runInTransaction } from "../transaction";
 import { IDbState } from "../types";
 import { chunk } from "../utils";
 
-export const createRecords = async (
+export const createRecords = async <R extends Record<string, any>>(
   state: IDbState,
   table: string,
-  objs: Record<string, any>[],
+  objs: R[],
   replace: boolean = false
 ) => {
   if (objs.length === 0) return;
@@ -24,4 +24,13 @@ export const createRecords = async (
   };
 
   await (chunked.length > 1 ? runInTransaction(state, toExec) : toExec(state));
+};
+
+export const createRecord = <R extends Record<string, any>>(
+  state: IDbState,
+  table: string,
+  obj: R,
+  replace: boolean = false
+) => {
+  return createRecords(state, table, [obj], replace);
 };

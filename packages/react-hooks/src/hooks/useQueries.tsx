@@ -8,21 +8,7 @@ import { IDbState } from "@anlamli/orm";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useDbState } from "../DbProvider";
-
-type DistributiveOmit<T, K extends keyof any> = T extends any
-  ? Omit<T, K>
-  : never;
-
-type IQueryResult<D> =
-  | {
-      type: "loading";
-      data?: D;
-    }
-  | {
-      type: "waitingDb";
-      data?: D;
-    }
-  | { type: "loaded"; data: D };
+import { DistributiveOmit, IQueryResult, IQueryResultWithIdle } from "./types";
 
 export function useQueries<D>(
   _queries: Sql[],
@@ -52,7 +38,7 @@ export function useQueries<D>(
     const db = suppressLog ? withSuppressedLog(dbState.db) : dbState.db;
 
     const subscription = runQueries$(db, currentQueries).subscribe((result) => {
-      setData(result as D[][]);
+      setData(result as unknown as D[][]);
       setResponse({ type: "loaded" });
     });
 
@@ -124,9 +110,12 @@ function useIsMounted() {
 }
 
 export function useRunQuery<D>(
-  cb: (db: IDbState) => Promise<D[]>,
+  cb: (db: IDbState) => Promise<D>,
   _opts?: { suppressLog?: boolean; inTransaction?: boolean } | undefined
-): readonly [() => Promise<D[]>, IQueryResult<D[]>] {
+): readonly [
+  () => Promise<D>,
+  DistributiveOmit<IQueryResultWithIdle<D>, "data"> & { data?: D | undefined }
+] {
   const { suppressLog, inTransaction } = {
     suppressLog: _opts?.suppressLog !== undefined ? _opts.suppressLog : false,
     inTransaction:
@@ -136,12 +125,10 @@ export function useRunQuery<D>(
   const dbState = useDbState();
   const isMounted = useIsMounted();
 
-  const [data, setData] = useState<D[] | undefined>();
+  const [data, setData] = useState<D | undefined>();
   const [response, setResponse] = useState<
-    DistributiveOmit<IQueryResult<D[]>, "data">
-  >(
-    dbState.type === "initialized" ? { type: "loading" } : { type: "waitingDb" }
-  );
+    DistributiveOmit<IQueryResultWithIdle<D>, "data">
+  >(dbState.type === "initialized" ? { type: "idle" } : { type: "waitingDb" });
 
   const run = useCallback(async () => {
     if (dbState.type !== "initialized") {
@@ -164,16 +151,6 @@ export function useRunQuery<D>(
   }, [dbState, suppressLog, inTransaction, cb, isMounted]);
 
   const result = useMemo(() => {
-    if (response.type === "loaded") {
-      if (!data) {
-        throw new Error(
-          "Internal error: response state is loaded, but there is not data!"
-        );
-      }
-
-      return { ...response, data };
-    }
-
     return { ...response, data };
   }, [data, response]);
 

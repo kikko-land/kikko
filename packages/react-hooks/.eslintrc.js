@@ -1,6 +1,6 @@
-const rootDir = process.cwd().includes("packages/react-hook")
+const rootDir = process.cwd().includes("packages/react-hooks")
   ? "./"
-  : "./packages/react-hook";
+  : "./packages/react-hooks";
 
 module.exports = {
   env: {

@@ -5,8 +5,8 @@ import {
   IRollbackTransactionCommand,
   ICommitTransactionCommand,
   IStartTransactionCommand,
+  ITransferredQuery,
 } from "../commands";
-import sql, { Sql } from "../Sql";
 import { DbBackend } from "./DbBackend";
 
 import { IInputWorkerMessage, IOutputWorkerMessage, IResponse } from "./types";
@@ -125,8 +125,8 @@ class CommandsExecutor {
           command.commandId,
           [
             command.type === "commitTransaction"
-              ? sql`COMMIT;`
-              : sql`ROLLBACK;`,
+              ? { text: "COMMIT;", values: [] }
+              : { text: "ROLLBACK;", values: [] },
           ],
           false,
           Boolean(command.suppressLog)
@@ -151,7 +151,7 @@ class CommandsExecutor {
       this.response$.next(
         this.sqlExec(
           command.commandId,
-          [sql`BEGIN TRANSACTION;`],
+          [{ text: "BEGIN TRANSACTION;", values: [] }],
           false,
           Boolean(command.suppressLog)
         )
@@ -161,7 +161,7 @@ class CommandsExecutor {
 
   private sqlExec(
     commandId: string,
-    queries: Sql[],
+    queries: ITransferredQuery[],
     spawnTransaction: boolean,
     suppressLog: boolean
   ): IResponse {

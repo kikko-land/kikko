@@ -10,12 +10,19 @@ import {
 import { BroadcastChannel } from "broadcast-channel";
 import { IDbState } from "./types";
 
+export interface INotifyChannel {
+  postMessage(tables: string[]): Promise<void>;
+  addEventListener(cb: (data: string[]) => void): void;
+  removeEventListener(cb: (data: string[]) => void): void;
+  close(): Promise<void>;
+}
+
 export const getBroadcastCh$ = (name: string, stop$: Observable<void>) => {
-  return new Observable<BroadcastChannel>((sub) => {
-    let currentChannel: BroadcastChannel | undefined = undefined;
+  return new Observable<INotifyChannel>((sub) => {
+    let currentChannel: INotifyChannel | undefined = undefined;
 
     const createChannel = () => {
-      currentChannel = new BroadcastChannel(name, {
+      const channel = new BroadcastChannel(name, {
         webWorkerSupport: true,
         idb: {
           onclose: () => {
@@ -27,6 +34,32 @@ export const getBroadcastCh$ = (name: string, stop$: Observable<void>) => {
           },
         },
       });
+
+      let listeners: ((data: string[]) => void)[] = [];
+
+      currentChannel = {
+        async postMessage(data: string[]) {
+          listeners.forEach((l) => {
+            l(data);
+          });
+
+          return channel.postMessage(data);
+        },
+        addEventListener(cb: (data: string[]) => void) {
+          listeners.push(cb);
+
+          return channel.addEventListener("message", cb);
+        },
+        removeEventListener(cb: (data: string[]) => void) {
+          listeners = listeners.filter((l) => l !== cb);
+
+          return channel.removeEventListener("message", cb);
+        },
+        close() {
+          listeners = [];
+          return channel.close();
+        },
+      };
 
       sub.next(currentChannel);
     };
@@ -54,6 +87,8 @@ export const notifyTablesContentChanged = async (
   state: IDbState,
   tables: string[]
 ) => {
+  if (tables.length === 0) return;
+
   return lastValueFrom(
     state.sharedState.eventsCh$.pipe(
       first(),

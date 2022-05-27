@@ -1,4 +1,12 @@
-import { switchMap, Observable, filter, startWith, takeUntil, map } from "rxjs";
+import {
+  switchMap,
+  Observable,
+  filter,
+  startWith,
+  takeUntil,
+  map,
+  tap,
+} from "rxjs";
 import { buildRunQueriesCommand } from "../commands";
 import { Sql } from "../Sql";
 import { runWorkerCommand } from "./runWorkerCommand";
@@ -47,10 +55,10 @@ export const runQueries$ = (state: IDbState, queries: Sql[]) => {
           subscriber.next(data);
         };
 
-        ch.addEventListener("message", func);
+        ch.addEventListener(func);
 
         return () => {
-          void ch.close();
+          ch.removeEventListener(func);
         };
       });
     }),

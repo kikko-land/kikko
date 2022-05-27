@@ -1,47 +1,24 @@
-import "./App.css";
+import { IInitDbConfig } from "@anlamli/orm";
+import DbWorker from "@anlamli/orm/src/worker/DB.worker?worker";
+import { DbProvider, EnsureDbLoaded } from "@anlamli/react-hooks";
+import sqlWasmUrl from "@harika-org/sql.js/dist/sql-wasm.wasm?url";
 
-import { useState } from "react";
+import { List } from "./List";
+import { createNotesTableMigration } from "./migrations/createNotesTable";
 
-import logo from "./logo.svg";
+const config: IInitDbConfig = {
+  dbName: "helloWorld",
+  worker: new DbWorker(),
+  wasmUrl: sqlWasmUrl,
+  migrations: [createNotesTableMigration],
+};
 
-function App() {
-  const [count, setCount] = useState(0);
-
+export const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>Hello Vite + React!</p>
-        <p>
-          <button type="button" onClick={() => setCount((count) => count + 1)}>
-            count is: {count}
-          </button>
-        </p>
-        <p>
-          Edit <code>App.tsx</code> and save to test HMR updates.
-        </p>
-        <p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-          {" | "}
-          <a
-            className="App-link"
-            href="https://vitejs.dev/guide/features.html"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Vite Docs
-          </a>
-        </p>
-      </header>
-    </div>
+    <DbProvider config={config}>
+      <EnsureDbLoaded fallback={<div>Loading db...</div>}>
+        <List />
+      </EnsureDbLoaded>
+    </DbProvider>
   );
-}
-
-export default App;
+};
