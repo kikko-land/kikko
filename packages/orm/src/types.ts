@@ -1,4 +1,4 @@
-import { IDbState } from "./client/db";
+import { IDbState } from "./client/types";
 
 export type IMigration = {
   up: (state: IDbState) => Promise<void>;

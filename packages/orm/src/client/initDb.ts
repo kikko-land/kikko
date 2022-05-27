@@ -14,17 +14,19 @@ import { runMigrations } from "./runMigrations";
 import { getBroadcastCh$ } from "./utils";
 import { IDbState } from "./types";
 
+export type IInitDbConfig = {
+  dbName: string;
+  worker: Worker;
+  wasmUrl: string;
+  migrations?: [];
+};
+
 export const initDb = async ({
   dbName,
   worker,
   wasmUrl,
   migrations,
-}: {
-  dbName: string;
-  worker: Worker;
-  wasmUrl: string;
-  migrations?: [];
-}): Promise<IDbState> => {
+}: IInitDbConfig): Promise<IDbState> => {
   initBackend(worker);
 
   const stop$ = new Subject<void>();
@@ -88,7 +90,7 @@ export const initDb = async ({
   return state;
 };
 
-export const stop = (state: IDbState) => {
+export const stopDb = (state: IDbState) => {
   state.sharedState.stop$.next();
 
   state.sharedState.isStopped = true;

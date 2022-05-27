@@ -1,7 +1,7 @@
 {
   "name": "@anlamli/orm",
   "version": "1.0.0",
-  "main": "dist/index.js",
+  "main": "src/index.ts",
   "author": "Sergey Popov",
   "license": "MIT",
   "dependencies": {

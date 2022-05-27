@@ -104,11 +104,16 @@ export class Sql {
     return value;
   }
 
+  get hash() {
+    return this.strings.join() + this.values.join();
+  }
+
   inspect() {
     return {
       text: this.text,
       sql: this.sql,
       values: this.values,
+      tables: this.tables,
     };
   }
 }
