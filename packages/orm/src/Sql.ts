@@ -146,11 +146,11 @@ export function raw(value: string) {
   return new Sql([value], []);
 }
 
-export function readFrom(value: string) {
+export function read(value: string) {
   return new SqlTable(value, "read");
 }
 
-export function writeTo(value: string) {
+export function modify(value: string) {
   return new SqlTable(value, "write");
 }
 

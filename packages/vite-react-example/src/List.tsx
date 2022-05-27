@@ -1,7 +1,6 @@
-import { createRecord, createRecords, readFrom, sql } from "@anlamli/orm";
+import { createRecord, modify, read, runQuery, sql } from "@anlamli/orm";
 import { useRecords, useRunQuery } from "@anlamli/react-hooks";
 import { nanoid } from "nanoid";
-import { useCallback } from "react";
 
 interface IRecord {
   id: string;
@@ -12,19 +11,21 @@ interface IRecord {
 }
 
 export const List = () => {
-  const records = useRecords<IRecord>(sql`SELECT * FROM ${readFrom("notes")}`);
+  const records = useRecords<IRecord>(sql`SELECT * FROM ${read("notes")}`);
 
-  const [run, state] = useRunQuery(
-    useCallback(async (db) => {
-      await createRecord<IRecord>(db, "notes", {
-        id: nanoid(),
-        title: "hi!",
-        content: "Hello world!",
-        createdAt: new Date().getTime(),
-        updatedAt: new Date().getTime(),
-      });
-    }, [])
-  );
+  const [createNote, createState] = useRunQuery(async (db) => {
+    await createRecord<IRecord>(db, "notes", {
+      id: nanoid(),
+      title: "hi!",
+      content: "Hello world!",
+      createdAt: new Date().getTime(),
+      updatedAt: new Date().getTime(),
+    });
+  });
+
+  const [deleteAll, deleteAllState] = useRunQuery(async (db) => {
+    await runQuery(db, sql`DELETE FROM ${modify("notes")}`);
+  });
 
   return (
     <>
@@ -53,10 +54,24 @@ export const List = () => {
       </table>
 
       <button
-        onClick={run}
-        disabled={state.type === "loading" || state.type === "waitingDb"}
+        onClick={createNote}
+        disabled={
+          createState.type === "loading" || createState.type === "waitingDb"
+        }
       >
-        {state.type === "loading" ? "Loading..." : "Add record!"}
+        {createState.type === "loading" ? "Loading..." : "Add record!"}
+      </button>
+
+      <button
+        onClick={deleteAll}
+        disabled={
+          deleteAllState.type === "loading" ||
+          deleteAllState.type === "waitingDb"
+        }
+      >
+        {deleteAllState.type === "loading"
+          ? "Loading..."
+          : "Delete all records!"}
       </button>
     </>
   );
