@@ -3,7 +3,7 @@ export type Value = string | number | null;
 export type RawValue = Value | Sql | SqlTable;
 
 export class SqlTable {
-  constructor(public tableName: string) {}
+  constructor(public tableName: string, public type: "write" | "read") {}
 }
 
 /**
@@ -12,7 +12,7 @@ export class SqlTable {
 export class Sql {
   values: Value[];
   strings: string[];
-  tables: string[];
+  tables: SqlTable[];
 
   constructor(
     rawStrings: ReadonlyArray<string>,
@@ -82,7 +82,7 @@ export class Sql {
       } else if (child instanceof SqlTable) {
         this.strings[pos] += child.tableName + rawString;
 
-        this.tables[tableI++] = child.tableName;
+        this.tables[tableI++] = child;
       } else {
         this.values[pos++] = child;
         this.strings[pos] = rawString;
@@ -138,11 +138,15 @@ export function join(
  * Create raw SQL statement.
  */
 export function raw(value: string) {
-  return new SqlTable(value);
+  return new Sql([value], []);
 }
 
-export function table(value: string) {
-  return new Sql([value], []);
+export function readFrom(value: string) {
+  return new SqlTable(value, "read");
+}
+
+export function writeTo(value: string) {
+  return new SqlTable(value, "write");
 }
 
 /**

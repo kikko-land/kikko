@@ -1,13 +1,9 @@
 {
-  "name": "anlamli",
+  "name": "@anlamli/orm",
   "version": "1.0.0",
   "main": "dist/index.js",
   "author": "Sergey Popov",
   "license": "MIT",
-  "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
   "dependencies": {
     "@harika-org/sql.js": "^1.6.6",
     "absurd-sql": "^0.0.53",

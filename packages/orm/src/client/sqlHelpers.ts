@@ -1,4 +1,4 @@
-import sql, { empty, join, raw } from "../Sql";
+import sql, { empty, join, raw, writeTo } from "../Sql";
 
 export const generateInsert = (
   tableName: string,
@@ -13,7 +13,7 @@ export const generateInsert = (
     objs.map((obj) => sql`(${join(keys.map((k) => obj[k] as string))})`)
   );
 
-  return sql`INSERT ${replace ? sql`OR REPLACE` : empty} INTO ${raw(
+  return sql`INSERT ${replace ? sql`OR REPLACE` : empty} INTO ${writeTo(
     tableName
   )} (${join(keys.map((k) => raw(k)))}) VALUES ${values}`;
 };
@@ -26,5 +26,5 @@ export const generateUpdate = (
     Object.entries(obj).map(([k, v]) => sql`${raw(k)} = ${v as string}`)
   );
 
-  return sql`UPDATE ${raw(tableName)} SET ${values}`;
+  return sql`UPDATE ${writeTo(tableName)} SET ${values}`;
 };

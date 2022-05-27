@@ -1,5 +1,14 @@
-import { Observable, ReplaySubject, share, takeUntil } from "rxjs";
+import {
+  first,
+  lastValueFrom,
+  Observable,
+  ReplaySubject,
+  share,
+  switchMap,
+  takeUntil,
+} from "rxjs";
 import { BroadcastChannel } from "broadcast-channel";
+import { IDbState } from "./types";
 
 export const getBroadcastCh$ = (name: string, stop$: Observable<void>) => {
   return new Observable<BroadcastChannel>((sub) => {
@@ -32,5 +41,25 @@ export const getBroadcastCh$ = (name: string, stop$: Observable<void>) => {
       connector: () => new ReplaySubject(1),
     }),
     takeUntil(stop$)
+  );
+};
+
+export const chunk = <T>(array: Array<T>, chunkSize: number): T[][] =>
+  Array(Math.ceil(array.length / chunkSize))
+    .fill(null)
+    .map((_, index) => index * chunkSize)
+    .map((begin) => array.slice(begin, begin + chunkSize));
+
+export const notifyTablesContentChanged = async (
+  state: IDbState,
+  tables: string[]
+) => {
+  return lastValueFrom(
+    state.sharedState.eventsCh$.pipe(
+      first(),
+      switchMap(async (ch) => {
+        await ch.postMessage(tables);
+      })
+    )
   );
 };

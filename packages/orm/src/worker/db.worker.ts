@@ -77,12 +77,12 @@ class CommandsExecutor {
     ) {
       this.commitOrRollbackTransaction(command);
       this.flushQueue();
-    } else if (command.type === "execQueries") {
-      this.execQuery(command);
+    } else if (command.type === "runQueries") {
+      this.runQuery(command);
     }
   }
 
-  private execQuery(command: IExecQueriesCommand) {
+  private runQuery(command: IExecQueriesCommand) {
     if (
       this.currentTransactionId &&
       (!command.transactionId ||
@@ -200,7 +200,6 @@ class CommandsExecutor {
         result,
       };
     } catch (e) {
-      console.log({ e });
       if (this.currentTransactionId || shouldSpawnTransaction) {
         this.db.sqlExec("ROLLBACK;", undefined, {
           transactionId: this.currentTransactionId
