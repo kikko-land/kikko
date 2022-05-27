@@ -10,9 +10,10 @@
   "dependencies": {
     "@anlamli/orm": "*",
     "@anlamli/react-hooks": "*",
+    "@faker-js/faker": "^7.1.0",
+    "nanoid": "^3.3.4",
     "react": "^18.1.0",
-    "react-dom": "^18.1.0",
-    "nanoid": "^3.3.4"
+    "react-dom": "^18.1.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.9",

@@ -1065,6 +1065,11 @@
     minimatch "^3.1.2"
     strip-json-comments "^3.1.1"
 
+"@faker-js/faker@^7.1.0":
+  version "7.1.0"
+  resolved "https://registry.yarnpkg.com/@faker-js/faker/-/faker-7.1.0.tgz#019eeb2c20030e475a1bd05df1cc7b7e72c039d5"
+  integrity sha512-G+EvE29QUd9/6GTrwA/TK2AiN79W4ZG6kyJqj2RAqUqEd8A8ICnjA3Rj3F2IaaA+sq6WJzs4lh8GJJRDG1UH7A==
+
 "@harika-org/sql.js@^1.6.6":
   version "1.6.6"
   resolved "https://registry.yarnpkg.com/@harika-org/sql.js/-/sql.js-1.6.6.tgz#7194571adcce9cf7fe3ac44d42ea3bc280f6806a"

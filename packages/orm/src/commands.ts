@@ -54,6 +54,7 @@ export const buildTransactionCommand = (
     type,
     transactionId: state.transaction.id,
     commandId: nanoid(),
+    suppressLog: state.suppressLog,
   };
 };
 
@@ -67,5 +68,6 @@ export const buildRunQueriesCommand = (
     spawnTransaction: queries.length > 1 && !state.transaction,
     transactionId: state.transaction?.id,
     commandId: nanoid(),
+    suppressLog: state.suppressLog,
   };
 };

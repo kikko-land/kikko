@@ -1,5 +1,6 @@
-import { createRecord, modify, read, runQuery, sql } from "@anlamli/orm";
+import { createRecords, modify, read, runQuery, sql } from "@anlamli/orm";
 import { useRecords, useRunQuery } from "@anlamli/react-hooks";
+import { faker } from "@faker-js/faker";
 import { nanoid } from "nanoid";
 
 interface IRecord {
@@ -10,17 +11,36 @@ interface IRecord {
   updatedAt: number;
 }
 
+// interface IRecordManager<R, D> {
+//   mapper: {
+//     toRow: (r: R) => D;
+//     toRecord: (d: D) => R;
+//   };
+//   middlewares: ((
+//     actions:
+//       | { type: "create"; id: string; data: D }
+//       | { type: "update"; id: string; data: Partial<D> }
+//       | { type: "delete"; id: string }
+//   ) => Promise<void>)[];
+// }
+
+// const createRecordManager = () => {};
+
 export const List = () => {
   const records = useRecords<IRecord>(sql`SELECT * FROM ${read("notes")}`);
 
   const [createNote, createState] = useRunQuery(async (db) => {
-    await createRecord<IRecord>(db, "notes", {
-      id: nanoid(),
-      title: "hi!",
-      content: "Hello world!",
-      createdAt: new Date().getTime(),
-      updatedAt: new Date().getTime(),
-    });
+    await createRecords<IRecord>(
+      db,
+      "notes",
+      Array.from(Array(1000).keys()).map((i) => ({
+        id: nanoid(),
+        title: faker.lorem.words(4),
+        content: faker.lorem.paragraph(),
+        createdAt: new Date().getTime(),
+        updatedAt: new Date().getTime(),
+      }))
+    );
   });
 
   const [deleteAll, deleteAllState] = useRunQuery(async (db) => {
@@ -32,7 +52,6 @@ export const List = () => {
       <table>
         <thead>
           <tr>
-            <td>ID</td>
             <td>Title</td>
             <td>Content</td>
             <td>Created At</td>
@@ -43,11 +62,10 @@ export const List = () => {
           {records.type === "loaded" &&
             records.data.map((r) => (
               <tr key={r.id}>
-                <td>{r.id}</td>
                 <td>{r.title}</td>
                 <td>{r.content}</td>
-                <td>{r.createdAt}</td>
-                <td>{r.updatedAt}</td>
+                <td>{new Date(r.createdAt).toLocaleString()}</td>
+                <td>{new Date(r.updatedAt).toLocaleString()}</td>
               </tr>
             ))}
         </tbody>
