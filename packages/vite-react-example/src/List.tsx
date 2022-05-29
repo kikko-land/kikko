@@ -1,9 +1,16 @@
-import { createRecords, modify, read, runQuery, sql } from "@anlamli/orm";
+import {
+  createRecordConfig,
+  createRecords,
+  modify,
+  read,
+  runQuery,
+  sql,
+} from "@anlamli/orm";
 import { useRecords, useRunQuery } from "@anlamli/react-hooks";
 import { faker } from "@faker-js/faker";
 import { nanoid } from "nanoid";
 
-interface IRecord {
+interface IRow {
   id: string;
   title: string;
   content: string;
@@ -11,34 +18,48 @@ interface IRecord {
   updatedAt: number;
 }
 
-// interface IRecordManager<R, D> {
-//   mapper: {
-//     toRow: (r: R) => D;
-//     toRecord: (d: D) => R;
-//   };
-//   middlewares: ((
-//     actions:
-//       | { type: "create"; id: string; data: D }
-//       | { type: "update"; id: string; data: Partial<D> }
-//       | { type: "delete"; id: string }
-//   ) => Promise<void>)[];
-// }
+interface IRecord {
+  id: string;
+  title: string;
+  content: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
-// const createRecordManager = () => {};
+const notesRecords = createRecordConfig<IRow, IRecord>({
+  table: "notes",
+  serialize: (record) => ({
+    ...record,
+    createdAt: record.createdAt.getTime(),
+    updatedAt: record.updatedAt.getTime(),
+  }),
+  deserialize: (row) => ({
+    ...row,
+    createdAt: new Date(row.createdAt),
+    updatedAt: new Date(row.updatedAt),
+  }),
+  middlewares: [
+    async (dbState, recordConfig, actions, next) => {
+      const res = await next(dbState, recordConfig, actions);
+
+      return res;
+    },
+  ],
+});
 
 export const List = () => {
-  const records = useRecords<IRecord>(sql`SELECT * FROM ${read("notes")}`);
+  const records = useRecords<IRow>(sql`SELECT * FROM ${read("notes")}`);
 
   const [createNote, createState] = useRunQuery(async (db) => {
-    await createRecords<IRecord>(
+    await createRecords(
       db,
-      "notes",
-      Array.from(Array(1000).keys()).map((i) => ({
+      notesRecords,
+      Array.from(Array(2).keys()).map((i) => ({
         id: nanoid(),
         title: faker.lorem.words(4),
         content: faker.lorem.paragraph(),
-        createdAt: new Date().getTime(),
-        updatedAt: new Date().getTime(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
       }))
     );
   });

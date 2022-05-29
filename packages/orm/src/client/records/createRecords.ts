@@ -1,36 +1,32 @@
-import { runQuery } from "../runQueries";
-import { generateInsert } from "../sqlHelpers";
-import { runInTransaction } from "../transaction";
 import { IDbState } from "../types";
-import { chunk } from "../utils";
+import { IRecordConfig } from "./createRecordConfig";
+import { applyAction as applyAction } from "./middlewares";
 
-export const createRecords = async <R extends Record<string, any>>(
-  state: IDbState,
-  table: string,
-  objs: R[],
+export const createRecords = async <
+  Row extends Record<string, any> & { id: string },
+  Rec extends Record<string, any> & { id: string }
+>(
+  db: IDbState,
+  recordConfig: IRecordConfig<Row, Rec>,
+  recs: Rec[],
   replace: boolean = false
 ) => {
-  if (objs.length === 0) return;
+  if (recs.length === 0) return;
 
-  // sqlite max vars = 32766
-  // Let's take table columns count to 20, so 20 * 1000 will fit the restriction
-  const chunked = chunk(objs, 1000);
-
-  const toExec = async (state: IDbState) => {
-    for (const chunkObjs of chunk(objs, 1000)) {
-      // TODO: maybe runQueries? But then a large object will need to be transferred, that may cause freeze
-      await runQuery(state, generateInsert(table, chunkObjs, replace));
-    }
-  };
-
-  await (chunked.length > 1 ? runInTransaction(state, toExec) : toExec(state));
+  console.log("apply action!");
+  await applyAction(db, recordConfig, [
+    { type: "create", records: recs, replace },
+  ]);
 };
 
-export const createRecord = <R extends Record<string, any>>(
-  state: IDbState,
-  table: string,
-  obj: R,
+export const createRecord = <
+  Row extends Record<string, any> & { id: string },
+  Rec extends Record<string, any> & { id: string }
+>(
+  db: IDbState,
+  recordConfig: IRecordConfig<Row, Rec>,
+  obj: Rec,
   replace: boolean = false
 ) => {
-  return createRecords(state, table, [obj], replace);
+  return createRecords(db, recordConfig, [obj], replace);
 };
