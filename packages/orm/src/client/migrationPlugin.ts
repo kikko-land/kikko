@@ -1,4 +1,5 @@
 import { sql, raw } from "../Sql";
+import { IMigration } from "../types";
 import { runQuery } from "./runQueries";
 import { generateInsert } from "./sqlHelpers";
 import { runInTransaction } from "./transaction";
@@ -6,9 +7,7 @@ import { IDbState } from "./types";
 
 const migrationsTable = "migrations";
 
-export const runMigrations = (state: IDbState) => {
-  const { migrations } = state.sharedState;
-
+const runMigrations = (state: IDbState, migrations: IMigration[]) => {
   if (migrations.length === 0) return;
 
   return runInTransaction(state, async (state) => {
@@ -23,9 +22,9 @@ export const runMigrations = (state: IDbState) => {
       `
     );
 
-    const migratedMigrations = (
-      await runQuery(state, sql`SELECT id FROM ${raw(migrationsTable)}`)
-    )[0].values;
+    const migratedMigrations =
+      (await runQuery(state, sql`SELECT id FROM ${raw(migrationsTable)}`))[0]
+        ?.values || [];
 
     const migratedIds = new Set(migratedMigrations.map(([id]) => id));
 
@@ -47,3 +46,12 @@ export const runMigrations = (state: IDbState) => {
     }
   });
 };
+
+export const migrationPlugin =
+  (migrations: IMigration[]) => (state: IDbState) => {
+    state.sharedState.eventsEmitter.on("initialized", async () => {
+      await runMigrations(state, migrations);
+    });
+
+    return state;
+  };

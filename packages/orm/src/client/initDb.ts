@@ -10,24 +10,23 @@ import {
   takeUntil,
 } from "rxjs";
 import { IOutputWorkerMessage, IInputWorkerMessage } from "../worker/types";
-import { runMigrations } from "./runMigrations";
 import { getBroadcastCh$ } from "./utils";
-import { IDbState } from "./types";
-import { IMigration } from "../types";
+import { IDbState, ITrongEvents } from "./types";
 import { nanoid } from "nanoid";
+import { createNanoEvents } from "./createNanoEvents";
 
 export type IInitDbConfig = {
   dbName: string;
   worker: Worker;
   wasmUrl: string;
-  migrations?: IMigration[];
+  plugins?: ((state: IDbState) => IDbState)[];
 };
 
 export const initDb = async ({
   dbName,
   worker,
   wasmUrl,
-  migrations,
+  plugins,
 }: IInitDbConfig): Promise<IDbState> => {
   initBackend(worker);
 
@@ -75,7 +74,7 @@ export const initDb = async ({
     )
   );
 
-  const state: IDbState = {
+  let state: IDbState = {
     sharedState: {
       clientId: nanoid(),
       messagesFromWorker$,
@@ -84,13 +83,15 @@ export const initDb = async ({
       eventsCh$: getBroadcastCh$(dbName + "-tableContentChanges", stop$),
       isStopped: false,
       dbName,
-      migrations: migrations || [],
+      eventsEmitter: createNanoEvents<ITrongEvents>(),
     },
   };
 
-  console.log("Running migrations..");
+  for (const plugin of plugins || []) {
+    state = plugin(state);
+  }
 
-  await runMigrations(state);
+  await state.sharedState.eventsEmitter.emit("initialized");
 
   return state;
 };

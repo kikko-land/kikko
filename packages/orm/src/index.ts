@@ -1,4 +1,5 @@
 export * from "./client/initDb";
+export * from "./client/migrationPlugin";
 export * from "./client/runQueries";
 export * from "./client/runWorkerCommand";
 export * from "./client/suppressLog";

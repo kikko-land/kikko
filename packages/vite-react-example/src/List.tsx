@@ -1,3 +1,4 @@
+import { faker } from "@faker-js/faker";
 import {
   createRecords,
   defineRecord,
@@ -6,7 +7,6 @@ import {
   sql,
 } from "@trong/orm";
 import { useRecords, useRunQuery } from "@trong/react-hooks";
-import { faker } from "@faker-js/faker";
 import { nanoid } from "nanoid";
 
 interface IRow {
