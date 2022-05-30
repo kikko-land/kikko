@@ -1,4 +1,4 @@
-import { IMigration, runQuery, sql } from "@anlamli/orm";
+import { IMigration, runQuery, sql } from "@trong/orm";
 
 export const createNotesTableMigration: IMigration = {
   up: async (db) => {

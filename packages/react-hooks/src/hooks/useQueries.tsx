@@ -3,8 +3,8 @@ import {
   runQueries$,
   Sql,
   withSuppressedLog,
-} from "@anlamli/orm";
-import { IDbState } from "@anlamli/orm";
+} from "@trong/orm";
+import { IDbState } from "@trong/orm";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useDbState } from "../DbProvider";

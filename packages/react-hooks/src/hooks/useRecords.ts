@@ -3,7 +3,7 @@ import {
   IRecordConfig,
   Sql,
   withSuppressedLog,
-} from "@anlamli/orm";
+} from "@trong/orm";
 import { useEffect, useMemo, useState } from "react";
 
 import { useDbState } from "../DbProvider";

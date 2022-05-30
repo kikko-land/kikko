@@ -4,8 +4,8 @@ import {
   deleteRecords,
   runQuery,
   sql,
-} from "@anlamli/orm";
-import { useRecords, useRunQuery } from "@anlamli/react-hooks";
+} from "@trong/orm";
+import { useRecords, useRunQuery } from "@trong/react-hooks";
 import { faker } from "@faker-js/faker";
 import { nanoid } from "nanoid";
 

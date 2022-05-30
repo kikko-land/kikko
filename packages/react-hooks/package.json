@@ -1,11 +1,11 @@
 {
-  "name": "@anlamli/react-hooks",
+  "name": "@trong/react-hooks",
   "version": "1.0.0",
   "main": "src/index.ts",
   "author": "Sergey Popov",
   "license": "MIT",
   "dependencies": {
-    "@anlamli/orm": "*",
+    "@trong/orm": "*",
     "react": "^18.1.0",
     "react-dom": "^18.1.0"
   },

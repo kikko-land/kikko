@@ -1,6 +1,6 @@
-import { IInitDbConfig } from "@anlamli/orm";
-import DbWorker from "@anlamli/orm/src/worker/DB.worker?worker";
-import { DbProvider, EnsureDbLoaded } from "@anlamli/react-hooks";
+import { IInitDbConfig } from "@trong/orm";
+import DbWorker from "@trong/orm/src/worker/DB.worker?worker";
+import { DbProvider, EnsureDbLoaded } from "@trong/react-hooks";
 import sqlWasmUrl from "@harika-org/sql.js/dist/sql-wasm.wasm?url";
 
 import { List } from "./List";
