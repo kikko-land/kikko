@@ -1,37 +1,33 @@
-import { QueryExecResult } from "@harika-org/sql.js";
-import { map } from "rxjs";
+import { startWith, switchMap, takeUntil } from "rxjs";
 import { Sql } from "../../Sql";
-import { runQuery, runQuery$ } from "../runQueries";
+import { subscribeToQueries$ } from "../runQueries";
 import { IDbState } from "../types";
+import { IRecordConfig } from "./defineRecord";
+import { applyAction } from "./middlewares";
 
-const mapToRecords = <T extends Record<string, any>>(
-  result: QueryExecResult
+export const getRecords = async <
+  Row extends Record<string, any> & { id: string },
+  Rec extends Record<string, any> & { id: string }
+>(
+  db: IDbState,
+  recordConfig: IRecordConfig<Row, Rec>,
+  sql: Sql
 ) => {
-  return (result?.values?.map((res) => {
-    let obj: Record<string, any> = {};
-
-    result.columns.forEach((col, i) => {
-      obj[col] = res[i];
-    });
-
-    return obj;
-  }) || []) as T[];
+  return (await applyAction(db, recordConfig, [{ type: "get", query: sql }]))
+    .result;
 };
 
-export const getRecords = async <T extends Record<string, any>>(
-  state: IDbState,
-  query: Sql
+export const getRecords$ = <
+  Row extends Record<string, any> & { id: string },
+  Rec extends Record<string, any> & { id: string }
+>(
+  db: IDbState,
+  recordConfig: IRecordConfig<Row, Rec>,
+  sql: Sql
 ) => {
-  const [result] = await runQuery(state, query);
-
-  return mapToRecords<T>(result);
-};
-
-export const getRecords$ = <T extends Record<string, any>>(
-  state: IDbState,
-  query: Sql
-) => {
-  return runQuery$(state, query).pipe(
-    map(([result]) => mapToRecords<T>(result))
+  return subscribeToQueries$(db, [sql]).pipe(
+    startWith(undefined),
+    switchMap(() => getRecords(db, recordConfig, sql)),
+    takeUntil(db.sharedState.stop$)
   );
 };

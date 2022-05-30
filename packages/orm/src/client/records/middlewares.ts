@@ -1,3 +1,4 @@
+import { Sql } from "../../Sql";
 import { IDbState } from "../types";
 import { IRecordConfig } from "./defineRecord";
 
@@ -11,10 +12,13 @@ export type IUpdateRecordAction<
 
 export type IDeleteRecordAction = { type: "delete"; ids: string[] };
 
+export type IGetAction = { type: "get"; query: Sql };
+
 export type IRecAction<Rec extends Record<string, any> & { id: string }> =
   | ICreateRecordAction<Rec>
   | IUpdateRecordAction<Rec>
-  | IDeleteRecordAction;
+  | IDeleteRecordAction
+  | IGetAction;
 
 export type INextMiddleware<
   Row extends Record<string, any> & { id: string },
@@ -22,11 +26,13 @@ export type INextMiddleware<
 > = (
   dbState: IDbState,
   recordConfig: IRecordConfig<Row, Rec>,
-  actions: IRecAction<Rec>[]
+  actions: IRecAction<Rec>[],
+  result: Rec[]
 ) => Promise<{
   dbState: IDbState;
   recordConfig: IRecordConfig<Row, Rec>;
   actions: IRecAction<Rec>[];
+  result: Rec[];
 }>;
 
 export type IMiddleware<
@@ -36,11 +42,13 @@ export type IMiddleware<
   dbState: IDbState,
   recordConfig: IRecordConfig<Row, Rec>,
   actions: IRecAction<Rec>[],
+  result: Rec[],
   next: INextMiddleware<Row, Rec>
 ) => Promise<{
   dbState: IDbState;
   recordConfig: IRecordConfig<Row, Rec>;
   actions: IRecAction<Rec>[];
+  result: Rec[];
 }>;
 
 export const buildMiddleware = <
@@ -64,8 +72,9 @@ export const applyAction = async <
   const emptyMiddleware: INextMiddleware<Row, Rec> = async (
     dbState,
     recordConfig,
-    actions
-  ) => ({ recordConfig, dbState, actions });
+    actions,
+    result
+  ) => ({ recordConfig, dbState, actions, result });
 
   let toCall: INextMiddleware<Row, Rec> = emptyMiddleware;
 
@@ -75,9 +84,10 @@ export const applyAction = async <
     toCall = (
       dbState: IDbState,
       recordConfig: IRecordConfig<Row, Rec>,
-      actions: IRecAction<Rec>[]
-    ) => middleware(dbState, recordConfig, actions, currentCall);
+      actions: IRecAction<Rec>[],
+      result: Rec[]
+    ) => middleware(dbState, recordConfig, actions, result, currentCall);
   }
 
-  await toCall(dbState, recordConfig, actions);
+  return await toCall(dbState, recordConfig, actions, []);
 };

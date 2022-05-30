@@ -1,13 +1,22 @@
-import { getRecords$, Sql, withSuppressedLog } from "@anlamli/orm";
+import {
+  getRecords$,
+  IRecordConfig,
+  Sql,
+  withSuppressedLog,
+} from "@anlamli/orm";
 import { useEffect, useMemo, useState } from "react";
 
 import { useDbState } from "../DbProvider";
 import { DistributiveOmit, IQueryResult } from "./types";
 
-export function useRecords<D>(
+export function useRecords<
+  Row extends Record<string, any> & { id: string },
+  Rec extends Record<string, any> & { id: string }
+>(
+  recordConfig: IRecordConfig<Row, Rec>,
   _query: Sql,
   _opts?: { suppressLog?: boolean } | undefined
-): IQueryResult<D[]> {
+): IQueryResult<Rec[]> {
   const dbState = useDbState();
 
   const { suppressLog } = {
@@ -15,9 +24,9 @@ export function useRecords<D>(
   };
 
   const [currentQuery, setCurrentQuery] = useState<Sql>(_query);
-  const [data, setData] = useState<D[] | undefined>();
+  const [data, setData] = useState<Rec[] | undefined>();
   const [response, setResponse] = useState<
-    DistributiveOmit<IQueryResult<D[]>, "data">
+    DistributiveOmit<IQueryResult<Rec[]>, "data">
   >(
     dbState.type === "initialized" ? { type: "loading" } : { type: "waitingDb" }
   );
@@ -31,15 +40,17 @@ export function useRecords<D>(
 
     const db = suppressLog ? withSuppressedLog(dbState.db) : dbState.db;
 
-    const subscription = getRecords$(db, currentQuery).subscribe((result) => {
-      setData(result as unknown as D[]);
-      setResponse({ type: "loaded" });
-    });
+    const subscription = getRecords$(db, recordConfig, currentQuery).subscribe(
+      (result) => {
+        setData(result);
+        setResponse({ type: "loaded" });
+      }
+    );
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [dbState, currentQuery, suppressLog]);
+  }, [dbState, currentQuery, suppressLog, recordConfig]);
 
   useEffect(() => {
     if (currentQuery.hash !== _query.hash) {

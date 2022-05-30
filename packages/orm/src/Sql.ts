@@ -1,10 +1,16 @@
 // Code is taken and adopted from https://github.com/blakeembrey/sql-template-tag
+export const tableSymbol: unique symbol = Symbol("table");
+
 export type Value = string | number | null;
-export type RawValue = Value | Sql | SqlTable;
+export type RawValue = Value | Sql | SqlTable | { [tableSymbol]: string };
 
 const insertRegex = /insert\s+(or\s+\w+\s+)?into\s+/gim;
 const deleteRegex = /delete\s+from\s+/gim;
 const updateRegex = /update\s+(or\s+\w+\s+)?/gim;
+
+function containsTable(x: any): x is { [tableSymbol]: string } {
+  return typeof x === "object" && x !== null && x[tableSymbol];
+}
 
 export class SqlTable {
   constructor(public tableName: string) {}
@@ -39,7 +45,7 @@ export class Sql {
         len +
         (value instanceof Sql
           ? value.values.length
-          : value instanceof SqlTable
+          : value instanceof SqlTable || containsTable(value)
           ? 0
           : 1),
       0
@@ -49,7 +55,7 @@ export class Sql {
         len +
         (value instanceof Sql
           ? value.tables.length
-          : value instanceof SqlTable
+          : value instanceof SqlTable || containsTable(value)
           ? 1
           : 0),
       0
@@ -87,6 +93,10 @@ export class Sql {
         this.strings[pos] += child.tableName + rawString;
 
         this.tables[tableI++] = child;
+      } else if (containsTable(child)) {
+        this.strings[pos] += child[tableSymbol] + rawString;
+
+        this.tables[tableI++] = new SqlTable(child[tableSymbol]);
       } else {
         this.values[pos++] = child;
         this.strings[pos] = rawString;
@@ -98,6 +108,7 @@ export class Sql {
     let i = 1,
       value = this.strings[0];
     while (i < this.strings.length) value += `$${i}${this.strings[i++]}`;
+
     return value;
   }
 

@@ -1,5 +1,4 @@
 import { sql, raw } from "../Sql";
-import { getRecords } from "./records/getRecords";
 import { runQuery } from "./runQueries";
 import { generateInsert } from "./sqlHelpers";
 import { runInTransaction } from "./transaction";
@@ -24,12 +23,11 @@ export const runMigrations = (state: IDbState) => {
       `
     );
 
-    const migratedMigrations = await getRecords<{
-      id: number;
-      name: string;
-    }>(state, sql`SELECT * FROM ${raw(migrationsTable)}`);
+    const migratedMigrations = (
+      await runQuery(state, sql`SELECT id FROM ${raw(migrationsTable)}`)
+    )[0].values;
 
-    const migratedIds = new Set(migratedMigrations.map(({ id }) => id));
+    const migratedIds = new Set(migratedMigrations.map(([id]) => id));
 
     for (const migration of migrations.sort((a, b) => a.id - b.id)) {
       if (migratedIds.has(migration.id)) return;

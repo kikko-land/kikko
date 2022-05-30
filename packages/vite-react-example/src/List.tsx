@@ -1,10 +1,4 @@
-import {
-  createRecords,
-  defineRecord,
-  runQuery,
-  sql,
-  table,
-} from "@anlamli/orm";
+import { createRecords, defineRecord, runQuery, sql } from "@anlamli/orm";
 import { useRecords, useRunQuery } from "@anlamli/react-hooks";
 import { faker } from "@faker-js/faker";
 import { nanoid } from "nanoid";
@@ -38,18 +32,16 @@ const notesRecords = defineRecord<IRow, IRecord>({
     updatedAt: new Date(row.updatedAt),
   }),
   middlewares: [
-    async (dbState, recordConfig, actions, next) => {
-      const res = await next(dbState, recordConfig, actions);
+    async (dbState, recordConfig, actions, result, next) => {
+      const res = await next(dbState, recordConfig, actions, result);
 
       return res;
     },
   ],
 });
 
-const notesTable = table("notes");
-
 export const List = () => {
-  const records = useRecords<IRow>(sql`SELECT * FROM ${notesTable}`);
+  const records = useRecords(notesRecords, sql`SELECT * FROM ${notesRecords}`);
 
   const [createNote, createState] = useRunQuery(async (db) => {
     await createRecords(
@@ -66,7 +58,7 @@ export const List = () => {
   });
 
   const [deleteAll, deleteAllState] = useRunQuery(async (db) => {
-    await runQuery(db, sql`DELETE FROM ${notesTable}`);
+    await runQuery(db, sql`DELETE FROM ${notesRecords}`);
   });
 
   return (

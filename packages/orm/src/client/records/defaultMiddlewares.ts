@@ -1,14 +1,19 @@
+import { QueryExecResult } from "@harika-org/sql.js";
 import { runQuery } from "../runQueries";
 import { generateInsert } from "../sqlHelpers";
 import { runInTransaction } from "../transaction";
 import { IDbState } from "../types";
 import { chunk } from "../utils";
-import { buildMiddleware, ICreateRecordAction } from "./middlewares";
+import {
+  buildMiddleware,
+  ICreateRecordAction,
+  IGetAction,
+} from "./middlewares";
 
-export const insertRecordMiddleware = buildMiddleware(<
-  Row extends Record<string, any> & { id: string },
+export const insertRecordsMiddleware = buildMiddleware(<
+  _Row extends Record<string, any> & { id: string },
   Rec extends Record<string, any> & { id: string }
->() => async (dbState, recordConfig, actions, next) => {
+>() => async (dbState, recordConfig, actions, result, next) => {
   const createActions = actions.filter(
     (ac) => ac.type === "create"
   ) as ICreateRecordAction<Rec>[];
@@ -37,5 +42,38 @@ export const insertRecordMiddleware = buildMiddleware(<
       : toExec(dbState));
   }
 
-  return await next(dbState, recordConfig, actions);
+  return await next(dbState, recordConfig, actions, result);
+});
+
+const mapToRows = <T extends Record<string, any>>(result: QueryExecResult) => {
+  return (result?.values?.map((res) => {
+    let obj: Record<string, any> = {};
+
+    result.columns.forEach((col, i) => {
+      obj[col] = res[i];
+    });
+
+    return obj;
+  }) || []) as T[];
+};
+
+export const selectRecordsMiddleware = buildMiddleware(<
+  Row extends Record<string, any> & { id: string },
+  Rec extends Record<string, any> & { id: string }
+>() => async (dbState, recordConfig, actions, _result, next) => {
+  const getActions = actions.filter((ac) => ac.type === "get") as IGetAction[];
+
+  const resultRecords: Rec[] = [];
+
+  for (const action of getActions) {
+    const [result] = await runQuery(dbState, action.query);
+
+    resultRecords.push(
+      ...mapToRows<Row>(result).map(
+        (row) => recordConfig.deserialize(row) as Rec
+      )
+    );
+  }
+
+  return await next(dbState, recordConfig, actions, resultRecords);
 });

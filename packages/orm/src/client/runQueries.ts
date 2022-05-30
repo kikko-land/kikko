@@ -32,7 +32,10 @@ export const runQueries = async (state: IDbState, queries: Sql[]) => {
   return res;
 };
 
-export const runQueries$ = (state: IDbState, queries: Sql[]) => {
+export const subscribeToQueries$ = (
+  state: IDbState,
+  queries: Sql[]
+): Observable<unknown> => {
   const readingTables = new Set(
     queries
       .filter((q) => q.isReadQuery)
@@ -57,11 +60,16 @@ export const runQueries$ = (state: IDbState, queries: Sql[]) => {
     filter((changesInTables) =>
       changesInTables.some((table) => readingTables.has(table))
     ),
+    takeUntil(state.sharedState.stop$)
+  );
+};
+
+export const runQueries$ = (state: IDbState, queries: Sql[]) => {
+  return subscribeToQueries$(state, queries).pipe(
     startWith(undefined),
     switchMap(async () => {
       return runQueries(state, queries);
-    }),
-    takeUntil(state.sharedState.stop$)
+    })
   );
 };
 
