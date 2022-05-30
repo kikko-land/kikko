@@ -1,4 +1,10 @@
-import { createRecords, defineRecord, runQuery, sql } from "@anlamli/orm";
+import {
+  createRecords,
+  defineRecord,
+  deleteRecords,
+  runQuery,
+  sql,
+} from "@anlamli/orm";
 import { useRecords, useRunQuery } from "@anlamli/react-hooks";
 import { faker } from "@faker-js/faker";
 import { nanoid } from "nanoid";
@@ -58,7 +64,10 @@ export const List = () => {
   });
 
   const [deleteAll, deleteAllState] = useRunQuery(async (db) => {
-    await runQuery(db, sql`DELETE FROM ${notesRecords}`);
+    const [result] = await runQuery(db, sql`SELECT id FROM ${notesRecords}`);
+    const toDeleteIds = result.values.map(([id]) => id as string);
+
+    await deleteRecords(db, notesRecords, toDeleteIds);
   });
 
   return (

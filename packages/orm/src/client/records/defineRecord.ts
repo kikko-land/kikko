@@ -1,5 +1,6 @@
 import { tableSymbol } from "../../Sql";
 import {
+  deleteRecordsMiddleware,
   insertRecordsMiddleware,
   selectRecordsMiddleware,
 } from "./defaultMiddlewares";
@@ -30,6 +31,7 @@ export function defineRecord<
       ...(config.middlewares || []),
       insertRecordsMiddleware as IMiddleware<Row, Rec>,
       selectRecordsMiddleware as IMiddleware<Row, Rec>,
+      deleteRecordsMiddleware as IMiddleware<Row, Rec>,
     ],
     [tableSymbol]: config.table,
   };
