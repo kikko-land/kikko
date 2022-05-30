@@ -7,6 +7,6 @@ export * from "./client/types";
 export * from "./client/records/getRecords";
 export * from "./client/records/createRecords";
 export * from "./client/records/middlewares";
-export * from "./client/records/createRecordConfig";
+export * from "./client/records/defineRecord";
 export * from "./types";
 export * from "./Sql";

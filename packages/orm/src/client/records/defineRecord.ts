@@ -13,7 +13,7 @@ export interface IRecordConfig<
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 
-export function createRecordConfig<
+export function defineRecord<
   Row extends Record<string, any> & { id: string },
   Rec extends Record<string, any> & { id: string }
 >(

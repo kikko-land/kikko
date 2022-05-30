@@ -1,12 +1,4 @@
-import {
-  switchMap,
-  Observable,
-  filter,
-  startWith,
-  takeUntil,
-  map,
-  tap,
-} from "rxjs";
+import { switchMap, Observable, filter, startWith, takeUntil, map } from "rxjs";
 import { buildRunQueriesCommand } from "../commands";
 import { Sql } from "../Sql";
 import { runWorkerCommand } from "./runWorkerCommand";
@@ -16,8 +8,8 @@ import { notifyTablesContentChanged } from "./utils";
 export const runQueries = async (state: IDbState, queries: Sql[]) => {
   const writeTables = new Set(
     queries
+      .filter((q) => q.isModifyQuery)
       .flatMap((q) => q.tables)
-      .filter((t) => t.type === "write")
       .map((t) => t.tableName)
   );
 
@@ -41,10 +33,10 @@ export const runQueries = async (state: IDbState, queries: Sql[]) => {
 };
 
 export const runQueries$ = (state: IDbState, queries: Sql[]) => {
-  const tables = new Set(
+  const readingTables = new Set(
     queries
+      .filter((q) => q.isReadQuery)
       .flatMap((q) => q.tables)
-      .filter((t) => t.type === "read")
       .map((t) => t.tableName)
   );
 
@@ -63,7 +55,7 @@ export const runQueries$ = (state: IDbState, queries: Sql[]) => {
       });
     }),
     filter((changesInTables) =>
-      changesInTables.some((table) => tables.has(table))
+      changesInTables.some((table) => readingTables.has(table))
     ),
     startWith(undefined),
     switchMap(async () => {

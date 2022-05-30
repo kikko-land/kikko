@@ -1,10 +1,9 @@
 import {
-  createRecordConfig,
   createRecords,
-  modify,
-  read,
+  defineRecord,
   runQuery,
   sql,
+  table,
 } from "@anlamli/orm";
 import { useRecords, useRunQuery } from "@anlamli/react-hooks";
 import { faker } from "@faker-js/faker";
@@ -26,7 +25,7 @@ interface IRecord {
   updatedAt: Date;
 }
 
-const notesRecords = createRecordConfig<IRow, IRecord>({
+const notesRecords = defineRecord<IRow, IRecord>({
   table: "notes",
   serialize: (record) => ({
     ...record,
@@ -47,14 +46,16 @@ const notesRecords = createRecordConfig<IRow, IRecord>({
   ],
 });
 
+const notesTable = table("notes");
+
 export const List = () => {
-  const records = useRecords<IRow>(sql`SELECT * FROM ${read("notes")}`);
+  const records = useRecords<IRow>(sql`SELECT * FROM ${notesTable}`);
 
   const [createNote, createState] = useRunQuery(async (db) => {
     await createRecords(
       db,
       notesRecords,
-      Array.from(Array(2).keys()).map((i) => ({
+      Array.from(Array(100).keys()).map((i) => ({
         id: nanoid(),
         title: faker.lorem.words(4),
         content: faker.lorem.paragraph(),
@@ -65,7 +66,7 @@ export const List = () => {
   });
 
   const [deleteAll, deleteAllState] = useRunQuery(async (db) => {
-    await runQuery(db, sql`DELETE FROM ${modify("notes")}`);
+    await runQuery(db, sql`DELETE FROM ${notesTable}`);
   });
 
   return (

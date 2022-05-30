@@ -1,5 +1,5 @@
 import { IDbState } from "../types";
-import { IRecordConfig } from "./createRecordConfig";
+import { IRecordConfig } from "./defineRecord";
 import { applyAction as applyAction } from "./middlewares";
 
 export const createRecords = async <
@@ -13,7 +13,6 @@ export const createRecords = async <
 ) => {
   if (recs.length === 0) return;
 
-  console.log("apply action!");
   await applyAction(db, recordConfig, [
     { type: "create", records: recs, replace },
   ]);

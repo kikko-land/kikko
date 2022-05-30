@@ -1,5 +1,5 @@
 import { IDbState } from "../types";
-import { IRecordConfig } from "./createRecordConfig";
+import { IRecordConfig } from "./defineRecord";
 
 export type ICreateRecordAction<
   Rec extends Record<string, any> & { id: string }

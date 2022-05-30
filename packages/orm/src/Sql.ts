@@ -2,8 +2,12 @@
 export type Value = string | number | null;
 export type RawValue = Value | Sql | SqlTable;
 
+const insertRegex = /insert\s+(or\s+\w+\s+)?into\s+/gim;
+const deleteRegex = /delete\s+from\s+/gim;
+const updateRegex = /update\s+(or\s+\w+\s+)?/gim;
+
 export class SqlTable {
-  constructor(public tableName: string, public type: "write" | "read") {}
+  constructor(public tableName: string) {}
 }
 
 /**
@@ -108,6 +112,22 @@ export class Sql {
     return this.strings.join() + this.values.join();
   }
 
+  get isModifyQuery() {
+    const query = this.sql;
+
+    // There some edge cases could happen here, so better regex could be introduced
+    // I don't want put AST parser to frontend lib
+    return (
+      query.match(insertRegex) !== null ||
+      query.match(deleteRegex) !== null ||
+      query.match(updateRegex) !== null
+    );
+  }
+
+  get isReadQuery() {
+    return !this.isModifyQuery;
+  }
+
   inspect() {
     return {
       text: this.text,
@@ -146,12 +166,8 @@ export function raw(value: string) {
   return new Sql([value], []);
 }
 
-export function read(value: string) {
-  return new SqlTable(value, "read");
-}
-
-export function modify(value: string) {
-  return new SqlTable(value, "write");
+export function table(value: string) {
+  return new SqlTable(value);
 }
 
 /**
