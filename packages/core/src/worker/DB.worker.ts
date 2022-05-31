@@ -1,14 +1,14 @@
 import { Subject } from "rxjs";
+
 import {
   ICommand,
+  ICommitTransactionCommand,
   IExecQueriesCommand,
   IRollbackTransactionCommand,
-  ICommitTransactionCommand,
   IStartTransactionCommand,
   ITransferredQuery,
 } from "../commands";
 import { DbBackend } from "./DbBackend";
-
 import { IInputWorkerMessage, IOutputWorkerMessage, IResponse } from "./types";
 
 // Fix:

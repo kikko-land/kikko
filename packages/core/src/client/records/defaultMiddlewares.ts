@@ -1,5 +1,6 @@
 import { QueryExecResult } from "@harika-org/sql.js";
-import { join, raw, sql } from "../../Sql";
+import { join, sql } from "@trong/sql";
+
 import { runQuery } from "../runQueries";
 import { generateInsert } from "../sqlHelpers";
 import { runInTransaction } from "../transaction";
@@ -15,6 +16,7 @@ import {
 // TODO: move records chunking to helper
 
 export const insertRecordsMiddleware = buildMiddleware(<
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _Row extends Record<string, any> & { id: string },
   Rec extends Record<string, any> & { id: string }
 >() => async (dbState, recordConfig, actions, result, next) => {
@@ -83,7 +85,9 @@ export const selectRecordsMiddleware = buildMiddleware(<
 });
 
 export const deleteRecordsMiddleware = buildMiddleware(<
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _Row extends Record<string, any> & { id: string },
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _Rec extends Record<string, any> & { id: string }
 >() => async (dbState, recordConfig, actions, result, next) => {
   const deleteActions = actions.filter(

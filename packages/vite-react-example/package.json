@@ -8,7 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@trong/orm": "*",
+    "@trong/core": "*",
     "@trong/react-hooks": "*",
     "@faker-js/faker": "^7.1.0",
     "nanoid": "^3.3.4",

@@ -1,11 +1,12 @@
 {
-  "name": "@trong/orm",
+  "name": "@trong/core",
   "version": "1.0.0",
   "main": "src/index.ts",
   "author": "Sergey Popov",
   "license": "MIT",
   "dependencies": {
     "@harika-org/sql.js": "^1.6.6",
+    "@trong/sql": "*",
     "absurd-sql": "^0.0.53",
     "broadcast-channel": "^4.12.0",
     "nanoid": "^3.3.4",

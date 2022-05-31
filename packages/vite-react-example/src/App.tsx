@@ -1,6 +1,6 @@
 import sqlWasmUrl from "@harika-org/sql.js/dist/sql-wasm.wasm?url";
-import { IInitDbConfig, migrationPlugin } from "@trong/orm";
-import DbWorker from "@trong/orm/src/worker/DB.worker?worker";
+import { IInitDbConfig, migrationPlugin } from "@trong/core";
+import DbWorker from "@trong/core/src/worker/DB.worker?worker";
 import { DbProvider, EnsureDbLoaded } from "@trong/react-hooks";
 
 import { List } from "./List";

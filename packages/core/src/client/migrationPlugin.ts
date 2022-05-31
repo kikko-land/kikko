@@ -1,4 +1,5 @@
-import { sql, raw } from "../Sql";
+import { raw, sql } from "@trong/sql";
+
 import { IMigration } from "../types";
 import { runQuery } from "./runQueries";
 import { generateInsert } from "./sqlHelpers";

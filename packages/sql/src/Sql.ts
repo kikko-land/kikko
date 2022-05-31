@@ -1,19 +1,24 @@
 // Code is taken and adopted from https://github.com/blakeembrey/sql-template-tag
-export const tableSymbol: unique symbol = Symbol("table");
 
 export type Value = string | number | null;
-export type RawValue = Value | Sql | SqlTable | { [tableSymbol]: string };
+export type RawValue = Value | Sql | IContainsTable;
+
+export const tableSymbol: unique symbol = Symbol("table");
+
+export interface ITableDef {
+  name: string;
+}
+
+export interface IContainsTable {
+  [tableSymbol]: ITableDef;
+}
 
 const insertRegex = /insert\s+(or\s+\w+\s+)?into\s+/gim;
 const deleteRegex = /delete\s+from\s+/gim;
 const updateRegex = /update\s+(or\s+\w+\s+)?/gim;
 
-function containsTable(x: any): x is { [tableSymbol]: string } {
+export function containsTable(x: any): x is IContainsTable {
   return typeof x === "object" && x !== null && x[tableSymbol];
-}
-
-export class SqlTable {
-  constructor(public tableName: string) {}
 }
 
 /**
@@ -22,7 +27,7 @@ export class SqlTable {
 export class Sql {
   values: Value[];
   strings: string[];
-  tables: SqlTable[];
+  tables: ITableDef[];
 
   constructor(
     rawStrings: ReadonlyArray<string>,
@@ -45,7 +50,7 @@ export class Sql {
         len +
         (value instanceof Sql
           ? value.values.length
-          : value instanceof SqlTable || containsTable(value)
+          : containsTable(value)
           ? 0
           : 1),
       0
@@ -55,7 +60,7 @@ export class Sql {
         len +
         (value instanceof Sql
           ? value.tables.length
-          : value instanceof SqlTable || containsTable(value)
+          : containsTable(value)
           ? 1
           : 0),
       0
@@ -89,14 +94,10 @@ export class Sql {
 
         // Append raw string to current string.
         this.strings[pos] += rawString;
-      } else if (child instanceof SqlTable) {
-        this.strings[pos] += child.tableName + rawString;
-
-        this.tables[tableI++] = child;
       } else if (containsTable(child)) {
-        this.strings[pos] += child[tableSymbol] + rawString;
+        this.strings[pos] += child[tableSymbol].name + rawString;
 
-        this.tables[tableI++] = new SqlTable(child[tableSymbol]);
+        this.tables[tableI++] = child[tableSymbol];
       } else {
         this.values[pos++] = child;
         this.strings[pos] = rawString;
@@ -177,8 +178,8 @@ export function raw(value: string) {
   return new Sql([value], []);
 }
 
-export function table(value: string) {
-  return new SqlTable(value);
+export function table(name: string): IContainsTable {
+  return { [tableSymbol]: { name } };
 }
 
 /**

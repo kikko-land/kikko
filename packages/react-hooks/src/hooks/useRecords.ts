@@ -1,9 +1,5 @@
-import {
-  getRecords$,
-  IRecordConfig,
-  Sql,
-  withSuppressedLog,
-} from "@trong/orm";
+import { getRecords$, IRecordConfig, withSuppressedLog } from "@trong/core";
+import { Sql } from "@trong/sql";
 import { useEffect, useMemo, useState } from "react";
 
 import { useDbState } from "../DbProvider";

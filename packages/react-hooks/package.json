@@ -5,7 +5,7 @@
   "author": "Sergey Popov",
   "license": "MIT",
   "dependencies": {
-    "@trong/orm": "*",
+    "@trong/core": "*",
     "react": "^18.1.0",
     "react-dom": "^18.1.0"
   },

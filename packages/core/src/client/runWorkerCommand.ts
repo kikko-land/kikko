@@ -1,14 +1,15 @@
 import {
-  lastValueFrom,
   filter,
   first,
-  switchMap,
-  of,
+  lastValueFrom,
   map,
-  timeout,
-  throwError,
+  of,
+  switchMap,
   takeUntil,
+  throwError,
+  timeout,
 } from "rxjs";
+
 import { ICommand } from "../commands";
 import { IDbState } from "./types";
 

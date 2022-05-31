@@ -1,4 +1,5 @@
 import { initBackend } from "absurd-sql/dist/indexeddb-main-thread";
+import { nanoid } from "nanoid";
 import {
   filter,
   first,
@@ -9,11 +10,11 @@ import {
   Subject,
   takeUntil,
 } from "rxjs";
-import { IOutputWorkerMessage, IInputWorkerMessage } from "../worker/types";
-import { getBroadcastCh$ } from "./utils";
-import { IDbState, ITrongEvents } from "./types";
-import { nanoid } from "nanoid";
+
+import { IInputWorkerMessage, IOutputWorkerMessage } from "../worker/types";
 import { createNanoEvents } from "./createNanoEvents";
+import { IDbState, ITrongEvents } from "./types";
+import { getBroadcastCh$ } from "./utils";
 
 export type IInitDbConfig = {
   dbName: string;
@@ -60,19 +61,21 @@ export const initDb = async ({
     worker.postMessage(mes);
   });
 
-  messagesToWorker$.next({
-    type: "initialize",
-    dbName: dbName,
-    wasmUrl: wasmUrl,
-  });
-
-  await lastValueFrom(
+  const initPromise = lastValueFrom(
     messagesFromWorker$.pipe(
       filter((ev) => ev.type === "initialized"),
       first(),
       takeUntil(stop$)
     )
   );
+
+  messagesToWorker$.next({
+    type: "initialize",
+    dbName: dbName,
+    wasmUrl: wasmUrl,
+  });
+
+  await initPromise;
 
   let state: IDbState = {
     sharedState: {

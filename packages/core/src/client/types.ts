@@ -1,8 +1,8 @@
 import { Observable, Subject } from "rxjs";
-import { IOutputWorkerMessage, IInputWorkerMessage } from "../worker/types";
-import { IMigration } from "../types";
+
+import { IInputWorkerMessage, IOutputWorkerMessage } from "../worker/types";
+import { INanoEmitter } from "./createNanoEvents";
 import { INotifyChannel } from "./utils";
-import { createNanoEvents, INanoEmitter } from "./createNanoEvents";
 
 export interface ITrongEvents {
   initialized: () => Promise<void>;

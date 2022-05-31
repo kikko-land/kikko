@@ -1,10 +1,6 @@
-import {
-  runInTransaction,
-  runQueries$,
-  Sql,
-  withSuppressedLog,
-} from "@trong/orm";
-import { IDbState } from "@trong/orm";
+import { runInTransaction, runQueries$, withSuppressedLog } from "@trong/core";
+import { IDbState } from "@trong/core";
+import { Sql } from "@trong/sql";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useDbState } from "../DbProvider";

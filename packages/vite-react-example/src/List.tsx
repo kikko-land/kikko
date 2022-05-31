@@ -4,9 +4,9 @@ import {
   defineRecord,
   deleteRecords,
   runQuery,
-  sql,
-} from "@trong/orm";
+} from "@trong/core";
 import { useRecords, useRunQuery } from "@trong/react-hooks";
+import { sql } from "@trong/sql";
 import { nanoid } from "nanoid";
 
 interface IRow {

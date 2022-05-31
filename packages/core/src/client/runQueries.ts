@@ -1,6 +1,7 @@
-import { switchMap, Observable, filter, startWith, takeUntil, map } from "rxjs";
+import { Sql } from "@trong/sql";
+import { filter, map, Observable, startWith, switchMap, takeUntil } from "rxjs";
+
 import { buildRunQueriesCommand } from "../commands";
-import { Sql } from "../Sql";
 import { runWorkerCommand } from "./runWorkerCommand";
 import { IDbState } from "./types";
 import { notifyTablesContentChanged } from "./utils";
@@ -10,7 +11,7 @@ export const runQueries = async (state: IDbState, queries: Sql[]) => {
     queries
       .filter((q) => q.isModifyQuery)
       .flatMap((q) => q.tables)
-      .map((t) => t.tableName)
+      .map((t) => t.name)
   );
 
   if (state.transaction) {
@@ -40,7 +41,7 @@ export const subscribeToQueries$ = (
     queries
       .filter((q) => q.isReadQuery)
       .flatMap((q) => q.tables)
-      .map((t) => t.tableName)
+      .map((t) => t.name)
   );
 
   return state.sharedState.eventsCh$.pipe(

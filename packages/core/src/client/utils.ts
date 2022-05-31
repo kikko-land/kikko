@@ -1,3 +1,4 @@
+import { BroadcastChannel } from "broadcast-channel";
 import {
   first,
   lastValueFrom,
@@ -7,7 +8,7 @@ import {
   switchMap,
   takeUntil,
 } from "rxjs";
-import { BroadcastChannel } from "broadcast-channel";
+
 import { IDbState } from "./types";
 
 export interface INotifyChannel {

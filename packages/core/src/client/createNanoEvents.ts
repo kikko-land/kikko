@@ -34,4 +34,5 @@ export function createNanoEvents<Events extends EventsMap = DefaultEvents>() {
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export type INanoEmitter<T> = ReturnType<typeof createNanoEvents<T>>;

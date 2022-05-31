@@ -1,5 +1,6 @@
+import { Sql } from "@trong/sql";
 import { startWith, switchMap, takeUntil } from "rxjs";
-import { Sql } from "../../Sql";
+
 import { subscribeToQueries$ } from "../runQueries";
 import { IDbState } from "../types";
 import { IRecordConfig } from "./defineRecord";

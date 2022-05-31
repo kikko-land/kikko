@@ -1,4 +1,5 @@
-import { tableSymbol } from "../../Sql";
+import { IContainsTable, tableSymbol } from "@trong/sql";
+
 import {
   deleteRecordsMiddleware,
   insertRecordsMiddleware,
@@ -9,12 +10,12 @@ import { IMiddleware } from "./middlewares";
 export interface IRecordConfig<
   Row extends Record<string, any> & { id: string },
   Rec extends Record<string, any> & { id: string }
-> {
+> extends IContainsTable {
   table: string;
   serialize: (rec: Rec) => Row;
   deserialize: (row: Row) => Rec;
   middlewares: IMiddleware<Row, Rec>[];
-  [tableSymbol]: string;
+  [tableSymbol]: { name: string };
 }
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
@@ -33,6 +34,6 @@ export function defineRecord<
       selectRecordsMiddleware as IMiddleware<Row, Rec>,
       deleteRecordsMiddleware as IMiddleware<Row, Rec>,
     ],
-    [tableSymbol]: config.table,
+    [tableSymbol]: { name: config.table },
   };
 }

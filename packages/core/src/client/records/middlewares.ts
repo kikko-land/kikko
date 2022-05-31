@@ -1,4 +1,5 @@
-import { Sql } from "../../Sql";
+import { Sql } from "@trong/sql";
+
 import { IDbState } from "../types";
 import { IRecordConfig } from "./defineRecord";
 
