@@ -1,3 +1,4 @@
+export * from "./client/afterTransaction";
 export * from "./client/initDb";
 export * from "./client/migrationPlugin";
 export * from "./client/records/actionCreators";

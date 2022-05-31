@@ -3,6 +3,7 @@ import {
   createRecords,
   defineRecord,
   deleteRecords,
+  runAfterTransaction,
   runQuery,
 } from "@trong/core";
 import { useRecords, useRunQuery } from "@trong/react-hooks";
@@ -37,13 +38,6 @@ const notesRecords = defineRecord<IRow, IRecord>({
     createdAt: new Date(row.createdAt),
     updatedAt: new Date(row.updatedAt),
   }),
-  middlewares: [
-    async (dbState, recordConfig, actions, result, next) => {
-      const res = await next(dbState, recordConfig, actions, result);
-
-      return res;
-    },
-  ],
 });
 
 export const List = () => {
@@ -68,6 +62,10 @@ export const List = () => {
     const toDeleteIds = result?.values?.map(([id]) => id as string) || [];
 
     await deleteRecords(db, notesRecords, toDeleteIds);
+
+    runAfterTransaction(db, (status) => {
+      console.log("heY!!!", status);
+    });
   });
 
   return (
