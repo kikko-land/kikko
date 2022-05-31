@@ -6,8 +6,11 @@
   "license": "MIT",
   "dependencies": {
     "@trong/core": "*",
+    "@trong/reactive-queries": "*",
+    "@trong/sql": "*",
     "react": "^18.1.0",
-    "react-dom": "^18.1.0"
+    "react-dom": "^18.1.0",
+    "rxjs": "^7.5.5"
   },
   "devDependencies": {
     "@types/react": "^18.0.9",

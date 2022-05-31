@@ -4,40 +4,38 @@ import { Observable, Subject } from "rxjs";
 
 import { IInputWorkerMessage, IOutputWorkerMessage } from "../worker/types";
 import { INanoEmitter } from "./createNanoEvents";
-import { INotifyChannel } from "./utils";
 
 export interface ITrongEvents {
-  initialized: (db: IDbState) => Promise<void>;
+  initialized: (db: IDbState) => Promise<void> | void;
   transactionWillStart: (
     db: IDbState,
     transaction: ITransactionState
-  ) => Promise<void>;
+  ) => Promise<void> | void;
   transactionStarted: (
     db: IDbState,
     transaction: ITransactionState
-  ) => Promise<void>;
+  ) => Promise<void> | void;
   transactionWillCommit: (
     db: IDbState,
     transaction: ITransactionState
-  ) => Promise<void>;
+  ) => Promise<void> | void;
   transactionCommitted: (
     db: IDbState,
     transaction: ITransactionState
-  ) => Promise<void>;
+  ) => Promise<void> | void;
   transactionWillRollback: (
     db: IDbState,
     transaction: ITransactionState
-  ) => Promise<void>;
+  ) => Promise<void> | void;
   transactionRollbacked: (
     db: IDbState,
     transaction: ITransactionState
-  ) => Promise<void>;
+  ) => Promise<void> | void;
 }
 
 export interface ISharedState {
   messagesFromWorker$: Observable<IOutputWorkerMessage>;
   messagesToWorker$: Subject<IInputWorkerMessage>;
-  eventsCh$: Observable<INotifyChannel>;
   stop$: Subject<void>;
   isStopped: boolean;
   dbName: string;
@@ -49,7 +47,6 @@ export interface ISharedState {
 
 export interface ITransactionState {
   id: string;
-  writeToTables: Set<string>;
 }
 
 export type IQueriesMiddlewareState = {

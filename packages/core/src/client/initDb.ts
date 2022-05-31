@@ -14,13 +14,14 @@ import {
 import { IInputWorkerMessage, IOutputWorkerMessage } from "../worker/types";
 import { createNanoEvents } from "./createNanoEvents";
 import { IDbState, IQueriesMiddleware, ITrongEvents } from "./types";
-import { getBroadcastCh$ } from "./utils";
+
+export type IDbPlugin = (state: IDbState) => IDbState;
 
 export type IInitDbConfig = {
   dbName: string;
   worker: Worker;
   wasmUrl: string;
-  plugins?: ((state: IDbState) => IDbState)[];
+  plugins?: IDbPlugin[];
   queriesMiddlewares?: IQueriesMiddleware[];
 };
 
@@ -85,7 +86,6 @@ export const initDb = async ({
       messagesFromWorker$,
       messagesToWorker$,
       stop$,
-      eventsCh$: getBroadcastCh$(dbName + "-tableContentChanges", stop$),
       isStopped: false,
       dbName,
       eventsEmitter: createNanoEvents<ITrongEvents>(),

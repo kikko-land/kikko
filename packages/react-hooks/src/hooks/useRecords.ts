@@ -1,9 +1,31 @@
-import { getRecords$, IRecordConfig, withSuppressedLog } from "@trong/core";
+import {
+  getRecords,
+  IDbState,
+  IRecordConfig,
+  withSuppressedLog,
+} from "@trong/core";
+import { subscribeToQueries$ } from "@trong/reactive-queries";
 import { Sql } from "@trong/sql";
 import { useEffect, useMemo, useState } from "react";
+import { startWith, switchMap, takeUntil } from "rxjs";
 
 import { useDbState } from "../DbProvider";
 import { DistributiveOmit, IQueryResult } from "./types";
+
+const getRecords$ = <
+  Row extends Record<string, any> & { id: string },
+  Rec extends Record<string, any> & { id: string }
+>(
+  db: IDbState,
+  recordConfig: IRecordConfig<Row, Rec>,
+  sql: Sql
+) => {
+  return subscribeToQueries$(db, [sql]).pipe(
+    startWith(undefined),
+    switchMap(() => getRecords(db, recordConfig, sql)),
+    takeUntil(db.sharedState.stop$)
+  );
+};
 
 export function useRecords<
   Row extends Record<string, any> & { id: string },

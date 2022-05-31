@@ -3,7 +3,6 @@ import { nanoid } from "nanoid";
 import { buildTransactionCommand } from "../commands";
 import { runWorkerCommand } from "./runWorkerCommand";
 import { IDbState } from "./types";
-import { notifyTablesContentChanged } from "./utils";
 
 export const runInTransaction = async <T>(
   state: IDbState,
@@ -14,40 +13,52 @@ export const runInTransaction = async <T>(
     return await func(state);
   }
 
+  const eventsEmitter = state.sharedState.eventsEmitter;
+
+  const transaction = {
+    id: nanoid(),
+  };
+
   state = {
     ...state,
-    transaction: {
-      id: nanoid(),
-      writeToTables: new Set(),
-    },
+    transaction,
   };
+
+  await eventsEmitter.emit("transactionWillStart", state, transaction);
 
   await runWorkerCommand(
     state,
     buildTransactionCommand(state, "startTransaction")
   );
 
+  await eventsEmitter.emit("transactionStarted", state, transaction);
+
   try {
     const res = await func(state);
+
+    await eventsEmitter.emit("transactionWillCommit", state, transaction);
 
     await runWorkerCommand(
       state,
       buildTransactionCommand(state, "commitTransaction")
     );
 
+    await eventsEmitter.emit("transactionCommitted", state, transaction);
+
     // dont await so notification happens after function return
-    void notifyTablesContentChanged(state, [
-      ...state.transaction!.writeToTables,
-    ]);
 
     return res;
   } catch (e) {
     console.error("Rollback transaction", e);
 
+    await eventsEmitter.emit("transactionWillRollback", state, transaction);
+
     await runWorkerCommand(
       state,
       buildTransactionCommand(state, "rollbackTransaction")
     );
+
+    await eventsEmitter.emit("transactionRollbacked", state, transaction);
 
     throw e;
   }

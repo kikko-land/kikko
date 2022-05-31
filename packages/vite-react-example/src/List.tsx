@@ -65,7 +65,7 @@ export const List = () => {
 
   const [deleteAll, deleteAllState] = useRunQuery(async (db) => {
     const [result] = await runQuery(db, sql`SELECT id FROM ${notesRecords}`);
-    const toDeleteIds = result.values.map(([id]) => id as string);
+    const toDeleteIds = result?.values?.map(([id]) => id as string) || [];
 
     await deleteRecords(db, notesRecords, toDeleteIds);
   });

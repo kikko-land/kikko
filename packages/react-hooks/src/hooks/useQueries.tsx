@@ -1,10 +1,21 @@
-import { runInTransaction, runQueries$, withSuppressedLog } from "@trong/core";
+import { runInTransaction, runQueries, withSuppressedLog } from "@trong/core";
 import { IDbState } from "@trong/core";
+import { subscribeToQueries$ } from "@trong/reactive-queries";
 import { Sql } from "@trong/sql";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { startWith, switchMap } from "rxjs";
 
 import { useDbState } from "../DbProvider";
 import { DistributiveOmit, IQueryResult, IQueryResultWithIdle } from "./types";
+
+const runQueries$ = (state: IDbState, queries: Sql[]) => {
+  return subscribeToQueries$(state, queries).pipe(
+    startWith(undefined),
+    switchMap(async () => {
+      return runQueries(state, queries);
+    })
+  );
+};
 
 export function useQueries<D>(
   _queries: Sql[],

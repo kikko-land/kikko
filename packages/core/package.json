@@ -8,7 +8,6 @@
     "@harika-org/sql.js": "^1.6.6",
     "@trong/sql": "*",
     "absurd-sql": "^0.0.53",
-    "broadcast-channel": "^4.12.0",
     "nanoid": "^3.3.4",
     "rxjs": "^7.5.5"
   },
