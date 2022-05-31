@@ -3,8 +3,26 @@ import { filter, map, Observable, startWith, switchMap, takeUntil } from "rxjs";
 
 import { buildRunQueriesCommand } from "../commands";
 import { runWorkerCommand } from "./runWorkerCommand";
-import { IDbState } from "./types";
+import {
+  IDbState,
+  INextQueriesMiddleware,
+  IQueriesMiddleware,
+  IQueriesMiddlewareState,
+} from "./types";
 import { notifyTablesContentChanged } from "./utils";
+
+const runQueriesMiddleware: IQueriesMiddleware = async ({
+  dbState,
+  queries,
+  next,
+}) => {
+  const result = await runWorkerCommand(
+    dbState,
+    buildRunQueriesCommand(dbState, queries)
+  );
+
+  return { dbState, result, queries };
+};
 
 export const runQueries = async (state: IDbState, queries: Sql[]) => {
   const writeTables = new Set(
@@ -14,23 +32,37 @@ export const runQueries = async (state: IDbState, queries: Sql[]) => {
       .map((t) => t.name)
   );
 
+  const middlewares: IQueriesMiddleware[] = [
+    ...state.queriesMiddlewares,
+    runQueriesMiddleware,
+  ];
+
+  let toCall: INextQueriesMiddleware = async (args) => args;
+
+  for (const middleware of middlewares) {
+    const currentCall = toCall;
+
+    toCall = (args: IQueriesMiddlewareState) =>
+      middleware({ ...args, next: currentCall });
+  }
+
   if (state.transaction) {
     for (const t of writeTables) {
       state.transaction.writeToTables.add(t);
     }
   }
 
-  const res = await runWorkerCommand(
-    state,
-    buildRunQueriesCommand(state, queries)
-  );
-
-  if (!state.transaction) {
+  if (!state.transaction && writeTables.size !== 0) {
     // dont await so notification happens after function return
     void notifyTablesContentChanged(state, [...writeTables]);
   }
 
-  return res;
+  return (await toCall({ dbState: state, result: [], queries: queries }))
+    .result;
+};
+
+export const runQuery = async (state: IDbState, query: Sql) => {
+  return (await runQueries(state, [query]))[0];
 };
 
 export const subscribeToQueries$ = (
@@ -74,9 +106,6 @@ export const runQueries$ = (state: IDbState, queries: Sql[]) => {
   );
 };
 
-export const runQuery = async (state: IDbState, query: Sql) => {
-  return (await runQueries(state, [query]))[0];
-};
 export const runQuery$ = (state: IDbState, query: Sql) => {
   return runQueries$(state, [query]).pipe(map((list) => list[0]));
 };

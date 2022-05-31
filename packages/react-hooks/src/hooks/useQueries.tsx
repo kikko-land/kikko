@@ -8,7 +8,7 @@ import { DistributiveOmit, IQueryResult, IQueryResultWithIdle } from "./types";
 
 export function useQueries<D>(
   _queries: Sql[],
-  _opts?: { suppressLog?: boolean } | undefined
+  _opts?: { suppressLog?: boolean; mapToObject?: boolean } | undefined
 ): IQueryResult<D[][]> {
   const dbState = useDbState();
 
@@ -69,7 +69,7 @@ export function useQueries<D>(
 
 export function useQuery<D>(
   query: Sql,
-  _opts?: { suppressLog?: boolean } | undefined
+  _opts?: { suppressLog?: boolean; mapToObject?: boolean } | undefined
 ): IQueryResult<D[]> {
   const result = useQueries<D>([query], _opts);
 

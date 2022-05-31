@@ -13,7 +13,7 @@ import {
 
 import { IInputWorkerMessage, IOutputWorkerMessage } from "../worker/types";
 import { createNanoEvents } from "./createNanoEvents";
-import { IDbState, ITrongEvents } from "./types";
+import { IDbState, IQueriesMiddleware, ITrongEvents } from "./types";
 import { getBroadcastCh$ } from "./utils";
 
 export type IInitDbConfig = {
@@ -21,6 +21,7 @@ export type IInitDbConfig = {
   worker: Worker;
   wasmUrl: string;
   plugins?: ((state: IDbState) => IDbState)[];
+  queriesMiddlewares?: IQueriesMiddleware[];
 };
 
 export const initDb = async ({
@@ -28,6 +29,7 @@ export const initDb = async ({
   worker,
   wasmUrl,
   plugins,
+  queriesMiddlewares,
 }: IInitDbConfig): Promise<IDbState> => {
   initBackend(worker);
 
@@ -88,13 +90,15 @@ export const initDb = async ({
       dbName,
       eventsEmitter: createNanoEvents<ITrongEvents>(),
     },
+
+    queriesMiddlewares: queriesMiddlewares || [],
   };
 
   for (const plugin of plugins || []) {
     state = plugin(state);
   }
 
-  await state.sharedState.eventsEmitter.emit("initialized");
+  await state.sharedState.eventsEmitter.emit("initialized", state);
 
   return state;
 };
