@@ -4,6 +4,7 @@ import {
   defineRecord,
   deleteRecords,
   runAfterTransaction,
+  runAfterTransactionCommitted,
   runQuery,
 } from "@trong/core";
 import { useRecords, useRunQuery } from "@trong/react-hooks";
@@ -63,8 +64,8 @@ export const List = () => {
 
     await deleteRecords(db, notesRecords, toDeleteIds);
 
-    runAfterTransaction(db, (status) => {
-      console.log("heY!!!", status);
+    runAfterTransactionCommitted(db, () => {
+      console.log("heY!!!");
     });
   });
 

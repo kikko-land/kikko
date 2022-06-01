@@ -1,6 +1,6 @@
 import { IDbState } from "./types";
 
-export const runAfterTransaction = (
+const runAfterTransaction = (
   db: IDbState,
   func: (event: "committed" | "rollbacked") => void
 ) => {
@@ -31,4 +31,26 @@ export const runAfterTransaction = (
       listener("rollbacked")
     )
   );
+};
+
+export const runAfterTransactionCommitted = (
+  db: IDbState,
+  func: () => void
+) => {
+  runAfterTransaction(db, (ev) => {
+    if (ev === "committed") {
+      func();
+    }
+  });
+};
+
+export const runAfterTransactionRollbacked = (
+  db: IDbState,
+  func: () => void
+) => {
+  runAfterTransaction(db, (ev) => {
+    if (ev === "rollbacked") {
+      func();
+    }
+  });
 };
