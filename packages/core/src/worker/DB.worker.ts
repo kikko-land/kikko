@@ -29,9 +29,9 @@ class CommandsExecutor {
     setInterval(() => {
       if (!this.currentTransactionId) return;
 
-      if (new Date().getTime() - this.transactionStartedAt > 8000) {
+      if (new Date().getTime() - this.transactionStartedAt > 30_000) {
         console.error(
-          `Transaction id = ${this.currentTransactionId} rollbacked due to timeout of 8s!`
+          `Transaction id = ${this.currentTransactionId} rollbacked due to timeout of 30s!`
         );
 
         this.currentTransactionId = undefined;

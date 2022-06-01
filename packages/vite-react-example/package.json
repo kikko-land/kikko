@@ -8,19 +8,21 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@faker-js/faker": "^7.1.0",
     "@trong/core": "*",
     "@trong/react-hooks": "*",
-    "@trong/records": "*",
     "@trong/reactive-queries": "*",
+    "@trong/records": "*",
     "@trong/sql": "*",
-    "@faker-js/faker": "^7.1.0",
     "nanoid": "^3.3.4",
     "react": "^18.1.0",
-    "react-dom": "^18.1.0"
+    "react-dom": "^18.1.0",
+    "react-highlight-words": "^0.18.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.9",
     "@types/react-dom": "^18.0.5",
+    "@types/react-highlight-words": "^0.16.4",
     "@vitejs/plugin-react": "^1.3.0",
     "eslint": "^8.16.0",
     "eslint-config-airbnb": "^19.0.4",

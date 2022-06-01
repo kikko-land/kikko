@@ -7,9 +7,10 @@ import {
   useSql,
 } from "@trong/react-hooks";
 import { createRecords, defineRecord, deleteRecords } from "@trong/records";
-import { Sql, sql, table } from "@trong/sql";
+import { empty, Sql, sql, table } from "@trong/sql";
 import { nanoid } from "nanoid";
 import { useCallback, useEffect, useState } from "react";
+import Highlighter from "react-highlight-words";
 
 interface IRow {
   id: string;
@@ -56,7 +57,7 @@ const usePaginator = ({
   const totalCount = countResult.data?.count;
 
   const totalPages =
-    totalCount !== undefined ? totalCount / perPage : undefined;
+    totalCount !== undefined ? Math.ceil(totalCount / perPage) : undefined;
 
   useEffect(() => {
     if (totalPages === undefined) return;
@@ -102,7 +103,12 @@ const usePaginator = ({
 export const List = () => {
   const [textToSearch, setTextToSearch] = useState<string>("");
 
-  const baseSql = useSql(sql`SELECT * FROM ${notesRecords}`);
+  const baseSql = useSql(
+    sql`SELECT * FROM ${notesRecords} ${
+      textToSearch ? sql`WHERE content LIKE ${"%" + textToSearch + "%"}` : empty
+    }`
+  );
+
   const {
     pagerSql,
     totalPages,
@@ -151,7 +157,7 @@ export const List = () => {
 
   return (
     <>
-      {[100, 1000, 10_000].map((count) => (
+      {[100, 1000, 10_000, 100_000].map((count) => (
         <button
           key={count}
           onClick={() => createNotes(count)}
@@ -166,10 +172,6 @@ export const List = () => {
         </button>
       ))}
 
-      <div>
-        Total records: {totalCount !== undefined ? totalCount : "Loading..."}
-      </div>
-
       <button
         onClick={deleteAll}
         disabled={
@@ -181,6 +183,27 @@ export const List = () => {
           ? "Loading..."
           : "Delete all records!"}
       </button>
+
+      <br />
+      <br />
+
+      <input
+        value={textToSearch}
+        onChange={(e) => {
+          setTextToSearch(e.target.value);
+        }}
+        placeholder="Search content"
+      />
+
+      <br />
+      <br />
+
+      <div>
+        Total found records:{" "}
+        {totalCount !== undefined ? totalCount : "Loading..."}
+      </div>
+
+      <br />
 
       <table>
         <thead>
@@ -196,13 +219,21 @@ export const List = () => {
             recordsResult.data.map((r) => (
               <tr key={r.id}>
                 <td>{r.title}</td>
-                <td>{r.content}</td>
+                <td>
+                  <Highlighter
+                    searchWords={[textToSearch]}
+                    autoEscape={true}
+                    textToHighlight={r.content}
+                  />
+                </td>
                 <td>{new Date(r.createdAt).toLocaleString()}</td>
                 <td>{new Date(r.updatedAt).toLocaleString()}</td>
               </tr>
             ))}
         </tbody>
       </table>
+
+      <br />
 
       <div>
         Page: {currentPage}
