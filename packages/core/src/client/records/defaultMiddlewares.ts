@@ -35,7 +35,7 @@ export const insertRecordsMiddleware = buildMiddleware(<
         await runQuery(
           state,
           generateInsert(
-            recordConfig.table,
+            recordConfig.table.name,
             records.map((r) => recordConfig.serialize(r)),
             action.replace
           )
@@ -51,18 +51,6 @@ export const insertRecordsMiddleware = buildMiddleware(<
   return await next(dbState, recordConfig, actions, result);
 });
 
-const mapToRows = <T extends Record<string, any>>(result: QueryExecResult) => {
-  return (result?.values?.map((res) => {
-    let obj: Record<string, any> = {};
-
-    result.columns.forEach((col, i) => {
-      obj[col] = res[i];
-    });
-
-    return obj;
-  }) || []) as T[];
-};
-
 export const selectRecordsMiddleware = buildMiddleware(<
   Row extends Record<string, any> & { id: string },
   Rec extends Record<string, any> & { id: string }
@@ -72,12 +60,10 @@ export const selectRecordsMiddleware = buildMiddleware(<
   const resultRecords: Rec[] = [];
 
   for (const action of getActions) {
-    const [result] = await runQuery(dbState, action.query);
+    const rows = await runQuery<Row>(dbState, action.query);
 
     resultRecords.push(
-      ...mapToRows<Row>(result).map(
-        (row) => recordConfig.deserialize(row) as Rec
-      )
+      ...rows.map((row) => recordConfig.deserialize(row) as Rec)
     );
   }
 

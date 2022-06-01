@@ -51,7 +51,7 @@ export interface ITransactionState {
 
 export type IQueriesMiddlewareState = {
   dbState: IDbState;
-  result: QueryExecResult[][];
+  result: Record<string, unknown>[][];
   queries: Sql[];
 };
 

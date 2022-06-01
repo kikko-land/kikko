@@ -29,14 +29,15 @@ export const reactiveQueriesPlugin: IDbPlugin = (db) => {
   const reactiveQueriesMiddleware: IQueriesMiddleware = (state) => {
     const transaction = state.dbState.transaction;
 
-    const writeTables = new Set(
-      state.queries
-        .filter((q) => q.isModifyQuery)
-        .flatMap((q) => q.tables)
-        .map((t) => t.name)
-    );
+    const writeTables = state.queries
+      .filter((q) => q.isModifyQuery)
+      .flatMap((q) => q.tables)
+      .flatMap((def) => [
+        def.name,
+        ...def.dependsOnTables.map(({ name }) => name),
+      ]);
 
-    if (writeTables.size !== 0) {
+    if (writeTables.length !== 0) {
       if (transaction) {
         if (!transactionTables[transaction.id]) {
           throw new Error(
@@ -49,7 +50,7 @@ export const reactiveQueriesPlugin: IDbPlugin = (db) => {
         }
       } else {
         // dont await so notification happens after function return
-        void notifyTablesContentChanged(state.dbState, [...writeTables]);
+        void notifyTablesContentChanged(state.dbState, writeTables);
       }
     }
 

@@ -5,12 +5,22 @@ export type RawValue = Value | Sql | IContainsTable;
 
 export const tableSymbol: unique symbol = Symbol("table");
 
-export interface ITableDef {
-  name: string;
+export class TableDef {
+  constructor(public name: string, public dependsOnTables: TableDef[]) {}
+
+  getAllDependingTableDefs(isRoot = true) {
+    const tableDefs: TableDef[] = [];
+
+    this.dependsOnTables.forEach((def) => {
+      tableDefs.push(...def.getAllDependingTableDefs(false));
+    });
+
+    return tableDefs;
+  }
 }
 
 export interface IContainsTable {
-  [tableSymbol]: ITableDef;
+  [tableSymbol]: TableDef;
 }
 
 const insertRegex = /insert\s+(or\s+\w+\s+)?into\s+/gim;
@@ -27,7 +37,7 @@ export function containsTable(x: any): x is IContainsTable {
 export class Sql {
   values: Value[];
   strings: string[];
-  tables: ITableDef[];
+  tables: TableDef[];
 
   constructor(
     rawStrings: ReadonlyArray<string>,
@@ -178,8 +188,16 @@ export function raw(value: string) {
   return new Sql([value], []);
 }
 
-export function table(name: string): IContainsTable {
-  return { [tableSymbol]: { name } };
+export function table(
+  name: string,
+  opts?: { dependsOn?: IContainsTable[] }
+): IContainsTable {
+  return {
+    [tableSymbol]: new TableDef(
+      name,
+      opts?.dependsOn?.map((obj) => obj[tableSymbol]) || []
+    ),
+  };
 }
 
 /**

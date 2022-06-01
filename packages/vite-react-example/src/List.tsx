@@ -3,12 +3,11 @@ import {
   createRecords,
   defineRecord,
   deleteRecords,
-  runAfterTransaction,
   runAfterTransactionCommitted,
   runQuery,
 } from "@trong/core";
 import { useRecords, useRunQuery } from "@trong/react-hooks";
-import { sql } from "@trong/sql";
+import { sql, table } from "@trong/sql";
 import { nanoid } from "nanoid";
 
 interface IRow {
@@ -27,8 +26,7 @@ interface IRecord {
   updatedAt: Date;
 }
 
-const notesRecords = defineRecord<IRow, IRecord>({
-  table: "notes",
+const notesRecords = defineRecord<IRow, IRecord>(table("notes"), {
   serialize: (record) => ({
     ...record,
     createdAt: record.createdAt.getTime(),
@@ -59,8 +57,11 @@ export const List = () => {
   });
 
   const [deleteAll, deleteAllState] = useRunQuery(async (db) => {
-    const [result] = await runQuery(db, sql`SELECT id FROM ${notesRecords}`);
-    const toDeleteIds = result?.values?.map(([id]) => id as string) || [];
+    const result = await runQuery<{ id: string }>(
+      db,
+      sql`SELECT id FROM ${notesRecords}`
+    );
+    const toDeleteIds = result.map(({ id }) => id as string);
 
     await deleteRecords(db, notesRecords, toDeleteIds);
 

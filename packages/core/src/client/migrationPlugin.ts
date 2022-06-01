@@ -23,11 +23,12 @@ const runMigrations = (state: IDbState, migrations: IMigration[]) => {
       `
     );
 
-    const migratedMigrations =
-      (await runQuery(state, sql`SELECT id FROM ${raw(migrationsTable)}`))[0]
-        ?.values || [];
+    const migratedMigrations = await runQuery<{ id: number }>(
+      state,
+      sql`SELECT id FROM ${raw(migrationsTable)}`
+    );
 
-    const migratedIds = new Set(migratedMigrations.map(([id]) => id));
+    const migratedIds = new Set(migratedMigrations.map(({ id }) => id));
 
     for (const migration of migrations.sort((a, b) => a.id - b.id)) {
       if (migratedIds.has(migration.id)) return;
