@@ -1,100 +1,123 @@
-import { IDbState, runInTransaction, runQuery } from "@trong/core";
-import { generateInsert, join, sql } from "@trong/sql";
+import { IDbState, runInTransaction, runQueries, runQuery } from "@trong/core";
+import { generateInsert, generateUpdate, join, sql } from "@trong/sql";
 
 import {
-  buildMiddleware,
-  ICreateRecordAction,
-  IDeleteRecordAction,
-  IGetAction,
+  ICreateMiddleware,
+  IDeleteMiddleware,
+  IGetMiddleware,
+  IUpdateMiddleware,
 } from "./middlewares";
 import { chunk } from "./utils";
 
 // TODO: move records chunking to helper
 
-export const insertRecordsMiddleware = buildMiddleware(<
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _Row extends Record<string, any> & { id: string },
-  Rec extends Record<string, any> & { id: string }
->() => async (dbState, recordConfig, actions, result, next) => {
-  const createActions = actions.filter(
-    (ac) => ac.type === "create"
-  ) as ICreateRecordAction<Rec>[];
+export const insertRecordsMiddleware =
+  <
+    Row extends Record<string, any> & { id: string },
+    Rec extends Record<string, any> & { id: string }
+  >(): ICreateMiddleware<Row, Rec> =>
+  async (args) => {
+    const { actions, dbState, recordConfig, next } = args;
 
-  for (const action of createActions) {
-    // sqlite max vars = 32766
-    // Let's take table columns count to 20, so 20 * 1000 will fit the restriction
-    const chunked = chunk(action.records, 1000);
+    for (const action of actions) {
+      // sqlite max vars = 32766
+      // Let's take table columns count to 20, so 20 * 1000 will fit the restriction
+      const chunked = chunk(action.records, 1000);
 
-    const toExec = async (state: IDbState) => {
-      for (const records of chunked) {
-        // TODO: maybe runQueries? But then a large object will need to be transferred, that may cause freeze
-        await runQuery(
-          state,
-          generateInsert(
-            recordConfig.table.name,
-            records.map((r) => recordConfig.serialize(r)),
-            action.replace
-          )
-        );
-      }
-    };
+      const toExec = async (state: IDbState) => {
+        for (const records of chunked) {
+          // TODO: maybe runQueries? But then a large object will need to be transferred, that may cause freeze
 
-    await (chunked.length > 1
-      ? runInTransaction(dbState, toExec)
-      : toExec(dbState));
-  }
+          await runQuery(
+            state,
+            generateInsert(
+              recordConfig.table.name,
+              records.map((r) => recordConfig.serialize(r)),
+              action.replace
+            )
+          );
+        }
+      };
 
-  return await next(dbState, recordConfig, actions, result);
-});
+      await (chunked.length > 1
+        ? runInTransaction(dbState, toExec)
+        : toExec(dbState));
+    }
 
-export const selectRecordsMiddleware = buildMiddleware(<
-  Row extends Record<string, any> & { id: string },
-  Rec extends Record<string, any> & { id: string }
->() => async (dbState, recordConfig, actions, _result, next) => {
-  const getActions = actions.filter((ac) => ac.type === "get") as IGetAction[];
+    return await next(args);
+  };
 
-  const resultRecords: Rec[] = [];
+export const selectRecordsMiddleware =
+  <
+    Row extends Record<string, any> & { id: string },
+    Rec extends Record<string, any> & { id: string }
+  >(): IGetMiddleware<Row, Rec> =>
+  async (args) => {
+    const { actions, dbState, recordConfig, next } = args;
 
-  for (const action of getActions) {
-    const rows = await runQuery<Row>(dbState, action.query);
+    const resultRecords: Rec[] = [];
 
-    resultRecords.push(
-      ...rows.map((row) => recordConfig.deserialize(row) as Rec)
-    );
-  }
+    for (const action of actions) {
+      const rows = await runQuery<Row>(dbState, action.query);
 
-  return await next(dbState, recordConfig, actions, resultRecords);
-});
+      resultRecords.push(
+        ...rows.map((row) => recordConfig.deserialize(row) as Rec)
+      );
+    }
 
-export const deleteRecordsMiddleware = buildMiddleware(<
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _Row extends Record<string, any> & { id: string },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _Rec extends Record<string, any> & { id: string }
->() => async (dbState, recordConfig, actions, result, next) => {
-  const deleteActions = actions.filter(
-    (ac) => ac.type === "delete"
-  ) as IDeleteRecordAction[];
+    return await next({ ...args, result: resultRecords });
+  };
 
-  for (const action of deleteActions) {
-    const chunked = chunk(action.ids, 1000);
+export const deleteRecordsMiddleware =
+  <
+    Row extends Record<string, any> & { id: string },
+    Rec extends Record<string, any> & { id: string }
+  >(): IDeleteMiddleware<Row, Rec> =>
+  async (args) => {
+    const { actions, dbState, recordConfig, next } = args;
 
-    const toExec = async (state: IDbState) => {
-      for (const ids of chunked) {
-        // TODO: maybe runQueries? But then a large object will need to be transferred, that may cause freeze
-        await runQuery(
-          dbState,
-          sql`DELETE FROM ${recordConfig} WHERE id IN (${join(
-            ids.map((id) => id)
-          )})`
-        );
-      }
-    };
+    for (const action of actions) {
+      const chunked = chunk(action.ids, 1000);
 
-    await (chunked.length > 1
-      ? runInTransaction(dbState, toExec)
-      : toExec(dbState));
-  }
+      const toExec = async (state: IDbState) => {
+        for (const ids of chunked) {
+          // TODO: maybe runQueries? But then a large object will need to be transferred, that may cause freeze
+          await runQuery(
+            dbState,
+            sql`DELETE FROM ${recordConfig} WHERE id IN (${join(
+              ids.map((id) => id)
+            )})`
+          );
+        }
+      };
 
-  return await next(dbState, recordConfig, actions, result);
-});
+      await (chunked.length > 1
+        ? runInTransaction(dbState, toExec)
+        : toExec(dbState));
+    }
+
+    return await next(args);
+  };
+
+export const updateRecordsMiddleware =
+  <
+    Row extends Record<string, any> & { id: string },
+    Rec extends Record<string, any> & { id: string }
+  >(): IUpdateMiddleware<Row, Rec> =>
+  async (args) => {
+    const { actions, dbState, recordConfig, next } = args;
+
+    for (const action of actions) {
+      await runQueries(
+        dbState,
+        action.partialRecords.map(
+          (rec) =>
+            sql`${generateUpdate(recordConfig.table.name, rec)} WHERE id=${
+              rec.id
+            }`
+        )
+      );
+    }
+
+    return await next(args);
+  };

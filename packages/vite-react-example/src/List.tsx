@@ -6,8 +6,14 @@ import {
   useRunQuery,
   useSql,
 } from "@trong/react-hooks";
-import { createRecords, defineRecord, deleteRecords } from "@trong/records";
-import { empty, Sql, sql, table } from "@trong/sql";
+import {
+  createRecords,
+  defineRecord,
+  deleteRecords,
+  getRecords,
+  middlewaresSlice,
+} from "@trong/records";
+import { empty, join, Sql, sql, table } from "@trong/sql";
 import { nanoid } from "nanoid";
 import { useCallback, useEffect, useState } from "react";
 import Highlighter from "react-highlight-words";
@@ -39,6 +45,27 @@ const notesRecords = defineRecord<IRow, IRecord>(table("notes"), {
     createdAt: new Date(row.createdAt),
     updatedAt: new Date(row.updatedAt),
   }),
+  middlewareSlices: [
+    middlewaresSlice({
+      delete: async (args) => {
+        const { next, dbState, recordConfig } = args;
+
+        const records = await getRecords<IRow, IRecord>(
+          dbState,
+          recordConfig,
+          sql`SELECT * FROM ${recordConfig} WHERE id IN (${join(
+            args.actions.flatMap((ac) => ac.ids)
+          )})`
+        );
+
+        runAfterTransactionCommitted(dbState, () => {
+          console.log({ deletedRecords: records });
+        });
+
+        return await next(args);
+      },
+    }),
+  ],
 });
 
 const usePaginator = ({
@@ -57,7 +84,7 @@ const usePaginator = ({
   const totalCount = countResult.data?.count;
 
   const totalPages =
-    totalCount !== undefined ? Math.ceil(totalCount / perPage) : undefined;
+    totalCount !== undefined ? Math.ceil(totalCount / perPage) || 1 : undefined;
 
   useEffect(() => {
     if (totalPages === undefined) return;

@@ -12,8 +12,15 @@ export const getRecords = async <
   recordConfig: IRecordConfig<Row, Rec>,
   sql: Sql
 ) => {
-  return (await applyAction(db, recordConfig, [{ type: "get", query: sql }]))
-    .result;
+  return (
+    await applyAction(
+      db,
+      recordConfig,
+      recordConfig.middlewares.get,
+      { result: [] as Rec[] },
+      [{ query: sql }]
+    )
+  ).result;
 };
 
 export const createRecords = async <
@@ -27,8 +34,8 @@ export const createRecords = async <
 ) => {
   if (recs.length === 0) return;
 
-  await applyAction(db, recordConfig, [
-    { type: "create", records: recs, replace },
+  await applyAction(db, recordConfig, recordConfig.middlewares.create, {}, [
+    { records: recs, replace },
   ]);
 };
 
@@ -54,5 +61,33 @@ export const deleteRecords = async <
 ) => {
   if (ids.length === 0) return;
 
-  await applyAction(db, recordConfig, [{ type: "delete", ids }]);
+  await applyAction(db, recordConfig, recordConfig.middlewares.delete, {}, [
+    { ids },
+  ]);
+};
+
+export const updateRecords = async <
+  Row extends Record<string, any> & { id: string },
+  Rec extends Record<string, any> & { id: string }
+>(
+  db: IDbState,
+  recordConfig: IRecordConfig<Row, Rec>,
+  recs: (Partial<Rec> & { id: string })[]
+) => {
+  if (recs.length === 0) return;
+
+  await applyAction(db, recordConfig, recordConfig.middlewares.update, {}, [
+    { partialRecords: recs },
+  ]);
+};
+
+export const updateRecord = async <
+  Row extends Record<string, any> & { id: string },
+  Rec extends Record<string, any> & { id: string }
+>(
+  db: IDbState,
+  recordConfig: IRecordConfig<Row, Rec>,
+  rec: Partial<Rec> & { id: string }
+) => {
+  return updateRecords(db, recordConfig, [rec]);
 };
