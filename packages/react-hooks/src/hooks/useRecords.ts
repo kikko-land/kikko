@@ -30,7 +30,7 @@ export function useRecords<
   recordConfig: IRecordConfig<Row, Rec>,
   _query: Sql | Falsy,
   _opts?: { suppressLog?: boolean } | undefined
-): IQueryResult<Rec[]> {
+): IQueryResult<Rec> {
   const dbState = useDbState();
 
   const { suppressLog } = {
@@ -96,9 +96,9 @@ export function useRecords<
         );
       }
 
-      return { ...response, data };
+      return { ...response, data: data || [] };
     }
 
-    return { ...response, data };
+    return { ...response, data: data || [] };
   }, [data, response]);
 }

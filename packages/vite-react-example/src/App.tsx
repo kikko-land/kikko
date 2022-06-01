@@ -4,7 +4,7 @@ import DbWorker from "@trong/core/src/worker/DB.worker?worker";
 import { DbProvider, EnsureDbLoaded } from "@trong/react-hooks";
 import { reactiveQueriesPlugin } from "@trong/reactive-queries";
 
-import { List } from "./List";
+import { List } from "./example";
 import { createNotesTableMigration } from "./migrations/createNotesTable";
 
 const config: IInitDbConfig = {

@@ -6,7 +6,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Falsy, startWith, switchMap } from "rxjs";
 
 import { useDbState } from "../DbProvider";
-import { DistributiveOmit, IQueryResult, IQueryResultWithIdle } from "./types";
+import {
+  DistributiveOmit,
+  IQueryResult,
+  IQueryResultWithIdle,
+  ISingleQueryResult,
+  ISingleQueryResultWithIdle,
+} from "./types";
 
 function runQueries$<D extends Record<string, unknown>>(
   state: IDbState,
@@ -23,7 +29,7 @@ function runQueries$<D extends Record<string, unknown>>(
 export function useQueries<D extends Record<string, unknown>>(
   _queries: Sql[] | Falsy,
   _opts?: { suppressLog?: boolean; mapToObject?: boolean } | undefined
-): IQueryResult<D[][]> {
+): IQueryResult<D[]> {
   const dbState = useDbState();
 
   const { suppressLog } = {
@@ -91,14 +97,14 @@ export function useQueries<D extends Record<string, unknown>>(
       return { ...response, data };
     }
 
-    return { ...response, data };
+    return { ...response, data: data || [] };
   }, [data, response]);
 }
 
 export function useQuery<D extends Record<string, unknown>>(
   query: Sql | Falsy,
   _opts?: { suppressLog?: boolean; mapToObject?: boolean } | undefined
-): IQueryResult<D[]> {
+): IQueryResult<D> {
   const queries = useMemo(() => (query ? [query] : []), [query]);
 
   const result = useQueries<D>(queries, _opts);
@@ -111,12 +117,12 @@ export function useQuery<D extends Record<string, unknown>>(
         );
       }
 
-      return { ...result, data: result.data[0] };
+      return { ...result, data: result.data[0] || [] };
     }
 
     return {
       ...result,
-      data: result.data?.[0],
+      data: result.data?.[0] || [],
     };
   }, [result]);
 }
@@ -124,7 +130,7 @@ export function useQuery<D extends Record<string, unknown>>(
 export function useQueryFirstRow<D extends Record<string, unknown>>(
   query: Sql | Falsy,
   _opts?: { suppressLog?: boolean; mapToObject?: boolean } | undefined
-): IQueryResult<D> {
+): ISingleQueryResult<D> {
   const res = useQuery<D>(query, _opts);
 
   return useMemo(() => {
@@ -158,7 +164,9 @@ export function useRunQuery<
   _opts?: { suppressLog?: boolean; inTransaction?: boolean } | undefined
 ): readonly [
   (...args: Parameters<D>) => Promise<R>,
-  DistributiveOmit<IQueryResultWithIdle<R>, "data"> & { data?: R | undefined }
+  DistributiveOmit<ISingleQueryResultWithIdle<R>, "data"> & {
+    data?: R | undefined;
+  }
 ] {
   const { suppressLog, inTransaction } = {
     suppressLog: _opts?.suppressLog !== undefined ? _opts.suppressLog : false,
