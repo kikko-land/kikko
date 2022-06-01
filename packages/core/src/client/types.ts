@@ -1,4 +1,3 @@
-import { QueryExecResult } from "@harika-org/sql.js";
 import { Sql } from "@trong/sql";
 import { Observable, Subject } from "rxjs";
 
@@ -33,18 +32,6 @@ export interface ITrongEvents {
   ) => Promise<void> | void;
 }
 
-export interface ISharedState {
-  messagesFromWorker$: Observable<IOutputWorkerMessage>;
-  messagesToWorker$: Subject<IInputWorkerMessage>;
-  stop$: Subject<void>;
-  isStopped: boolean;
-  dbName: string;
-  eventsEmitter: INanoEmitter<ITrongEvents>;
-
-  // Used to detect current tab id. Uniq for each tab
-  clientId: string;
-}
-
 export interface ITransactionState {
   id: string;
 }
@@ -70,4 +57,16 @@ export interface IDbState {
   suppressLog?: boolean;
   sharedState: ISharedState;
   queriesMiddlewares: IQueriesMiddleware[];
+}
+
+export interface ISharedState {
+  messagesFromWorker$: Observable<IOutputWorkerMessage>;
+  messagesToWorker$: Subject<IInputWorkerMessage>;
+  stop$: Subject<void>;
+  isStopped: boolean;
+  dbName: string;
+  eventsEmitter: INanoEmitter<ITrongEvents>;
+
+  // Used to detect current tab id. Uniq for each tab
+  clientId: string;
 }

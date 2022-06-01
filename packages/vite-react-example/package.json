@@ -10,6 +10,7 @@
   "dependencies": {
     "@trong/core": "*",
     "@trong/react-hooks": "*",
+    "@trong/records": "*",
     "@trong/reactive-queries": "*",
     "@faker-js/faker": "^7.1.0",
     "nanoid": "^3.3.4",

@@ -1,6 +1,6 @@
+import { IDbState } from "@trong/core";
 import { Sql } from "@trong/sql";
 
-import { IDbState } from "../types";
 import { IRecordConfig } from "./defineRecord";
 import { applyAction } from "./middlewares";
 

@@ -1,12 +1,7 @@
 import { faker } from "@faker-js/faker";
-import {
-  createRecords,
-  defineRecord,
-  deleteRecords,
-  runAfterTransactionCommitted,
-  runQuery,
-} from "@trong/core";
+import { runAfterTransactionCommitted, runQuery } from "@trong/core";
 import { useRecords, useRunQuery } from "@trong/react-hooks";
+import { createRecords, defineRecord, deleteRecords } from "@trong/records";
 import { sql, table } from "@trong/sql";
 import { nanoid } from "nanoid";
 

@@ -1,17 +1,13 @@
-import { QueryExecResult } from "@harika-org/sql.js";
-import { join, sql } from "@trong/sql";
+import { IDbState, runInTransaction, runQuery } from "@trong/core";
+import { generateInsert, join, sql } from "@trong/sql";
 
-import { runQuery } from "../runQueries";
-import { generateInsert } from "../sqlHelpers";
-import { runInTransaction } from "../transaction";
-import { IDbState } from "../types";
-import { chunk } from "../utils";
 import {
   buildMiddleware,
   ICreateRecordAction,
   IDeleteRecordAction,
   IGetAction,
 } from "./middlewares";
+import { chunk } from "./utils";
 
 // TODO: move records chunking to helper
 

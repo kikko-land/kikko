@@ -1,4 +1,4 @@
-import { empty, join, raw, sql, table } from "@trong/sql";
+import { empty, join, raw, sql, table } from "./Sql";
 
 export const generateInsert = (
   tableName: string,

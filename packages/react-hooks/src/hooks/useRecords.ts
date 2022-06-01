@@ -1,10 +1,6 @@
-import {
-  getRecords,
-  IDbState,
-  IRecordConfig,
-  withSuppressedLog,
-} from "@trong/core";
+import { IDbState, withSuppressedLog } from "@trong/core";
 import { subscribeToQueries$ } from "@trong/reactive-queries";
+import { getRecords, IRecordConfig } from "@trong/records";
 import { Sql } from "@trong/sql";
 import { useEffect, useMemo, useState } from "react";
 import { startWith, switchMap, takeUntil } from "rxjs";
