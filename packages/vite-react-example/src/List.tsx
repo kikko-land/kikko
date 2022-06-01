@@ -100,6 +100,8 @@ const usePaginator = ({
 };
 
 export const List = () => {
+  const [textToSearch, setTextToSearch] = useState<string>("");
+
   const baseSql = useSql(sql`SELECT * FROM ${notesRecords}`);
   const {
     pagerSql,
@@ -117,21 +119,23 @@ export const List = () => {
 
   const recordsResult = useRecords(notesRecords, sql`${baseSql} ${pagerSql}`);
 
-  const [createNotes, createNotesState] = useRunQuery(async (db) => {
-    await createRecords(
-      db,
-      notesRecords,
-      Array.from(Array(100).keys()).map((i) => ({
-        id: nanoid(),
-        title: faker.lorem.words(4),
-        content: faker.lorem.paragraph(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }))
-    );
-  });
+  const [createNotes, createNotesState] = useRunQuery(
+    (count: number) => async (db) => {
+      await createRecords(
+        db,
+        notesRecords,
+        Array.from(Array(count).keys()).map((i) => ({
+          id: nanoid(),
+          title: faker.lorem.words(4),
+          content: faker.lorem.paragraph(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }))
+      );
+    }
+  );
 
-  const [deleteAll, deleteAllState] = useRunQuery(async (db) => {
+  const [deleteAll, deleteAllState] = useRunQuery(() => async (db) => {
     const result = await runQuery<{ id: string }>(
       db,
       sql`SELECT id FROM ${notesRecords}`
@@ -147,17 +151,20 @@ export const List = () => {
 
   return (
     <>
-      <button
-        onClick={createNotes}
-        disabled={
-          createNotesState.type === "loading" ||
-          createNotesState.type === "waitingDb"
-        }
-      >
-        {createNotesState.type === "loading"
-          ? "Loading..."
-          : "Add  100 records!"}
-      </button>
+      {[100, 1000, 10_000].map((count) => (
+        <button
+          key={count}
+          onClick={() => createNotes(count)}
+          disabled={
+            createNotesState.type === "loading" ||
+            createNotesState.type === "waitingDb"
+          }
+        >
+          {createNotesState.type === "loading"
+            ? "Loading..."
+            : `Add  ${count} records!`}
+        </button>
+      ))}
 
       <div>
         Total records: {totalCount !== undefined ? totalCount : "Loading..."}

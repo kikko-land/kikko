@@ -150,12 +150,15 @@ function useIsMounted() {
   return useCallback(() => isMounted.current, []);
 }
 
-export function useRunQuery<D>(
-  cb: (db: IDbState) => Promise<D>,
+export function useRunQuery<
+  D extends (...args: any[]) => (db: IDbState) => Promise<R>,
+  R extends any
+>(
+  cb: D,
   _opts?: { suppressLog?: boolean; inTransaction?: boolean } | undefined
 ): readonly [
-  () => Promise<D>,
-  DistributiveOmit<IQueryResultWithIdle<D>, "data"> & { data?: D | undefined }
+  (...args: Parameters<D>) => Promise<R>,
+  DistributiveOmit<IQueryResultWithIdle<R>, "data"> & { data?: R | undefined }
 ] {
   const { suppressLog, inTransaction } = {
     suppressLog: _opts?.suppressLog !== undefined ? _opts.suppressLog : false,
@@ -166,30 +169,45 @@ export function useRunQuery<D>(
   const dbState = useDbState();
   const isMounted = useIsMounted();
 
-  const [data, setData] = useState<D | undefined>();
+  const [data, setData] = useState<R | undefined>();
   const [response, setResponse] = useState<
     DistributiveOmit<IQueryResultWithIdle<D>, "data">
   >(dbState.type === "initialized" ? { type: "idle" } : { type: "waitingDb" });
 
-  const run = useCallback(async () => {
-    if (dbState.type !== "initialized") {
-      // TODO: maybe wait db init as opts?
+  const toCall = useCallback(
+    async (...args: Parameters<D>) => {
+      if (dbState.type !== "initialized") {
+        // TODO: maybe wait db init as opts?
 
-      throw new Error("Db not initialized!");
-    }
+        throw new Error("Db not initialized!");
+      }
 
-    setResponse({ type: "loading" });
+      setResponse({ type: "loading" });
 
-    const db = suppressLog ? withSuppressedLog(dbState.db) : dbState.db;
-    const res = await (inTransaction ? runInTransaction(db, cb) : cb(db));
+      const db = suppressLog ? withSuppressedLog(dbState.db) : dbState.db;
+      const res = await (inTransaction
+        ? runInTransaction(db, cb(...args))
+        : cb(...args)(db));
 
-    if (isMounted()) {
-      setData(res);
-      setResponse({ type: "loaded" });
-    }
+      if (isMounted()) {
+        setData(res);
+        setResponse({ type: "loaded" });
+      }
 
-    return res;
-  }, [dbState, suppressLog, inTransaction, cb, isMounted]);
+      return res;
+    },
+    [cb, dbState, inTransaction, isMounted, suppressLog]
+  );
+
+  // Simulation of useEvent
+  const toCallRef = useRef<(...args: Parameters<D>) => Promise<R>>(toCall);
+  useEffect(() => {
+    toCallRef.current = toCall;
+  }, [toCall]);
+
+  const run = useCallback((...args: Parameters<D>) => {
+    return toCallRef.current(...args);
+  }, []);
 
   const result = useMemo(() => {
     return { ...response, data };
