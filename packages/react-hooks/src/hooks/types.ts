@@ -11,6 +11,9 @@ export type IQueryResult<D> =
       type: "waitingDb";
       data?: D;
     }
-  | { type: "loaded"; data: D };
+  | { type: "loaded"; data: D }
+  | { type: "noSqlPresent"; data?: D };
 
 export type IQueryResultWithIdle<D> = IQueryResult<D> | { type: "idle" };
+
+export type Falsy = false | 0 | "" | null | undefined;

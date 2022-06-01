@@ -102,6 +102,11 @@ export class Sql {
           this.strings[pos] = child.strings[childIndex];
         }
 
+        let childTableIndex = 0;
+        while (childTableIndex < child.tables.length) {
+          this.tables[tableI++] = child.tables[childTableIndex++];
+        }
+
         // Append raw string to current string.
         this.strings[pos] += rawString;
       } else if (containsTable(child)) {

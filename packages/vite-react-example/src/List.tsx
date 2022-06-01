@@ -1,9 +1,15 @@
 import { faker } from "@faker-js/faker";
 import { runAfterTransactionCommitted, runQuery } from "@trong/core";
-import { useRecords, useRunQuery } from "@trong/react-hooks";
+import {
+  useQueryFirstRow,
+  useRecords,
+  useRunQuery,
+  useSql,
+} from "@trong/react-hooks";
 import { createRecords, defineRecord, deleteRecords } from "@trong/records";
-import { sql, table } from "@trong/sql";
+import { Sql, sql, table } from "@trong/sql";
 import { nanoid } from "nanoid";
+import { useCallback, useEffect, useState } from "react";
 
 interface IRow {
   id: string;
@@ -34,10 +40,84 @@ const notesRecords = defineRecord<IRow, IRecord>(table("notes"), {
   }),
 });
 
-export const List = () => {
-  const records = useRecords(notesRecords, sql`SELECT * FROM ${notesRecords}`);
+const usePaginator = ({
+  perPage,
+  baseSql,
+}: {
+  perPage: number;
+  baseSql: Sql;
+}) => {
+  const [currentPage, setPage] = useState(1);
 
-  const [createNote, createState] = useRunQuery(async (db) => {
+  const countResult = useQueryFirstRow<{ count: number }>(
+    sql`SELECT count(*) as count FROM (${baseSql})`
+  );
+
+  const totalCount = countResult.data?.count;
+
+  const totalPages =
+    totalCount !== undefined ? totalCount / perPage : undefined;
+
+  useEffect(() => {
+    if (totalPages === undefined) return;
+    if (totalPages === 0) {
+      setPage(1);
+
+      return;
+    }
+
+    if (currentPage > totalPages) {
+      setPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
+  const isNextPageAvailable =
+    totalPages !== undefined ? currentPage < totalPages : false;
+  const isPrevPageAvailable = currentPage > 1;
+
+  const nextPage = useCallback(() => {
+    if (isNextPageAvailable) {
+      setPage(currentPage + 1);
+    }
+  }, [currentPage, isNextPageAvailable]);
+
+  const prevPage = useCallback(() => {
+    if (isPrevPageAvailable) {
+      setPage(currentPage - 1);
+    }
+  }, [currentPage, isPrevPageAvailable]);
+
+  return {
+    pagerSql: sql`LIMIT ${perPage} OFFSET ${perPage * (currentPage - 1)}`,
+    totalPages,
+    currentPage,
+    totalCount,
+    isNextPageAvailable,
+    isPrevPageAvailable,
+    nextPage,
+    prevPage,
+  };
+};
+
+export const List = () => {
+  const baseSql = useSql(sql`SELECT * FROM ${notesRecords}`);
+  const {
+    pagerSql,
+    totalPages,
+    currentPage,
+    totalCount,
+    isNextPageAvailable,
+    isPrevPageAvailable,
+    nextPage,
+    prevPage,
+  } = usePaginator({
+    perPage: 50,
+    baseSql: baseSql,
+  });
+
+  const recordsResult = useRecords(notesRecords, sql`${baseSql} ${pagerSql}`);
+
+  const [createNotes, createNotesState] = useRunQuery(async (db) => {
     await createRecords(
       db,
       notesRecords,
@@ -67,36 +147,21 @@ export const List = () => {
 
   return (
     <>
-      <table>
-        <thead>
-          <tr>
-            <td>Title</td>
-            <td>Content</td>
-            <td>Created At</td>
-            <td>Updated At</td>
-          </tr>
-        </thead>
-        <tbody>
-          {records.type === "loaded" &&
-            records.data.map((r) => (
-              <tr key={r.id}>
-                <td>{r.title}</td>
-                <td>{r.content}</td>
-                <td>{new Date(r.createdAt).toLocaleString()}</td>
-                <td>{new Date(r.updatedAt).toLocaleString()}</td>
-              </tr>
-            ))}
-        </tbody>
-      </table>
-
       <button
-        onClick={createNote}
+        onClick={createNotes}
         disabled={
-          createState.type === "loading" || createState.type === "waitingDb"
+          createNotesState.type === "loading" ||
+          createNotesState.type === "waitingDb"
         }
       >
-        {createState.type === "loading" ? "Loading..." : "Add record!"}
+        {createNotesState.type === "loading"
+          ? "Loading..."
+          : "Add  100 records!"}
       </button>
+
+      <div>
+        Total records: {totalCount !== undefined ? totalCount : "Loading..."}
+      </div>
 
       <button
         onClick={deleteAll}
@@ -109,6 +174,39 @@ export const List = () => {
           ? "Loading..."
           : "Delete all records!"}
       </button>
+
+      <table>
+        <thead>
+          <tr>
+            <td>Title</td>
+            <td>Content</td>
+            <td>Created At</td>
+            <td>Updated At</td>
+          </tr>
+        </thead>
+        <tbody>
+          {recordsResult.type === "loaded" &&
+            recordsResult.data.map((r) => (
+              <tr key={r.id}>
+                <td>{r.title}</td>
+                <td>{r.content}</td>
+                <td>{new Date(r.createdAt).toLocaleString()}</td>
+                <td>{new Date(r.updatedAt).toLocaleString()}</td>
+              </tr>
+            ))}
+        </tbody>
+      </table>
+
+      <div>
+        Page: {currentPage}
+        {totalPages !== undefined && ` of ${totalPages}`}
+        <button disabled={!isPrevPageAvailable} onClick={prevPage}>
+          Prev page
+        </button>
+        <button disabled={!isNextPageAvailable} onClick={nextPage}>
+          Next page
+        </button>
+      </div>
     </>
   );
 };

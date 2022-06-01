@@ -3,22 +3,25 @@ import { IDbState } from "@trong/core";
 import { subscribeToQueries$ } from "@trong/reactive-queries";
 import { Sql } from "@trong/sql";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { startWith, switchMap } from "rxjs";
+import { Falsy, startWith, switchMap } from "rxjs";
 
 import { useDbState } from "../DbProvider";
 import { DistributiveOmit, IQueryResult, IQueryResultWithIdle } from "./types";
 
-const runQueries$ = (state: IDbState, queries: Sql[]) => {
+function runQueries$<D extends Record<string, unknown>>(
+  state: IDbState,
+  queries: Sql[]
+) {
   return subscribeToQueries$(state, queries).pipe(
     startWith(undefined),
     switchMap(async () => {
-      return runQueries(state, queries);
+      return runQueries<D>(state, queries);
     })
   );
-};
+}
 
-export function useQueries<D>(
-  _queries: Sql[],
+export function useQueries<D extends Record<string, unknown>>(
+  _queries: Sql[] | Falsy,
   _opts?: { suppressLog?: boolean; mapToObject?: boolean } | undefined
 ): IQueryResult<D[][]> {
   const dbState = useDbState();
@@ -27,15 +30,27 @@ export function useQueries<D>(
     suppressLog: _opts?.suppressLog !== undefined ? _opts.suppressLog : false,
   };
 
-  const [currentQueries, setCurrentQueries] = useState<Sql[]>(_queries);
+  const [currentQueries, setCurrentQueries] = useState<Sql[]>(
+    _queries ? _queries : []
+  );
   const [data, setData] = useState<D[][] | undefined>();
   const [response, setResponse] = useState<
     DistributiveOmit<IQueryResult<D[][]>, "data">
   >(
-    dbState.type === "initialized" ? { type: "loading" } : { type: "waitingDb" }
+    _queries
+      ? dbState.type === "initialized"
+        ? { type: "loading" }
+        : { type: "waitingDb" }
+      : { type: "noSqlPresent" }
   );
 
   useEffect(() => {
+    if (currentQueries.length === 0) {
+      setResponse({ type: "noSqlPresent" });
+
+      return;
+    }
+
     if (dbState.type !== "initialized") {
       setResponse({ type: "waitingDb" });
 
@@ -44,10 +59,12 @@ export function useQueries<D>(
 
     const db = suppressLog ? withSuppressedLog(dbState.db) : dbState.db;
 
-    const subscription = runQueries$(db, currentQueries).subscribe((result) => {
-      setData(result as unknown as D[][]);
-      setResponse({ type: "loaded" });
-    });
+    const subscription = runQueries$<D>(db, currentQueries).subscribe(
+      (result) => {
+        setData(result);
+        setResponse({ type: "loaded" });
+      }
+    );
 
     return () => {
       subscription.unsubscribe();
@@ -57,9 +74,9 @@ export function useQueries<D>(
   useEffect(() => {
     if (
       currentQueries.map((q) => q.hash).join() !==
-      _queries.map((q) => q.hash).join()
+      (_queries || []).map((q) => q.hash).join()
     ) {
-      setCurrentQueries(_queries);
+      setCurrentQueries(_queries || []);
     }
   }, [currentQueries, _queries]);
 
@@ -78,11 +95,13 @@ export function useQueries<D>(
   }, [data, response]);
 }
 
-export function useQuery<D>(
-  query: Sql,
+export function useQuery<D extends Record<string, unknown>>(
+  query: Sql | Falsy,
   _opts?: { suppressLog?: boolean; mapToObject?: boolean } | undefined
 ): IQueryResult<D[]> {
-  const result = useQueries<D>([query], _opts);
+  const queries = useMemo(() => (query ? [query] : []), [query]);
+
+  const result = useQueries<D>(queries, _opts);
 
   return useMemo(() => {
     if (result.type === "loaded") {
@@ -100,6 +119,21 @@ export function useQuery<D>(
       data: result.data?.[0],
     };
   }, [result]);
+}
+
+export function useQueryFirstRow<D extends Record<string, unknown>>(
+  query: Sql | Falsy,
+  _opts?: { suppressLog?: boolean; mapToObject?: boolean } | undefined
+): IQueryResult<D> {
+  const res = useQuery<D>(query, _opts);
+
+  return useMemo(() => {
+    if (res.type === "loaded") {
+      return { ...res, data: res.data[0] };
+    }
+
+    return { ...res, data: res.data?.[0] };
+  }, [res]);
 }
 
 function useIsMounted() {
@@ -162,4 +196,16 @@ export function useRunQuery<D>(
   }, [data, response]);
 
   return [run, result];
+}
+
+export function useSql(_query: Sql) {
+  const [query, setQuery] = useState(_query);
+
+  useEffect(() => {
+    if (query.hash !== _query.hash) {
+      setQuery(_query);
+    }
+  }, [_query, query]);
+
+  return query;
 }

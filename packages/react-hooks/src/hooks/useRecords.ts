@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { startWith, switchMap, takeUntil } from "rxjs";
 
 import { useDbState } from "../DbProvider";
-import { DistributiveOmit, IQueryResult } from "./types";
+import { DistributiveOmit, Falsy, IQueryResult } from "./types";
 
 const getRecords$ = <
   Row extends Record<string, any> & { id: string },
@@ -28,7 +28,7 @@ export function useRecords<
   Rec extends Record<string, any> & { id: string }
 >(
   recordConfig: IRecordConfig<Row, Rec>,
-  _query: Sql,
+  _query: Sql | Falsy,
   _opts?: { suppressLog?: boolean } | undefined
 ): IQueryResult<Rec[]> {
   const dbState = useDbState();
@@ -37,15 +37,27 @@ export function useRecords<
     suppressLog: _opts?.suppressLog !== undefined ? _opts.suppressLog : false,
   };
 
-  const [currentQuery, setCurrentQuery] = useState<Sql>(_query);
+  const [currentQuery, setCurrentQuery] = useState<Sql | undefined>(
+    _query || undefined
+  );
   const [data, setData] = useState<Rec[] | undefined>();
   const [response, setResponse] = useState<
     DistributiveOmit<IQueryResult<Rec[]>, "data">
   >(
-    dbState.type === "initialized" ? { type: "loading" } : { type: "waitingDb" }
+    _query
+      ? dbState.type === "initialized"
+        ? { type: "loading" }
+        : { type: "waitingDb" }
+      : { type: "noSqlPresent" }
   );
 
   useEffect(() => {
+    if (!currentQuery) {
+      setResponse({ type: "noSqlPresent" });
+
+      return;
+    }
+
     if (dbState.type !== "initialized") {
       setResponse({ type: "waitingDb" });
 
@@ -67,16 +79,20 @@ export function useRecords<
   }, [dbState, currentQuery, suppressLog, recordConfig]);
 
   useEffect(() => {
-    if (currentQuery.hash !== _query.hash) {
-      setCurrentQuery(_query);
+    if ((currentQuery || undefined) === (_query || undefined)) return;
+
+    if (currentQuery && _query && currentQuery.hash === _query.hash) {
+      return;
     }
+
+    setCurrentQuery(_query || undefined);
   }, [currentQuery, _query]);
 
   return useMemo(() => {
     if (response.type === "loaded") {
       if (!data) {
         throw new Error(
-          "Internal error: response state is loaded, but there is not data!"
+          "Internal error: response state is loaded, but there is no data!"
         );
       }
 
