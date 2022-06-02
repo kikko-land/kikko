@@ -23,11 +23,6 @@ export type IRollbackTransactionCommand = IBaseCommand & {
   commandId: string;
 };
 
-type ITransactionCommand =
-  | IStartTransactionCommand
-  | ICommitTransactionCommand
-  | IRollbackTransactionCommand;
-
 export type ITransferredQuery = { values: Value[]; text: string };
 export type IExecQueriesCommand = IBaseCommand & {
   type: "runQueries";
@@ -43,22 +38,6 @@ export type ICommand =
   | IExecQueriesCommand
   | ICommitTransactionCommand;
 
-export const buildTransactionCommand = (
-  state: IDbState,
-  type: ITransactionCommand["type"]
-): ITransactionCommand => {
-  if (!state.transaction) {
-    throw new Error("Transaction id not set in state");
-  }
-
-  return {
-    type,
-    transactionId: state.transaction.id,
-    commandId: nanoid(),
-    suppressLog: state.suppressLog,
-  };
-};
-
 export const buildRunQueriesCommand = (
   state: IDbState,
   queries: Sql[]
@@ -66,9 +45,8 @@ export const buildRunQueriesCommand = (
   return {
     type: "runQueries",
     queries: queries.map((q) => ({ values: q.values, text: q.text })),
-    spawnTransaction: queries.length > 1 && !state.transaction,
-    transactionId: state.transaction?.id,
+    spawnTransaction: false,
     commandId: nanoid(),
-    suppressLog: state.suppressLog,
+    suppressLog: state.localState.suppressLog,
   };
 };

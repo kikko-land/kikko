@@ -13,6 +13,7 @@ import {
 
 import { IInputWorkerMessage, IOutputWorkerMessage } from "../worker/types";
 import { createNanoEvents } from "./createNanoEvents";
+import { IJob } from "./job";
 import { IDbState, IQueriesMiddleware, ITrongEvents } from "./types";
 
 export type IDbPlugin = (state: IDbState) => IDbState;
@@ -89,9 +90,16 @@ export const initDb = async ({
       isStopped: false,
       dbName,
       eventsEmitter: createNanoEvents<ITrongEvents>(),
+      jobsState: {
+        queue: [],
+        next$: new Subject<IJob>(),
+      },
+      transactionsState: {},
     },
-
-    queriesMiddlewares: queriesMiddlewares || [],
+    localState: {
+      queriesMiddlewares: queriesMiddlewares || [],
+      transactionsState: {},
+    },
   };
 
   for (const plugin of plugins || []) {

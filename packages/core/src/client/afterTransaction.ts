@@ -1,14 +1,14 @@
-import { IDbState, ITransactionState } from "./types";
+import { IDbState, ITransaction } from "./types";
 
 const runAfterTransaction = (
   db: IDbState,
   func: (
     event: "committed" | "rollbacked",
     db: IDbState,
-    transaction: ITransactionState
+    transaction: ITransaction
   ) => void
 ) => {
-  if (!db.transaction) {
+  if (!db.localState.transactionsState) {
     throw new Error("Not in transaction.");
   }
 
@@ -16,7 +16,7 @@ const runAfterTransaction = (
 
   const listener =
     (event: "committed" | "rollbacked") =>
-    (db: IDbState, transaction: ITransactionState) => {
+    (db: IDbState, transaction: ITransaction) => {
       func(event, db, transaction);
 
       for (const unsubscribe of unsubscribes) {
@@ -42,7 +42,7 @@ const runAfterTransaction = (
 
 export const runAfterTransactionCommitted = (
   db: IDbState,
-  func: (db: IDbState, transaction: ITransactionState) => void
+  func: (db: IDbState, transaction: ITransaction) => void
 ) => {
   runAfterTransaction(db, (ev, db, transaction) => {
     if (ev === "committed") {
@@ -53,7 +53,7 @@ export const runAfterTransactionCommitted = (
 
 export const runAfterTransactionRollbacked = (
   db: IDbState,
-  func: (db: IDbState, transaction: ITransactionState) => void
+  func: (db: IDbState, transaction: ITransaction) => void
 ) => {
   runAfterTransaction(db, (ev, db, transaction) => {
     if (ev === "rollbacked") {
