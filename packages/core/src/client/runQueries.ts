@@ -34,13 +34,9 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
     sharedState: { transactionsState: transactionsSharedState, jobsState },
   } = dbState;
 
-  if (
-    transactionsLocalState.currentlyRunning &&
-    transactionsSharedState.currentlyRunning
-  ) {
+  if (transactionsLocalState.current && transactionsSharedState.current) {
     if (
-      transactionsLocalState.currentlyRunning.id !==
-      transactionsSharedState.currentlyRunning.id
+      transactionsLocalState.current.id !== transactionsSharedState.current.id
     ) {
       // Is it possible?
       throw new Error(
@@ -51,7 +47,7 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
 
   let job: IJob | undefined;
 
-  if (!transactionsLocalState.currentlyRunning) {
+  if (!transactionsLocalState.current) {
     job = await acquireJob(jobsState, {
       type: "runQueries",
       queries,

@@ -60,7 +60,7 @@ export interface IDbState {
   // immutable object
   localState: DeepReadonly<{
     transactionsState: {
-      currentlyRunning?: ITransaction;
+      current?: ITransaction;
     };
     suppressLog?: boolean;
     queriesMiddlewares: IQueriesMiddleware[];
@@ -81,6 +81,6 @@ export interface ISharedState {
   jobsState: IJobState;
 
   transactionsState: {
-    currentlyRunning?: ITransaction;
+    current?: ITransaction;
   };
 }

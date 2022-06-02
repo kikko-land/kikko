@@ -15,13 +15,9 @@ export const runInTransaction = async <T>(
     sharedState: { transactionsState: transactionsSharedState, eventsEmitter },
   } = state;
 
-  if (
-    transactionsLocalState.currentlyRunning &&
-    transactionsSharedState.currentlyRunning
-  ) {
+  if (transactionsLocalState.current && transactionsSharedState.current) {
     if (
-      transactionsLocalState.currentlyRunning.id !==
-      transactionsSharedState.currentlyRunning.id
+      transactionsLocalState.current.id !== transactionsSharedState.current.id
     ) {
       // Is it possible?
       throw new Error(
@@ -41,7 +37,7 @@ export const runInTransaction = async <T>(
     ...state,
     localState: {
       ...state.localState,
-      transactionsState: { currentlyRunning: transaction },
+      transactionsState: { current: transaction },
     },
   };
 
@@ -51,7 +47,7 @@ export const runInTransaction = async <T>(
   });
 
   try {
-    transactionsSharedState.currentlyRunning = transaction;
+    transactionsSharedState.current = transaction;
 
     await eventsEmitter.emit("transactionWillStart", state, transaction);
 

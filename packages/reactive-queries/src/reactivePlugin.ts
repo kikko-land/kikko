@@ -27,8 +27,7 @@ export const reactiveQueriesPlugin: IDbPlugin = (db) => {
   const { dbName, eventsEmitter, stop$ } = db.sharedState;
 
   const reactiveQueriesMiddleware: IQueriesMiddleware = (state) => {
-    const transaction =
-      state.dbState.localState.transactionsState.currentlyRunning;
+    const transaction = state.dbState.localState.transactionsState.current;
 
     const writeTables = state.queries
       .filter((q) => q.isModifyQuery)
@@ -86,9 +85,12 @@ export const reactiveQueriesPlugin: IDbPlugin = (db) => {
 
   return {
     ...db,
-    queriesMiddlewares: [
-      ...db.localState.queriesMiddlewares,
-      reactiveQueriesMiddleware,
-    ],
+    localState: {
+      ...db.localState,
+      queriesMiddlewares: [
+        ...db.localState.queriesMiddlewares,
+        reactiveQueriesMiddleware,
+      ],
+    },
   };
 };

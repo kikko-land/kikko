@@ -43,16 +43,16 @@ export const runWorkerCommand = (state: IDbState, command: ICommand) => {
           throw new Error("Unknown data format");
         }
       }),
-      timeout({
-        each: 8000,
-        with: () =>
-          throwError(
-            () =>
-              new Error(
-                `Failed to execute ${JSON.stringify(command)} - timeout`
-              )
-          ),
-      }),
+      // timeout({
+      //   each: 8000,
+      //   with: () =>
+      //     throwError(
+      //       () =>
+      //         new Error(
+      //           `Failed to execute ${JSON.stringify(command)} - timeout`
+      //         )
+      //     ),
+      // }),
       takeUntil(state.sharedState.stop$)
     )
   );
