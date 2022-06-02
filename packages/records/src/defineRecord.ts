@@ -47,7 +47,10 @@ export function defineRecord<
   config: Optional<
     IRecordConfig<Row, Rec>,
     "middlewares" | typeof tableSymbol | "table"
-  > & { middlewareSlices?: IMiddlewareSlice<Row, Rec>[] }
+  > & {
+    middlewareSlices?: IMiddlewareSlice<Row, Rec>[];
+    plugins?: ((config: IRecordConfig<Row, Rec>) => IRecordConfig<Row, Rec>)[];
+  }
 ): IRecordConfig<Row, Rec> {
   const createMiddlewares: ICreateMiddleware<Row, Rec>[] = [
     insertRecordsMiddleware<Row, Rec>(),
@@ -79,7 +82,7 @@ export function defineRecord<
     }
   }
 
-  return {
+  let finalConfig: IRecordConfig<Row, Rec> = {
     ...config,
     ...table,
     get table() {
@@ -92,4 +95,10 @@ export function defineRecord<
       get: getMiddlewares,
     },
   };
+
+  for (const plugin of config?.plugins || []) {
+    finalConfig = plugin(finalConfig);
+  }
+
+  return finalConfig;
 }
