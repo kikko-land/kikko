@@ -8,8 +8,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@trong-orm/sql.js": "^1.6.7",
     "@faker-js/faker": "^7.1.0",
+    "@trong-orm/sql.js": "^1.6.7",
     "@trong-orm/core": "*",
     "@trong-orm/react-queries-hooks": "*",
     "@trong-orm/react-records-hooks": "*",

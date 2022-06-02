@@ -71,7 +71,7 @@ export function useRecords<
 
     const subscription = getRecords$(db, recordConfig, currentQuery).subscribe(
       (result) => {
-        setData(result);
+        setData(result.records);
         setResponse({ type: "loaded" });
       }
     );

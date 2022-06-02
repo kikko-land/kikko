@@ -1,5 +1,5 @@
 import { IDbState } from "@trong-orm/core";
-import { Sql } from "@trong-orm/sql";
+import { empty, join, Sql, sql } from "@trong-orm/sql";
 
 import { IRecordConfig } from "./defineRecord";
 import { applyAction } from "./middlewares";
@@ -17,7 +17,7 @@ export const getRecords = async <
       db,
       recordConfig,
       recordConfig.middlewares.get,
-      { result: [] as Rec[] },
+      { records: [] as Rec[] },
       { query: sql }
     )
   ).result;
@@ -32,18 +32,20 @@ export const createRecords = async <
   recs: Rec[],
   replace: boolean = false
 ) => {
-  if (recs.length === 0) return;
+  if (recs.length === 0) return { createdRecords: [] };
 
-  await applyAction(
-    db,
-    recordConfig,
-    recordConfig.middlewares.create,
-    {},
-    { records: recs, replace }
-  );
+  return (
+    await applyAction(
+      db,
+      recordConfig,
+      recordConfig.middlewares.create,
+      { createdRecords: [] as Rec[] },
+      { records: recs, replace }
+    )
+  ).result;
 };
 
-export const createRecord = <
+export const createRecord = async <
   Row extends Record<string, any> & { id: string },
   Rec extends Record<string, any> & { id: string }
 >(
@@ -52,7 +54,14 @@ export const createRecord = <
   obj: Rec,
   replace: boolean = false
 ) => {
-  return createRecords(db, recordConfig, [obj], replace);
+  const { createdRecords } = await createRecords(
+    db,
+    recordConfig,
+    [obj],
+    replace
+  );
+
+  return { createRecord: createdRecords[0] };
 };
 
 export const deleteRecords = async <
@@ -61,17 +70,38 @@ export const deleteRecords = async <
 >(
   db: IDbState,
   recordConfig: IRecordConfig<Row, Rec>,
+  whereStatement: Sql
+) => {
+  return (
+    await applyAction(
+      db,
+      recordConfig,
+      recordConfig.middlewares.delete,
+      { deletedRecords: [] as Rec[] },
+      { whereStatement: whereStatement }
+    )
+  ).result;
+};
+
+export const deleteRecordsByIds = async <
+  Row extends Record<string, any> & { id: string },
+  Rec extends Record<string, any> & { id: string }
+>(
+  db: IDbState,
+  recordConfig: IRecordConfig<Row, Rec>,
   ids: string[]
 ) => {
-  if (ids.length === 0) return;
+  return deleteRecords(db, recordConfig, sql`WHERE id IN (${join(ids)})`);
+};
 
-  await applyAction(
-    db,
-    recordConfig,
-    recordConfig.middlewares.delete,
-    {},
-    { ids }
-  );
+export const deleteAllRecords = async <
+  Row extends Record<string, any> & { id: string },
+  Rec extends Record<string, any> & { id: string }
+>(
+  db: IDbState,
+  recordConfig: IRecordConfig<Row, Rec>
+) => {
+  return deleteRecords(db, recordConfig, empty);
 };
 
 export const updateRecords = async <
@@ -82,15 +112,17 @@ export const updateRecords = async <
   recordConfig: IRecordConfig<Row, Rec>,
   recs: (Partial<Rec> & { id: string })[]
 ) => {
-  if (recs.length === 0) return;
+  if (recs.length === 0) return { updatedRecords: [] };
 
-  await applyAction(
-    db,
-    recordConfig,
-    recordConfig.middlewares.update,
-    {},
-    { partialRecords: recs }
-  );
+  return (
+    await applyAction(
+      db,
+      recordConfig,
+      recordConfig.middlewares.update,
+      { updatedRecords: [] as Rec[] },
+      { partialRecords: recs }
+    )
+  ).result;
 };
 
 export const updateRecord = async <
@@ -101,5 +133,7 @@ export const updateRecord = async <
   recordConfig: IRecordConfig<Row, Rec>,
   rec: Partial<Rec> & { id: string }
 ) => {
-  return updateRecords(db, recordConfig, [rec]);
+  const { updatedRecords } = await updateRecords(db, recordConfig, [rec]);
+
+  return { updatedRecord: updatedRecords[0] };
 };

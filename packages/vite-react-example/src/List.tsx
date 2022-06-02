@@ -1,130 +1,75 @@
 import { faker } from "@faker-js/faker";
-import { runAfterTransactionCommitted, runQuery } from "@trong-orm/core";
-import {
-  useQueryFirstRow,
-  useRunQuery,
-  useSql,
-} from "@trong-orm/react-queries-hooks";
+import { runAfterTransactionCommitted } from "@trong-orm/core";
+import { useRunQuery, useSql } from "@trong-orm/react-queries-hooks";
 import { useRecords } from "@trong-orm/react-records-hooks";
 import {
   createRecords,
-  defineRecord,
-  deleteRecords,
-  getRecords,
-  middlewaresSlice,
+  deleteAllRecords,
+  deleteRecordsByIds,
+  updateRecords,
 } from "@trong-orm/records";
-import { empty, join, Sql, sql, table } from "@trong-orm/sql";
+import { empty, sql } from "@trong-orm/sql";
 import { nanoid } from "nanoid";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import Highlighter from "react-highlight-words";
 
-interface IRow {
-  id: string;
-  title: string;
-  content: string;
-  createdAt: number;
-  updatedAt: number;
-}
+import { usePaginator } from "./hooks/usePaginator";
+import { INoteRecord, notesRecords } from "./records/notesRecords";
 
-interface IRecord {
-  id: string;
-  title: string;
-  content: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-const notesRecords = defineRecord<IRow, IRecord>(table("notes"), {
-  serialize: (record) => ({
-    ...record,
-    createdAt: record.createdAt.getTime(),
-    updatedAt: record.updatedAt.getTime(),
-  }),
-  deserialize: (row) => ({
-    ...row,
-    createdAt: new Date(row.createdAt),
-    updatedAt: new Date(row.updatedAt),
-  }),
-  middlewareSlices: [
-    middlewaresSlice({
-      delete: async (args) => {
-        const { next, dbState, recordConfig } = args;
-
-        const records = await getRecords<IRow, IRecord>(
-          dbState,
-          recordConfig,
-          sql`SELECT * FROM ${recordConfig} WHERE id IN (${join(
-            args.action.ids
-          )})`
-        );
-
-        runAfterTransactionCommitted(dbState, () => {
-          console.log({ deletedRecords: records });
-        });
-
-        return await next(args);
-      },
-    }),
-  ],
-});
-
-const usePaginator = ({
-  perPage,
-  baseSql,
+const Row = ({
+  rec,
+  textToSearch,
 }: {
-  perPage: number;
-  baseSql: Sql;
+  rec: INoteRecord;
+  textToSearch: string;
 }) => {
-  const [currentPage, setPage] = useState(1);
+  const [deleteRecord, deleteRecordState] = useRunQuery(() => async (db) => {
+    await deleteRecordsByIds(db, notesRecords, [rec.id]);
+  });
 
-  const countResult = useQueryFirstRow<{ count: number }>(
-    sql`SELECT count(*) as count FROM (${baseSql})`
+  const [updateRecord, updateRecordState] = useRunQuery(() => async (db) => {
+    console.log(
+      await updateRecords(db, notesRecords, [
+        {
+          ...rec,
+          title: rec.title + " updated!",
+          content: rec.content + " updated!",
+        },
+      ])
+    );
+  });
+
+  return (
+    <tr key={rec.id}>
+      <td>{rec.title}</td>
+      <td>
+        <Highlighter
+          searchWords={[textToSearch]}
+          autoEscape={true}
+          textToHighlight={rec.content}
+        />
+      </td>
+      <td>{rec.createdAt.toLocaleString()}</td>
+      <td>{rec.updatedAt.toLocaleString()}</td>
+      <td>
+        <button
+          onClick={() => deleteRecord()}
+          disabled={deleteRecordState.type !== "idle"}
+        >
+          Delete
+        </button>
+        <button
+          onClick={() => updateRecord()}
+          disabled={
+            updateRecordState.type !== "loaded" &&
+            updateRecordState.type !== "idle"
+          }
+        >
+          Update
+        </button>
+      </td>
+    </tr>
   );
-
-  const totalCount = countResult.data?.count;
-
-  const totalPages =
-    totalCount !== undefined ? Math.ceil(totalCount / perPage) || 1 : undefined;
-
-  useEffect(() => {
-    if (totalPages === undefined) return;
-    if (totalPages === 0) {
-      setPage(1);
-
-      return;
-    }
-
-    if (currentPage > totalPages) {
-      setPage(totalPages);
-    }
-  }, [currentPage, totalPages]);
-
-  const isNextPageAvailable =
-    totalPages !== undefined ? currentPage < totalPages : false;
-  const isPrevPageAvailable = currentPage > 1;
-
-  const nextPage = useCallback(() => {
-    if (isNextPageAvailable) {
-      setPage(currentPage + 1);
-    }
-  }, [currentPage, isNextPageAvailable]);
-
-  const prevPage = useCallback(() => {
-    if (isPrevPageAvailable) {
-      setPage(currentPage - 1);
-    }
-  }, [currentPage, isPrevPageAvailable]);
-
-  return {
-    pagerSql: sql`LIMIT ${perPage} OFFSET ${perPage * (currentPage - 1)}`,
-    totalPages,
-    currentPage,
-    totalCount,
-    isNextPageAvailable,
-    isPrevPageAvailable,
-    nextPage,
-    prevPage,
-  };
 };
 
 export const List = () => {
@@ -154,28 +99,24 @@ export const List = () => {
 
   const [createNotes, createNotesState] = useRunQuery(
     (count: number) => async (db) => {
-      await createRecords(
-        db,
-        notesRecords,
-        Array.from(Array(count).keys()).map((i) => ({
-          id: nanoid(),
-          title: faker.lorem.words(4),
-          content: faker.lorem.paragraph(),
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }))
+      console.log(
+        await createRecords(
+          db,
+          notesRecords,
+          Array.from(Array(count).keys()).map((i) => ({
+            id: nanoid(),
+            title: faker.lorem.words(4),
+            content: faker.lorem.paragraph(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          }))
+        )
       );
     }
   );
 
   const [deleteAll, deleteAllState] = useRunQuery(() => async (db) => {
-    const result = await runQuery<{ id: string }>(
-      db,
-      sql`SELECT id FROM ${notesRecords}`
-    );
-    const toDeleteIds = result.map(({ id }) => id as string);
-
-    await deleteRecords(db, notesRecords, toDeleteIds);
+    await deleteAllRecords(db, notesRecords);
 
     runAfterTransactionCommitted(db, () => {
       console.log("heY!!!");
@@ -239,23 +180,13 @@ export const List = () => {
             <td>Content</td>
             <td>Created At</td>
             <td>Updated At</td>
+            <td>Actions</td>
           </tr>
         </thead>
         <tbody>
           {recordsResult.type === "loaded" &&
             recordsResult.data.map((r) => (
-              <tr key={r.id}>
-                <td>{r.title}</td>
-                <td>
-                  <Highlighter
-                    searchWords={[textToSearch]}
-                    autoEscape={true}
-                    textToHighlight={r.content}
-                  />
-                </td>
-                <td>{new Date(r.createdAt).toLocaleString()}</td>
-                <td>{new Date(r.updatedAt).toLocaleString()}</td>
-              </tr>
+              <Row rec={r} textToSearch={textToSearch} key={r.id} />
             ))}
         </tbody>
       </table>

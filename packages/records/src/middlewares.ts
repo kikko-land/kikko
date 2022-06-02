@@ -9,7 +9,7 @@ export type ICreateRecordAction<
 export type IUpdateRecordAction<
   Rec extends Record<string, any> & { id: string }
 > = { partialRecords: (Partial<Rec> & { id: string })[] };
-export type IDeleteRecordAction = { ids: string[] };
+export type IDeleteRecordAction = { whereStatement: Sql };
 export type IGetAction = { query: Sql };
 
 export type IRecAction<Rec extends Record<string, any> & { id: string }> =
@@ -32,57 +32,86 @@ export type INextGenericMiddleware<
   Row extends Record<string, any> & { id: string },
   Rec extends Record<string, any> & { id: string },
   Action extends IRecAction<Rec>,
-  AddableState extends Record<string, any> = {}
+  Result extends Record<string, any> = {}
 > = (
-  args: ISharedMiddlewaresState<Row, Rec, Action> & AddableState
-) => Promise<ISharedMiddlewaresState<Row, Rec, Action> & AddableState>;
+  args: ISharedMiddlewaresState<Row, Rec, Action> & { result: Result }
+) => Promise<ISharedMiddlewaresState<Row, Rec, Action> & { result: Result }>;
 export type IGenericMiddleware<
   Row extends Record<string, any> & { id: string },
   Rec extends Record<string, any> & { id: string },
   Action extends IRecAction<Rec>,
-  AddableState extends Record<string, any> = {}
+  Result extends Record<string, any> = {}
 > = (
-  args: ISharedMiddlewaresState<Row, Rec, Action> &
-    AddableState & {
-      next: INextGenericMiddleware<Row, Rec, Action, AddableState>;
-    }
-) => Promise<ISharedMiddlewaresState<Row, Rec, Action> & AddableState>;
+  args: ISharedMiddlewaresState<Row, Rec, Action> & { result: Result } & {
+    next: INextGenericMiddleware<Row, Rec, Action, Result>;
+  }
+) => Promise<ISharedMiddlewaresState<Row, Rec, Action> & { result: Result }>;
 
 export type INextCreateMiddleware<
   Row extends Record<string, any> & { id: string },
   Rec extends Record<string, any> & { id: string }
-> = INextGenericMiddleware<Row, Rec, ICreateRecordAction<Rec>>;
+> = INextGenericMiddleware<
+  Row,
+  Rec,
+  ICreateRecordAction<Rec>,
+  { createdRecords: Rec[] }
+>;
 export type ICreateMiddleware<
   Row extends Record<string, any> & { id: string },
   Rec extends Record<string, any> & { id: string }
-> = IGenericMiddleware<Row, Rec, ICreateRecordAction<Rec>>;
+> = IGenericMiddleware<
+  Row,
+  Rec,
+  ICreateRecordAction<Rec>,
+  { createdRecords: Rec[] }
+>;
 
 export type INextUpdateMiddleware<
   Row extends Record<string, any> & { id: string },
   Rec extends Record<string, any> & { id: string }
-> = INextGenericMiddleware<Row, Rec, IUpdateRecordAction<Rec>>;
+> = INextGenericMiddleware<
+  Row,
+  Rec,
+  IUpdateRecordAction<Rec>,
+  { updatedRecords: Rec[] }
+>;
 export type IUpdateMiddleware<
   Row extends Record<string, any> & { id: string },
   Rec extends Record<string, any> & { id: string }
-> = IGenericMiddleware<Row, Rec, IUpdateRecordAction<Rec>>;
+> = IGenericMiddleware<
+  Row,
+  Rec,
+  IUpdateRecordAction<Rec>,
+  { updatedRecords: Rec[] }
+>;
 
 export type INextDeleteMiddleware<
   Row extends Record<string, any> & { id: string },
   Rec extends Record<string, any> & { id: string }
-> = INextGenericMiddleware<Row, Rec, IDeleteRecordAction>;
+> = INextGenericMiddleware<
+  Row,
+  Rec,
+  IDeleteRecordAction,
+  { result: { deletedRecords: Rec[] } }
+>;
 export type IDeleteMiddleware<
   Row extends Record<string, any> & { id: string },
   Rec extends Record<string, any> & { id: string }
-> = IGenericMiddleware<Row, Rec, IDeleteRecordAction>;
+> = IGenericMiddleware<
+  Row,
+  Rec,
+  IDeleteRecordAction,
+  { deletedRecords: Rec[] }
+>;
 
 export type INextGetMiddleware<
   Row extends Record<string, any> & { id: string },
   Rec extends Record<string, any> & { id: string }
-> = INextGenericMiddleware<Row, Rec, IGetAction, { result: Rec[] }>;
+> = INextGenericMiddleware<Row, Rec, IGetAction, { records: Rec[] }>;
 export type IGetMiddleware<
   Row extends Record<string, any> & { id: string },
   Rec extends Record<string, any> & { id: string }
-> = IGenericMiddleware<Row, Rec, IGetAction, { result: Rec[] }>;
+> = IGenericMiddleware<Row, Rec, IGetAction, { records: Rec[] }>;
 
 export type IMiddlewareSlice<
   Row extends Record<string, any> & { id: string },
@@ -98,32 +127,32 @@ export const applyAction = async <
   Row extends Record<string, any> & { id: string },
   Rec extends Record<string, any> & { id: string },
   Action extends IRecAction<Rec>,
-  AddableState extends Record<string, any> = {}
+  Result extends Record<string, any> = {}
 >(
   dbState: IDbState,
   recordConfig: IRecordConfig<Row, Rec>,
-  middlewares: IGenericMiddleware<Row, Rec, Action, AddableState>[],
-  initialState: AddableState,
+  middlewares: IGenericMiddleware<Row, Rec, Action, Result>[],
+  initialResult: Result,
   action: Action
 ) => {
   middlewares = middlewares.slice();
   middlewares.reverse();
 
-  let toCall: INextGenericMiddleware<Row, Rec, Action, AddableState> = async (
-    args
-  ) => args;
+  let toCall: INextGenericMiddleware<Row, Rec, Action, Result> = async (args) =>
+    args;
 
   for (const middleware of middlewares) {
     const currentCall = toCall;
 
-    toCall = (args: ISharedMiddlewaresState<Row, Rec, Action> & AddableState) =>
-      middleware({ ...args, next: currentCall });
+    toCall = (
+      args: ISharedMiddlewaresState<Row, Rec, Action> & { result: Result }
+    ) => middleware({ ...args, next: currentCall });
   }
 
   return await toCall({
     dbState,
     recordConfig,
     action: action,
-    ...initialState,
+    result: initialResult,
   });
 };

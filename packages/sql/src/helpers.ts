@@ -3,7 +3,8 @@ import { empty, join, raw, sql, table } from "./Sql";
 export const generateInsert = (
   tableName: string,
   objs: Record<string, unknown>[],
-  replace: boolean = false
+  replace: boolean = false,
+  returning: boolean = false
 ) => {
   if (objs.length === 0) throw new Error("Can't insert empty objects");
 
@@ -15,7 +16,7 @@ export const generateInsert = (
 
   return sql`INSERT ${replace ? sql`OR REPLACE` : empty} INTO ${table(
     tableName
-  )} (${join(keys.map((k) => raw(k)))}) VALUES ${values}`;
+  )} (${join(keys.map((k) => raw(k)))}) VALUES ${values} returning *`;
 };
 
 export const generateUpdate = (
