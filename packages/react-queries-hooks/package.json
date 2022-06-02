@@ -1,13 +1,13 @@
 {
-  "name": "@trong/react-queries-hooks",
+  "name": "@trong-orm/react-queries-hooks",
   "version": "1.0.0",
   "main": "src/index.ts",
   "author": "Sergey Popov",
   "license": "MIT",
   "dependencies": {
-    "@trong/core": "*",
-    "@trong/reactive-queries": "*",
-    "@trong/sql": "*",
+    "@trong-orm/core": "*",
+    "@trong-orm/reactive-queries": "*",
+    "@trong-orm/sql": "*",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "rxjs": "^7.5.5"

@@ -1,5 +1,5 @@
-import { IDbState } from "@trong/core";
-import { Sql } from "@trong/sql";
+import { IDbState } from "@trong-orm/core";
+import { Sql } from "@trong-orm/sql";
 
 import { IRecordConfig } from "./defineRecord";
 

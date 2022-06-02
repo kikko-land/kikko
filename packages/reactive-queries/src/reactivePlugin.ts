@@ -1,4 +1,4 @@
-import { IDbPlugin, IDbState, IQueriesMiddleware } from "@trong/core";
+import { IDbPlugin, IDbState, IQueriesMiddleware } from "@trong-orm/core";
 import { first, lastValueFrom, switchMap } from "rxjs";
 
 import { getBroadcastCh } from "./getBroadcastCh";

@@ -1,5 +1,5 @@
-import { IDbState, runInTransaction, runQueries, runQuery } from "@trong/core";
-import { generateInsert, generateUpdate, join, Sql, sql } from "@trong/sql";
+import { IDbState, runInTransaction, runQueries, runQuery } from "@trong-orm/core";
+import { generateInsert, generateUpdate, join, Sql, sql } from "@trong-orm/sql";
 
 import {
   ICreateMiddleware,

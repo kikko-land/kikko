@@ -1,5 +1,5 @@
-import { IMigration, runQuery } from "@trong/core";
-import { sql } from "@trong/sql";
+import { IMigration, runQuery } from "@trong-orm/core";
+import { sql } from "@trong-orm/sql";
 
 export const createNotesTableMigration: IMigration = {
   up: async (db) => {

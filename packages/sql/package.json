@@ -1,5 +1,5 @@
 {
-  "name": "@trong/sql",
+  "name": "@trong-orm/sql",
   "version": "1.0.0",
   "main": "src/index.ts",
   "author": "Sergey Popov",

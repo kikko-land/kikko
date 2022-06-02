@@ -6,13 +6,13 @@ Trong ORM is a JavaScript library for building reactive SQLite queries.
 
 
 ```
-yarn add @trong/trong
+yarn add @trong-orm/trong
 ```
 
 Or
 
 ```
-npm i -S @trong/trong
+npm i -S @trong-orm/trong
 ```
 
 ## Usage example with react
@@ -20,8 +20,8 @@ npm i -S @trong/trong
 Searching text:
 
 ```typescript
-import { useQuery, useQueryFirstRow, useSql } from "@trong/react-hooks";
-import { empty, sql, table } from "@trong/sql";
+import { useQuery, useQueryFirstRow, useSql } from "@trong-orm/react-hooks";
+import { empty, sql, table } from "@trong-orm/sql";
 import { useState } from "react";
 
 const notesTable = table("notes");

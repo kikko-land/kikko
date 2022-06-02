@@ -1,5 +1,5 @@
-import { useQuery, useQueryFirstRow, useSql } from "@trong/react-queries-hooks";
-import { empty, sql, table } from "@trong/sql";
+import { useQuery, useQueryFirstRow, useSql } from "@trong-orm/react-queries-hooks";
+import { empty, sql, table } from "@trong-orm/sql";
 import { useState } from "react";
 
 const notesTable = table("notes");

@@ -1,4 +1,4 @@
-import { Sql, Value } from "@trong/sql";
+import { Sql, Value } from "@trong-orm/sql";
 import { nanoid } from "nanoid";
 
 import { IDbState } from "./client/types";

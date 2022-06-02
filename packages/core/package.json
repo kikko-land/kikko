@@ -1,12 +1,12 @@
 {
-  "name": "@trong/core",
+  "name": "@trong-orm/core",
   "version": "1.0.0",
   "main": "src/index.ts",
   "author": "Sergey Popov",
   "license": "MIT",
   "dependencies": {
     "@trong-orm/sql.js": "^1.6.7",
-    "@trong/sql": "*",
+    "@trong-orm/sql": "*",
     "absurd-sql": "^0.0.53",
     "nanoid": "^3.3.4",
     "rxjs": "^7.5.5"

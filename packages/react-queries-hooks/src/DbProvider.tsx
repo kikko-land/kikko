@@ -1,4 +1,4 @@
-import { IDbState, IInitDbConfig, initDb, stopDb } from "@trong/core";
+import { IDbState, IInitDbConfig, initDb, stopDb } from "@trong-orm/core";
 import React, { ReactElement, useContext, useEffect, useState } from "react";
 
 export type IDbInitState =

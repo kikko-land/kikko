@@ -1,7 +1,7 @@
-import { runInTransaction, runQueries, withSuppressedLog } from "@trong/core";
-import { IDbState } from "@trong/core";
-import { subscribeToQueries } from "@trong/reactive-queries";
-import { Sql } from "@trong/sql";
+import { runInTransaction, runQueries, withSuppressedLog } from "@trong-orm/core";
+import { IDbState } from "@trong-orm/core";
+import { subscribeToQueries } from "@trong-orm/reactive-queries";
+import { Sql } from "@trong-orm/sql";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Falsy, startWith, switchMap } from "rxjs";
 

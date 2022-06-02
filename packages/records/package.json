@@ -1,12 +1,12 @@
 {
-  "name": "@trong/records",
+  "name": "@trong-orm/records",
   "version": "1.0.0",
   "main": "src/index.ts",
   "author": "Sergey Popov",
   "license": "MIT",
   "dependencies": {
-    "@trong/core": "*",
-    "@trong/sql": "*"
+    "@trong-orm/core": "*",
+    "@trong-orm/sql": "*"
   },
   "devDependencies": {
     "@types/emscripten": "^1.39.6"

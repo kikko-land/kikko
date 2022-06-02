@@ -1,4 +1,4 @@
-import { generateInsert, raw, sql } from "@trong/sql";
+import { generateInsert, raw, sql } from "@trong-orm/sql";
 
 import { IMigration } from "../types";
 import { runQuery } from "./runQueries";

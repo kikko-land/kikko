@@ -1,4 +1,4 @@
-import { IDbState } from "@trong/core";
+import { IDbState } from "@trong-orm/core";
 
 export const getReactiveState = (state: IDbState) => {
   const reactiveState = state.sharedState.reactiveQueriesState;

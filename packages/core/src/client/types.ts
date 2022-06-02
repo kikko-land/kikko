@@ -1,4 +1,4 @@
-import { Sql } from "@trong/sql";
+import { Sql } from "@trong-orm/sql";
 import { Observable, Subject } from "rxjs";
 
 import { IInputWorkerMessage, IOutputWorkerMessage } from "../worker/types";

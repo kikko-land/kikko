@@ -1,19 +1,19 @@
 import { faker } from "@faker-js/faker";
-import { runAfterTransactionCommitted, runQuery } from "@trong/core";
+import { runAfterTransactionCommitted, runQuery } from "@trong-orm/core";
 import {
   useQueryFirstRow,
   useRunQuery,
   useSql,
-} from "@trong/react-queries-hooks";
-import { useRecords } from "@trong/react-records-hooks";
+} from "@trong-orm/react-queries-hooks";
+import { useRecords } from "@trong-orm/react-records-hooks";
 import {
   createRecords,
   defineRecord,
   deleteRecords,
   getRecords,
   middlewaresSlice,
-} from "@trong/records";
-import { empty, join, Sql, sql, table } from "@trong/sql";
+} from "@trong-orm/records";
+import { empty, join, Sql, sql, table } from "@trong-orm/sql";
 import { nanoid } from "nanoid";
 import { useCallback, useEffect, useState } from "react";
 import Highlighter from "react-highlight-words";

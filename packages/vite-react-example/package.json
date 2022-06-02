@@ -1,5 +1,5 @@
 {
-  "name": "@trong/vite-react-example",
+  "name": "@trong-orm/vite-react-example",
   "private": true,
   "version": "0.0.0",
   "scripts": {
@@ -10,12 +10,12 @@
   "dependencies": {
     "@trong-orm/sql.js": "^1.6.7",
     "@faker-js/faker": "^7.1.0",
-    "@trong/core": "*",
-    "@trong/react-queries-hooks": "*",
-    "@trong/react-records-hooks": "*",
-    "@trong/reactive-queries": "*",
-    "@trong/records": "*",
-    "@trong/sql": "*",
+    "@trong-orm/core": "*",
+    "@trong-orm/react-queries-hooks": "*",
+    "@trong-orm/react-records-hooks": "*",
+    "@trong-orm/reactive-queries": "*",
+    "@trong-orm/records": "*",
+    "@trong-orm/sql": "*",
     "nanoid": "^3.3.4",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",

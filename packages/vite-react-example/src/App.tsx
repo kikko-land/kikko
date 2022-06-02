@@ -1,7 +1,7 @@
-import { IInitDbConfig, migrationPlugin } from "@trong/core";
-import DbWorker from "@trong/core/src/worker/DB.worker?worker";
-import { DbProvider, EnsureDbLoaded } from "@trong/react-queries-hooks";
-import { reactiveQueriesPlugin } from "@trong/reactive-queries";
+import { IInitDbConfig, migrationPlugin } from "@trong-orm/core";
+import DbWorker from "@trong-orm/core/src/worker/DB.worker?worker";
+import { DbProvider, EnsureDbLoaded } from "@trong-orm/react-queries-hooks";
+import { reactiveQueriesPlugin } from "@trong-orm/reactive-queries";
 import sqlWasmUrl from "@trong-orm/sql.js/dist/sql-wasm.wasm?url";
 
 import { List } from "./List";

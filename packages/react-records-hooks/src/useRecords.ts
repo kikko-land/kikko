@@ -1,13 +1,13 @@
-import { IDbState, withSuppressedLog } from "@trong/core";
+import { IDbState, withSuppressedLog } from "@trong-orm/core";
 import {
   DistributiveOmit,
   Falsy,
   IQueryResult,
   useDbState,
-} from "@trong/react-queries-hooks";
-import { subscribeToQueries } from "@trong/reactive-queries";
-import { getRecords, IRecordConfig } from "@trong/records";
-import { Sql } from "@trong/sql";
+} from "@trong-orm/react-queries-hooks";
+import { subscribeToQueries } from "@trong-orm/reactive-queries";
+import { getRecords, IRecordConfig } from "@trong-orm/records";
+import { Sql } from "@trong-orm/sql";
 import { useEffect, useMemo, useState } from "react";
 import { startWith, switchMap, takeUntil } from "rxjs";
 

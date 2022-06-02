@@ -1,12 +1,12 @@
 {
-  "name": "@trong/reactive-queries",
+  "name": "@trong-orm/reactive-queries",
   "version": "1.0.0",
   "main": "src/index.ts",
   "author": "Sergey Popov",
   "license": "MIT",
   "dependencies": {
-    "@trong/core": "*",
-    "@trong/sql": "*",
+    "@trong-orm/core": "*",
+    "@trong-orm/sql": "*",
     "broadcast-channel": "^4.12.0",
     "rxjs": "^7.5.5"
   },

@@ -1,4 +1,4 @@
-import { IContainsTable, TableDef, tableSymbol } from "@trong/sql";
+import { IContainsTable, TableDef, tableSymbol } from "@trong-orm/sql";
 
 import {
   deleteRecordsMiddleware,

@@ -1,4 +1,4 @@
-import { Sql } from "@trong/sql";
+import { Sql } from "@trong-orm/sql";
 import { QueryExecResult } from "@trong-orm/sql.js";
 
 import { buildRunQueriesCommand } from "../commands";
