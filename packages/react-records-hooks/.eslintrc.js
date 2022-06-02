@@ -1,6 +1,6 @@
-const rootDir = process.cwd().includes("packages/react-queries-hooks")
+const rootDir = process.cwd().includes("packages/react-records-hooks")
   ? "./"
-  : "./packages/react-queries-hooks";
+  : "./packages/react-records-hooks";
 
 module.exports = {
   env: {

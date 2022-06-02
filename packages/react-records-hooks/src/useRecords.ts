@@ -1,12 +1,15 @@
 import { IDbState, withSuppressedLog } from "@trong/core";
+import {
+  DistributiveOmit,
+  Falsy,
+  IQueryResult,
+  useDbState,
+} from "@trong/react-queries-hooks";
 import { subscribeToQueries$ } from "@trong/reactive-queries";
 import { getRecords, IRecordConfig } from "@trong/records";
 import { Sql } from "@trong/sql";
 import { useEffect, useMemo, useState } from "react";
 import { startWith, switchMap, takeUntil } from "rxjs";
-
-import { useDbState } from "../DbProvider";
-import { DistributiveOmit, Falsy, IQueryResult } from "./types";
 
 const getRecords$ = <
   Row extends Record<string, any> & { id: string },

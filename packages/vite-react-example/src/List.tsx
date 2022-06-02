@@ -2,10 +2,10 @@ import { faker } from "@faker-js/faker";
 import { runAfterTransactionCommitted, runQuery } from "@trong/core";
 import {
   useQueryFirstRow,
-  useRecords,
   useRunQuery,
   useSql,
 } from "@trong/react-queries-hooks";
+import { useRecords } from "@trong/react-records-hooks";
 import {
   createRecords,
   defineRecord,

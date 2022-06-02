@@ -7,7 +7,6 @@
   "dependencies": {
     "@trong/core": "*",
     "@trong/reactive-queries": "*",
-    "@trong/records": "*",
     "@trong/sql": "*",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
