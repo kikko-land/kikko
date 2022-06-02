@@ -1,4 +1,4 @@
-declare module "@harika-org/sql.js" {
+declare module "@trong-orm/sql.js" {
   /// <reference types="emscripten" />
 
   export type SqlValue = number | string | Uint8Array | null;

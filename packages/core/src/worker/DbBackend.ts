@@ -2,7 +2,7 @@ import initSqlJs, {
   BindParams,
   Database,
   QueryExecResult,
-} from "@harika-org/sql.js";
+} from "@trong-orm/sql.js";
 // @ts-ignore
 import { SQLiteFS } from "absurd-sql";
 import IndexedDBBackend from "absurd-sql/dist/indexeddb-backend";

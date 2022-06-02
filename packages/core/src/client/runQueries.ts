@@ -1,5 +1,5 @@
-import { QueryExecResult } from "@harika-org/sql.js";
 import { Sql } from "@trong/sql";
+import { QueryExecResult } from "@trong-orm/sql.js";
 
 import { buildRunQueriesCommand } from "../commands";
 import { runWorkerCommand } from "./runWorkerCommand";

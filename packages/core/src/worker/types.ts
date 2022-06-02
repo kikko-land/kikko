@@ -1,4 +1,4 @@
-import { QueryExecResult } from "@harika-org/sql.js";
+import { QueryExecResult } from "@trong-orm/sql.js";
 
 import { ICommand } from "../commands";
 
