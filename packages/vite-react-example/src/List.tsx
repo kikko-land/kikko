@@ -5,7 +5,7 @@ import {
   useRecords,
   useRunQuery,
   useSql,
-} from "@trong/react-hooks";
+} from "@trong/react-queries-hooks";
 import {
   createRecords,
   defineRecord,

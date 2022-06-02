@@ -1,4 +1,4 @@
-import { useQuery, useQueryFirstRow, useSql } from "@trong/react-hooks";
+import { useQuery, useQueryFirstRow, useSql } from "@trong/react-queries-hooks";
 import { empty, sql, table } from "@trong/sql";
 import { useState } from "react";
 

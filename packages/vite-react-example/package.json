@@ -10,7 +10,7 @@
   "dependencies": {
     "@faker-js/faker": "^7.1.0",
     "@trong/core": "*",
-    "@trong/react-hooks": "*",
+    "@trong/react-queries-hooks": "*",
     "@trong/reactive-queries": "*",
     "@trong/records": "*",
     "@trong/sql": "*",

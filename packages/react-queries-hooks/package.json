@@ -1,5 +1,5 @@
 {
-  "name": "@trong/react-hooks",
+  "name": "@trong/react-queries-hooks",
   "version": "1.0.0",
   "main": "src/index.ts",
   "author": "Sergey Popov",
