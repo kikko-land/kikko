@@ -18,7 +18,7 @@ export const getRecords = async <
       recordConfig,
       recordConfig.middlewares.get,
       { result: [] as Rec[] },
-      [{ query: sql }]
+      { query: sql }
     )
   ).result;
 };
@@ -34,9 +34,13 @@ export const createRecords = async <
 ) => {
   if (recs.length === 0) return;
 
-  await applyAction(db, recordConfig, recordConfig.middlewares.create, {}, [
-    { records: recs, replace },
-  ]);
+  await applyAction(
+    db,
+    recordConfig,
+    recordConfig.middlewares.create,
+    {},
+    { records: recs, replace }
+  );
 };
 
 export const createRecord = <
@@ -61,9 +65,13 @@ export const deleteRecords = async <
 ) => {
   if (ids.length === 0) return;
 
-  await applyAction(db, recordConfig, recordConfig.middlewares.delete, {}, [
-    { ids },
-  ]);
+  await applyAction(
+    db,
+    recordConfig,
+    recordConfig.middlewares.delete,
+    {},
+    { ids }
+  );
 };
 
 export const updateRecords = async <
@@ -76,9 +84,13 @@ export const updateRecords = async <
 ) => {
   if (recs.length === 0) return;
 
-  await applyAction(db, recordConfig, recordConfig.middlewares.update, {}, [
-    { partialRecords: recs },
-  ]);
+  await applyAction(
+    db,
+    recordConfig,
+    recordConfig.middlewares.update,
+    {},
+    { partialRecords: recs }
+  );
 };
 
 export const updateRecord = async <

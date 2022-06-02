@@ -1,5 +1,5 @@
 import { IDbState, runInTransaction, runQueries, runQuery } from "@trong/core";
-import { generateInsert, generateUpdate, join, sql } from "@trong/sql";
+import { generateInsert, generateUpdate, join, Sql, sql } from "@trong/sql";
 
 import {
   ICreateMiddleware,
@@ -9,7 +9,26 @@ import {
 } from "./middlewares";
 import { chunk } from "./utils";
 
-// TODO: move records chunking to helper
+// Sqlite restricts max params in one query to 30_000
+// That's why we split objects to chunks and run operations in transaction
+const runQueriesInChunks = async <T extends unknown>(
+  state: IDbState,
+  objs: T[],
+  generateQuery: (chunkedObjs: T[]) => Sql
+) => {
+  // sqlite max vars = 32766
+  // Let's take table avg columns count to 20, so 20 * 1000 will fit the restriction
+  const chunked = chunk(objs, 1000);
+
+  const toExec = async (state: IDbState) => {
+    // Maybe runQueries instead of iterating? But then a large object will need to be transferred, that may cause freeze
+    for (const records of chunked) {
+      await runQuery(state, generateQuery(records));
+    }
+  };
+
+  await (chunked.length > 1 ? runInTransaction(state, toExec) : toExec(state));
+};
 
 export const insertRecordsMiddleware =
   <
@@ -17,32 +36,15 @@ export const insertRecordsMiddleware =
     Rec extends Record<string, any> & { id: string }
   >(): ICreateMiddleware<Row, Rec> =>
   async (args) => {
-    const { actions, dbState, recordConfig, next } = args;
+    const { action, dbState, recordConfig, next } = args;
 
-    for (const action of actions) {
-      // sqlite max vars = 32766
-      // Let's take table columns count to 20, so 20 * 1000 will fit the restriction
-      const chunked = chunk(action.records, 1000);
-
-      const toExec = async (state: IDbState) => {
-        for (const records of chunked) {
-          // TODO: maybe runQueries? But then a large object will need to be transferred, that may cause freeze
-
-          await runQuery(
-            state,
-            generateInsert(
-              recordConfig.table.name,
-              records.map((r) => recordConfig.serialize(r)),
-              action.replace
-            )
-          );
-        }
-      };
-
-      await (chunked.length > 1
-        ? runInTransaction(dbState, toExec)
-        : toExec(dbState));
-    }
+    await runQueriesInChunks(dbState, action.records, (records) =>
+      generateInsert(
+        recordConfig.table.name,
+        records.map((r) => recordConfig.serialize(r)),
+        action.replace
+      )
+    );
 
     return await next(args);
   };
@@ -53,17 +55,15 @@ export const selectRecordsMiddleware =
     Rec extends Record<string, any> & { id: string }
   >(): IGetMiddleware<Row, Rec> =>
   async (args) => {
-    const { actions, dbState, recordConfig, next } = args;
+    const { action, dbState, recordConfig, next } = args;
 
     const resultRecords: Rec[] = [];
 
-    for (const action of actions) {
-      const rows = await runQuery<Row>(dbState, action.query);
+    const rows = await runQuery<Row>(dbState, action.query);
 
-      resultRecords.push(
-        ...rows.map((row) => recordConfig.deserialize(row) as Rec)
-      );
-    }
+    resultRecords.push(
+      ...rows.map((row) => recordConfig.deserialize(row) as Rec)
+    );
 
     return await next({ ...args, result: resultRecords });
   };
@@ -74,27 +74,16 @@ export const deleteRecordsMiddleware =
     Rec extends Record<string, any> & { id: string }
   >(): IDeleteMiddleware<Row, Rec> =>
   async (args) => {
-    const { actions, dbState, recordConfig, next } = args;
+    const { action, dbState, recordConfig, next } = args;
 
-    for (const action of actions) {
-      const chunked = chunk(action.ids, 1000);
-
-      const toExec = async (state: IDbState) => {
-        for (const ids of chunked) {
-          // TODO: maybe runQueries? But then a large object will need to be transferred, that may cause freeze
-          await runQuery(
-            dbState,
-            sql`DELETE FROM ${recordConfig} WHERE id IN (${join(
-              ids.map((id) => id)
-            )})`
-          );
-        }
-      };
-
-      await (chunked.length > 1
-        ? runInTransaction(dbState, toExec)
-        : toExec(dbState));
-    }
+    await runQueriesInChunks(
+      dbState,
+      action.ids,
+      (ids) =>
+        sql`DELETE FROM ${recordConfig} WHERE id IN (${join(
+          ids.map((id) => id)
+        )})`
+    );
 
     return await next(args);
   };
@@ -105,17 +94,23 @@ export const updateRecordsMiddleware =
     Rec extends Record<string, any> & { id: string }
   >(): IUpdateMiddleware<Row, Rec> =>
   async (args) => {
-    const { actions, dbState, recordConfig, next } = args;
+    const { action, dbState, recordConfig, next } = args;
 
-    for (const action of actions) {
+    const chunkedRecords = chunk(action.partialRecords, 1000);
+
+    for (const records of chunkedRecords) {
       await runQueries(
         dbState,
-        action.partialRecords.map(
-          (rec) =>
-            sql`${generateUpdate(recordConfig.table.name, rec)} WHERE id=${
-              rec.id
-            }`
-        )
+        records.map((rec) => {
+          if (!rec.id)
+            throw new Error(
+              "To update record you must provide an id attribute of object to update"
+            );
+
+          return sql`${generateUpdate(recordConfig.table.name, rec)} WHERE id=${
+            rec.id
+          }`;
+        })
       );
     }
 

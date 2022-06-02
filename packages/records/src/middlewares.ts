@@ -25,7 +25,7 @@ type ISharedMiddlewaresState<
 > = {
   dbState: IDbState;
   recordConfig: IRecordConfig<Row, Rec>;
-  actions: Action[];
+  action: Action;
 };
 
 export type INextGenericMiddleware<
@@ -104,7 +104,7 @@ export const applyAction = async <
   recordConfig: IRecordConfig<Row, Rec>,
   middlewares: IGenericMiddleware<Row, Rec, Action, AddableState>[],
   initialState: AddableState,
-  actions: Action[]
+  action: Action
 ) => {
   middlewares = middlewares.slice();
   middlewares.reverse();
@@ -120,5 +120,10 @@ export const applyAction = async <
       middleware({ ...args, next: currentCall });
   }
 
-  return await toCall({ dbState, recordConfig, actions, ...initialState });
+  return await toCall({
+    dbState,
+    recordConfig,
+    action: action,
+    ...initialState,
+  });
 };

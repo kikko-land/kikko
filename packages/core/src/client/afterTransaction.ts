@@ -1,8 +1,12 @@
-import { IDbState } from "./types";
+import { IDbState, ITransactionState } from "./types";
 
 const runAfterTransaction = (
   db: IDbState,
-  func: (event: "committed" | "rollbacked") => void
+  func: (
+    event: "committed" | "rollbacked",
+    db: IDbState,
+    transaction: ITransactionState
+  ) => void
 ) => {
   if (!db.transaction) {
     throw new Error("Not in transaction.");
@@ -10,13 +14,15 @@ const runAfterTransaction = (
 
   let unsubscribes: (() => void)[] = [];
 
-  const listener = (event: "committed" | "rollbacked") => () => {
-    func(event);
+  const listener =
+    (event: "committed" | "rollbacked") =>
+    (db: IDbState, transaction: ITransactionState) => {
+      func(event, db, transaction);
 
-    for (const unsubscribe of unsubscribes) {
-      unsubscribe();
-    }
-  };
+      for (const unsubscribe of unsubscribes) {
+        unsubscribe();
+      }
+    };
 
   unsubscribes.push(
     db.sharedState.eventsEmitter.on(
@@ -35,22 +41,22 @@ const runAfterTransaction = (
 
 export const runAfterTransactionCommitted = (
   db: IDbState,
-  func: () => void
+  func: (db: IDbState, transaction: ITransactionState) => void
 ) => {
-  runAfterTransaction(db, (ev) => {
+  runAfterTransaction(db, (ev, db, transaction) => {
     if (ev === "committed") {
-      func();
+      func(db, transaction);
     }
   });
 };
 
 export const runAfterTransactionRollbacked = (
   db: IDbState,
-  func: () => void
+  func: (db: IDbState, transaction: ITransactionState) => void
 ) => {
-  runAfterTransaction(db, (ev) => {
+  runAfterTransaction(db, (ev, db, transaction) => {
     if (ev === "rollbacked") {
-      func();
+      func(db, transaction);
     }
   });
 };

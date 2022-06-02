@@ -54,7 +54,7 @@ const notesRecords = defineRecord<IRow, IRecord>(table("notes"), {
           dbState,
           recordConfig,
           sql`SELECT * FROM ${recordConfig} WHERE id IN (${join(
-            args.actions.flatMap((ac) => ac.ids)
+            args.action.ids
           )})`
         );
 
