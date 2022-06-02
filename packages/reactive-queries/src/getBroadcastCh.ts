@@ -9,7 +9,7 @@ export interface INotifyChannel {
   removeEventListener(cb: IListener): void;
   close(): Promise<void>;
 }
-export const getBroadcastCh$ = (name: string, stop$: Observable<void>) => {
+export const getBroadcastCh = (name: string, stop$: Observable<void>) => {
   return new Observable<INotifyChannel>((sub) => {
     let currentChannel: INotifyChannel | undefined = undefined;
 

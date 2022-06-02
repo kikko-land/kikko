@@ -1,6 +1,6 @@
 import { runInTransaction, runQueries, withSuppressedLog } from "@trong/core";
 import { IDbState } from "@trong/core";
-import { subscribeToQueries$ } from "@trong/reactive-queries";
+import { subscribeToQueries } from "@trong/reactive-queries";
 import { Sql } from "@trong/sql";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Falsy, startWith, switchMap } from "rxjs";
@@ -18,7 +18,7 @@ function runQueries$<D extends Record<string, unknown>>(
   state: IDbState,
   queries: Sql[]
 ) {
-  return subscribeToQueries$(state, queries).pipe(
+  return subscribeToQueries(state, queries).pipe(
     startWith(undefined),
     switchMap(async () => {
       return runQueries<D>(state, queries);

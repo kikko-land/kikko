@@ -5,7 +5,7 @@ import { filter, Observable, switchMap, takeUntil } from "rxjs";
 import { IMessage } from "./getBroadcastCh";
 import { getReactiveState } from "./utils";
 
-export const subscribeToQueries$ = (
+export const subscribeToQueries = (
   db: IDbState,
   queries: Sql[]
 ): Observable<unknown> => {

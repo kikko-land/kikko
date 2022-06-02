@@ -5,7 +5,7 @@ import {
   IQueryResult,
   useDbState,
 } from "@trong/react-queries-hooks";
-import { subscribeToQueries$ } from "@trong/reactive-queries";
+import { subscribeToQueries } from "@trong/reactive-queries";
 import { getRecords, IRecordConfig } from "@trong/records";
 import { Sql } from "@trong/sql";
 import { useEffect, useMemo, useState } from "react";
@@ -19,7 +19,7 @@ const getRecords$ = <
   recordConfig: IRecordConfig<Row, Rec>,
   sql: Sql
 ) => {
-  return subscribeToQueries$(db, [sql]).pipe(
+  return subscribeToQueries(db, [sql]).pipe(
     startWith(undefined),
     switchMap(() => getRecords(db, recordConfig, sql)),
     takeUntil(db.sharedState.stop$)

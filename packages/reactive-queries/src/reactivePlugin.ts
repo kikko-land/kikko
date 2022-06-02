@@ -1,7 +1,7 @@
 import { IDbPlugin, IDbState, IQueriesMiddleware } from "@trong/core";
 import { first, lastValueFrom, switchMap } from "rxjs";
 
-import { getBroadcastCh$ } from "./getBroadcastCh";
+import { getBroadcastCh } from "./getBroadcastCh";
 import { getReactiveState } from "./utils";
 
 const notifyTablesContentChanged = async (
@@ -80,7 +80,7 @@ export const reactiveQueriesPlugin: IDbPlugin = (db) => {
   });
 
   db.sharedState.reactiveQueriesState = {
-    eventsCh$: getBroadcastCh$(dbName + "-reactiveQueriesPlugin", stop$),
+    eventsCh$: getBroadcastCh(dbName + "-reactiveQueriesPlugin", stop$),
   };
 
   return {
