@@ -1,6 +1,6 @@
-const rootDir = process.cwd().includes("packages/reactive-queries")
+const rootDir = process.cwd().includes("packages/reactive-queries-plugin")
   ? "./"
-  : "./packages/reactive-queries";
+  : "./packages/reactive-queries-plugin";
 
 module.exports = {
   env: {
