@@ -99,27 +99,25 @@ export const List = () => {
 
   const [createNotes, createNotesState] = useRunQuery(
     (count: number) => async (db) => {
-      console.log(
-        await createRecords(
-          db,
-          notesRecords,
-          Array.from(Array(count).keys()).map((i) => ({
-            id: nanoid(),
-            title: faker.lorem.words(4),
-            content: faker.lorem.paragraph(),
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          }))
-        )
+      await createRecords(
+        db,
+        notesRecords,
+        Array.from(Array(count).keys()).map((i) => ({
+          id: nanoid(),
+          title: faker.lorem.words(4),
+          content: faker.lorem.paragraph(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        }))
       );
     }
   );
 
   const [deleteAll, deleteAllState] = useRunQuery(() => async (db) => {
-    await deleteAllRecords(db, notesRecords);
+    const deletedRecords = await deleteAllRecords(db, notesRecords);
 
     runAfterTransactionCommitted(db, () => {
-      console.log("heY!!!");
+      console.log("It runs after transaction committed!", deletedRecords);
     });
   });
 

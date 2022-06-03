@@ -4,7 +4,6 @@ Trong ORM is a JavaScript library for building reactive SQLite queries.
 
 ## Installation
 
-
 ```
 yarn add @trong-orm/trong
 ```
@@ -53,10 +52,8 @@ export const List = () => {
     <>
       Total found records:{" "}
       {countResult.data !== undefined ? countResult.data.count : "Loading..."}
-
       <br />
       <br />
-
       <input
         value={textToSearch}
         onChange={(e) => {
@@ -64,9 +61,7 @@ export const List = () => {
         }}
         placeholder="Search content"
       />
-
       <br />
-
       {recordsData.map(({ title, content, id }) => (
         <div key={id}>
           <h1>{title}</h1>
@@ -76,5 +71,4 @@ export const List = () => {
     </>
   );
 };
-
 ```

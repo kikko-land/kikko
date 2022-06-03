@@ -31,14 +31,13 @@ export const DbProvider: React.FC<{
       setCurrentState({ type: "initializing", config });
 
       const db = await initDbClient(config);
+      initializedDb = db;
 
       if (shouldBeStopped) {
         stopDb(db);
 
         return;
       }
-
-      initializedDb = db;
 
       setCurrentState({ type: "initialized", db, config });
     };
@@ -49,6 +48,8 @@ export const DbProvider: React.FC<{
       shouldBeStopped = true;
 
       if (initializedDb) {
+        setCurrentState({ type: "notInitialized" });
+
         stopDb(initializedDb);
       }
     };
@@ -90,6 +91,6 @@ export const EnsureDbLoaded: React.FC<{
       (children as ReactElement<any, any>)
     : fallback
     ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (fallback as ReactElement<any, any>)
+      (fallback as ReactElement<unknown, any>)
     : null;
 };

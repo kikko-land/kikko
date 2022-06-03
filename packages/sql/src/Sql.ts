@@ -27,6 +27,7 @@ const insertRegex = /insert\s+(or\s+\w+\s+)?into\s+/gim;
 const deleteRegex = /delete\s+from\s+/gim;
 const updateRegex = /update\s+(or\s+\w+\s+)?/gim;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function containsTable(x: any): x is IContainsTable {
   return typeof x === "object" && x !== null && x[tableSymbol];
 }

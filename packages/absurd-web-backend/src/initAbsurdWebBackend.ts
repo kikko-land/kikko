@@ -3,7 +3,7 @@ import { initBackend } from "absurd-sql/dist/indexeddb-main-thread";
 import {
   filter,
   first,
-  lastValueFrom,
+  firstValueFrom,
   Observable,
   ReplaySubject,
   share,
@@ -63,10 +63,6 @@ export const initAbsurdWebBackend =
     );
 
     stopped$.pipe(first()).subscribe(() => {
-      setTimeout(() => {
-        console.log(`Worker for db ${dbName} closed`);
-      }, 0);
-
       initializedWorker.terminate();
     });
 
@@ -81,10 +77,9 @@ export const initAbsurdWebBackend =
       async initialize() {
         initBackend(initializedWorker);
 
-        const initPromise = lastValueFrom(
+        const initPromise = firstValueFrom(
           messagesFromWorker$.pipe(
             filter((ev) => ev.type === "initialized"),
-            first(),
             takeUntil(stopped$)
           )
         );

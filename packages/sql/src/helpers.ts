@@ -3,8 +3,8 @@ import { empty, join, raw, sql, table } from "./Sql";
 export const generateInsert = (
   tableName: string,
   objs: Record<string, unknown>[],
-  replace: boolean = false,
-  returning: boolean = false
+  replace = false,
+  returning = false
 ) => {
   if (objs.length === 0) throw new Error("Can't insert empty objects");
 

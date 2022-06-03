@@ -1,6 +1,7 @@
-export type DistributiveOmit<T, K extends keyof any> = T extends any
-  ? Omit<T, K>
-  : never;
+export type DistributiveOmit<
+  T,
+  K extends keyof Record<string, unknown>
+> = T extends unknown ? Omit<T, K> : never;
 
 export type ISingleQueryResult<D> =
   | {

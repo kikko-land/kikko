@@ -22,7 +22,6 @@ const runAfterTransaction = (
       for (const unsubscribe of unsubscribes) {
         unsubscribe();
       }
-      console.log("unsub!", func);
     };
 
   unsubscribes.push(

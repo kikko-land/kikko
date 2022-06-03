@@ -1,9 +1,13 @@
-import { runInTransaction, runQueries, withSuppressedLog } from "@trong-orm/core";
+import {
+  runInTransaction,
+  runQueries,
+  withSuppressedLog,
+} from "@trong-orm/core";
 import { IDbState } from "@trong-orm/core";
 import { subscribeToQueries } from "@trong-orm/reactive-queries";
 import { Sql } from "@trong-orm/sql";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Falsy, startWith, switchMap } from "rxjs";
+import { Falsy, startWith, switchMap, takeUntil } from "rxjs";
 
 import { useDbState } from "../DbProvider";
 import {
@@ -22,7 +26,8 @@ function runQueries$<D extends Record<string, unknown>>(
     startWith(undefined),
     switchMap(async () => {
       return runQueries<D>(state, queries);
-    })
+    }),
+    takeUntil(state.sharedState.stopStarted$)
   );
 }
 
@@ -157,8 +162,9 @@ function useIsMounted() {
 }
 
 export function useRunQuery<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   D extends (...args: any[]) => (db: IDbState) => Promise<R>,
-  R extends any
+  R
 >(
   cb: D,
   _opts?: { suppressLog?: boolean; inTransaction?: boolean } | undefined

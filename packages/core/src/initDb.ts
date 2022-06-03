@@ -3,24 +3,17 @@ import {
   BehaviorSubject,
   filter,
   finalize,
-  first,
   firstValueFrom,
   map,
   Observable,
   of,
   pipe,
-  Subject,
   switchMap,
+  take,
 } from "rxjs";
 
 import { createNanoEvents } from "./createNanoEvents";
-import {
-  acquireJob,
-  IJob,
-  IJobsState,
-  releaseJob,
-  whenAllJobsDone,
-} from "./job";
+import { acquireJob, IJobsState, releaseJob, whenAllJobsDone } from "./job";
 import {
   IDbBackend,
   IDbState,
@@ -52,7 +45,7 @@ export const initDbClient = async ({
     stopped$: runningState$.pipe(
       filter((e) => e === "stopped"),
       map(() => undefined as void),
-      first()
+      take(1)
     ),
   });
 
@@ -71,7 +64,7 @@ export const initDbClient = async ({
       stopStarted$: runningState$.pipe(
         filter((e) => e === "stopping"),
         map(() => undefined as void),
-        first()
+        take(1)
       ),
 
       eventsEmitter: createNanoEvents<ITrongEvents>(),

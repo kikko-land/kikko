@@ -34,7 +34,7 @@ export const runInTransaction = async <T>(
     return await func(state);
   }
 
-  assureDbIsRunning(state);
+  assureDbIsRunning(state, () => "transaction");
 
   const transaction: ITransaction = {
     id: nanoid(),

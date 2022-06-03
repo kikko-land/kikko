@@ -1,5 +1,5 @@
 import { IDbClientPlugin, IDbState, IQueriesMiddleware } from "@trong-orm/core";
-import { first, lastValueFrom, switchMap } from "rxjs";
+import { firstValueFrom, switchMap } from "rxjs";
 
 import { getBroadcastCh } from "./getBroadcastCh";
 import { getReactiveState } from "./utils";
@@ -12,9 +12,8 @@ const notifyTablesContentChanged = async (
 
   const reactiveState = getReactiveState(state);
 
-  return lastValueFrom(
+  return firstValueFrom(
     reactiveState.eventsCh$.pipe(
-      first(),
       switchMap(async (ch) => {
         await ch.postMessage({ changesInTables: tables });
       })

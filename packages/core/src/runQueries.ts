@@ -36,7 +36,7 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
   } = dbState;
 
   if (!transactionsLocalState.current) {
-    assureDbIsRunning(dbState);
+    assureDbIsRunning(dbState, () => JSON.stringify(queries.map((q) => q.sql)));
   }
 
   if (transactionsLocalState.current && transactionsSharedState.current) {

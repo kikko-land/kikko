@@ -16,13 +16,10 @@ import { chunk } from "./utils";
 
 // Sqlite restricts max params in one query to 30_000
 // That's why we split objects to chunks and run operations in transaction
-const runQueriesInChunks = async <
-  T extends unknown,
-  R extends Record<string, unknown>
->(
+const runQueriesInChunks = async <R extends Record<string, unknown>>(
   state: IDbState,
-  objs: T[],
-  generateQuery: (chunkedObjs: T[]) => Sql
+  objs: R[],
+  generateQuery: (chunkedObjs: R[]) => Sql
 ): Promise<R[]> => {
   // sqlite max vars = 32766
   // Let's take table avg columns count to 20, so 20 * 1000 will fit the restriction
@@ -45,8 +42,8 @@ const runQueriesInChunks = async <
 
 export const insertRecordsMiddleware =
   <
-    Row extends Record<string, any> & { id: string },
-    Rec extends Record<string, any> & { id: string }
+    Row extends object & { id: string },
+    Rec extends object & { id: string }
   >(): ICreateMiddleware<Row, Rec> =>
   async (args) => {
     const { action, dbState, recordConfig, next } = args;
@@ -64,8 +61,8 @@ export const insertRecordsMiddleware =
 
 export const selectRecordsMiddleware =
   <
-    Row extends Record<string, any> & { id: string },
-    Rec extends Record<string, any> & { id: string }
+    Row extends object & { id: string },
+    Rec extends object & { id: string }
   >(): IGetMiddleware<Row, Rec> =>
   async (args) => {
     const { action, dbState, recordConfig, next } = args;
@@ -79,8 +76,8 @@ export const selectRecordsMiddleware =
 
 export const deleteRecordsMiddleware =
   <
-    Row extends Record<string, any> & { id: string },
-    Rec extends Record<string, any> & { id: string }
+    Row extends object & { id: string },
+    Rec extends object & { id: string }
   >(): IDeleteMiddleware<Row, Rec> =>
   async (args) => {
     const { action, dbState, recordConfig, next } = args;
@@ -97,8 +94,8 @@ export const deleteRecordsMiddleware =
 
 export const updateRecordsMiddleware =
   <
-    Row extends Record<string, any> & { id: string },
-    Rec extends Record<string, any> & { id: string }
+    Row extends object & { id: string },
+    Rec extends object & { id: string }
   >(): IUpdateMiddleware<Row, Rec> =>
   async (args) => {
     const { action, dbState, recordConfig, next } = args;

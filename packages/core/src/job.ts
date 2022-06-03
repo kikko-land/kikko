@@ -5,10 +5,10 @@ import { DeepReadonly } from "ts-essentials";
 
 import { ITransaction } from "./types";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type DistributiveOmit<T, K extends keyof any> = T extends any
-  ? Omit<T, K>
-  : never;
+export type DistributiveOmit<
+  T,
+  K extends keyof Record<string, unknown>
+> = T extends unknown ? Omit<T, K> : never;
 
 export type IJob =
   | { type: "runTransaction"; id: string; transaction: ITransaction }

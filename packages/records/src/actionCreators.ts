@@ -5,8 +5,8 @@ import { IRecordConfig } from "./defineRecord";
 import { applyAction } from "./middlewares";
 
 export const getRecords = async <
-  Row extends Record<string, any> & { id: string },
-  Rec extends Record<string, any> & { id: string }
+  Row extends object & { id: string },
+  Rec extends object & { id: string }
 >(
   db: IDbState,
   recordConfig: IRecordConfig<Row, Rec>,
@@ -24,13 +24,13 @@ export const getRecords = async <
 };
 
 export const createRecords = async <
-  Row extends Record<string, any> & { id: string },
-  Rec extends Record<string, any> & { id: string }
+  Row extends object & { id: string },
+  Rec extends object & { id: string }
 >(
   db: IDbState,
   recordConfig: IRecordConfig<Row, Rec>,
   recs: Rec[],
-  replace: boolean = false
+  replace = false
 ) => {
   if (recs.length === 0) return { createdRecords: [] };
 
@@ -46,13 +46,13 @@ export const createRecords = async <
 };
 
 export const createRecord = async <
-  Row extends Record<string, any> & { id: string },
-  Rec extends Record<string, any> & { id: string }
+  Row extends object & { id: string },
+  Rec extends object & { id: string }
 >(
   db: IDbState,
   recordConfig: IRecordConfig<Row, Rec>,
   obj: Rec,
-  replace: boolean = false
+  replace = false
 ) => {
   const { createdRecords } = await createRecords(
     db,
@@ -65,8 +65,8 @@ export const createRecord = async <
 };
 
 export const deleteRecords = async <
-  Row extends Record<string, any> & { id: string },
-  Rec extends Record<string, any> & { id: string }
+  Row extends object & { id: string },
+  Rec extends object & { id: string }
 >(
   db: IDbState,
   recordConfig: IRecordConfig<Row, Rec>,
@@ -84,8 +84,8 @@ export const deleteRecords = async <
 };
 
 export const deleteRecordsByIds = async <
-  Row extends Record<string, any> & { id: string },
-  Rec extends Record<string, any> & { id: string }
+  Row extends object & { id: string },
+  Rec extends object & { id: string }
 >(
   db: IDbState,
   recordConfig: IRecordConfig<Row, Rec>,
@@ -95,8 +95,8 @@ export const deleteRecordsByIds = async <
 };
 
 export const deleteAllRecords = async <
-  Row extends Record<string, any> & { id: string },
-  Rec extends Record<string, any> & { id: string }
+  Row extends object & { id: string },
+  Rec extends object & { id: string }
 >(
   db: IDbState,
   recordConfig: IRecordConfig<Row, Rec>
@@ -105,8 +105,8 @@ export const deleteAllRecords = async <
 };
 
 export const updateRecords = async <
-  Row extends Record<string, any> & { id: string },
-  Rec extends Record<string, any> & { id: string }
+  Row extends object & { id: string },
+  Rec extends object & { id: string }
 >(
   db: IDbState,
   recordConfig: IRecordConfig<Row, Rec>,
@@ -126,8 +126,8 @@ export const updateRecords = async <
 };
 
 export const updateRecord = async <
-  Row extends Record<string, any> & { id: string },
-  Rec extends Record<string, any> & { id: string }
+  Row extends object & { id: string },
+  Rec extends object & { id: string }
 >(
   db: IDbState,
   recordConfig: IRecordConfig<Row, Rec>,

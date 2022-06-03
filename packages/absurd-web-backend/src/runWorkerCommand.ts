@@ -1,10 +1,10 @@
 import {
   filter,
-  first,
-  lastValueFrom,
+  firstValueFrom,
   map,
   of,
   switchMap,
+  take,
   takeUntil,
   throwError,
   timeout,
@@ -19,13 +19,13 @@ export const runWorkerCommand = (
 ) => {
   const { messagesFromWorker$, messagesToWorker$, stop$ } = backendState;
 
-  const waitResponse = lastValueFrom(
+  const waitResponse = firstValueFrom(
     messagesFromWorker$.pipe(
       filter(
         (ev) =>
           ev.type === "response" && ev.data.commandId === command.commandId
       ),
-      first(),
+      take(1),
       switchMap((ev) => {
         if (ev.type === "response" && ev.data.status === "error") {
           throw new Error(ev.data.message);
