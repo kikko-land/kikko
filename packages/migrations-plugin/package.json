@@ -1,0 +1,18 @@
+{
+  "name": "@trong-orm/migrations-plugin",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "author": "Sergey Popov",
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint \"src/**/*.{tsx,ts}\"",
+    "check-typing": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@trong-orm/core": "*",
+    "@trong-orm/sql": "*"
+  },
+  "devDependencies": {
+    "@types/emscripten": "^1.39.6"
+  }
+}
