@@ -10,7 +10,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  check:
 
     runs-on: ubuntu-latest
 
@@ -26,3 +26,5 @@ jobs:
         key: ${{ runner.os }}-modules-${{ hashFiles('**/yarn.lock') }}
     - run: yarn
     - run: yarn lint
+    - run: yarn check-typing
+

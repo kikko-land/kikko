@@ -5,7 +5,8 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "lint": "yarn workspaces run lint"
+    "lint": "yarn workspaces run lint",
+    "check-typing": "yarn workspaces run check-typing"
   },
   "workspaces": [
     "packages/*"

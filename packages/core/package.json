@@ -5,7 +5,8 @@
   "author": "Sergey Popov",
   "license": "MIT",
   "scripts": {
-    "lint": "eslint \"src/**/*.{tsx,ts}\""
+    "lint": "eslint \"src/**/*.{tsx,ts}\"",
+    "check-typing": "tsc --noEmit"
   },
   "dependencies": {
     "@trong-orm/sql": "*",
