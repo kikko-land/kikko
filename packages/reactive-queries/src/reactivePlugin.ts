@@ -1,4 +1,4 @@
-import { IDbPlugin, IDbState, IQueriesMiddleware } from "@trong-orm/core";
+import { IDbClientPlugin, IDbState, IQueriesMiddleware } from "@trong-orm/core";
 import { first, lastValueFrom, switchMap } from "rxjs";
 
 import { getBroadcastCh } from "./getBroadcastCh";
@@ -22,7 +22,7 @@ const notifyTablesContentChanged = async (
   );
 };
 
-export const reactiveQueriesPlugin: IDbPlugin = (db) => {
+export const reactiveQueriesPlugin: IDbClientPlugin = (db) => {
   const transactionTables: Record<string, { writeTables: Set<string> }> = {};
   const { dbName, eventsEmitter, stop$ } = db.sharedState;
 

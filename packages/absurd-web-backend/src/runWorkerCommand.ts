@@ -10,17 +10,14 @@ import {
   timeout,
 } from "rxjs";
 
-import { ICommand } from "../commands";
-import { IDbState } from "./types";
+import { ICommand } from "./commands";
+import { IBackendState } from "./types";
 
-export const runWorkerCommand = (state: IDbState, command: ICommand) => {
-  if (state.sharedState.isStopped) {
-    throw new Error(
-      `Failed to execute function, DB ${state.sharedState.dbName} is stopped!`
-    );
-  }
-
-  const { messagesFromWorker$, messagesToWorker$ } = state.sharedState;
+export const runWorkerCommand = (
+  backendState: IBackendState,
+  command: ICommand
+) => {
+  const { messagesFromWorker$, messagesToWorker$, stop$ } = backendState;
 
   const waitResponse = lastValueFrom(
     messagesFromWorker$.pipe(
@@ -43,17 +40,17 @@ export const runWorkerCommand = (state: IDbState, command: ICommand) => {
           throw new Error("Unknown data format");
         }
       }),
-      // timeout({
-      //   each: 8000,
-      //   with: () =>
-      //     throwError(
-      //       () =>
-      //         new Error(
-      //           `Failed to execute ${JSON.stringify(command)} - timeout`
-      //         )
-      //     ),
-      // }),
-      takeUntil(state.sharedState.stop$)
+      timeout({
+        each: backendState.queryTimeout,
+        with: () =>
+          throwError(
+            () =>
+              new Error(
+                `Failed to execute ${JSON.stringify(command)} - timeout`
+              )
+          ),
+      }),
+      takeUntil(stop$)
     )
   );
 

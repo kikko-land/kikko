@@ -4,6 +4,9 @@
   "main": "src/index.ts",
   "author": "Sergey Popov",
   "license": "MIT",
+  "scripts": {
+    "lint": "eslint \"src/**/*.{tsx,ts}\""
+  },
   "dependencies": {
     "@trong-orm/core": "*",
     "@trong-orm/sql": "*"

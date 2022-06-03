@@ -1,21 +1,18 @@
 import { Sql } from "@trong-orm/sql";
-import { QueryExecResult } from "@trong-orm/sql.js";
 
-import { buildRunQueriesCommand } from "../commands";
 import { acquireJob, IJob, releaseJob } from "./job";
-import { runWorkerCommand } from "./runWorkerCommand";
 import {
   IDbState,
   INextQueriesMiddleware,
   IQueriesMiddleware,
   IQueriesMiddlewareState,
+  IQueryResult,
 } from "./types";
+import { assureDbIsRunning, unwrapQueries } from "./utils";
 
-const mapRows = <T extends Record<string, unknown>>(
-  result: QueryExecResult
-) => {
+const mapRows = <T extends Record<string, unknown>>(result: IQueryResult) => {
   return (result?.values?.map((res) => {
-    let obj: Record<string, any> = {};
+    const obj: Record<string, unknown> = {};
 
     result.columns.forEach((col, i) => {
       obj[col] = res[i];
@@ -30,9 +27,17 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
   queries,
 }) => {
   const {
-    localState: { transactionsState: transactionsLocalState },
-    sharedState: { transactionsState: transactionsSharedState, jobsState },
+    localState: { transactionsState: transactionsLocalState, suppressLog },
+    sharedState: {
+      transactionsState: transactionsSharedState,
+      jobsState,
+      dbBackend,
+    },
   } = dbState;
+
+  if (!transactionsLocalState.current) {
+    assureDbIsRunning(dbState);
+  }
 
   if (transactionsLocalState.current && transactionsSharedState.current) {
     if (
@@ -54,14 +59,21 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
     });
   }
 
+  const execOpts = {
+    log: {
+      suppress: Boolean(suppressLog),
+      transactionId: transactionsLocalState.current?.id,
+    },
+  };
+
   try {
     const result = (
-      await runWorkerCommand(dbState, buildRunQueriesCommand(dbState, queries))
+      await dbBackend.execQueries(unwrapQueries(queries), execOpts)
     ).map((queriesResults, i) => {
       if (queriesResults.length > 1) {
         console.warn(
-          `Omitting query result of ${queries[i].sql}: ${queriesResults.slice(
-            1
+          `Omitting query result of ${queries[i].sql}: ${JSON.stringify(
+            queriesResults.slice(1)
           )}`
         );
       }
@@ -86,7 +98,7 @@ export const runQueries = async <D extends Record<string, unknown>>(
     runQueriesMiddleware,
   ].reverse();
 
-  let toCall: INextQueriesMiddleware = async (args) => args;
+  let toCall: INextQueriesMiddleware = (args) => Promise.resolve(args);
 
   for (const middleware of middlewares) {
     const currentCall = toCall;

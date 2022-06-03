@@ -1,6 +1,6 @@
-const rootDir = process.cwd().includes("packages/vite-react-example")
+const rootDir = process.cwd().includes("packages/absurd-web-backend")
   ? "./"
-  : "./packages/vite-react-example";
+  : "./packages/absurd-web-backend";
 
 module.exports = {
   env: {
@@ -8,14 +8,14 @@ module.exports = {
     es2021: true,
   },
   extends: [
-    "react-app",
     "prettier",
+    "react-app",
     "eslint:recommended",
     "plugin:jsx-a11y/recommended",
     "plugin:rxjs/recommended",
+    "plugin:promise/recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
-    "plugin:promise/recommended",
   ],
   parser: "@typescript-eslint/parser",
   parserOptions: {

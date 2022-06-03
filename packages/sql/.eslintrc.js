@@ -9,9 +9,13 @@ module.exports = {
   },
   extends: [
     "react-app",
-    "plugin:jsx-a11y/recommended",
     "prettier",
+    "eslint:recommended",
+    "plugin:jsx-a11y/recommended",
     "plugin:rxjs/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:promise/recommended",
   ],
   parser: "@typescript-eslint/parser",
   parserOptions: {
@@ -23,7 +27,7 @@ module.exports = {
     tsconfigRootDir: rootDir,
     project: "./tsconfig.json",
   },
-  plugins: ["jsx-a11y", "rxjs", "simple-import-sort"],
+  plugins: ["jsx-a11y", "rxjs", "simple-import-sort", "promise"],
   rules: {
     "simple-import-sort/imports": "warn",
     "simple-import-sort/exports": "warn",

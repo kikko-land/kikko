@@ -12,7 +12,7 @@ const runAfterTransaction = (
     throw new Error("Not in transaction.");
   }
 
-  let unsubscribes: (() => void)[] = [];
+  const unsubscribes: (() => void)[] = [];
 
   const listener =
     (event: "committed" | "rollbacked") =>

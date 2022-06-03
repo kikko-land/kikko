@@ -1,8 +1,7 @@
 import { Sql } from "@trong-orm/sql";
-import { Observable, Subject } from "rxjs";
+import { BehaviorSubject, Observable, Subject } from "rxjs";
 import { DeepReadonly } from "ts-essentials";
 
-import { IInputWorkerMessage, IOutputWorkerMessage } from "../worker/types";
 import { INanoEmitter } from "./createNanoEvents";
 import { IJobState } from "./job";
 
@@ -56,23 +55,30 @@ export type IQueriesMiddleware = (
 
 export interface IDbState {
   // mutable object
-  sharedState: ISharedState;
+  sharedState: ISharedDbState;
   // immutable object
-  localState: DeepReadonly<{
-    transactionsState: {
-      current?: ITransaction;
-    };
-    suppressLog?: boolean;
-    queriesMiddlewares: IQueriesMiddleware[];
-  }>;
+  localState: DeepReadonly<ILocalDbState>;
 }
 
-export interface ISharedState {
-  messagesFromWorker$: Observable<IOutputWorkerMessage>;
-  messagesToWorker$: Subject<IInputWorkerMessage>;
-  stop$: Subject<void>;
-  isStopped: boolean;
+export type IQueryValue = number | string | Uint8Array | null;
+export type IQuery = { values: IQueryValue[]; text: string };
+export type IQueryResult = { columns: string[]; values: IQueryValue[][] };
+
+export interface IDbBackend {
+  initialize(): Promise<void>;
+  execQueries(
+    queries: IQuery[],
+    opts: { log: { suppress: boolean; transactionId?: string } }
+  ): Promise<IQueryResult[][]>;
+}
+
+export interface ISharedDbState {
   dbName: string;
+  dbBackend: IDbBackend;
+
+  runningState$: BehaviorSubject<"running" | "stopping" | "stopped">;
+  stopStarted$: Observable<void>;
+
   eventsEmitter: INanoEmitter<ITrongEvents>;
 
   // Used to detect current tab id. Uniq for each tab
@@ -83,4 +89,12 @@ export interface ISharedState {
   transactionsState: {
     current?: ITransaction;
   };
+}
+
+export interface ILocalDbState {
+  transactionsState: {
+    current?: ITransaction;
+  };
+  suppressLog?: boolean;
+  queriesMiddlewares: IQueriesMiddleware[];
 }

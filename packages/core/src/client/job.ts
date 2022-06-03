@@ -4,14 +4,17 @@ import { filter, first, firstValueFrom, Subject } from "rxjs";
 
 import { ITransaction } from "./types";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type DistributiveOmit<T, K extends keyof any> = T extends any
   ? Omit<T, K>
   : never;
 
 export type IJob =
   | { type: "runTransaction"; id: string; transaction: ITransaction }
-  | { type: "runQueries"; queries: Sql[]; id: string };
+  | { type: "runQueries"; queries: Sql[]; id: string }
+  | { type: "initDb"; name: string; id: string };
 
+// TODO: maybe make just behavior subject with state like IJobState?
 export interface IJobState {
   // First element is always running job
   queue: IJob[];
@@ -58,4 +61,8 @@ export const releaseJob = ({ queue, next$ }: IJobState, job: IJob) => {
   if (queue[0]) {
     next$.next(queue[0]);
   }
+};
+
+export const whenAllJobsDone = async ({ queue, next$ }: IJobState) => {
+  return firstValueFrom(next$.pipe(filter(() => queue.length === 0)));
 };

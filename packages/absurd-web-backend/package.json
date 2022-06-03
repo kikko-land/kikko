@@ -1,5 +1,5 @@
 {
-  "name": "@trong-orm/core",
+  "name": "@trong-orm/absurd-web-backend",
   "version": "1.0.0",
   "main": "src/index.ts",
   "author": "Sergey Popov",
@@ -9,6 +9,9 @@
   },
   "dependencies": {
     "@trong-orm/sql": "*",
+    "@trong-orm/core": "*",
+    "@trong-orm/sql.js": "^1.6.7",
+    "absurd-sql": "^0.0.53",
     "nanoid": "^3.3.4",
     "rxjs": "^7.5.5"
   },
