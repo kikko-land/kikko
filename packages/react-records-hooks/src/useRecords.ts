@@ -5,7 +5,7 @@ import {
   IQueryResult,
   useDbState,
 } from "@trong-orm/react-queries-hooks";
-import { subscribeToQueries } from "@trong-orm/reactive-queries";
+import { subscribeToQueries } from "@trong-orm/reactive-queries-plugin";
 import { getRecords, IRecordConfig } from "@trong-orm/records";
 import { Sql } from "@trong-orm/sql";
 import { useEffect, useMemo, useState } from "react";

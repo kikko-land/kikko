@@ -1,5 +1,5 @@
 {
-  "name": "@trong-orm/reactive-queries",
+  "name": "@trong-orm/reactive-queries-plugin",
   "version": "1.0.0",
   "main": "src/index.ts",
   "author": "Sergey Popov",

@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@trong-orm/core": "*",
-    "@trong-orm/reactive-queries": "*",
+    "@trong-orm/reactive-queries-plugin": "*",
     "@trong-orm/sql": "*",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",

@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@trong-orm/core": "*",
-    "@trong-orm/reactive-queries": "*",
+    "@trong-orm/reactive-queries-plugin": "*",
     "@trong-orm/react-queries-hooks": "*",
     "@trong-orm/records": "*",
     "@trong-orm/sql": "*",

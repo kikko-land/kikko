@@ -16,7 +16,7 @@
     "@trong-orm/core": "*",
     "@trong-orm/react-queries-hooks": "*",
     "@trong-orm/react-records-hooks": "*",
-    "@trong-orm/reactive-queries": "*",
+    "@trong-orm/reactive-queries-plugin": "*",
     "@trong-orm/records": "*",
     "@trong-orm/sql": "*",
     "nanoid": "^3.3.4",

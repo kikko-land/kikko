@@ -4,7 +4,7 @@ import {
   withSuppressedLog,
 } from "@trong-orm/core";
 import { IDbState } from "@trong-orm/core";
-import { subscribeToQueries } from "@trong-orm/reactive-queries";
+import { subscribeToQueries } from "@trong-orm/reactive-queries-plugin";
 import { Sql } from "@trong-orm/sql";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Falsy, startWith, switchMap, takeUntil } from "rxjs";
