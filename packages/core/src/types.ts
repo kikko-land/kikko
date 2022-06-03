@@ -5,12 +5,6 @@ import { DeepReadonly } from "ts-essentials";
 import { INanoEmitter } from "./createNanoEvents";
 import { IJobsState } from "./job";
 
-export type IMigration = {
-  up: (state: IDbState) => Promise<void>;
-  id: number;
-  name: string;
-};
-
 export interface ITrongEvents {
   initialized: (db: IDbState) => Promise<void> | void;
   transactionWillStart: (

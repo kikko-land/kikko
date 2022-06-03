@@ -1,4 +1,5 @@
-import { IMigration, runQuery } from "@trong-orm/core";
+import { runQuery } from "@trong-orm/core";
+import { IMigration } from "@trong-orm/migrations-plugin";
 import { sql } from "@trong-orm/sql";
 
 export const createNotesTableMigration: IMigration = {
