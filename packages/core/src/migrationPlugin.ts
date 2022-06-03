@@ -1,8 +1,8 @@
 import { generateInsert, raw, sql } from "@trong-orm/sql";
 
-import { IMigration } from "../types";
 import { runQuery } from "./runQueries";
 import { runInTransaction } from "./transaction";
+import { IMigration } from "./types";
 import { IDbState } from "./types";
 
 const migrationsTable = "migrations";
