@@ -1,10 +1,15 @@
-import { IDbState, IInitDbConfig, initDb, stopDb } from "@trong-orm/core";
+import {
+  IDbState,
+  IInitDbClientConfig,
+  initDbClient,
+  stopDb,
+} from "@trong-orm/core";
 import React, { ReactElement, useContext, useEffect, useState } from "react";
 
 export type IDbInitState =
-  | { type: "initialized"; db: IDbState; config: IInitDbConfig }
+  | { type: "initialized"; db: IDbState; config: IInitDbClientConfig }
   | { type: "notInitialized" }
-  | { type: "initializing"; config: IInitDbConfig };
+  | { type: "initializing"; config: IInitDbClientConfig };
 
 const DbContext = React.createContext<IDbInitState>({
   type: "notInitialized",
@@ -12,7 +17,7 @@ const DbContext = React.createContext<IDbInitState>({
 
 export const DbProvider: React.FC<{
   children?: React.ReactNode;
-  config: IInitDbConfig;
+  config: IInitDbClientConfig;
 }> = ({ children, config }) => {
   const [currentState, setCurrentState] = useState<IDbInitState>({
     type: "notInitialized",
@@ -25,13 +30,15 @@ export const DbProvider: React.FC<{
     const cb = async () => {
       setCurrentState({ type: "initializing", config });
 
-      const db = await initDb(config);
+      const db = await initDbClient(config);
 
       if (shouldBeStopped) {
         stopDb(db);
 
         return;
       }
+
+      initializedDb = db;
 
       setCurrentState({ type: "initialized", db, config });
     };
@@ -79,8 +86,10 @@ export const EnsureDbLoaded: React.FC<{
   const dbState = useDbState();
 
   return dbState.type === "initialized"
-    ? (children as ReactElement<any, any>)
+    ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (children as ReactElement<any, any>)
     : fallback
-    ? (fallback as ReactElement<any, any>)
+    ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (fallback as ReactElement<any, any>)
     : null;
 };

@@ -22,20 +22,21 @@ export const initAbsurdWebBackend =
     wasmUrl,
     queryTimeout,
   }: {
-    worker: Worker;
+    worker: () => Worker;
     wasmUrl: string;
     queryTimeout?: number;
   }) =>
   ({
     dbName,
-    stop$,
+    stopped$,
   }: {
     dbName: string;
-    stop$: Observable<void>;
+    stopped$: Observable<void>;
   }): IDbBackend => {
+    const initializedWorker = worker();
     const messagesToWorker$ = new Subject<IInputWorkerMessage>();
-    messagesToWorker$.pipe(takeUntil(stop$)).subscribe((mes) => {
-      worker.postMessage(mes);
+    messagesToWorker$.pipe(takeUntil(stopped$)).subscribe((mes) => {
+      initializedWorker.postMessage(mes);
     });
 
     const messagesFromWorker$ = new Observable<IOutputWorkerMessage>((obs) => {
@@ -48,39 +49,43 @@ export const initAbsurdWebBackend =
         // );
         obs.next(ev.data);
       };
-      worker.addEventListener("message", sub);
+      initializedWorker.addEventListener("message", sub);
 
       return () => {
-        worker.removeEventListener("message", sub);
+        initializedWorker.removeEventListener("message", sub);
       };
     }).pipe(
       share({
         connector: () => new ReplaySubject(20),
         resetOnRefCountZero: false,
       }),
-      takeUntil(stop$)
+      takeUntil(stopped$)
     );
 
-    stop$.pipe(first()).subscribe(() => {
-      worker.terminate();
+    stopped$.pipe(first()).subscribe(() => {
+      setTimeout(() => {
+        console.log(`Worker for db ${dbName} closed`);
+      }, 0);
+
+      initializedWorker.terminate();
     });
 
     const state: IBackendState = {
       messagesToWorker$,
       messagesFromWorker$,
-      stop$,
+      stop$: stopped$,
       queryTimeout: queryTimeout || 30_000,
     };
 
     return {
       async initialize() {
-        initBackend(worker);
+        initBackend(initializedWorker);
 
         const initPromise = lastValueFrom(
           messagesFromWorker$.pipe(
             filter((ev) => ev.type === "initialized"),
             first(),
-            takeUntil(stop$)
+            takeUntil(stopped$)
           )
         );
 

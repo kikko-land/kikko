@@ -3,7 +3,7 @@ import { BehaviorSubject, Observable } from "rxjs";
 import { DeepReadonly } from "ts-essentials";
 
 import { INanoEmitter } from "./createNanoEvents";
-import { IJobState } from "./job";
+import { IJobsState } from "./job";
 
 export type IMigration = {
   up: (state: IDbState) => Promise<void>;
@@ -90,7 +90,7 @@ export interface ISharedDbState {
   // Used to detect current tab id. Uniq for each tab
   clientId: string;
 
-  jobsState: IJobState;
+  jobsState$: BehaviorSubject<IJobsState>;
 
   transactionsState: {
     current?: ITransaction;

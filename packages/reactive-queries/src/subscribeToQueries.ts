@@ -35,6 +35,6 @@ export const subscribeToQueries = (
     filter(({ changesInTables }) =>
       changesInTables.some((table) => readingTables.has(table))
     ),
-    takeUntil(db.sharedState.stop$)
+    takeUntil(db.sharedState.stopStarted$)
   );
 };

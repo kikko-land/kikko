@@ -30,7 +30,7 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
     localState: { transactionsState: transactionsLocalState, suppressLog },
     sharedState: {
       transactionsState: transactionsSharedState,
-      jobsState,
+      jobsState$,
       dbBackend,
     },
   } = dbState;
@@ -53,7 +53,7 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
   let job: IJob | undefined;
 
   if (!transactionsLocalState.current) {
-    job = await acquireJob(jobsState, {
+    job = await acquireJob(jobsState$, {
       type: "runQueries",
       queries,
     });
@@ -84,7 +84,7 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
     return { dbState, result, queries };
   } finally {
     if (job) {
-      releaseJob(jobsState, job);
+      releaseJob(jobsState$, job);
     }
   }
 };

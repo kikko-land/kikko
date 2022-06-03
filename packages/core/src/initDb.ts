@@ -1,8 +1,26 @@
 import { nanoid } from "nanoid";
-import { BehaviorSubject, filter, first, map, Observable, Subject } from "rxjs";
+import {
+  BehaviorSubject,
+  filter,
+  finalize,
+  first,
+  firstValueFrom,
+  map,
+  Observable,
+  of,
+  pipe,
+  Subject,
+  switchMap,
+} from "rxjs";
 
 import { createNanoEvents } from "./createNanoEvents";
-import { acquireJob, IJob, releaseJob, whenAllJobsDone } from "./job";
+import {
+  acquireJob,
+  IJob,
+  IJobsState,
+  releaseJob,
+  whenAllJobsDone,
+} from "./job";
 import {
   IDbBackend,
   IDbState,
@@ -38,7 +56,12 @@ export const initDbClient = async ({
     ),
   });
 
-  let state: IDbState = {
+  const jobsState$ = new BehaviorSubject<IJobsState>({
+    queue: [],
+    current: undefined,
+  });
+
+  const state: IDbState = {
     sharedState: {
       clientId: nanoid(),
       dbBackend: dbBackendCalled,
@@ -53,10 +76,7 @@ export const initDbClient = async ({
 
       eventsEmitter: createNanoEvents<ITrongEvents>(),
 
-      jobsState: {
-        queue: [],
-        next$: new Subject<IJob>(),
-      },
+      jobsState$,
       transactionsState: {},
     },
     localState: {
@@ -65,30 +85,50 @@ export const initDbClient = async ({
     },
   };
 
-  const job = await acquireJob(state.sharedState.jobsState, {
+  const job = await acquireJob(state.sharedState.jobsState$, {
     type: "initDb",
     name: dbName,
   });
 
-  try {
-    await dbBackendCalled.initialize();
+  const initializerPipe = pipe(
+    switchMap(async () => {
+      await dbBackendCalled.initialize();
+    }),
+    map(() => {
+      let currentState = state;
 
-    for (const plugin of plugins || []) {
-      state = plugin(state);
-    }
+      for (const plugin of plugins || []) {
+        currentState = plugin(state);
+      }
 
-    return state;
-  } finally {
-    releaseJob(state.sharedState.jobsState, job);
+      return currentState;
+    }),
+    finalize(() => {
+      releaseJob(jobsState$, job);
 
-    await state.sharedState.eventsEmitter.emit("initialized", state);
-  }
+      state.sharedState.eventsEmitter.emit("initialized", state);
+    })
+  );
+
+  return firstValueFrom(
+    state.sharedState.runningState$.pipe(
+      switchMap((runningState) =>
+        runningState === "running"
+          ? of(undefined).pipe(initializerPipe)
+          : of(state)
+      )
+    )
+  );
 };
 
 export const stopDb = async (state: IDbState) => {
   state.sharedState.runningState$.next("stopping");
 
-  await whenAllJobsDone(state.sharedState.jobsState);
+  await whenAllJobsDone(state.sharedState.jobsState$);
+
+  setTimeout(() => {
+    console.log("stopped db");
+  }, 0);
 
   state.sharedState.runningState$.next("stopped");
 };

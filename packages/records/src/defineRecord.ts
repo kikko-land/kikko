@@ -15,8 +15,8 @@ import {
 } from "./middlewares";
 
 export interface IRecordConfig<
-  Row extends Record<string, any> & { id: string },
-  Rec extends Record<string, any> & { id: string }
+  Row extends object & { id: string },
+  Rec extends object & { id: string }
 > extends IContainsTable {
   serialize: (rec: Rec) => Row;
   deserialize: (row: Row) => Rec;
@@ -33,15 +33,15 @@ export interface IRecordConfig<
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 
 export function middlewaresSlice<
-  Row extends Record<string, any> & { id: string },
-  Rec extends Record<string, any> & { id: string }
+  Row extends object & { id: string },
+  Rec extends object & { id: string }
 >(args: IMiddlewareSlice<Row, Rec>) {
   return args;
 }
 
 export function defineRecord<
-  Row extends Record<string, any> & { id: string },
-  Rec extends Record<string, any> & { id: string }
+  Row extends object & { id: string },
+  Rec extends object & { id: string }
 >(
   table: IContainsTable,
   config: Optional<

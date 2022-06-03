@@ -12,8 +12,8 @@ import { useEffect, useMemo, useState } from "react";
 import { startWith, switchMap, takeUntil } from "rxjs";
 
 const getRecords$ = <
-  Row extends Record<string, any> & { id: string },
-  Rec extends Record<string, any> & { id: string }
+  Row extends object & { id: string },
+  Rec extends object & { id: string }
 >(
   db: IDbState,
   recordConfig: IRecordConfig<Row, Rec>,
@@ -22,13 +22,13 @@ const getRecords$ = <
   return subscribeToQueries(db, [sql]).pipe(
     startWith(undefined),
     switchMap(() => getRecords(db, recordConfig, sql)),
-    takeUntil(db.sharedState.stop$)
+    takeUntil(db.sharedState.stopStarted$)
   );
 };
 
 export function useRecords<
-  Row extends Record<string, any> & { id: string },
-  Rec extends Record<string, any> & { id: string }
+  Row extends object & { id: string },
+  Rec extends object & { id: string }
 >(
   recordConfig: IRecordConfig<Row, Rec>,
   _query: Sql | Falsy,

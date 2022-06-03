@@ -1,6 +1,7 @@
 import { Sql } from "@trong-orm/sql";
 import { nanoid } from "nanoid";
-import { filter, first, firstValueFrom, Subject } from "rxjs";
+import { BehaviorSubject, filter, firstValueFrom } from "rxjs";
+import { DeepReadonly } from "ts-essentials";
 
 import { ITransaction } from "./types";
 
@@ -14,55 +15,57 @@ export type IJob =
   | { type: "runQueries"; queries: Sql[]; id: string }
   | { type: "initDb"; name: string; id: string };
 
-// TODO: maybe make just behavior subject with state like IJobState?
-export interface IJobState {
-  // First element is always running job
+export type IJobsState = DeepReadonly<{
   queue: IJob[];
-  next$: Subject<IJob>;
-}
+  current?: IJob;
+}>;
 
-// Actually it is locking mechanism
+// Actually it works like locking mechanism
 export const acquireJob = async (
-  { queue, next$ }: IJobState,
+  jobsState$: BehaviorSubject<IJobsState>,
   _job: DistributiveOmit<IJob, "id">
 ): Promise<IJob> => {
   const id = nanoid();
   const job = { ..._job, id };
 
-  if (queue.length !== 0) {
+  const { current, queue } = jobsState$.value;
+
+  if (current || queue.length > 0) {
     const promise = firstValueFrom(
-      next$.pipe(
-        filter((job) => job.id === id),
-        first()
-      )
+      jobsState$.pipe(filter(({ current }) => current?.id === id))
     );
 
-    queue.push(job);
+    jobsState$.next({ queue: [...queue, job], current });
 
     await promise;
   } else {
-    queue.push(job);
+    jobsState$.next({ queue: [], current: job });
   }
 
   return job;
 };
 
-export const releaseJob = ({ queue, next$ }: IJobState, job: IJob) => {
-  if (queue[0] !== job) {
+export const releaseJob = (
+  jobsState$: BehaviorSubject<IJobsState>,
+  job: IJob
+) => {
+  const { current, queue } = jobsState$.value;
+
+  if (current?.id !== job.id) {
     throw new Error(
-      `Internal error: first element of jobs queue is not a running job, job: ${JSON.stringify(
-        job
-      )}, queue: ${JSON.stringify(queue)}`
+      `Can't release job that is not currently running, current: ${JSON.stringify(
+        current
+      )}, queue: ${JSON.stringify(queue)}, toRelease: ${JSON.stringify(job)}`
     );
   }
 
-  queue.shift();
-
-  if (queue[0]) {
-    next$.next(queue[0]);
-  }
+  jobsState$.next({ queue: queue.slice(1), current: queue[0] });
 };
 
-export const whenAllJobsDone = async ({ queue, next$ }: IJobState) => {
-  return firstValueFrom(next$.pipe(filter(() => queue.length === 0)));
+export const whenAllJobsDone = async (
+  jobsState$: BehaviorSubject<IJobsState>
+) => {
+  return firstValueFrom(
+    jobsState$.pipe(filter(({ queue }) => queue.length === 0))
+  );
 };

@@ -16,6 +16,6 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
-  "include": ["src", "../core/types"],
+  "include": ["src", "../absurd-web-backend/types"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

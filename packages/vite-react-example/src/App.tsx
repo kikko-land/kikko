@@ -1,16 +1,20 @@
-import { IInitDbConfig, migrationPlugin } from "@trong-orm/core";
-import DbWorker from "@trong-orm/core/src/worker/DB.worker?worker";
+import { initAbsurdWebBackend } from "@trong-orm/absurd-web-backend";
+import DbWorker from "@trong-orm/absurd-web-backend/src/worker/DB.worker?worker";
+import { IInitDbClientConfig, migrationPlugin } from "@trong-orm/core";
 import { DbProvider, EnsureDbLoaded } from "@trong-orm/react-queries-hooks";
 import { reactiveQueriesPlugin } from "@trong-orm/reactive-queries";
 import sqlWasmUrl from "@trong-orm/sql.js/dist/sql-wasm.wasm?url";
+import React from "react";
 
 import { List } from "./List";
 import { createNotesTableMigration } from "./migrations/createNotesTable";
 
-const config: IInitDbConfig = {
+const config: IInitDbClientConfig = {
   dbName: "helloWorld",
-  worker: new DbWorker(),
-  wasmUrl: sqlWasmUrl,
+  dbBackend: initAbsurdWebBackend({
+    worker: () => new DbWorker(),
+    wasmUrl: sqlWasmUrl,
+  }),
   plugins: [
     migrationPlugin([createNotesTableMigration]),
     reactiveQueriesPlugin,
@@ -19,10 +23,12 @@ const config: IInitDbConfig = {
 
 export const App = () => {
   return (
-    <DbProvider config={config}>
-      <EnsureDbLoaded fallback={<div>Loading db...</div>}>
-        <List />
-      </EnsureDbLoaded>
-    </DbProvider>
+    <React.StrictMode>
+      <DbProvider config={config}>
+        <EnsureDbLoaded fallback={<div>Loading db...</div>}>
+          <List />
+        </EnsureDbLoaded>
+      </DbProvider>
+    </React.StrictMode>
   );
 };
