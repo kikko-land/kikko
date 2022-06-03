@@ -4,7 +4,6 @@ import { ICommand } from "../commands";
 
 export type IResponse = {
   commandId: string;
-  transactionId?: string;
 } & (
   | {
       status: "success";

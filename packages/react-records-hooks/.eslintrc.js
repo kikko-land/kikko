@@ -14,7 +14,6 @@ module.exports = {
     "plugin:jsx-a11y/recommended",
     "plugin:rxjs/recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:@typescript-eslint/recommended-requiring-type-checking",
     "plugin:promise/recommended",
   ],
   parser: "@typescript-eslint/parser",

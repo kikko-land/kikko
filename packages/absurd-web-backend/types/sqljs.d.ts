@@ -1,11 +1,27 @@
 declare module "@trong-orm/sql.js" {
   /// <reference types="emscripten" />
+  import { SQLiteFS } from "absurd-sql";
 
   export type SqlValue = number | string | Uint8Array | null;
   export type ParamsObject = Record<string, SqlValue>;
   export type ParamsCallback = (obj: ParamsObject) => void;
   export type SqlJsConfig = Partial<EmscriptenModule>;
   export type BindParams = SqlValue[] | ParamsObject | null;
+
+  type Stream = {
+    node: {
+      contents: {
+        readIfFallback: () => Promise<void>;
+      };
+    };
+  };
+
+  type FS = {
+    mkdir: (dir: string) => void;
+    mount: (fs: SQLiteFS, opts: object, path: string) => void;
+    open: (name: string, mode: string) => Stream;
+    close: (stream: Stream) => void;
+  };
 
   export interface QueryExecResult {
     columns: string[];
@@ -24,7 +40,7 @@ declare module "@trong-orm/sql.js" {
     Statement: typeof Statement;
 
     register_for_idb: (v: any) => any;
-    FS: any;
+    FS: FS;
   }
 
   export interface InitSqlJsStatic extends Function {

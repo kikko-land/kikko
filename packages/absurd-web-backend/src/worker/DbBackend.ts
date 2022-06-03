@@ -3,7 +3,6 @@ import initSqlJs, {
   Database,
   QueryExecResult,
 } from "@trong-orm/sql.js";
-// @ts-ignore
 import { SQLiteFS } from "absurd-sql";
 import IndexedDBBackend from "absurd-sql/dist/indexeddb-backend";
 
@@ -15,20 +14,21 @@ export class DbBackend {
   constructor(private dbName: string, private wasmUrl: string) {}
 
   async init() {
-    let SQL = await initSqlJs({
+    const SQL = await initSqlJs({
       locateFile: () => this.wasmUrl,
     });
 
-    let sqlFS = new SQLiteFS(SQL.FS, new IndexedDBBackend());
+    const sqlFS = new SQLiteFS(SQL.FS, new IndexedDBBackend());
 
     SQL.register_for_idb(sqlFS);
     SQL.FS.mkdir("/blocked");
     SQL.FS.mount(sqlFS, {}, "/blocked");
 
     const path = `/blocked/${this.dbName}.sqlite`;
+
     if (typeof SharedArrayBuffer === "undefined") {
       console.log("No SharedArrayBuffer");
-      let stream = SQL.FS.open(path, "a+");
+      const stream = SQL.FS.open(path, "a+");
       await stream.node.contents.readIfFallback();
       SQL.FS.close(stream);
     }
@@ -51,7 +51,7 @@ export class DbBackend {
     params?: BindParams,
     logOpts?: {
       transactionId?: string;
-      suppressLog?: boolean;
+      suppress: boolean;
     }
   ): QueryExecResult[] {
     try {
@@ -62,7 +62,7 @@ export class DbBackend {
       if (
         logOpts?.transactionId &&
         logOpts.transactionId !== this.currentTransactionId &&
-        !logOpts.suppressLog
+        !logOpts.suppress
       ) {
         this.currentTransactionId = logOpts.transactionId;
         this.currentTransactionI++;
@@ -71,7 +71,7 @@ export class DbBackend {
         this.currentTransactionId = undefined;
       }
 
-      if (!logOpts?.suppressLog) {
+      if (!logOpts?.suppress) {
         console.log(
           `%c[${this.dbName.substring(0, 10)}]${
             logOpts?.transactionId
