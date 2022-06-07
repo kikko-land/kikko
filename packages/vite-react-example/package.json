@@ -12,6 +12,7 @@
   "dependencies": {
     "@faker-js/faker": "^7.1.0",
     "@trong-orm/sql.js": "^1.6.7",
+    "@trong-orm/query-builder": "*",
     "@trong-orm/absurd-web-backend": "*",
     "@trong-orm/core": "*",
     "@trong-orm/react-queries-hooks": "*",

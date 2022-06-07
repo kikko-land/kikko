@@ -1,7 +1,7 @@
 // Code is taken and adopted from https://github.com/blakeembrey/sql-template-tag
 
 export type Value = string | number | null;
-export type RawValue = Value | Sql | IContainsTable;
+export type RawValue = Value | Sql | ContainsTable;
 
 export const tableSymbol: unique symbol = Symbol("table");
 
@@ -19,7 +19,7 @@ export class TableDef {
   }
 }
 
-export interface IContainsTable {
+export interface ContainsTable {
   [tableSymbol]: TableDef;
 }
 
@@ -28,7 +28,7 @@ const deleteRegex = /delete\s+from\s+/gim;
 const updateRegex = /update\s+(or\s+\w+\s+)?/gim;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function containsTable(x: any): x is IContainsTable {
+export function containsTable(x: any): x is ContainsTable {
   return typeof x === "object" && x !== null && x[tableSymbol];
 }
 
@@ -196,8 +196,8 @@ export function raw(value: string) {
 
 export function table(
   name: string,
-  opts?: { dependsOn?: IContainsTable[] }
-): IContainsTable {
+  opts?: { dependsOn?: ContainsTable[] }
+): ContainsTable {
   return {
     [tableSymbol]: new TableDef(
       name,

@@ -1,3 +1,5 @@
+import "@trong-orm/query-builder";
+
 import { faker } from "@faker-js/faker";
 import { runAfterTransactionCommitted } from "@trong-orm/core";
 import { useRunQuery, useSql } from "@trong-orm/react-queries-hooks";
