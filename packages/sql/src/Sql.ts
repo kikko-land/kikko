@@ -126,14 +126,14 @@ export class Sql {
       value = this.strings[0];
     while (i < this.strings.length) value += `$${i}${this.strings[i++]}`;
 
-    return value;
+    return value.trim();
   }
 
   get sql() {
     let i = 1,
       value = this.strings[0];
     while (i < this.strings.length) value += `?${this.strings[i++]}`;
-    return value;
+    return value.trim();
   }
 
   get hash() {

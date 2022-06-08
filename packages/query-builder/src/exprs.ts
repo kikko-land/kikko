@@ -1,22 +1,33 @@
-import { ContainsTable, Sql, sql } from "@trong-orm/sql";
+import {
+  ContainsTable,
+  containsTable,
+  empty,
+  join,
+  raw,
+  RawValue,
+  Sql,
+  sql,
+  table,
+} from "@trong-orm/sql";
 
-import { $in } from "./statements/conditionOperators";
 import {
   IAndOrConditionValue,
   IConditionValue,
+  isAndOrConditionValue,
+  isConditionValue,
 } from "./statements/logicalStmts";
-import { internalWhere, IWhereFunc, where } from "./statements/whereStmt";
-import { hasDiscriminator } from "./types";
+import { internalWhere, IWhereFunc } from "./statements/whereStmt";
+import { assertUnreachable, hasDiscriminator } from "./types";
 
-type IFromValue = string | Sql | ContainsTable | ISelectQueryState;
+type IFromValue = Sql | ContainsTable | ISelectQueryBuilder;
 
 type IGroupByValue = string | Sql | ContainsTable;
 type ISelectValue =
   | string
   | Sql
-  | ISelectQueryState
+  | ISelectQueryBuilder
   | { column: string; as: string }
-  | { select: Sql | ISelectQueryState; as: string };
+  | { select: Sql | ISelectQueryBuilder; as: string };
 
 export type ISelectQueryState = {
   readonly type: "select";
@@ -44,7 +55,7 @@ export type IUnknownQueryState = {
 
 export type IQueryBuilderState = ISelectQueryState | IUnknownQueryState;
 
-type FromArg = string | Sql | ContainsTable | ISelectQueryBuilder;
+type FromArg = Sql | ContainsTable | ISelectQueryBuilder;
 type FromFunc<T extends IQueryBuilder> = (arg: FromArg) => T;
 
 type SelectArg =
@@ -68,6 +79,8 @@ export type IUnknownQueryBuilder = IBaseQueryBuilder & {
   from: FromFunc<IUnknownQueryBuilder>;
   select: SelectFunc<IUnknownQueryBuilder>;
   merge: MergeFunc<IUnknownQueryBuilder>;
+
+  toSql: () => Sql;
 };
 
 export type ISelectQueryBuilder = IBaseQueryBuilder & {
@@ -78,14 +91,21 @@ export type ISelectQueryBuilder = IBaseQueryBuilder & {
   from: FromFunc<ISelectQueryBuilder>;
   select: SelectFunc<ISelectQueryBuilder>;
   merge: MergeFunc<ISelectQueryBuilder>;
+  toSql: () => Sql;
+  hash: () => string;
 };
 
+export type IExportableQueryBuilder = ISelectQueryBuilder;
 export type IQueryBuilder = IUnknownQueryBuilder | ISelectQueryBuilder;
 
-export function isQueryBuilder(t: {
+export function isQueryBuilder(t: unknown): t is IQueryBuilder {
+  return hasDiscriminator(t) && t["__discriminator"] === "queryBuilder";
+}
+
+export function isSelectQueryBuilder(t: {
   __discriminator: string;
-}): t is IQueryBuilder {
-  return t["__discriminator"] === "queryBuilder";
+}): t is ISelectQueryBuilder {
+  return isQueryBuilder(t) && t.builderType === "select";
 }
 
 const buildSelectQueryBuilder = (
@@ -106,6 +126,57 @@ const buildSelectQueryBuilder = (
     select,
     where: internalWhere,
     from,
+    toSql() {
+      const { distinct, selectValues, fromValues, whereValue } =
+        this.builderState;
+
+      const toSelect = selectValues.map((v) => {
+        if (v instanceof Sql) {
+          return v;
+        } else if (typeof v === "string") {
+          return sql`${raw(v)}`;
+        } else if (hasDiscriminator(v) && isSelectQueryBuilder(v)) {
+          return v.toSql();
+        } else if ("column" in v) {
+          return sql`${raw(v.column)} AS ${raw(v.as)}`;
+        } else if ("select" in v) {
+          return sql`(${
+            hasDiscriminator(v.select) && isSelectQueryBuilder(v.select)
+              ? v.select.toSql()
+              : v.select
+          }) AS ${raw(v.as)}`;
+        } else {
+          assertUnreachable(v);
+        }
+      });
+
+      const from = fromValues.map((v) => {
+        if (v instanceof Sql) {
+          return v;
+        } else if (typeof v === "string") {
+          return sql`${raw(v)}`;
+        } else if (containsTable(v)) {
+          return sql`${v}`;
+        } else if (hasDiscriminator(v) && isSelectQueryBuilder(v)) {
+          return v.toSql();
+        } else {
+          assertUnreachable(v);
+        }
+      });
+
+      const where = whereValue
+        ? sql` WHERE ${conditionToSql(whereValue)}`
+        : empty;
+
+      const finalQuery = sql`SELECT${distinct ? sql` DISTINCT` : empty} ${join(
+        toSelect
+      )}${fromValues.length === 0 ? empty : sql` FROM ${join(from)}`}${where}`;
+
+      return finalQuery;
+    },
+    hash() {
+      return this.toSql().hash;
+    },
     merge(arg: MergeArg) {
       return {
         ...this,
@@ -152,6 +223,9 @@ const buildUnknownQueryBuilder = (
     merge(arg: MergeArg) {
       return this;
     },
+    toSql() {
+      return sql``;
+    },
   };
 };
 
@@ -163,7 +237,7 @@ export function select<T extends IQueryBuilder = ISelectQueryBuilder>(
     if (arg === undefined) return ["*"];
 
     if (hasDiscriminator(arg) && isQueryBuilder(arg)) {
-      return [arg.builderState];
+      return [arg];
     } else {
       return arg instanceof Sql || typeof arg === "string"
         ? [arg]
@@ -171,11 +245,7 @@ export function select<T extends IQueryBuilder = ISelectQueryBuilder>(
             typeof aliasOrQuery === "string"
               ? { column: columnOrAs, as: aliasOrQuery }
               : {
-                  select:
-                    hasDiscriminator(aliasOrQuery) &&
-                    isQueryBuilder(aliasOrQuery)
-                      ? aliasOrQuery.builderState
-                      : aliasOrQuery,
+                  select: aliasOrQuery,
                   as: columnOrAs,
                 }
           );
@@ -202,7 +272,7 @@ export function from<T extends IQueryBuilder = IUnknownQueryBuilder>(
 ): T {
   const fromValues = ((): IFromValue[] => {
     if (hasDiscriminator(arg) && isQueryBuilder(arg)) {
-      return [arg.builderState];
+      return [arg];
     } else {
       return [arg];
     }
@@ -223,14 +293,85 @@ export function from<T extends IQueryBuilder = IUnknownQueryBuilder>(
   }
 }
 
+const unwrapValue = (value: ISelectQueryBuilder | RawValue) => {
+  return hasDiscriminator(value) && isQueryBuilder(value)
+    ? value.toSql()
+    : value;
+};
+const conditionToSql = (
+  condition: IAndOrConditionValue | IConditionValue
+): Sql => {
+  if (isAndOrConditionValue(condition)) {
+    return sql`${
+      hasDiscriminator(condition.left)
+        ? conditionToSql(condition.left)
+        : condition.left
+    } ${raw(condition.type)} ${
+      hasDiscriminator(condition.right)
+        ? conditionToSql(condition.right)
+        : condition.right
+    }`;
+  } else if (isConditionValue(condition)) {
+    switch (condition.columnOperator) {
+      case "eq":
+        return sql`${raw(condition.column)} = ${unwrapValue(condition.value)}`;
+      case "notEq":
+        return sql`${raw(condition.column)} = ${unwrapValue(condition.value)}`;
+      case "lt":
+        return sql`${raw(condition.column)} < ${unwrapValue(condition.value)}`;
+      case "ltEq":
+        return sql`${raw(condition.column)} <= ${unwrapValue(condition.value)}`;
+      case "gt":
+        return sql`${raw(condition.column)} > ${unwrapValue(condition.value)}`;
+      case "gtEq":
+        return sql`${raw(condition.column)} >= ${unwrapValue(condition.value)}`;
+      case "in":
+        return sql`${raw(condition.column)} IN (${unwrapValue(
+          condition.value
+        )})`;
+      case "is":
+        return sql`${raw(condition.column)} IS (${unwrapValue(
+          condition.value
+        )})`;
+      case "isNot":
+        return sql`${raw(condition.column)} IS NOT (${unwrapValue(
+          condition.value
+        )})`;
+      case "match":
+        return sql`${raw(condition.column)} MATCH (${unwrapValue(
+          condition.value
+        )})`;
+      case "like":
+        return sql`${raw(condition.column)} LIKE (${unwrapValue(
+          condition.value
+        )})`;
+      case "regexp":
+        return sql`${raw(condition.column)} REGEXP (${unwrapValue(
+          condition.value
+        )})`;
+      case "glob":
+        return sql`${raw(condition.column)} GLOB (${unwrapValue(
+          condition.value
+        )})`;
+      default:
+        assertUnreachable(condition.columnOperator);
+    }
+  } else {
+    assertUnreachable(condition);
+  }
+};
+
 select();
 select("oneField, anotherField");
 select({ oneField: "alisedField" }).select("puk");
 
 console.log(
-  select({ oneField: select("id").from("table") })
-    .from("kek")
+  select({ oneField: select("id").from(table("table")) })
+    .from(table("kek"))
     .where(sql`kek.id = 1`)
+    .where({ key: 0 })
+    .toSql()
+    .inspect()
 );
 
 // pipe(select(), from("table"), where());

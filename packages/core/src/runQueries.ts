@@ -1,5 +1,7 @@
+import { IQueryBuilder } from "@trong-orm/query-builder";
 import { Sql } from "@trong-orm/sql";
 
+import { castToSql } from "./castToSql";
 import { acquireJob, IJob, releaseJob } from "./job";
 import {
   IDbState,
@@ -36,7 +38,7 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
   } = dbState;
 
   if (!transactionsLocalState.current) {
-    assureDbIsRunning(dbState, () => JSON.stringify(queries.map((q) => q.sql)));
+    assureDbIsRunning(dbState, () => JSON.stringify(queries.map(castToSql)));
   }
 
   if (transactionsLocalState.current && transactionsSharedState.current) {
@@ -55,7 +57,7 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
   if (!transactionsLocalState.current) {
     job = await acquireJob(jobsState$, {
       type: "runQueries",
-      queries,
+      queries: queries.map(castToSql),
     });
   }
 
@@ -72,9 +74,9 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
     ).map((queriesResults, i) => {
       if (queriesResults.length > 1) {
         console.warn(
-          `Omitting query result of ${queries[i].sql}: ${JSON.stringify(
-            queriesResults.slice(1)
-          )}`
+          `Omitting query result of ${
+            castToSql(queries[i]).sql
+          }: ${JSON.stringify(queriesResults.slice(1))}`
         );
       }
 
@@ -91,7 +93,7 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
 
 export const runQueries = async <D extends Record<string, unknown>>(
   state: IDbState,
-  queries: Sql[]
+  queries: (Sql | IQueryBuilder)[]
 ): Promise<D[][]> => {
   const middlewares: IQueriesMiddleware[] = [
     ...state.localState.queriesMiddlewares,

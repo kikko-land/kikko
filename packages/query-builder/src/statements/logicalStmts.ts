@@ -1,6 +1,6 @@
 import { RawValue, Sql } from "@trong-orm/sql";
 
-import { ISelectQueryState } from "../exprs";
+import { ISelectQueryBuilder } from "../exprs";
 import { ICompOperator } from "./conditionOperators";
 
 export const conditionDiscriminator = "compConditionStmt" as const;
@@ -8,7 +8,7 @@ export const conditionDiscriminator = "compConditionStmt" as const;
 export interface IConditionValue {
   column: string;
   columnOperator: ICompOperator;
-  value: RawValue | ISelectQueryState;
+  value: RawValue | ISelectQueryBuilder;
   __discriminator: typeof conditionDiscriminator;
 }
 
@@ -29,7 +29,7 @@ export const isConditionValue = (x: {
 
 const andOrDiscriminator = "andOrConditionStmt" as const;
 export interface IAndOrConditionValue {
-  type: "and" | "or";
+  type: "AND" | "OR";
   left: IConditionValue | IAndOrConditionValue | Sql;
   right: IConditionValue | IAndOrConditionValue | Sql;
   __discriminator: typeof andOrDiscriminator;
@@ -45,7 +45,7 @@ export const buildAndOrConditionValue = (
 };
 export const isAndOrConditionValue = (x: {
   __discriminator: string;
-}): x is IConditionValue => {
+}): x is IAndOrConditionValue => {
   return x["__discriminator"] === andOrDiscriminator;
 };
 

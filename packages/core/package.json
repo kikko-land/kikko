@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@trong-orm/sql": "*",
+    "@trong-orm/query-builder": "*",
     "nanoid": "^3.3.4",
     "rxjs": "^7.5.5"
   },

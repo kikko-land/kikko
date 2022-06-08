@@ -1,4 +1,9 @@
-import { useQuery, useQueryFirstRow, useSql } from "@trong-orm/react-queries-hooks";
+import { like, select, where } from "@trong-orm/query-builder";
+import {
+  useQuery,
+  useQueryFirstRow,
+  useSql,
+} from "@trong-orm/react-queries-hooks";
 import { empty, sql, table } from "@trong-orm/sql";
 import { useState } from "react";
 
@@ -18,13 +23,20 @@ export const List = () => {
     title: string;
     content: string;
   }>(
-    sql`SELECT * FROM ${notesTable} ${
-      textToSearch ? sql`WHERE content LIKE ${"%" + textToSearch + "%"}` : empty
-    }`
+    select()
+      .from(notesTable)
+      .where(
+        textToSearch
+          ? where({ content: like("%" + textToSearch + "%") })
+          : empty
+      )
+      .toSql()
   );
 
   const countResult = useQueryFirstRow<{ count: number }>(
-    sql`SELECT count(*) as count FROM (${baseSql})`
+    select({ count: sql`COUNT(*)` })
+      .from(baseSql)
+      .toSql()
   );
 
   return (

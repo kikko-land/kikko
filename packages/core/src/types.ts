@@ -1,3 +1,4 @@
+import { IQueryBuilder } from "@trong-orm/query-builder";
 import { Sql } from "@trong-orm/sql";
 import { BehaviorSubject, Observable } from "rxjs";
 import { DeepReadonly } from "ts-essentials";
@@ -40,7 +41,7 @@ export interface ITransaction {
 export type IQueriesMiddlewareState = {
   dbState: IDbState;
   result: Record<string, unknown>[][];
-  queries: Sql[];
+  queries: (IQueryBuilder | Sql)[];
 };
 
 export type INextQueriesMiddleware = (

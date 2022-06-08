@@ -1,4 +1,5 @@
 import { IDbState } from "@trong-orm/core";
+import { IExportableQueryBuilder } from "@trong-orm/query-builder";
 import { empty, join, Sql, sql } from "@trong-orm/sql";
 
 import { IRecordConfig } from "./defineRecord";
@@ -10,7 +11,7 @@ export const getRecords = async <
 >(
   db: IDbState,
   recordConfig: IRecordConfig<Row, Rec>,
-  sql: Sql
+  sql: Sql | IExportableQueryBuilder
 ) => {
   return (
     await applyAction(

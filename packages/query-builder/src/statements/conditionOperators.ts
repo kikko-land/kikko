@@ -1,16 +1,12 @@
 import { RawValue } from "@trong-orm/sql";
 
-import {
-  ISelectQueryBuilder,
-  ISelectQueryState,
-  isQueryBuilder,
-} from "../exprs";
-import { hasDiscriminator } from "../types";
+import { ISelectQueryBuilder } from "../exprs";
 import {
   conditionRightDiscriminator,
   IRightConditionValue,
 } from "./logicalStmts";
 
+// TODO: add between, NOT, custom IN
 export const operators = [
   "eq",
   "notEq",
@@ -28,55 +24,58 @@ export const operators = [
 ] as const;
 export type ICompOperator = typeof operators[number];
 
-const unwrapValue = (
-  value: RawValue | ISelectQueryState | ISelectQueryBuilder
-) =>
-  hasDiscriminator(value) && isQueryBuilder(value) ? value.builderState : value;
-
 export const eq = (
-  value: RawValue | ISelectQueryState | ISelectQueryBuilder
+  value: RawValue | ISelectQueryBuilder
 ): IRightConditionValue => ({
   columnOperator: "eq",
-  value: unwrapValue(value),
+  value: value,
   __discriminator: conditionRightDiscriminator,
 });
 
 export const notEq = (
-  value: RawValue | ISelectQueryState | ISelectQueryBuilder
+  value: RawValue | ISelectQueryBuilder
 ): IRightConditionValue => ({
   columnOperator: "notEq",
-  value: unwrapValue(value),
+  value: value,
   __discriminator: conditionRightDiscriminator,
 });
 
 export const lt = (
-  value: RawValue | ISelectQueryState | ISelectQueryBuilder
+  value: RawValue | ISelectQueryBuilder
 ): IRightConditionValue => ({
   columnOperator: "lt",
-  value: unwrapValue(value),
+  value: value,
   __discriminator: conditionRightDiscriminator,
 });
 
 export const ltEq = (
-  value: RawValue | ISelectQueryState | ISelectQueryBuilder
+  value: RawValue | ISelectQueryBuilder
 ): IRightConditionValue => ({
   columnOperator: "ltEq",
-  value: unwrapValue(value),
+  value: value,
   __discriminator: conditionRightDiscriminator,
 });
 
 export const gt = (
-  value: RawValue | ISelectQueryState | ISelectQueryBuilder
+  value: RawValue | ISelectQueryBuilder
 ): IRightConditionValue => ({
   columnOperator: "gtEq",
-  value: unwrapValue(value),
+  value: value,
   __discriminator: conditionRightDiscriminator,
 });
 
 export const $in = (
-  value: RawValue | ISelectQueryState | ISelectQueryBuilder
+  value: RawValue | ISelectQueryBuilder
 ): IRightConditionValue => ({
   columnOperator: "in",
-  value: unwrapValue(value),
+  value: value,
+  __discriminator: conditionRightDiscriminator,
+});
+
+export const like = (
+  value: RawValue | ISelectQueryBuilder
+): IRightConditionValue => ({
+  columnOperator: "like",
+  value: value,
   __discriminator: conditionRightDiscriminator,
 });

@@ -4,6 +4,7 @@ import {
   withSuppressedLog,
 } from "@trong-orm/core";
 import { IDbState } from "@trong-orm/core";
+import { IExportableQueryBuilder } from "@trong-orm/query-builder";
 import { subscribeToQueries } from "@trong-orm/reactive-queries-plugin";
 import { Sql } from "@trong-orm/sql";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -20,7 +21,7 @@ import {
 
 function runQueries$<D extends Record<string, unknown>>(
   state: IDbState,
-  queries: Sql[]
+  queries: (Sql | IExportableQueryBuilder)[]
 ) {
   return subscribeToQueries(state, queries).pipe(
     startWith(undefined),
@@ -32,7 +33,7 @@ function runQueries$<D extends Record<string, unknown>>(
 }
 
 export function useQueries<D extends Record<string, unknown>>(
-  _queries: Sql[] | Falsy,
+  _queries: (Sql | IExportableQueryBuilder)[] | Falsy,
   _opts?: { suppressLog?: boolean; mapToObject?: boolean } | undefined
 ): IQueryResult<D[]> {
   const dbState = useDbState();
@@ -41,9 +42,9 @@ export function useQueries<D extends Record<string, unknown>>(
     suppressLog: _opts?.suppressLog !== undefined ? _opts.suppressLog : false,
   };
 
-  const [currentQueries, setCurrentQueries] = useState<Sql[]>(
-    _queries ? _queries : []
-  );
+  const [currentQueries, setCurrentQueries] = useState<
+    (Sql | IExportableQueryBuilder)[]
+  >(_queries ? _queries : []);
   const [data, setData] = useState<D[][] | undefined>();
   const [response, setResponse] = useState<
     DistributiveOmit<IQueryResult<D[][]>, "data">
@@ -107,7 +108,7 @@ export function useQueries<D extends Record<string, unknown>>(
 }
 
 export function useQuery<D extends Record<string, unknown>>(
-  query: Sql | Falsy,
+  query: Sql | IExportableQueryBuilder | Falsy,
   _opts?: { suppressLog?: boolean; mapToObject?: boolean } | undefined
 ): IQueryResult<D> {
   const queries = useMemo(() => (query ? [query] : []), [query]);

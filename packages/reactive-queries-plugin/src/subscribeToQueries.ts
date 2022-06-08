@@ -1,4 +1,5 @@
 import { IDbState } from "@trong-orm/core";
+import { IQueryBuilder, isQueryBuilder } from "@trong-orm/query-builder";
 import { Sql } from "@trong-orm/sql";
 import { filter, Observable, switchMap, takeUntil } from "rxjs";
 
@@ -7,13 +8,13 @@ import { getReactiveState } from "./utils";
 
 export const subscribeToQueries = (
   db: IDbState,
-  queries: Sql[]
+  queries: (Sql | IQueryBuilder)[]
 ): Observable<unknown> => {
   const { eventsCh$ } = getReactiveState(db);
 
   const readingTables = new Set(
     queries
-      .filter((q) => q.isReadQuery)
+      .map((q) => (isQueryBuilder(q) ? q.toSql() : q))
       .flatMap((q) => q.tables)
       .map((t) => t.name)
   );

@@ -1,4 +1,5 @@
 import { IDbState, withSuppressedLog } from "@trong-orm/core";
+import { IExportableQueryBuilder } from "@trong-orm/query-builder";
 import {
   DistributiveOmit,
   Falsy,
@@ -17,7 +18,7 @@ const getRecords$ = <
 >(
   db: IDbState,
   recordConfig: IRecordConfig<Row, Rec>,
-  sql: Sql
+  sql: Sql | IExportableQueryBuilder
 ) => {
   return subscribeToQueries(db, [sql]).pipe(
     startWith(undefined),
@@ -31,7 +32,7 @@ export function useRecords<
   Rec extends object & { id: string }
 >(
   recordConfig: IRecordConfig<Row, Rec>,
-  _query: Sql | Falsy,
+  _query: Sql | IExportableQueryBuilder | Falsy,
   _opts?: { suppressLog?: boolean } | undefined
 ): IQueryResult<Rec> {
   const dbState = useDbState();
@@ -40,9 +41,9 @@ export function useRecords<
     suppressLog: _opts?.suppressLog !== undefined ? _opts.suppressLog : false,
   };
 
-  const [currentQuery, setCurrentQuery] = useState<Sql | undefined>(
-    _query || undefined
-  );
+  const [currentQuery, setCurrentQuery] = useState<
+    Sql | IExportableQueryBuilder | undefined
+  >(_query || undefined);
   const [data, setData] = useState<Rec[] | undefined>();
   const [response, setResponse] = useState<
     DistributiveOmit<IQueryResult<Rec[]>, "data">

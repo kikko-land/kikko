@@ -48,7 +48,7 @@ const toConditionValue = (
       return buildConditionValue({
         column,
         columnOperator: "eq",
-        value: val.builderState,
+        value: val,
       });
     } else {
       throw new Error("Unknown input" + val);
@@ -84,14 +84,14 @@ export function where(
       entries.length === 1
         ? toConditionValue(entries[0][0], entries[0][1])
         : buildAndOrConditionValue({
-            type: "and",
+            type: "AND",
             left: toConditionValue(entries[0][0], entries[0][1]),
             right: toConditionValue(entries[1][0], entries[1][1]),
           });
 
     for (const [table, con] of entries.slice(2)) {
       toReturn = buildAndOrConditionValue({
-        type: "and",
+        type: "AND",
         left: toReturn,
         right: toConditionValue(table, con),
       });
@@ -115,7 +115,7 @@ export function internalWhere<T extends IQueryBuilder = IUnknownQueryBuilder>(
         ...this.builderState,
         whereValue: this.builderState.whereValue
           ? buildAndOrConditionValue({
-              type: "and",
+              type: "AND",
               left: this.builderState.whereValue,
               right: arg,
             })
@@ -131,7 +131,7 @@ export function internalWhere<T extends IQueryBuilder = IUnknownQueryBuilder>(
         ...this.builderState,
         whereValue: this.builderState.whereValue
           ? buildAndOrConditionValue({
-              type: "and",
+              type: "AND",
               left: this.builderState.whereValue,
               right: condition,
             })
