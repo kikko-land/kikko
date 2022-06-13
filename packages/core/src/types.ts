@@ -1,4 +1,5 @@
-import { Sql } from "@trong-orm/sql";
+import { IBaseToken } from "@trong-orm/query-builder/src/types";
+import { ISqlAdapter, Sql } from "@trong-orm/sql";
 import { BehaviorSubject, Observable } from "rxjs";
 import { DeepReadonly } from "ts-essentials";
 
@@ -40,7 +41,7 @@ export interface ITransaction {
 export type IQueriesMiddlewareState = {
   dbState: IDbState;
   result: Record<string, unknown>[][];
-  queries: Sql[];
+  queries: (IBaseToken | ISqlAdapter)[];
 };
 
 export type INextQueriesMiddleware = (

@@ -54,7 +54,7 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
   if (!transactionsLocalState.current) {
     job = await acquireJob(jobsState$, {
       type: "runQueries",
-      queries: queries,
+      queries: queries.map((q) => q.toSql()),
     });
   }
 
@@ -67,11 +67,14 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
 
   try {
     const result = (
-      await dbBackend.execQueries(unwrapQueries(queries), execOpts)
+      await dbBackend.execQueries(
+        unwrapQueries(queries.map((q) => q.toSql())),
+        execOpts
+      )
     ).map((queriesResults, i) => {
       if (queriesResults.length > 1) {
         console.warn(
-          `Omitting query result of ${queries[i].sql}: ${JSON.stringify(
+          `Omitting query result of ${queries[i].toSql().sql}: ${JSON.stringify(
             queriesResults.slice(1)
           )}`
         );

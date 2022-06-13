@@ -9,6 +9,7 @@
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
+    "@trong-orm/query-builder": "*",
     "@trong-orm/sql": "*",
     "nanoid": "^3.3.4",
     "rxjs": "^7.5.5"

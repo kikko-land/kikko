@@ -1,18 +1,19 @@
+import { ISelectStatement, select } from "@trong-orm/query-builder";
 import { useQueryFirstRow } from "@trong-orm/react-queries-hooks";
 import { sql } from "@trong-orm/sql";
 import { useCallback, useEffect, useState } from "react";
 
 export const usePaginator = ({
   perPage,
-  baseSql,
+  baseQuery,
 }: {
   perPage: number;
-  baseSql: ISelectQueryBuilder;
+  baseQuery: ISelectStatement;
 }) => {
   const [currentPage, setPage] = useState(1);
 
   const countResult = useQueryFirstRow<{ count: number }>(
-    sql`SELECT count(*) as count FROM (${baseSql})`
+    select({ count: sql`COUNT(*)` }).from(baseQuery)
   );
 
   const totalCount = countResult.data?.count;
@@ -50,7 +51,9 @@ export const usePaginator = ({
   }, [currentPage, isPrevPageAvailable]);
 
   return {
-    pagerSql: sql`LIMIT ${perPage} OFFSET ${perPage * (currentPage - 1)}`,
+    paginatedQuery: baseQuery
+      .limit(perPage)
+      .offset(perPage * (currentPage - 1)),
     totalPages,
     currentPage,
     totalCount,

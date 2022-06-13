@@ -6,7 +6,7 @@ import {
 } from "@trong-orm/core";
 import { IDbState } from "@trong-orm/core";
 import { subscribeToQueries } from "@trong-orm/reactive-queries-plugin";
-import { Sql } from "@trong-orm/sql";
+import { ISqlAdapter, Sql } from "@trong-orm/sql";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Falsy, startWith, switchMap, takeUntil } from "rxjs";
 
@@ -231,11 +231,11 @@ export function useRunQuery<
   return [run, result];
 }
 
-export function useCacheQuery(_query: Sql) {
+export function useCacheQuery<T extends ISqlAdapter>(_query: T): T {
   const [query, setQuery] = useState(_query);
 
   useEffect(() => {
-    if (query.hash !== _query.hash) {
+    if (query.toSql().hash !== _query.toSql().hash) {
       setQuery(_query);
     }
   }, [_query, query]);

@@ -1,4 +1,4 @@
-import { ContainsTable, TableDef, tableSymbol } from "@trong-orm/sql";
+import { IContainsTable, TableDef, tableSymbol } from "@trong-orm/sql";
 
 import {
   deleteRecordsMiddleware,
@@ -17,7 +17,7 @@ import {
 export interface IRecordConfig<
   Row extends object & { id: string },
   Rec extends object & { id: string }
-> extends ContainsTable {
+> extends IContainsTable {
   serialize: (rec: Rec) => Row;
   deserialize: (row: Row) => Rec;
   middlewares: {
@@ -43,7 +43,7 @@ export function defineRecord<
   Row extends object & { id: string },
   Rec extends object & { id: string }
 >(
-  table: ContainsTable,
+  table: IContainsTable,
   config: Optional<
     IRecordConfig<Row, Rec>,
     "middlewares" | typeof tableSymbol | "table"

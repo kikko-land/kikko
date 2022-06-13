@@ -5,7 +5,7 @@ export type PrimitiveValue = string | number | null;
 export const isPrimitiveValue = (t: unknown): t is PrimitiveValue => {
   return t === null || typeof t === "string" || typeof t === "number";
 };
-export type RawValue = PrimitiveValue | Sql | ContainsTable | { toSql(): Sql };
+export type RawValue = PrimitiveValue | Sql | IContainsTable | { toSql(): Sql };
 
 export const tableSymbol: unique symbol = Symbol("table");
 
@@ -23,7 +23,7 @@ export class TableDef {
   }
 }
 
-export interface ContainsTable {
+export interface IContainsTable {
   [tableSymbol]: TableDef;
 }
 
@@ -32,14 +32,18 @@ const deleteRegex = /delete\s+from\s+/gim;
 const updateRegex = /update\s+(or\s+\w+\s+)?/gim;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function containsTable(x: any): x is ContainsTable {
+export function containsTable(x: any): x is IContainsTable {
   if (x === null) return false;
   if (typeof x !== "object") return false;
 
   return Boolean(x[tableSymbol]);
 }
 
-export function hasToSql(x: unknown): x is { toSql(): Sql } {
+export interface ISqlAdapter {
+  toSql(): Sql;
+}
+
+export function isSql(x: unknown): x is ISqlAdapter {
   if (x === null) return false;
   if (typeof x !== "object") return false;
 
@@ -49,7 +53,7 @@ export function hasToSql(x: unknown): x is { toSql(): Sql } {
 /**
  * A SQL instance can be nested within each other to build SQL strings.
  */
-export class Sql {
+export class Sql implements ISqlAdapter {
   values: PrimitiveValue[];
   strings: string[];
   tables: TableDef[];
@@ -73,7 +77,7 @@ export class Sql {
     const valuesLength = rawValues.reduce<number>(
       (len, value) =>
         len +
-        (hasToSql(value)
+        (isSql(value)
           ? value.toSql().values.length
           : containsTable(value)
           ? 0
@@ -83,7 +87,7 @@ export class Sql {
     const tablesLength = rawValues.reduce<number>(
       (len, value) =>
         len +
-        (hasToSql(value)
+        (isSql(value)
           ? value.toSql().tables.length
           : containsTable(value)
           ? 1
@@ -107,7 +111,7 @@ export class Sql {
       const rawString = rawStrings[i];
 
       // Check for nested `sql` queries.
-      if (hasToSql(child)) {
+      if (isSql(child)) {
         const sql = child.toSql();
         // Append child prefix text to current string.
         this.strings[pos] += sql.strings[0];
@@ -126,7 +130,7 @@ export class Sql {
         // Append raw string to current string.
         this.strings[pos] += rawString;
       } else if (containsTable(child)) {
-        this.strings[pos] += child[tableSymbol].name + rawString;
+        this.strings[pos] += '"' + child[tableSymbol].name + '"' + rawString;
 
         this.tables[tableI++] = child[tableSymbol];
       } else {
@@ -219,8 +223,8 @@ export function raw(value: string) {
 
 export function table(
   name: string,
-  opts?: { dependsOn?: ContainsTable[] }
-): ContainsTable {
+  opts?: { dependsOn?: IContainsTable[] }
+): IContainsTable {
   return {
     [tableSymbol]: new TableDef(
       name,
@@ -244,9 +248,9 @@ export function sql(strings: ReadonlyArray<string>, ...values: RawValue[]) {
 export const liter = (str: string) => {
   return raw(
     str
-      .replace(/'/g, "")
+      .replace(/"/g, "")
       .split(".")
-      .map((v) => "'" + v + "'")
+      .map((v) => '"' + v + '"')
       .join(".")
   );
 };

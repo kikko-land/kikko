@@ -1,5 +1,4 @@
 import { IDbClientPlugin, IDbState, IQueriesMiddleware } from "@trong-orm/core";
-import { isQueryBuilder } from "@trong-orm/query-builder";
 import { firstValueFrom, switchMap } from "rxjs";
 
 import { getBroadcastCh } from "./getBroadcastCh";
@@ -30,7 +29,7 @@ export const reactiveQueriesPlugin: IDbClientPlugin = (db) => {
     const transaction = state.dbState.localState.transactionsState.current;
 
     const writeTables = state.queries
-      .map((q) => (isQueryBuilder(q) ? q.toSql() : q))
+      .map((q) => q.toSql())
       .filter((q) => q.isModifyQuery)
       .flatMap((q) => q.tables)
       .flatMap((def) => [
