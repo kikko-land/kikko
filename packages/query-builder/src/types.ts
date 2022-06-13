@@ -7,7 +7,11 @@ export enum TokenType {
   Compound = "Compound",
   Select = "Select",
   Values = "Values",
+  OrderTerm = "OrderTerm",
+  LimitOffsetTerm = "LimitOffsetTerm",
   RawSql = "RawSql",
+  CompoundOperator = "CompoundOperator",
+  CTE = "CTE",
 }
 
 export interface IBaseToken<T extends TokenType = TokenType> {

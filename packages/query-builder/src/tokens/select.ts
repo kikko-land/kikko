@@ -4,21 +4,35 @@ import {
   isSql,
   join,
   liter,
-  PrimitiveValue,
   raw,
   Sql,
   sql,
-  TableDef,
 } from "@trong-orm/sql";
 
 import { IBaseToken, isToken, TokenType } from "../types";
 import { alias } from "./alias";
 import { and, conditionValuesToToken, IConditionValue, or } from "./binary";
-import { buildRawSql, toToken } from "./rawSql";
+import {
+  except,
+  ICompoundState,
+  intersect,
+  union,
+  unionAll,
+} from "./compounds";
+import { ICTEState, With, withoutWith, withRecursive } from "./cte";
+import {
+  buildInitialLimitOffsetState,
+  ILimitOffsetState,
+  limit,
+  offset,
+  withoutLimit,
+  withoutOffset,
+} from "./limitOffset";
+import { IOrderState, orderBy, withoutOrder } from "./order";
+import { toToken } from "./rawSql";
 import { wrapParentheses } from "./utils";
-import { IValueStatement } from "./values";
 
-const isSelect = (val: unknown): val is ISelectStatement => {
+export const isSelect = (val: unknown): val is ISelectStatement => {
   return (
     val !== null &&
     typeof val === "object" &&
@@ -26,29 +40,19 @@ const isSelect = (val: unknown): val is ISelectStatement => {
   );
 };
 
-type IUnionArg = ISelectStatement | IValueStatement | Sql;
-export interface ISelectStatement extends IBaseToken<TokenType.Select> {
+export interface ISelectStatement
+  extends IBaseToken<TokenType.Select>,
+    IOrderState,
+    ICompoundState,
+    ILimitOffsetState,
+    ICTEState {
   distinctValue: boolean;
 
-  withValue?: {
-    recursive: boolean;
-    values: {
-      name: string;
-      columns: string[];
-      select: ISelectStatement | IValueStatement | IBaseToken<TokenType.RawSql>;
-    }[];
-  };
   selectValues: IBaseToken[];
   fromValues: IBaseToken[];
   groupByValues: IBaseToken[];
   whereValue?: IBaseToken;
-  limitValue?: IBaseToken;
-  offsetValue?: IBaseToken;
   havingValue?: IBaseToken;
-  compoundValues: {
-    compoundType: "UNION" | "UNION ALL" | "INTERSECT" | "EXCEPT";
-    value: ISelectStatement | IValueStatement | IBaseToken<TokenType.RawSql>;
-  }[];
 
   distinct(val: boolean): ISelectStatement;
   select(...args: ISelectArgType[]): ISelectStatement;
@@ -59,29 +63,23 @@ export interface ISelectStatement extends IBaseToken<TokenType.Select> {
   orWhere(...values: IConditionValue[]): ISelectStatement;
   groupBy(...values: (IBaseToken | ISqlAdapter)[]): ISelectStatement;
   having(val: IBaseToken | ISqlAdapter): ISelectStatement;
-  with(
-    tableName: string,
-    columns: string[],
-    toSelect: ISelectStatement | IValueStatement | ISqlAdapter
-  ): ISelectStatement;
-  withRecursive(
-    tableName: string,
-    columns: string[],
-    toSelect: ISelectStatement | IValueStatement | ISqlAdapter
-  ): ISelectStatement;
 
-  withoutOrder(): ISelectStatement;
-  withoutLimit(): ISelectStatement;
-  withoutOffset(): ISelectStatement;
-  withoutWith(): ISelectStatement;
+  with: typeof With<ISelectStatement>;
+  withRecursive: typeof withRecursive<ISelectStatement>;
+  withoutWith: typeof withoutWith<ISelectStatement>;
 
-  limit(val: IBaseToken | ISqlAdapter | PrimitiveValue): ISelectStatement;
-  offset(val: IBaseToken | ISqlAdapter | PrimitiveValue): ISelectStatement;
+  limit: typeof limit<ISelectStatement>;
+  offset: typeof offset<ISelectStatement>;
+  withoutLimit: typeof withoutLimit<ISelectStatement>;
+  withoutOffset: typeof withoutOffset<ISelectStatement>;
 
-  union(...values: IUnionArg[]): ISelectStatement;
-  unionAll(...values: IUnionArg[]): ISelectStatement;
-  intersect(...values: IUnionArg[]): ISelectStatement;
-  except(...values: IUnionArg[]): ISelectStatement;
+  orderBy: typeof orderBy<ISelectStatement>;
+  withoutOrder: typeof withoutOrder<ISelectStatement>;
+
+  union: typeof union<ISelectStatement>;
+  unionAll: typeof unionAll<ISelectStatement>;
+  intersect: typeof intersect<ISelectStatement>;
+  except: typeof except<ISelectStatement>;
 }
 
 type ISelectArgType =
@@ -105,22 +103,6 @@ const selectArgsToValues = (args: ISelectArgType[]) => {
       );
     })
     .map((t) => toToken(wrapParentheses(t)));
-};
-
-const makeCompounds = (
-  type: "UNION" | "UNION ALL" | "INTERSECT" | "EXCEPT",
-  values: IUnionArg[]
-) => {
-  return values.map((val) => {
-    const token = toToken(val);
-
-    return {
-      compoundType: type,
-      value: isSelect(token)
-        ? token.withoutWith().withoutLimit().withoutOrder().withoutOffset()
-        : (token as IValueStatement | IBaseToken<TokenType.RawSql>),
-    };
-  });
 };
 
 export const select = (...selectArgs: ISelectArgType[]): ISelectStatement => {
@@ -151,6 +133,7 @@ export const select = (...selectArgs: ISelectArgType[]): ISelectStatement => {
     distinctValue: false,
     groupByValues: [],
     compoundValues: [],
+    limitOffsetValue: buildInitialLimitOffsetState(),
     select(...selectArgs: ISelectArgType[]) {
       return {
         ...this,
@@ -182,133 +165,29 @@ export const select = (...selectArgs: ISelectArgType[]): ISelectStatement => {
     orWhere(...values: IConditionValue[]): ISelectStatement {
       return constructWhere.bind(this)("or", ...values);
     },
-    limit(val: IBaseToken | Sql | PrimitiveValue) {
-      return { ...this, limitValue: toToken(val) };
-    },
-    offset(val: IBaseToken | Sql | PrimitiveValue) {
-      return { ...this, offsetValue: toToken(val) };
-    },
+    limit,
+    offset,
+    withoutLimit,
+    withoutOffset,
     groupBy(...values: (IBaseToken | Sql)[]): ISelectStatement {
       return { ...this, groupByValues: values.map(toToken) };
     },
     having(val: IBaseToken | Sql) {
       return { ...this, havingValue: toToken(val) };
     },
-    withoutLimit() {
-      return { ...this, limitValue: undefined };
-    },
-    withoutOffset() {
-      return { ...this, offsetValue: undefined };
-    },
-    withoutOrder() {
-      return { ...this };
-    },
-    withoutWith() {
-      return { ...this, withValue: undefined };
-    },
-    withRecursive(
-      tableName: string,
-      columns: string[],
-      toSelect: ISelectStatement | IValueStatement | Sql
-    ): ISelectStatement {
-      if (this.withValue?.recursive === false) {
-        throw new Error("WITH is already not recursive");
-      }
-
-      return {
-        ...this,
-        withValue: {
-          recursive: true,
-          values: [
-            ...(this.withValue?.values || []),
-            {
-              name: tableName,
-              columns,
-              select:
-                toSelect instanceof Sql ? buildRawSql(toSelect) : toSelect,
-            },
-          ],
-        },
-      };
-    },
-    with(
-      tableName: string,
-      columns: string[],
-      toSelect: ISelectStatement | IValueStatement | Sql
-    ) {
-      if (this.withValue?.recursive === true) {
-        throw new Error("WITH is already recursive");
-      }
-
-      return {
-        ...this,
-        withValue: {
-          recursive: true,
-          values: [
-            ...(this.withValue?.values || []),
-            {
-              name: tableName,
-              columns,
-              select:
-                toSelect instanceof Sql ? buildRawSql(toSelect) : toSelect,
-            },
-          ],
-        },
-      };
-    },
-    union(...values: ISelectStatement[]): ISelectStatement {
-      return {
-        ...this,
-        compoundValues: [
-          ...this.compoundValues,
-          ...makeCompounds("UNION", values),
-        ],
-      };
-    },
-    unionAll(...values: ISelectStatement[]): ISelectStatement {
-      return {
-        ...this,
-        compoundValues: [
-          ...this.compoundValues,
-          ...makeCompounds("UNION ALL", values),
-        ],
-      };
-    },
-    intersect(...values: ISelectStatement[]): ISelectStatement {
-      return {
-        ...this,
-        compoundValues: [
-          ...this.compoundValues,
-          ...makeCompounds("INTERSECT", values),
-        ],
-      };
-    },
-    except(...values: ISelectStatement[]): ISelectStatement {
-      return {
-        ...this,
-        compoundValues: [
-          ...this.compoundValues,
-          ...makeCompounds("EXCEPT", values),
-        ],
-      };
-    },
+    withoutWith,
+    orderBy,
+    withoutOrder,
+    withRecursive,
+    with: With,
+    union,
+    unionAll,
+    intersect,
+    except,
     toSql() {
       return join(
         [
-          ...(this.withValue
-            ? [
-                sql`WITH`,
-                this.withValue.recursive ? sql`RECURSIVE` : null,
-                join(
-                  this.withValue.values.map(
-                    (v) =>
-                      sql`${liter(v.name)}(${join(v.columns.map(liter))}) AS (${
-                        v.select
-                      })`
-                  )
-                ),
-              ]
-            : []),
+          this.cteValue ? this.cteValue : null,
           sql`SELECT`,
           this.distinctValue ? sql`DISTINCT` : null,
           this.selectValues.length > 0 ? join(this.selectValues) : sql`*`,
@@ -323,19 +202,10 @@ export const select = (...selectArgs: ISelectArgType[]): ISelectStatement => {
             ? sql`HAVING ${this.havingValue}`
             : null,
           this.compoundValues.length > 0
-            ? join(
-                this.compoundValues.map(
-                  (val) => sql`${raw(val.compoundType)} ${val.value.toSql()}`
-                ),
-                " "
-              )
+            ? join(this.compoundValues, " ")
             : null,
-          this.limitValue
-            ? sql`LIMIT ${wrapParentheses(this.limitValue)}`
-            : null,
-          this.offsetValue && this.limitValue
-            ? sql`OFFSET ${wrapParentheses(this.offsetValue)}`
-            : null,
+          this.orderByValue ? this.orderByValue : null,
+          this.limitOffsetValue.toSql().isEmpty ? null : this.limitOffsetValue,
         ].filter((v) => v),
         " "
       );

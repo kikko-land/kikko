@@ -28,7 +28,7 @@ console.log(
     .offset(5)
     .union(select(sql`1`).limit(5))
     .union(values([3, 4], [5, 6]))
-    .with("kek", ["n1", "n2"], values([3, 5]))
+    .with({ table: "kek", columns: ["n1", "n2"], select: values([3, 5]) })
     .toSql()
     .inspect()
 );
