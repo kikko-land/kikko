@@ -37,7 +37,7 @@ export type ISelectQueryState = {
 
   readonly selectValues: ISelectValue[];
   readonly fromValues: IFromValue[];
-  readonly whereValue?: IAndOrConditionValue | IConditionValue;
+  readonly whereValue?: IAndOrConditionValue | IConditionValue | Sql;
   readonly groupByValues: IGroupByValue[];
 };
 
@@ -164,9 +164,16 @@ const buildSelectQueryBuilder = (
         }
       });
 
-      const where = whereValue
-        ? sql` WHERE ${conditionToSql(whereValue)}`
-        : empty;
+      const where = (() => {
+        if (!whereValue) return empty;
+        if (whereValue instanceof Sql && whereValue.isEmpty) {
+          return empty;
+        }
+
+        return sql` WHERE ${
+          whereValue instanceof Sql ? whereValue : conditionToSql(whereValue)
+        }`;
+      })();
 
       const finalQuery = sql`SELECT${distinct ? sql` DISTINCT` : empty} ${join(
         toSelect
@@ -229,7 +236,7 @@ const buildUnknownQueryBuilder = (
   };
 };
 
-export function select<T extends IQueryBuilder = ISelectQueryBuilder>(
+function select<T extends IQueryBuilder = ISelectQueryBuilder>(
   this: T | unknown,
   arg?: SelectArg
 ): T {

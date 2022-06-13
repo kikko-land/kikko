@@ -1,7 +1,3 @@
-import { IQueryBuilder } from "@trong-orm/query-builder";
-import { Sql } from "@trong-orm/sql";
-
-import { castToSql } from "./castToSql";
 import { acquireJob, IJob, releaseJob } from "./job";
 import {
   IDbState,
@@ -9,6 +5,7 @@ import {
   IQueriesMiddleware,
   IQueriesMiddlewareState,
   IQueryResult,
+  IWithToSql,
 } from "./types";
 import { assureDbIsRunning, unwrapQueries } from "./utils";
 
@@ -38,7 +35,7 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
   } = dbState;
 
   if (!transactionsLocalState.current) {
-    assureDbIsRunning(dbState, () => JSON.stringify(queries.map(castToSql)));
+    assureDbIsRunning(dbState, () => JSON.stringify(queries));
   }
 
   if (transactionsLocalState.current && transactionsSharedState.current) {
@@ -57,7 +54,7 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
   if (!transactionsLocalState.current) {
     job = await acquireJob(jobsState$, {
       type: "runQueries",
-      queries: queries.map(castToSql),
+      queries: queries,
     });
   }
 
@@ -74,9 +71,9 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
     ).map((queriesResults, i) => {
       if (queriesResults.length > 1) {
         console.warn(
-          `Omitting query result of ${
-            castToSql(queries[i]).sql
-          }: ${JSON.stringify(queriesResults.slice(1))}`
+          `Omitting query result of ${queries[i].sql}: ${JSON.stringify(
+            queriesResults.slice(1)
+          )}`
         );
       }
 
@@ -93,7 +90,7 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
 
 export const runQueries = async <D extends Record<string, unknown>>(
   state: IDbState,
-  queries: (Sql | IQueryBuilder)[]
+  queries: IWithToSql[]
 ): Promise<D[][]> => {
   const middlewares: IQueriesMiddleware[] = [
     ...state.localState.queriesMiddlewares,
@@ -109,13 +106,18 @@ export const runQueries = async <D extends Record<string, unknown>>(
       middleware({ ...args, next: currentCall });
   }
 
-  return (await toCall({ dbState: state, result: [], queries: queries }))
-    .result as D[][];
+  return (
+    await toCall({
+      dbState: state,
+      result: [],
+      queries: queries.map((q) => q.toSql()),
+    })
+  ).result as D[][];
 };
 
 export const runQuery = async <D extends Record<string, unknown>>(
   state: IDbState,
-  query: Sql
+  query: IWithToSql
 ) => {
   return (await runQueries<D>(state, [query]))[0] || [];
 };

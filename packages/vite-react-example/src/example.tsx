@@ -1,8 +1,8 @@
 import { like, select, where } from "@trong-orm/query-builder";
 import {
+  useCacheQuery,
   useQuery,
   useQueryFirstRow,
-  useSql,
 } from "@trong-orm/react-queries-hooks";
 import { empty, sql, table } from "@trong-orm/sql";
 import { useState } from "react";
@@ -12,7 +12,7 @@ const notesTable = table("notes");
 export const List = () => {
   const [textToSearch, setTextToSearch] = useState<string>("");
 
-  const baseSql = useSql(
+  const baseSql = useCacheQuery(
     sql`SELECT * FROM ${notesTable} ${
       textToSearch ? sql`WHERE content LIKE ${"%" + textToSearch + "%"}` : empty
     }`

@@ -1,7 +1,11 @@
 // Code is taken and adopted from https://github.com/blakeembrey/sql-template-tag
 
-export type Value = string | number | null;
-export type RawValue = Value | Sql | ContainsTable;
+export type PrimitiveValue = string | number | null;
+
+export const isPrimitiveValue = (t: unknown): t is PrimitiveValue => {
+  return t === null || typeof t === "string" || typeof t === "number";
+};
+export type RawValue = PrimitiveValue | Sql | ContainsTable | { toSql(): Sql };
 
 export const tableSymbol: unique symbol = Symbol("table");
 
@@ -29,14 +33,24 @@ const updateRegex = /update\s+(or\s+\w+\s+)?/gim;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function containsTable(x: any): x is ContainsTable {
-  return typeof x === "object" && x !== null && x[tableSymbol];
+  if (x === null) return false;
+  if (typeof x !== "object") return false;
+
+  return Boolean(x[tableSymbol]);
+}
+
+export function hasToSql(x: unknown): x is { toSql(): Sql } {
+  if (x === null) return false;
+  if (typeof x !== "object") return false;
+
+  return "toSql" in x;
 }
 
 /**
  * A SQL instance can be nested within each other to build SQL strings.
  */
 export class Sql {
-  values: Value[];
+  values: PrimitiveValue[];
   strings: string[];
   tables: TableDef[];
 
@@ -59,8 +73,8 @@ export class Sql {
     const valuesLength = rawValues.reduce<number>(
       (len, value) =>
         len +
-        (value instanceof Sql
-          ? value.values.length
+        (hasToSql(value)
+          ? value.toSql().values.length
           : containsTable(value)
           ? 0
           : 1),
@@ -69,8 +83,8 @@ export class Sql {
     const tablesLength = rawValues.reduce<number>(
       (len, value) =>
         len +
-        (value instanceof Sql
-          ? value.tables.length
+        (hasToSql(value)
+          ? value.toSql().tables.length
           : containsTable(value)
           ? 1
           : 0),
@@ -93,19 +107,20 @@ export class Sql {
       const rawString = rawStrings[i];
 
       // Check for nested `sql` queries.
-      if (child instanceof Sql) {
+      if (hasToSql(child)) {
+        const sql = child.toSql();
         // Append child prefix text to current string.
-        this.strings[pos] += child.strings[0];
+        this.strings[pos] += sql.strings[0];
 
         let childIndex = 0;
-        while (childIndex < child.values.length) {
-          this.values[pos++] = child.values[childIndex++];
-          this.strings[pos] = child.strings[childIndex];
+        while (childIndex < sql.values.length) {
+          this.values[pos++] = sql.values[childIndex++];
+          this.strings[pos] = sql.strings[childIndex];
         }
 
         let childTableIndex = 0;
-        while (childTableIndex < child.tables.length) {
-          this.tables[tableI++] = child.tables[childTableIndex++];
+        while (childTableIndex < sql.tables.length) {
+          this.tables[tableI++] = sql.tables[childTableIndex++];
         }
 
         // Append raw string to current string.
@@ -156,6 +171,10 @@ export class Sql {
     return !this.isModifyQuery;
   }
 
+  get isEmpty() {
+    return this.sql.trim().length === 0;
+  }
+
   inspect() {
     return {
       text: this.text,
@@ -164,6 +183,10 @@ export class Sql {
       tables: this.tables,
     };
   }
+
+  toSql() {
+    return this;
+  }
 }
 
 /**
@@ -171,7 +194,7 @@ export class Sql {
  */
 export function join(
   values: RawValue[],
-  separator = ",",
+  separator = ", ",
   prefix = "",
   suffix = ""
 ) {
@@ -217,3 +240,13 @@ export const empty = raw("");
 export function sql(strings: ReadonlyArray<string>, ...values: RawValue[]) {
   return new Sql(strings, values);
 }
+
+export const liter = (str: string) => {
+  return raw(
+    str
+      .replace(/'/g, "")
+      .split(".")
+      .map((v) => "'" + v + "'")
+      .join(".")
+  );
+};

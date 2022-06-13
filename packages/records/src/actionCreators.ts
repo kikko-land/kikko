@@ -1,5 +1,4 @@
-import { IDbState } from "@trong-orm/core";
-import { IExportableQueryBuilder } from "@trong-orm/query-builder";
+import { IDbState, IWithToSql } from "@trong-orm/core";
 import { empty, join, Sql, sql } from "@trong-orm/sql";
 
 import { IRecordConfig } from "./defineRecord";
@@ -11,7 +10,7 @@ export const getRecords = async <
 >(
   db: IDbState,
   recordConfig: IRecordConfig<Row, Rec>,
-  sql: Sql | IExportableQueryBuilder
+  sql: IWithToSql
 ) => {
   return (
     await applyAction(
@@ -19,7 +18,7 @@ export const getRecords = async <
       recordConfig,
       recordConfig.middlewares.get,
       { records: [] as Rec[] },
-      { query: sql }
+      { query: sql.toSql() }
     )
   ).result;
 };

@@ -1,5 +1,4 @@
-import { IDbState, withSuppressedLog } from "@trong-orm/core";
-import { IExportableQueryBuilder } from "@trong-orm/query-builder";
+import { IDbState, IWithToSql, withSuppressedLog } from "@trong-orm/core";
 import {
   DistributiveOmit,
   Falsy,
@@ -18,7 +17,7 @@ const getRecords$ = <
 >(
   db: IDbState,
   recordConfig: IRecordConfig<Row, Rec>,
-  sql: Sql | IExportableQueryBuilder
+  sql: IWithToSql
 ) => {
   return subscribeToQueries(db, [sql]).pipe(
     startWith(undefined),
@@ -32,7 +31,7 @@ export function useRecords<
   Rec extends object & { id: string }
 >(
   recordConfig: IRecordConfig<Row, Rec>,
-  _query: Sql | IExportableQueryBuilder | Falsy,
+  _query: IWithToSql | Falsy,
   _opts?: { suppressLog?: boolean } | undefined
 ): IQueryResult<Rec> {
   const dbState = useDbState();
@@ -41,9 +40,9 @@ export function useRecords<
     suppressLog: _opts?.suppressLog !== undefined ? _opts.suppressLog : false,
   };
 
-  const [currentQuery, setCurrentQuery] = useState<
-    Sql | IExportableQueryBuilder | undefined
-  >(_query || undefined);
+  const [currentQuery, setCurrentQuery] = useState<IWithToSql | undefined>(
+    _query || undefined
+  );
   const [data, setData] = useState<Rec[] | undefined>();
   const [response, setResponse] = useState<
     DistributiveOmit<IQueryResult<Rec[]>, "data">
@@ -85,7 +84,11 @@ export function useRecords<
   useEffect(() => {
     if ((currentQuery || undefined) === (_query || undefined)) return;
 
-    if (currentQuery && _query && currentQuery.hash === _query.hash) {
+    if (
+      currentQuery &&
+      _query &&
+      currentQuery.toSql().hash === _query.toSql().hash
+    ) {
       return;
     }
 

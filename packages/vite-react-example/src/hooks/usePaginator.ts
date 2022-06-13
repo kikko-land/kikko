@@ -1,5 +1,5 @@
 import { useQueryFirstRow } from "@trong-orm/react-queries-hooks";
-import { Sql,sql } from "@trong-orm/sql";
+import { sql } from "@trong-orm/sql";
 import { useCallback, useEffect, useState } from "react";
 
 export const usePaginator = ({
@@ -7,7 +7,7 @@ export const usePaginator = ({
   baseSql,
 }: {
   perPage: number;
-  baseSql: Sql;
+  baseSql: ISelectQueryBuilder;
 }) => {
   const [currentPage, setPage] = useState(1);
 
