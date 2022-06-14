@@ -1,14 +1,15 @@
 import { ISqlAdapter, join, PrimitiveValue, sql } from "@trong-orm/sql";
 
-import { IBaseToken, TokenType } from "../types";
+import { IBaseToken, TokenType } from "../../types";
 import {
   except,
   ICompoundState,
   intersect,
   union,
   unionAll,
-} from "./compounds";
-import { ICTEState, With, withoutWith, withRecursive } from "./cte";
+  withoutCompound,
+} from "../compounds";
+import { ICTEState, With,withoutWith, withRecursive } from "../cte";
 import {
   buildInitialLimitOffsetState,
   ILimitOffsetState,
@@ -16,8 +17,8 @@ import {
   offset,
   withoutLimit,
   withoutOffset,
-} from "./limitOffset";
-import { IOrderState, orderBy, withoutOrder } from "./order";
+} from "../limitOffset";
+import { IOrderState, orderBy, withoutOrder } from "../order";
 
 export interface IValuesStatement
   extends IBaseToken<TokenType.Values>,
@@ -38,10 +39,13 @@ export const values = (
     withoutOrder,
     compoundValues: [],
     limitOffsetValue: buildInitialLimitOffsetState(),
+
     union,
     unionAll,
     intersect,
     except,
+    withoutCompound,
+
     limit,
     withoutLimit,
     offset,

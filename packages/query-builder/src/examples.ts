@@ -7,8 +7,8 @@ import { sql } from "@trong-orm/sql";
 
 import { alias } from "./tokens/alias";
 import { gt$, or } from "./tokens/binary";
-import { select } from "./tokens/select";
-import { values } from "./tokens/values";
+import { select } from "./tokens/statements/select";
+import { values } from "./tokens/statements/values";
 
 // If just string — then this val will be replaced(except alias)
 console.log(

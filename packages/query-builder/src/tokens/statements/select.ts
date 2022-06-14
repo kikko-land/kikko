@@ -1,27 +1,17 @@
-import {
-  IContainsTable,
-  ISqlAdapter,
-  isSql,
-  join,
-  liter,
-  raw,
-  Sql,
-  sql,
-  table,
-} from "@trong-orm/sql";
+import { ISqlAdapter, isSql, join,liter, raw, Sql, sql } from "@trong-orm/sql";
 
-import { IBaseToken, isToken, TokenType } from "../types";
-import { alias } from "./alias";
-import { and, conditionValuesToToken, IConditionValue, or } from "./binary";
+import { IBaseToken, isToken,TokenType } from "../../types";
+import { alias } from "../alias";
 import {
   except,
   ICompoundState,
   intersect,
   union,
   unionAll,
-} from "./compounds";
-import { ICTEState, With, withoutWith, withRecursive } from "./cte";
-import { from, IFromState } from "./from";
+  withoutCompound,
+} from "../compounds";
+import { ICTEState, With,withoutWith, withRecursive } from "../cte";
+import { from,IFromState } from "../from";
 import {
   buildInitialLimitOffsetState,
   ILimitOffsetState,
@@ -29,12 +19,12 @@ import {
   offset,
   withoutLimit,
   withoutOffset,
-} from "./limitOffset";
-import { IOrderState, orderBy, withoutOrder } from "./order";
-import { toToken } from "./rawSql";
-import { wrapParentheses } from "./utils";
+} from "../limitOffset";
+import { IOrderState, orderBy, withoutOrder } from "../order";
+import { toToken } from "../rawSql";
+import { wrapParentheses } from "../utils";
+import { IWhereState, orWhere,where } from "../where";
 import { IValuesStatement } from "./values";
-import { IWhereState, orWhere, where } from "./where";
 
 export const isSelect = (val: unknown): val is ISelectStatement => {
   return (
@@ -44,6 +34,7 @@ export const isSelect = (val: unknown): val is ISelectStatement => {
   );
 };
 
+// TODO: add filter, window support
 export interface ISelectStatement
   extends IBaseToken<TokenType.Select>,
     IOrderState,
@@ -131,10 +122,13 @@ export const select = (...selectArgs: ISelectArgType[]): ISelectStatement => {
     withoutWith,
     withRecursive,
     with: With,
+
     union,
     unionAll,
     intersect,
     except,
+    withoutCompound,
+
     toSql() {
       return join(
         [

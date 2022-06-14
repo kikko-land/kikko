@@ -2,8 +2,8 @@ import { raw, Sql, sql } from "@trong-orm/sql";
 
 import { IBaseToken, TokenType } from "../types";
 import { toToken } from "./rawSql";
-import { ISelectStatement, isSelect } from "./select";
-import { isValues, IValuesStatement } from "./values";
+import { ISelectStatement, isSelect } from "./statements/select";
+import { isValues, IValuesStatement } from "./statements/values";
 
 type IUnionArg = ISelectStatement | IValuesStatement | Sql;
 
@@ -19,6 +19,7 @@ export interface ICompoundState {
   unionAll: typeof unionAll;
   intersect: typeof intersect;
   except: typeof except;
+  withoutCompound: typeof withoutCompound;
 }
 
 const makeCompounds = <T extends ICompoundState>(
@@ -73,4 +74,8 @@ export function except<T extends ICompoundState>(
   ...values: IUnionArg[]
 ) {
   return makeCompounds(this, "EXCEPT", values);
+}
+
+export function withoutCompound<T extends ICompoundState>(this: T) {
+  return { ...this, compoundValues: [] };
 }

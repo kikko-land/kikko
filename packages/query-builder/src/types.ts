@@ -8,6 +8,7 @@ export enum TokenType {
   Select = "Select",
   Update = "Update",
   Delete = "Delete",
+  Insert = "Insert",
   Values = "Values",
   OrderTerm = "OrderTerm",
   LimitOffsetTerm = "LimitOffsetTerm",

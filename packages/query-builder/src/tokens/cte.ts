@@ -2,8 +2,8 @@ import { join, liter, Sql, sql } from "@trong-orm/sql";
 
 import { IBaseToken, TokenType } from "../types";
 import { buildRawSql } from "./rawSql";
-import { ISelectStatement } from "./select";
-import { IValuesStatement } from "./values";
+import { ISelectStatement } from "./statements/select";
+import { IValuesStatement } from "./statements/values";
 
 export interface ICTETerm extends IBaseToken<TokenType.CTE> {
   recursive: boolean;
