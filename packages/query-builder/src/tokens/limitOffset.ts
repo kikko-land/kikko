@@ -12,6 +12,11 @@ export interface ILimitOffsetTerm
 
 export interface ILimitOffsetState {
   limitOffsetValue: ILimitOffsetTerm;
+
+  limit: typeof limit;
+  offset: typeof offset;
+  withoutLimit: typeof withoutLimit;
+  withoutOffset: typeof withoutOffset;
 }
 
 export const buildInitialLimitOffsetState = (): ILimitOffsetTerm => {

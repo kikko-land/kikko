@@ -7,6 +7,7 @@ import {
   raw,
   Sql,
   sql,
+  table,
 } from "@trong-orm/sql";
 
 import { IBaseToken, isToken, TokenType } from "../types";
@@ -20,6 +21,7 @@ import {
   unionAll,
 } from "./compounds";
 import { ICTEState, With, withoutWith, withRecursive } from "./cte";
+import { from, IFromState } from "./from";
 import {
   buildInitialLimitOffsetState,
   ILimitOffsetState,
@@ -31,6 +33,8 @@ import {
 import { IOrderState, orderBy, withoutOrder } from "./order";
 import { toToken } from "./rawSql";
 import { wrapParentheses } from "./utils";
+import { IValuesStatement } from "./values";
+import { IWhereState, orWhere, where } from "./where";
 
 export const isSelect = (val: unknown): val is ISelectStatement => {
   return (
@@ -45,7 +49,9 @@ export interface ISelectStatement
     IOrderState,
     ICompoundState,
     ILimitOffsetState,
-    ICTEState {
+    ICTEState,
+    IWhereState,
+    IFromState {
   distinctValue: boolean;
 
   selectValues: IBaseToken[];
@@ -56,36 +62,17 @@ export interface ISelectStatement
 
   distinct(val: boolean): ISelectStatement;
   select(...args: ISelectArgType[]): ISelectStatement;
-  from(
-    ...values: (IBaseToken | ISqlAdapter | IContainsTable)[]
-  ): ISelectStatement;
-  where(...values: IConditionValue[]): ISelectStatement;
-  orWhere(...values: IConditionValue[]): ISelectStatement;
+
   groupBy(...values: (IBaseToken | ISqlAdapter)[]): ISelectStatement;
   having(val: IBaseToken | ISqlAdapter): ISelectStatement;
-
-  with: typeof With<ISelectStatement>;
-  withRecursive: typeof withRecursive<ISelectStatement>;
-  withoutWith: typeof withoutWith<ISelectStatement>;
-
-  limit: typeof limit<ISelectStatement>;
-  offset: typeof offset<ISelectStatement>;
-  withoutLimit: typeof withoutLimit<ISelectStatement>;
-  withoutOffset: typeof withoutOffset<ISelectStatement>;
-
-  orderBy: typeof orderBy<ISelectStatement>;
-  withoutOrder: typeof withoutOrder<ISelectStatement>;
-
-  union: typeof union<ISelectStatement>;
-  unionAll: typeof unionAll<ISelectStatement>;
-  intersect: typeof intersect<ISelectStatement>;
-  except: typeof except<ISelectStatement>;
 }
 
+// TODO: refactor to keep values
 type ISelectArgType =
   | string
   | ISqlAdapter
   | ISelectStatement
+  | IValuesStatement
   | { [key: string]: ISqlAdapter | string | ISelectStatement }
   | IBaseToken;
 const selectArgsToValues = (args: ISelectArgType[]) => {
@@ -106,26 +93,6 @@ const selectArgsToValues = (args: ISelectArgType[]) => {
 };
 
 export const select = (...selectArgs: ISelectArgType[]): ISelectStatement => {
-  const constructWhere = function (
-    this: ISelectStatement,
-    andOrOr: "and" | "or",
-    ...values: IConditionValue[]
-  ): ISelectStatement {
-    const finalValues = this.whereValue
-      ? [this.whereValue, ...conditionValuesToToken(values)]
-      : conditionValuesToToken(values);
-
-    if (finalValues.length > 1) {
-      return {
-        ...this,
-        whereValue:
-          andOrOr === "and" ? and(...finalValues) : or(...finalValues),
-      };
-    } else {
-      return { ...this, whereValue: finalValues[0] };
-    }
-  };
-
   return {
     type: TokenType.Select,
     fromValues: [],
@@ -146,25 +113,9 @@ export const select = (...selectArgs: ISelectArgType[]): ISelectStatement => {
         distinctValue: val,
       };
     },
-    from(
-      ...values: (IBaseToken | ISqlAdapter | string | IContainsTable)[]
-    ): ISelectStatement {
-      return {
-        ...this,
-        fromValues: [
-          ...this.fromValues,
-          ...values.map((v) =>
-            toToken(wrapParentheses(typeof v === "string" ? liter(v) : v))
-          ),
-        ],
-      };
-    },
-    where(...values: IConditionValue[]): ISelectStatement {
-      return constructWhere.bind(this)("and", ...values);
-    },
-    orWhere(...values: IConditionValue[]): ISelectStatement {
-      return constructWhere.bind(this)("or", ...values);
-    },
+    from,
+    where,
+    orWhere,
     limit,
     offset,
     withoutLimit,
@@ -175,9 +126,9 @@ export const select = (...selectArgs: ISelectArgType[]): ISelectStatement => {
     having(val: IBaseToken | Sql) {
       return { ...this, havingValue: toToken(val) };
     },
-    withoutWith,
     orderBy,
     withoutOrder,
+    withoutWith,
     withRecursive,
     with: With,
     union,

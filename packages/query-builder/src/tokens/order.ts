@@ -43,6 +43,9 @@ export const asc = (
 
 export interface IOrderState {
   orderByValue?: IOrderTerm;
+
+  orderBy: typeof orderBy;
+  withoutOrder: typeof withoutOrder;
 }
 
 export function orderBy<T extends IOrderState>(

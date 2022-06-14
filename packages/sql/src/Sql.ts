@@ -130,7 +130,7 @@ export class Sql implements ISqlAdapter {
         // Append raw string to current string.
         this.strings[pos] += rawString;
       } else if (containsTable(child)) {
-        this.strings[pos] += '"' + child[tableSymbol].name + '"' + rawString;
+        this.strings[pos] += strip(child[tableSymbol].name) + rawString;
 
         this.tables[tableI++] = child[tableSymbol];
       } else {
@@ -227,7 +227,11 @@ export function table(
 ): IContainsTable {
   return {
     [tableSymbol]: new TableDef(
-      name,
+      name
+        .replace(/"/g, "")
+        .split(".")
+        .map((v) => '"' + v + '"')
+        .join("."),
       opts?.dependsOn?.map((obj) => obj[tableSymbol]) || []
     ),
   };
@@ -245,12 +249,14 @@ export function sql(strings: ReadonlyArray<string>, ...values: RawValue[]) {
   return new Sql(strings, values);
 }
 
+const strip = (str: string) => {
+  return str
+    .replace(/"/g, "")
+    .split(".")
+    .map((v) => '"' + v + '"')
+    .join(".");
+};
+
 export const liter = (str: string) => {
-  return raw(
-    str
-      .replace(/"/g, "")
-      .split(".")
-      .map((v) => '"' + v + '"')
-      .join(".")
-  );
+  return raw(strip(str));
 };

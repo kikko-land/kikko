@@ -14,6 +14,11 @@ export interface ICompoundOperator extends IBaseToken<TokenType.OrderTerm> {
 
 export interface ICompoundState {
   compoundValues: ICompoundOperator[];
+
+  union: typeof union;
+  unionAll: typeof unionAll;
+  intersect: typeof intersect;
+  except: typeof except;
 }
 
 const makeCompounds = <T extends ICompoundState>(

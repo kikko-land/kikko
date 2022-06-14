@@ -16,6 +16,10 @@ export interface ICTETerm extends IBaseToken<TokenType.CTE> {
 
 export interface ICTEState {
   cteValue?: ICTETerm;
+
+  with: typeof With;
+  withRecursive: typeof withRecursive;
+  withoutWith: typeof withoutWith;
 }
 
 const cteTerm = (args: {

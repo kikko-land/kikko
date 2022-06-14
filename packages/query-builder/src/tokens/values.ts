@@ -26,23 +26,6 @@ export interface IValuesStatement
     ILimitOffsetState,
     ICTEState {
   values: (IBaseToken | ISqlAdapter | PrimitiveValue)[][];
-
-  with: typeof With<IValuesStatement>;
-  withRecursive: typeof withRecursive<IValuesStatement>;
-  withoutWith: typeof withoutWith<IValuesStatement>;
-
-  orderBy: typeof orderBy<IValuesStatement>;
-  withoutOrder: typeof withoutOrder<IValuesStatement>;
-
-  limit: typeof limit<IValuesStatement>;
-  offset: typeof offset<IValuesStatement>;
-  withoutLimit: typeof withoutLimit<IValuesStatement>;
-  withoutOffset: typeof withoutOffset<IValuesStatement>;
-
-  union: typeof union<IValuesStatement>;
-  unionAll: typeof unionAll<IValuesStatement>;
-  intersect: typeof intersect<IValuesStatement>;
-  except: typeof except<IValuesStatement>;
 }
 
 export const values = (

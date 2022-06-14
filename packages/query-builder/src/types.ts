@@ -6,6 +6,8 @@ export enum TokenType {
   Alias = "Alias",
   Compound = "Compound",
   Select = "Select",
+  Update = "Update",
+  Delete = "Delete",
   Values = "Values",
   OrderTerm = "OrderTerm",
   LimitOffsetTerm = "LimitOffsetTerm",
