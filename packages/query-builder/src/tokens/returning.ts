@@ -6,7 +6,7 @@ import { toToken } from "./rawSql";
 import { ISelectStatement } from "./statements/select";
 
 type IReturnValue = {
-  toSelect: string | ISelectStatement | IBaseToken;
+  toSelect: "*" | string | ISelectStatement | IBaseToken;
   alias?: string;
 };
 export interface IReturningClause extends IBaseToken<TokenType.Returning> {

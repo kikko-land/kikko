@@ -1,6 +1,6 @@
-import { ISqlAdapter, isSql, join,liter, raw, Sql, sql } from "@trong-orm/sql";
+import { ISqlAdapter, isSql, join, Sql, sql } from "@trong-orm/sql";
 
-import { IBaseToken, isToken,TokenType } from "../../types";
+import { IBaseToken, isToken, TokenType } from "../../types";
 import { alias } from "../alias";
 import {
   except,
@@ -10,8 +10,8 @@ import {
   unionAll,
   withoutCompound,
 } from "../compounds";
-import { ICTEState, With,withoutWith, withRecursive } from "../cte";
-import { from,IFromState } from "../from";
+import { ICTEState, With, withoutWith, withRecursive } from "../cte";
+import { from, IFromState } from "../from";
 import {
   buildInitialLimitOffsetState,
   ILimitOffsetState,
@@ -22,8 +22,7 @@ import {
 } from "../limitOffset";
 import { IOrderState, orderBy, withoutOrder } from "../order";
 import { toToken } from "../rawSql";
-import { wrapParentheses } from "../utils";
-import { IWhereState, orWhere,where } from "../where";
+import { IWhereState, orWhere, where } from "../where";
 import { IValuesStatement } from "./values";
 
 export const isSelect = (val: unknown): val is ISelectStatement => {
@@ -45,10 +44,12 @@ export interface ISelectStatement
     IFromState {
   distinctValue: boolean;
 
-  selectValues: IBaseToken[];
-  fromValues: IBaseToken[];
+  selectValues: {
+    toSelect: "*" | string | ISelectStatement | IBaseToken;
+    alias?: string;
+  }[];
+
   groupByValues: IBaseToken[];
-  whereValue?: IBaseToken;
   havingValue?: IBaseToken;
 
   distinct(val: boolean): ISelectStatement;
@@ -58,29 +59,32 @@ export interface ISelectStatement
   having(val: IBaseToken | ISqlAdapter): ISelectStatement;
 }
 
-// TODO: refactor to keep values
 type ISelectArgType =
+  | "*"
   | string
   | ISqlAdapter
   | ISelectStatement
   | IValuesStatement
   | { [key: string]: ISqlAdapter | string | ISelectStatement }
   | IBaseToken;
-const selectArgsToValues = (args: ISelectArgType[]) => {
-  if (args === null || args === undefined) return [toToken(sql`*`)];
 
-  return args
-    .flatMap((arg) => {
-      if (typeof arg === "string") return raw(arg);
-      if (isToken(arg) || isSql(arg)) return arg;
+const selectArgsToValues = (
+  args: ISelectArgType[]
+): ISelectStatement["selectValues"] => {
+  if (args === null || args === undefined || args.length === 0)
+    return [{ toSelect: "*" }];
 
-      return Object.entries(arg).map(([columnOrAs, aliasOrQuery]) =>
-        typeof aliasOrQuery === "string"
-          ? alias(liter(columnOrAs), aliasOrQuery)
-          : alias(aliasOrQuery, columnOrAs)
-      );
-    })
-    .map((t) => toToken(wrapParentheses(t)));
+  return args.flatMap((arg, i) => {
+    if (arg === "*" && i === 0) return { toSelect: "*" };
+    if (typeof arg === "string") return { toSelect: arg };
+    if (isToken(arg) || isSql(arg)) return { toSelect: toToken(arg) };
+
+    return Object.entries(arg).map(([columnOrAs, aliasOrQuery]) =>
+      typeof aliasOrQuery === "string"
+        ? { toSelect: columnOrAs, alias: aliasOrQuery }
+        : { toSelect: toToken(aliasOrQuery), alias: columnOrAs }
+    );
+  });
 };
 
 export const select = (...selectArgs: ISelectArgType[]): ISelectStatement => {
@@ -119,9 +123,10 @@ export const select = (...selectArgs: ISelectArgType[]): ISelectStatement => {
     },
     orderBy,
     withoutOrder,
+
+    with: With,
     withoutWith,
     withRecursive,
-    with: With,
 
     union,
     unionAll,
@@ -135,7 +140,17 @@ export const select = (...selectArgs: ISelectArgType[]): ISelectStatement => {
           this.cteValue ? this.cteValue : null,
           sql`SELECT`,
           this.distinctValue ? sql`DISTINCT` : null,
-          this.selectValues.length > 0 ? join(this.selectValues) : sql`*`,
+          join(
+            this.selectValues.map((val) => {
+              if (val.toSelect === "*") {
+                return sql`*`;
+              } else {
+                return val.alias
+                  ? alias(val.toSelect, val.alias)
+                  : val.toSelect;
+              }
+            })
+          ),
           this.fromValues.length === 0
             ? null
             : sql`FROM ${join(this.fromValues)}`,

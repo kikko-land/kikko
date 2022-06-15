@@ -1,8 +1,15 @@
-import { IBaseToken } from "../types";
-import { and, conditionValuesToToken, IConditionValue, or } from "./binary";
+import { IBaseToken, TokenType } from "../types";
+import {
+  and,
+  conditionValuesToToken,
+  IBinaryOperator,
+  IConditionValue,
+  or,
+} from "./binary";
+import { IUnaryOperator } from "./unary";
 
 export interface IWhereState {
-  whereValue?: IBaseToken;
+  whereValue?: IBaseToken<TokenType.RawSql> | IBinaryOperator | IUnaryOperator;
 
   where: typeof where;
   orWhere: typeof orWhere;

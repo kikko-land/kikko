@@ -14,7 +14,7 @@ import { wrapParentheses } from "./utils";
 
 // TODO: in null support
 // TODO: add ESCAPE for LIKE/NOT LIKE
-interface IBinaryOperator extends IBaseToken<TokenType.Binary> {
+export interface IBinaryOperator extends IBaseToken<TokenType.Binary> {
   operator:
     | "<"
     | "<="

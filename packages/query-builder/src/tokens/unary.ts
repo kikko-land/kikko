@@ -2,7 +2,7 @@ import { ISqlAdapter, PrimitiveValue, sql } from "@trong-orm/sql";
 
 import { IBaseToken, TokenType } from "../types";
 
-interface IUnaryOperator extends IBaseToken<TokenType.Unary> {
+export interface IUnaryOperator extends IBaseToken<TokenType.Unary> {
   operator: "NOT";
   expr: IBaseToken | ISqlAdapter | PrimitiveValue;
 }
