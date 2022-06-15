@@ -15,6 +15,7 @@ export enum TokenType {
   RawSql = "RawSql",
   CompoundOperator = "CompoundOperator",
   CTE = "CTE",
+  Returning = "Returning",
 }
 
 export interface IBaseToken<T extends TokenType = TokenType> {
