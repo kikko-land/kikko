@@ -1,6 +1,6 @@
 import { runAfterTransactionCommitted } from "@trong-orm/core";
 import { defineRecord, middlewaresSlice } from "@trong-orm/records";
-import { table } from "@trong-orm/sql";
+import { sql } from "@trong-orm/sql";
 
 export interface INoteRow {
   id: string;
@@ -19,7 +19,7 @@ export interface INoteRecord {
 }
 
 export const notesRecords = defineRecord<INoteRow, INoteRecord>(
-  table("notes"),
+  sql.table("notes"),
   {
     serialize: (record) => ({
       ...record,

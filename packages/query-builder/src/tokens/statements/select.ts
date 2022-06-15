@@ -1,4 +1,4 @@
-import { ISqlAdapter, isSql, join, Sql, sql } from "@trong-orm/sql";
+import { ISqlAdapter, isSql, Sql, sql } from "@trong-orm/sql";
 
 import { IBaseToken, isToken, TokenType } from "../../types";
 import { alias } from "../alias";
@@ -135,12 +135,12 @@ export const select = (...selectArgs: ISelectArgType[]): ISelectStatement => {
     withoutCompound,
 
     toSql() {
-      return join(
+      return sql.join(
         [
           this.cteValue ? this.cteValue : null,
           sql`SELECT`,
           this.distinctValue ? sql`DISTINCT` : null,
-          join(
+          sql.join(
             this.selectValues.map((val) => {
               if (val.toSelect === "*") {
                 return sql`*`;
@@ -153,16 +153,16 @@ export const select = (...selectArgs: ISelectArgType[]): ISelectStatement => {
           ),
           this.fromValues.length === 0
             ? null
-            : sql`FROM ${join(this.fromValues)}`,
+            : sql`FROM ${sql.join(this.fromValues)}`,
           this.whereValue ? sql`WHERE ${this.whereValue}` : null,
           this.groupByValues.length > 0
-            ? sql`GROUP BY ${join(this.groupByValues)}`
+            ? sql`GROUP BY ${sql.join(this.groupByValues)}`
             : null,
           this.groupByValues.length > 0 && this.havingValue
             ? sql`HAVING ${this.havingValue}`
             : null,
           this.compoundValues.length > 0
-            ? join(this.compoundValues, " ")
+            ? sql.join(this.compoundValues, " ")
             : null,
           this.orderByValue ? this.orderByValue : null,
           this.limitOffsetValue.toSql().isEmpty ? null : this.limitOffsetValue,

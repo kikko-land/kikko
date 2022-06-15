@@ -1,5 +1,5 @@
 import { IDbState, runInTransaction, runQuery } from "@trong-orm/core";
-import { generateInsert, raw, sql } from "@trong-orm/sql";
+import { generateInsert, sql } from "@trong-orm/sql";
 
 import { IMigration } from "./types";
 
@@ -12,7 +12,7 @@ const runMigrations = (state: IDbState, migrations: IMigration[]) => {
     await runQuery(
       state,
       sql`
-        CREATE TABLE IF NOT EXISTS ${raw(migrationsTable)} (
+        CREATE TABLE IF NOT EXISTS ${sql.raw(migrationsTable)} (
           id INTEGER PRIMARY KEY,
           name varchar(20) NOT NULL,
           migratedAt INTEGER NOT NULL
@@ -22,7 +22,7 @@ const runMigrations = (state: IDbState, migrations: IMigration[]) => {
 
     const migratedMigrations = await runQuery<{ id: number }>(
       state,
-      sql`SELECT id FROM ${raw(migrationsTable)}`
+      sql`SELECT id FROM ${sql.raw(migrationsTable)}`
     );
 
     const migratedIds = new Set(migratedMigrations.map(({ id }) => id));

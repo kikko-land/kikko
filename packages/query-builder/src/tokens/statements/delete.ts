@@ -1,4 +1,4 @@
-import { IContainsTable, join, sql, table } from "@trong-orm/sql";
+import { IContainsTable, sql } from "@trong-orm/sql";
 
 import { IBaseToken, TokenType } from "../../types";
 import { ICTEState, With, withoutWith, withRecursive } from "../cte";
@@ -21,7 +21,7 @@ export interface IDeleteStatement
 export const deleteFrom = (tbl: string | IContainsTable): IDeleteStatement => {
   return {
     type: TokenType.Delete,
-    deleteTable: typeof tbl === "string" ? table(tbl) : tbl,
+    deleteTable: typeof tbl === "string" ? sql.table(tbl) : tbl,
     returningValue: returning(),
 
     with: With,
@@ -35,7 +35,7 @@ export const deleteFrom = (tbl: string | IContainsTable): IDeleteStatement => {
     withoutReturning: withoutReturningForState,
 
     toSql() {
-      return join(
+      return sql.join(
         [
           this.cteValue ? this.cteValue : null,
           sql`DELETE FROM ${this.deleteTable}`,

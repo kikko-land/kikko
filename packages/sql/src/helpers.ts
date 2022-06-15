@@ -1,4 +1,4 @@
-import { empty, join, raw, sql, table } from "./Sql";
+import { sql } from "./Sql";
 
 export const generateInsert = (
   tableName: string,
@@ -10,22 +10,22 @@ export const generateInsert = (
 
   const keys = Object.keys(objs[0]);
 
-  const values = join(
-    objs.map((obj) => sql`(${join(keys.map((k) => obj[k] as string))})`)
+  const values = sql.join(
+    objs.map((obj) => sql`(${sql.join(keys.map((k) => obj[k] as string))})`)
   );
 
-  return sql`INSERT ${replace ? sql`OR REPLACE` : empty} INTO ${table(
+  return sql`INSERT ${replace ? sql`OR REPLACE` : sql.empty} INTO ${sql.table(
     tableName
-  )} (${join(keys.map((k) => raw(k)))}) VALUES ${values} returning *`;
+  )} (${sql.join(keys.map((k) => sql.raw(k)))}) VALUES ${values} returning *`;
 };
 
 export const generateUpdate = (
   tableName: string,
   obj: Record<string, unknown>
 ) => {
-  const values = join(
-    Object.entries(obj).map(([k, v]) => sql`${raw(k)} = ${v as string}`)
+  const values = sql.join(
+    Object.entries(obj).map(([k, v]) => sql`${sql.raw(k)} = ${v as string}`)
   );
 
-  return sql`UPDATE ${table(tableName)} SET ${values}`;
+  return sql`UPDATE ${sql.table(tableName)} SET ${values}`;
 };

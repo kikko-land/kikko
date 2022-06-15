@@ -1,12 +1,9 @@
 import {
   IContainsTable,
+  IPrimitiveValue,
   ISqlAdapter,
   isSql,
-  join,
-  liter,
-  PrimitiveValue,
   sql,
-  table,
 } from "@trong-orm/sql";
 
 import { IBaseToken, isToken, TokenType } from "../../types";
@@ -37,7 +34,7 @@ type ISetValue =
       columnName: string;
       toSet:
         | IBaseToken<TokenType.RawSql>
-        | PrimitiveValue
+        | IPrimitiveValue
         | ISelectStatement
         | IValuesStatement;
     }
@@ -62,7 +59,7 @@ type ISetArgType =
       [key: string]:
         | ISqlAdapter
         | IBaseToken<TokenType.RawSql>
-        | PrimitiveValue
+        | IPrimitiveValue
         | ISelectStatement
         | IValuesStatement;
     }
@@ -71,7 +68,7 @@ type ISetArgType =
 export const update = (tbl: string | IContainsTable): IUpdateStatement => {
   return {
     type: TokenType.Update,
-    updateTable: typeof tbl === "string" ? table(tbl) : tbl,
+    updateTable: typeof tbl === "string" ? sql.table(tbl) : tbl,
     setValues: [],
     fromValues: [],
     returningValue: returning(),
@@ -114,23 +111,25 @@ export const update = (tbl: string | IContainsTable): IUpdateStatement => {
     },
 
     toSql() {
-      return join(
+      return sql.join(
         [
           this.cteValue ? this.cteValue : null,
           sql`UPDATE`,
           this.orReplaceValue ? this.orReplaceValue : null,
           this.updateTable,
           sql`SET`,
-          join(
+          sql.join(
             this.setValues.map((val) =>
               isToken(val)
                 ? val
-                : sql`${liter(val.columnName)} = ${wrapParentheses(val.toSet)}`
+                : sql`${sql.liter(val.columnName)} = ${wrapParentheses(
+                    val.toSet
+                  )}`
             )
           ),
           this.fromValues.length === 0
             ? null
-            : sql`FROM ${join(this.fromValues)}`,
+            : sql`FROM ${sql.join(this.fromValues)}`,
           this.whereValue ? sql`WHERE ${this.whereValue}` : null,
           this.returningValue,
         ].filter((v) => v),

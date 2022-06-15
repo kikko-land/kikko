@@ -1,4 +1,4 @@
-import { IContainsTable, TableDef, tableSymbol } from "@trong-orm/sql";
+import { IContainsTable, ITableDef, tableSymbol } from "@trong-orm/sql";
 
 import {
   deleteRecordsMiddleware,
@@ -26,8 +26,8 @@ export interface IRecordConfig<
     delete: IDeleteMiddleware<Row, Rec>[];
     get: IGetMiddleware<Row, Rec>[];
   };
-  table: TableDef;
-  [tableSymbol]: TableDef;
+  table: ITableDef;
+  [tableSymbol]: ITableDef;
 }
 
 type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;

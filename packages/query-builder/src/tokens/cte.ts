@@ -1,4 +1,4 @@
-import { join, liter, Sql, sql } from "@trong-orm/sql";
+import { Sql, sql } from "@trong-orm/sql";
 
 import { IBaseToken, TokenType } from "../types";
 import { buildRawSql } from "./rawSql";
@@ -39,16 +39,16 @@ const cteTerm = (args: {
       },
     ],
     toSql() {
-      return join(
+      return sql.join(
         [
           sql`WITH`,
           this.recursive ? sql`RECURSIVE` : null,
-          join(
+          sql.join(
             this.values.map(
               (v) =>
-                sql`${liter(v.table)}(${join(v.columns.map(liter))}) AS (${
-                  v.select
-                })`
+                sql`${sql.liter(v.table)}(${sql.join(
+                  v.columns.map(sql.liter)
+                )}) AS (${v.select})`
             )
           ),
         ].filter((b) => b),

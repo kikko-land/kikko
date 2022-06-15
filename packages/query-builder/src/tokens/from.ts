@@ -1,4 +1,4 @@
-import { IContainsTable, ISqlAdapter, table } from "@trong-orm/sql";
+import { IContainsTable, ISqlAdapter, sql } from "@trong-orm/sql";
 
 import { IBaseToken } from "../types";
 import { wrapParentheses } from "./utils";
@@ -19,7 +19,7 @@ export function from<T extends IFromState>(
     fromValues: [
       ...this.fromValues,
       ...values.map((v) =>
-        typeof v === "string" ? table(v) : wrapParentheses(v)
+        typeof v === "string" ? sql.table(v) : wrapParentheses(v)
       ),
     ],
   };

@@ -1,12 +1,9 @@
 import {
   IContainsTable,
+  IPrimitiveValue,
   ISqlAdapter,
   isSql,
-  join,
-  liter,
-  PrimitiveValue,
   sql,
-  table,
 } from "@trong-orm/sql";
 
 import { IBaseToken, isToken, TokenType } from "../../types";
@@ -41,7 +38,7 @@ export interface IInsertStatement
   toInsertValue?:
     | IValuesStatement
     | ISelectStatement
-    | { columnName: string; value: PrimitiveValue | IBaseToken }[][];
+    | { columnName: string; value: IPrimitiveValue | IBaseToken }[][];
 
   setColumnNames(columnNames: string[]): IInsertStatement;
   withoutColumnNames(): IInsertStatement;
@@ -54,8 +51,8 @@ export interface IInsertStatement
 }
 
 type IRecArg =
-  | Record<string, PrimitiveValue | IBaseToken | ISqlAdapter>
-  | Record<string, PrimitiveValue | IBaseToken | ISqlAdapter>[];
+  | Record<string, IPrimitiveValue | IBaseToken | ISqlAdapter>
+  | Record<string, IPrimitiveValue | IBaseToken | ISqlAdapter>[];
 type IInsertArg = IValuesStatement | ISelectStatement | IRecArg;
 
 const mapRecordArg = (arg: IRecArg) => {
@@ -132,7 +129,10 @@ export const insert = (insertArg: IInsertArg): IInsertStatement => {
     },
 
     into(val: string | IContainsTable) {
-      return { ...this, intoTable: typeof val === "string" ? table(val) : val };
+      return {
+        ...this,
+        intoTable: typeof val === "string" ? sql.table(val) : val,
+      };
     },
     withoutInto() {
       return { ...this, intoTable: undefined };
@@ -154,7 +154,7 @@ export const insert = (insertArg: IInsertArg): IInsertStatement => {
           ? this.toInsertValue[0].map(({ columnName }) => columnName)
           : [];
 
-      return join(
+      return sql.join(
         [
           this.cteValue ? this.cteValue : null,
           sql`INSERT`,
@@ -162,13 +162,13 @@ export const insert = (insertArg: IInsertArg): IInsertStatement => {
           sql`INTO`,
           this.intoTable,
           columns.length > 0
-            ? sql`(${join(columns.map((c) => liter(c)))})`
+            ? sql`(${sql.join(columns.map((c) => sql.liter(c)))})`
             : null,
           isValues(this.toInsertValue) || isSelect(this.toInsertValue)
             ? this.toInsertValue
-            : sql`VALUES ${join(
+            : sql`VALUES ${sql.join(
                 this.toInsertValue.map((toInsertColumns) => {
-                  const toInsert: (PrimitiveValue | IBaseToken)[] = Array(
+                  const toInsert: (IPrimitiveValue | IBaseToken)[] = Array(
                     toInsertColumns.length
                   );
 
@@ -186,7 +186,7 @@ export const insert = (insertArg: IInsertArg): IInsertStatement => {
                     toInsert[index] = value;
                   }
 
-                  return sql`(${join(toInsert)})`;
+                  return sql`(${sql.join(toInsert)})`;
                 })
               )}`,
           this.returningValue,

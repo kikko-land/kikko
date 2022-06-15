@@ -1,7 +1,7 @@
-import { Sql, PrimitiveValue } from "@trong-orm/sql";
+import { IPrimitiveValue, Sql } from "@trong-orm/sql";
 import { nanoid } from "nanoid";
 
-import { IDbState } from "./client/types";
+import { IDbState } from "./types";
 
 type IBaseCommand = {
   suppressLog?: boolean;
@@ -23,7 +23,7 @@ export type IRollbackTransactionCommand = IBaseCommand & {
   commandId: string;
 };
 
-export type ITransferredQuery = { values: PrimitiveValue[]; text: string };
+export type ITransferredQuery = { values: IPrimitiveValue[]; text: string };
 export type IExecQueriesCommand = IBaseCommand & {
   type: "runQueries";
   queries: ITransferredQuery[];

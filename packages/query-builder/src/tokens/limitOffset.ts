@@ -1,4 +1,4 @@
-import { empty, ISqlAdapter, join, PrimitiveValue, sql } from "@trong-orm/sql";
+import { IPrimitiveValue, ISqlAdapter, sql } from "@trong-orm/sql";
 
 import { IBaseToken, TokenType } from "../types";
 import { toToken } from "./rawSql";
@@ -24,7 +24,7 @@ export const buildInitialLimitOffsetState = (): ILimitOffsetTerm => {
     type: TokenType.LimitOffsetTerm,
     toSql() {
       return this.limitValue
-        ? join(
+        ? sql.join(
             [
               this.limitValue
                 ? sql`LIMIT ${wrapParentheses(this.limitValue)}`
@@ -35,14 +35,14 @@ export const buildInitialLimitOffsetState = (): ILimitOffsetTerm => {
             ].filter((v) => v),
             " "
           )
-        : empty;
+        : sql.empty;
     },
   };
 };
 
 export function limit<T extends ILimitOffsetState>(
   this: T,
-  val: IBaseToken | ISqlAdapter | PrimitiveValue
+  val: IBaseToken | ISqlAdapter | IPrimitiveValue
 ): T {
   return {
     ...this,
@@ -59,7 +59,7 @@ export function withoutLimit<T extends ILimitOffsetState>(this: T): T {
 
 export function offset<T extends ILimitOffsetState>(
   this: T,
-  val: IBaseToken | ISqlAdapter | PrimitiveValue
+  val: IBaseToken | ISqlAdapter | IPrimitiveValue
 ): T {
   return {
     ...this,

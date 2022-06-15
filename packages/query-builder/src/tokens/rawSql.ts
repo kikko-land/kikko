@@ -1,15 +1,15 @@
 import {
   IContainsTable,
+  IPrimitiveValue,
   ISqlAdapter,
   isSql,
-  PrimitiveValue,
   sql,
 } from "@trong-orm/sql";
 
 import { IBaseToken, isToken, TokenType } from "../types";
 
 export const buildRawSql = (
-  t: ISqlAdapter | IContainsTable | PrimitiveValue
+  t: ISqlAdapter | IContainsTable | IPrimitiveValue
 ): IBaseToken<TokenType.RawSql> => {
   return {
     type: TokenType.RawSql,
@@ -20,7 +20,7 @@ export const buildRawSql = (
 };
 
 export const toToken = (
-  t: IBaseToken | ISqlAdapter | PrimitiveValue | IContainsTable
+  t: IBaseToken | ISqlAdapter | IPrimitiveValue | IContainsTable
 ): IBaseToken => {
   if (isToken(t)) return t;
 

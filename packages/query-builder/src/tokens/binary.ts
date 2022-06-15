@@ -1,12 +1,4 @@
-import {
-  ISqlAdapter,
-  isSql,
-  join,
-  liter,
-  PrimitiveValue,
-  raw,
-  sql,
-} from "@trong-orm/sql";
+import { IPrimitiveValue, ISqlAdapter, isSql, sql } from "@trong-orm/sql";
 
 import { IBaseToken, isToken, TokenType } from "../types";
 import { toToken } from "./rawSql";
@@ -53,12 +45,12 @@ export const isBinaryOperator = (t: unknown): t is IBinaryOperator => {
 
 const binaryOperator = (
   operator: IBinaryOperator["operator"],
-  left: IBaseToken | ISqlAdapter | PrimitiveValue,
+  left: IBaseToken | ISqlAdapter | IPrimitiveValue,
   right:
     | IBaseToken
     | ISqlAdapter
-    | PrimitiveValue
-    | (IBaseToken | ISqlAdapter | PrimitiveValue)[]
+    | IPrimitiveValue
+    | (IBaseToken | ISqlAdapter | IPrimitiveValue)[]
 ): IBinaryOperator => {
   return {
     type: TokenType.Binary,
@@ -66,118 +58,121 @@ const binaryOperator = (
     right: Array.isArray(right) ? right.map(toToken) : toToken(right),
     operator,
     toSql() {
-      return sql`${wrapParentheses(this.left)} ${raw(this.operator)} ${
+      return sql`${wrapParentheses(this.left)} ${sql.raw(this.operator)} ${
         Array.isArray(this.right)
-          ? sql`(${join(this.right)})`
+          ? sql`(${sql.join(this.right)})`
           : wrapParentheses(this.right)
       }`;
     },
   };
 };
 
-export const notEq$ = (right: IBaseToken | ISqlAdapter | PrimitiveValue) => {
-  return (left: IBaseToken | ISqlAdapter | PrimitiveValue) =>
+export const notEq$ = (right: IBaseToken | ISqlAdapter | IPrimitiveValue) => {
+  return (left: IBaseToken | ISqlAdapter | IPrimitiveValue) =>
     notEq(left, right);
 };
 export const notEq = (
-  left: IBaseToken | ISqlAdapter | PrimitiveValue,
-  right: IBaseToken | ISqlAdapter | PrimitiveValue
+  left: IBaseToken | ISqlAdapter | IPrimitiveValue,
+  right: IBaseToken | ISqlAdapter | IPrimitiveValue
 ) => {
   return binaryOperator("<>", left, right);
 };
 
-export const eq$ = (right: IBaseToken | ISqlAdapter | PrimitiveValue) => {
-  return (left: IBaseToken | ISqlAdapter | PrimitiveValue) => eq(left, right);
+export const eq$ = (right: IBaseToken | ISqlAdapter | IPrimitiveValue) => {
+  return (left: IBaseToken | ISqlAdapter | IPrimitiveValue) => eq(left, right);
 };
 export const eq = (
-  left: IBaseToken | ISqlAdapter | PrimitiveValue,
-  right: IBaseToken | ISqlAdapter | PrimitiveValue
+  left: IBaseToken | ISqlAdapter | IPrimitiveValue,
+  right: IBaseToken | ISqlAdapter | IPrimitiveValue
 ) => {
   return binaryOperator("=", left, right);
 };
 
-export const gt$ = (right: IBaseToken | ISqlAdapter | PrimitiveValue) => {
-  return (left: IBaseToken | ISqlAdapter | PrimitiveValue) => gt(left, right);
+export const gt$ = (right: IBaseToken | ISqlAdapter | IPrimitiveValue) => {
+  return (left: IBaseToken | ISqlAdapter | IPrimitiveValue) => gt(left, right);
 };
 export const gt = (
-  left: IBaseToken | ISqlAdapter | PrimitiveValue,
-  right: IBaseToken | ISqlAdapter | PrimitiveValue
+  left: IBaseToken | ISqlAdapter | IPrimitiveValue,
+  right: IBaseToken | ISqlAdapter | IPrimitiveValue
 ) => {
   return binaryOperator(">", left, right);
 };
 
-export const gtEq$ = (right: IBaseToken | ISqlAdapter | PrimitiveValue) => {
-  return (left: IBaseToken | ISqlAdapter | PrimitiveValue) => gtEq(left, right);
+export const gtEq$ = (right: IBaseToken | ISqlAdapter | IPrimitiveValue) => {
+  return (left: IBaseToken | ISqlAdapter | IPrimitiveValue) =>
+    gtEq(left, right);
 };
 export const gtEq = (
-  left: IBaseToken | ISqlAdapter | PrimitiveValue,
-  right: IBaseToken | ISqlAdapter | PrimitiveValue
+  left: IBaseToken | ISqlAdapter | IPrimitiveValue,
+  right: IBaseToken | ISqlAdapter | IPrimitiveValue
 ) => {
   return binaryOperator(">=", left, right);
 };
 
-export const lt$ = (right: IBaseToken | ISqlAdapter | PrimitiveValue) => {
-  return (left: IBaseToken | ISqlAdapter | PrimitiveValue) => lt(left, right);
+export const lt$ = (right: IBaseToken | ISqlAdapter | IPrimitiveValue) => {
+  return (left: IBaseToken | ISqlAdapter | IPrimitiveValue) => lt(left, right);
 };
 export const lt = (
-  left: IBaseToken | ISqlAdapter | PrimitiveValue,
-  right: IBaseToken | ISqlAdapter | PrimitiveValue
+  left: IBaseToken | ISqlAdapter | IPrimitiveValue,
+  right: IBaseToken | ISqlAdapter | IPrimitiveValue
 ) => {
   return binaryOperator("<", left, right);
 };
 
-export const ltEq$ = (right: IBaseToken | ISqlAdapter | PrimitiveValue) => {
-  return (left: IBaseToken | ISqlAdapter | PrimitiveValue) => ltEq(left, right);
+export const ltEq$ = (right: IBaseToken | ISqlAdapter | IPrimitiveValue) => {
+  return (left: IBaseToken | ISqlAdapter | IPrimitiveValue) =>
+    ltEq(left, right);
 };
 export const ltEq = (
-  left: IBaseToken | ISqlAdapter | PrimitiveValue,
-  right: IBaseToken | ISqlAdapter | PrimitiveValue
+  left: IBaseToken | ISqlAdapter | IPrimitiveValue,
+  right: IBaseToken | ISqlAdapter | IPrimitiveValue
 ) => {
   return binaryOperator("<=", left, right);
 };
 
 export const like = (
-  left: IBaseToken | ISqlAdapter | PrimitiveValue,
-  right: IBaseToken | ISqlAdapter | PrimitiveValue
+  left: IBaseToken | ISqlAdapter | IPrimitiveValue,
+  right: IBaseToken | ISqlAdapter | IPrimitiveValue
 ) => {
   return binaryOperator("LIKE", left, right);
 };
-export const like$ = (right: IBaseToken | ISqlAdapter | PrimitiveValue) => {
-  return (left: IBaseToken | ISqlAdapter | PrimitiveValue) => like(left, right);
+export const like$ = (right: IBaseToken | ISqlAdapter | IPrimitiveValue) => {
+  return (left: IBaseToken | ISqlAdapter | IPrimitiveValue) =>
+    like(left, right);
 };
 
 export const notLike = (
-  left: IBaseToken | ISqlAdapter | PrimitiveValue,
-  right: IBaseToken | ISqlAdapter | PrimitiveValue
+  left: IBaseToken | ISqlAdapter | IPrimitiveValue,
+  right: IBaseToken | ISqlAdapter | IPrimitiveValue
 ) => {
   return binaryOperator("NOT LIKE", left, right);
 };
-export const notLike$ = (right: IBaseToken | ISqlAdapter | PrimitiveValue) => {
-  return (left: IBaseToken | ISqlAdapter | PrimitiveValue) =>
+export const notLike$ = (right: IBaseToken | ISqlAdapter | IPrimitiveValue) => {
+  return (left: IBaseToken | ISqlAdapter | IPrimitiveValue) =>
     notLike(left, right);
 };
 
 export const In = (
-  left: IBaseToken | ISqlAdapter | PrimitiveValue,
-  ...right: (IBaseToken | ISqlAdapter | PrimitiveValue)[]
+  left: IBaseToken | ISqlAdapter | IPrimitiveValue,
+  ...right: (IBaseToken | ISqlAdapter | IPrimitiveValue)[]
 ) => {
   return binaryOperator("IN", left, right);
 };
 export const notIn = (
-  left: IBaseToken | ISqlAdapter | PrimitiveValue,
-  ...right: (IBaseToken | ISqlAdapter | PrimitiveValue)[]
+  left: IBaseToken | ISqlAdapter | IPrimitiveValue,
+  ...right: (IBaseToken | ISqlAdapter | IPrimitiveValue)[]
 ) => {
   return binaryOperator("NOT IN", left, right);
 };
 
 export const in$ =
-  (...values: (IBaseToken | ISqlAdapter | PrimitiveValue)[]) =>
-  (left: IBaseToken | ISqlAdapter | PrimitiveValue) => {
+  (...values: (IBaseToken | ISqlAdapter | IPrimitiveValue)[]) =>
+  (left: IBaseToken | ISqlAdapter | IPrimitiveValue) => {
     return In(left, ...values);
   };
 export const notIn$ =
-  (...values: (IBaseToken | ISqlAdapter | PrimitiveValue)[]) =>
-  (left: IBaseToken | ISqlAdapter | PrimitiveValue) => {
+  (...values: (IBaseToken | ISqlAdapter | IPrimitiveValue)[]) =>
+  (left: IBaseToken | ISqlAdapter | IPrimitiveValue) => {
     return notIn(left, ...values);
   };
 
@@ -186,10 +181,10 @@ export type IConditionValue =
   | ISqlAdapter
   | Record<
       string,
-      | ((left: IBaseToken | ISqlAdapter | PrimitiveValue) => IBinaryOperator)
+      | ((left: IBaseToken | ISqlAdapter | IPrimitiveValue) => IBinaryOperator)
       | IBaseToken
       | ISqlAdapter
-      | PrimitiveValue
+      | IPrimitiveValue
     >;
 
 export const conditionValuesToToken = (values: IConditionValue[]) => {
@@ -199,7 +194,9 @@ export const conditionValuesToToken = (values: IConditionValue[]) => {
         ? toToken(v)
         : Object.entries(v).map(([k, expr]) =>
             toToken(
-              typeof expr === "function" ? expr(liter(k)) : eq(raw(k), expr)
+              typeof expr === "function"
+                ? expr(sql.liter(k))
+                : eq(sql.raw(k), expr)
             )
           )
     )

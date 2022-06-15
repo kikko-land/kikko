@@ -1,4 +1,4 @@
-import { empty, ISqlAdapter, liter, raw, sql } from "@trong-orm/sql";
+import { ISqlAdapter, sql } from "@trong-orm/sql";
 
 import { IBaseToken, TokenType } from "../types";
 import { toToken } from "./rawSql";
@@ -21,8 +21,10 @@ const orderTerm = (
     nullOrder,
     toSql() {
       return sql`ORDER BY ${
-        typeof this.val === "string" ? liter(this.val) : this.val
-      } ${raw(this.orderType)}${nullOrder ? raw(nullOrder) : empty}`;
+        typeof this.val === "string" ? sql.liter(this.val) : this.val
+      } ${sql.raw(this.orderType)}${
+        nullOrder ? sql.raw(nullOrder) : sql.empty
+      }`;
     },
   };
 };

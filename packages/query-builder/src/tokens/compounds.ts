@@ -1,4 +1,4 @@
-import { raw, Sql, sql } from "@trong-orm/sql";
+import { Sql, sql } from "@trong-orm/sql";
 
 import { IBaseToken, TokenType } from "../types";
 import { toToken } from "./rawSql";
@@ -43,7 +43,7 @@ const makeCompounds = <T extends ICompoundState>(
             ? token.withoutWith().withoutLimit().withoutOrder().withoutOffset()
             : (token as IValuesStatement | IBaseToken<TokenType.RawSql>),
           toSql() {
-            return sql`${raw(this.compoundType)} ${this.value}`;
+            return sql`${sql.raw(this.compoundType)} ${this.value}`;
           },
         };
       }),

@@ -1,4 +1,4 @@
-import { ISqlAdapter, liter, PrimitiveValue, sql } from "@trong-orm/sql";
+import { IPrimitiveValue, ISqlAdapter, sql } from "@trong-orm/sql";
 
 import { IBaseToken, TokenType } from "../types";
 import { toToken } from "./rawSql";
@@ -10,7 +10,7 @@ export type IAlias = IBaseToken<TokenType.Alias> & {
 };
 
 export const alias = (
-  left: IBaseToken | ISqlAdapter | PrimitiveValue,
+  left: IBaseToken | ISqlAdapter | IPrimitiveValue,
   right: string
 ): IAlias => {
   return {
@@ -18,7 +18,7 @@ export const alias = (
     left: toToken(left),
     right,
     toSql() {
-      return sql`${wrapParentheses(this.left)} AS ${liter(this.right)}`;
+      return sql`${wrapParentheses(this.left)} AS ${sql.liter(this.right)}`;
     },
   };
 };

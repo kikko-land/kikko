@@ -1,6 +1,6 @@
-import { IPrimitiveValue, ISqlAdapter, sql } from "@trong-orm/sql";
+import { ISqlAdapter, join, IPrimitiveValue, sql } from "@trong-orm/sql";
 
-import { IBaseToken, TokenType } from "../../types";
+import { IBaseToken, TokenType } from "../types";
 import {
   except,
   ICompoundState,
@@ -8,8 +8,8 @@ import {
   union,
   unionAll,
   withoutCompound,
-} from "../compounds";
-import { ICTEState, With, withoutWith, withRecursive } from "../cte";
+} from "./compounds";
+import { ICTEState, With, withoutWith, withRecursive } from "./cte";
 import {
   buildInitialLimitOffsetState,
   ILimitOffsetState,
@@ -17,8 +17,8 @@ import {
   offset,
   withoutLimit,
   withoutOffset,
-} from "../limitOffset";
-import { IOrderState, orderBy, withoutOrder } from "../order";
+} from "./limitOffset";
+import { IOrderState, orderBy, withoutOrder } from "./order";
 
 export interface IValuesStatement
   extends IBaseToken<TokenType.Values>,
@@ -55,14 +55,12 @@ export const values = (
     withRecursive,
     with: With,
     toSql() {
-      return sql.join(
+      return join(
         [
           this.cteValue ? this.cteValue : null,
-          sql`VALUES ${sql.join(
-            this.values.map((val) => sql`(${sql.join(val)})`)
-          )}`,
+          sql`VALUES ${join(this.values.map((val) => sql`(${join(val)})`))}`,
           this.compoundValues.length > 0
-            ? sql.join(this.compoundValues, " ")
+            ? join(this.compoundValues, " ")
             : null,
           this.orderByValue ? this.orderByValue : null,
           this.limitOffsetValue.toSql().isEmpty ? null : this.limitOffsetValue,

@@ -1,5 +1,5 @@
 import { IDbState, IWithToSql } from "@trong-orm/core";
-import { empty, join, Sql, sql } from "@trong-orm/sql";
+import { Sql, sql } from "@trong-orm/sql";
 
 import { IRecordConfig } from "./defineRecord";
 import { applyAction } from "./middlewares";
@@ -91,7 +91,7 @@ export const deleteRecordsByIds = async <
   recordConfig: IRecordConfig<Row, Rec>,
   ids: string[]
 ) => {
-  return deleteRecords(db, recordConfig, sql`WHERE id IN (${join(ids)})`);
+  return deleteRecords(db, recordConfig, sql`WHERE id IN (${sql.join(ids)})`);
 };
 
 export const deleteAllRecords = async <
@@ -101,7 +101,7 @@ export const deleteAllRecords = async <
   db: IDbState,
   recordConfig: IRecordConfig<Row, Rec>
 ) => {
-  return deleteRecords(db, recordConfig, empty);
+  return deleteRecords(db, recordConfig, sql.empty);
 };
 
 export const updateRecords = async <

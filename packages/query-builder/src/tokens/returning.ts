@@ -1,4 +1,4 @@
-import { empty, ISqlAdapter, isSql, join, sql } from "@trong-orm/sql";
+import { ISqlAdapter, isSql, sql } from "@trong-orm/sql";
 
 import { IBaseToken, isToken, TokenType } from "../types";
 import { alias } from "./alias";
@@ -45,7 +45,7 @@ export const returning = (...args: IReturningArg[]): IReturningClause => {
     }),
     toSql() {
       return this.values.length > 0
-        ? sql`RETURNING ${join(
+        ? sql`RETURNING ${sql.join(
             this.values.map((val) => {
               if (val.toSelect === "*") {
                 return sql`*`;
@@ -56,7 +56,7 @@ export const returning = (...args: IReturningArg[]): IReturningClause => {
               }
             })
           )}`
-        : empty;
+        : sql.empty;
     },
   };
 };

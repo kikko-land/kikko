@@ -11,7 +11,7 @@ import {
   deleteRecordsByIds,
   updateRecords,
 } from "@trong-orm/records";
-import { empty } from "@trong-orm/sql";
+import { sql } from "@trong-orm/sql";
 import { nanoid } from "nanoid";
 import { useState } from "react";
 import Highlighter from "react-highlight-words";
@@ -82,7 +82,7 @@ export const List = () => {
     select()
       .from(notesRecords)
       .where(
-        textToSearch ? { content: like$("%" + textToSearch + "%") } : empty
+        textToSearch ? { content: like$("%" + textToSearch + "%") } : sql.empty
       )
   );
 

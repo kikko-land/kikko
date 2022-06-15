@@ -1,43 +1,35 @@
+import {
+  IContainsTable,
+  isTable,
+  ITableDef,
+  table,
+  tableSymbol,
+} from "./table";
+
 // Code is taken and adopted from https://github.com/blakeembrey/sql-template-tag
 
-export type PrimitiveValue = string | number | null;
-
-export const isPrimitiveValue = (t: unknown): t is PrimitiveValue => {
+export type IPrimitiveValue = string | number | null;
+export const isPrimitiveValue = (t: unknown): t is IPrimitiveValue => {
   return t === null || typeof t === "string" || typeof t === "number";
 };
-export type RawValue = PrimitiveValue | Sql | IContainsTable | { toSql(): Sql };
 
-export const tableSymbol: unique symbol = Symbol("table");
-
-export class TableDef {
-  constructor(public name: string, public dependsOnTables: TableDef[]) {}
-
-  getAllDependingTableDefs(isRoot = true) {
-    const tableDefs: TableDef[] = [];
-
-    this.dependsOnTables.forEach((def) => {
-      tableDefs.push(...def.getAllDependingTableDefs(false));
-    });
-
-    return tableDefs;
-  }
-}
-
-export interface IContainsTable {
-  [tableSymbol]: TableDef;
-}
+export type IRawValue =
+  | IPrimitiveValue
+  | Sql
+  | IContainsTable
+  | { toSql(): Sql };
 
 const insertRegex = /insert\s+(or\s+\w+\s+)?into\s+/gim;
 const deleteRegex = /delete\s+from\s+/gim;
 const updateRegex = /update\s+(or\s+\w+\s+)?/gim;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function containsTable(x: any): x is IContainsTable {
-  if (x === null) return false;
-  if (typeof x !== "object") return false;
-
-  return Boolean(x[tableSymbol]);
-}
+const strip = (str: string) => {
+  return str
+    .replace(/"/g, "")
+    .split(".")
+    .map((v) => '"' + v + '"')
+    .join(".");
+};
 
 export interface ISqlAdapter {
   toSql(): Sql;
@@ -54,13 +46,13 @@ export function isSql(x: unknown): x is ISqlAdapter {
  * A SQL instance can be nested within each other to build SQL strings.
  */
 export class Sql implements ISqlAdapter {
-  values: PrimitiveValue[];
+  values: IPrimitiveValue[];
   strings: string[];
-  tables: TableDef[];
+  tables: ITableDef[];
 
   constructor(
     rawStrings: ReadonlyArray<string>,
-    rawValues: ReadonlyArray<RawValue>
+    rawValues: ReadonlyArray<IRawValue>
   ) {
     if (rawStrings.length - 1 !== rawValues.length) {
       if (rawStrings.length === 0) {
@@ -77,21 +69,13 @@ export class Sql implements ISqlAdapter {
     const valuesLength = rawValues.reduce<number>(
       (len, value) =>
         len +
-        (isSql(value)
-          ? value.toSql().values.length
-          : containsTable(value)
-          ? 0
-          : 1),
+        (isSql(value) ? value.toSql().values.length : isTable(value) ? 0 : 1),
       0
     );
     const tablesLength = rawValues.reduce<number>(
       (len, value) =>
         len +
-        (isSql(value)
-          ? value.toSql().tables.length
-          : containsTable(value)
-          ? 1
-          : 0),
+        (isSql(value) ? value.toSql().tables.length : isTable(value) ? 1 : 0),
       0
     );
 
@@ -129,7 +113,7 @@ export class Sql implements ISqlAdapter {
 
         // Append raw string to current string.
         this.strings[pos] += rawString;
-      } else if (containsTable(child)) {
+      } else if (isTable(child)) {
         this.strings[pos] += strip(child[tableSymbol].name) + rawString;
 
         this.tables[tableI++] = child[tableSymbol];
@@ -193,15 +177,26 @@ export class Sql implements ISqlAdapter {
   }
 }
 
-/**
- * Create a SQL query for a list of values.
- */
-export function join(
-  values: RawValue[],
+export function sql(strings: ReadonlyArray<string>, ...values: IRawValue[]) {
+  return new Sql(strings, values);
+}
+
+sql.raw = (value: string) => {
+  return new Sql([value], []);
+};
+sql.liter = (str: string) => {
+  return sql.raw(strip(str));
+};
+sql.table = table;
+sql.empty = sql.raw("");
+sql.join = (
+  values: IRawValue[],
   separator = ", ",
   prefix = "",
   suffix = ""
-) {
+) => {
+  values = values.filter((v) => (isSql(v) ? !v.toSql().isEmpty : v));
+
   if (values.length === 0) {
     throw new TypeError(
       "Expected `join([])` to be called with an array of multiple elements, but got an empty array"
@@ -212,51 +207,4 @@ export function join(
     [prefix, ...Array(values.length - 1).fill(separator), suffix],
     values
   );
-}
-
-/**
- * Create raw SQL statement.
- */
-export function raw(value: string) {
-  return new Sql([value], []);
-}
-
-export function table(
-  name: string,
-  opts?: { dependsOn?: IContainsTable[] }
-): IContainsTable {
-  return {
-    [tableSymbol]: new TableDef(
-      name
-        .replace(/"/g, "")
-        .split(".")
-        .map((v) => '"' + v + '"')
-        .join("."),
-      opts?.dependsOn?.map((obj) => obj[tableSymbol]) || []
-    ),
-  };
-}
-
-/**
- * Placeholder value for "no text".
- */
-export const empty = raw("");
-
-/**
- * Create a SQL object from a template string.
- */
-export function sql(strings: ReadonlyArray<string>, ...values: RawValue[]) {
-  return new Sql(strings, values);
-}
-
-const strip = (str: string) => {
-  return str
-    .replace(/"/g, "")
-    .split(".")
-    .map((v) => '"' + v + '"')
-    .join(".");
-};
-
-export const liter = (str: string) => {
-  return raw(strip(str));
 };

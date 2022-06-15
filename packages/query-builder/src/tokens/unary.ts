@@ -1,14 +1,14 @@
-import { ISqlAdapter, PrimitiveValue, sql } from "@trong-orm/sql";
+import { IPrimitiveValue, ISqlAdapter, sql } from "@trong-orm/sql";
 
 import { IBaseToken, TokenType } from "../types";
 
 export interface IUnaryOperator extends IBaseToken<TokenType.Unary> {
   operator: "NOT";
-  expr: IBaseToken | ISqlAdapter | PrimitiveValue;
+  expr: IBaseToken | ISqlAdapter | IPrimitiveValue;
 }
 
 export const not = (
-  expr: IBaseToken | ISqlAdapter | PrimitiveValue
+  expr: IBaseToken | ISqlAdapter | IPrimitiveValue
 ): IUnaryOperator => {
   return {
     operator: "NOT",

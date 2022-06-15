@@ -1,7 +1,7 @@
 import {
   IContainsTable,
+  IPrimitiveValue,
   ISqlAdapter,
-  PrimitiveValue,
   Sql,
   sql,
 } from "@trong-orm/sql";
@@ -10,7 +10,7 @@ import { IBaseToken, isToken, TokenType } from "../types";
 import { isBinaryOperator } from "./binary";
 
 export const wrapParentheses = <
-  T extends IBaseToken | ISqlAdapter | PrimitiveValue | IContainsTable
+  T extends IBaseToken | ISqlAdapter | IPrimitiveValue | IContainsTable
 >(
   val: T
 ): T | Sql =>
