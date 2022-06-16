@@ -3,20 +3,7 @@ const rootDir = process.cwd().includes("packages/records")
   : "./packages/records";
 
 module.exports = {
-  env: {
-    browser: true,
-    es2021: true,
-  },
-  extends: [
-    "react-app",
-    "prettier",
-    "eslint:recommended",
-    "plugin:jsx-a11y/recommended",
-    "plugin:rxjs/recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:promise/recommended",
-  ],
-  parser: "@typescript-eslint/parser",
+  extends: ["@trong-orm/eslint-config-trong"],
   parserOptions: {
     ecmaFeatures: {
       jsx: true,
@@ -25,10 +12,5 @@ module.exports = {
     sourceType: "module",
     tsconfigRootDir: rootDir,
     project: "./tsconfig.json",
-  },
-  plugins: ["jsx-a11y", "rxjs", "simple-import-sort", "promise"],
-  rules: {
-    "simple-import-sort/imports": "warn",
-    "simple-import-sort/exports": "warn",
   },
 };

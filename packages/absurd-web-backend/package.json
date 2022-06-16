@@ -1,9 +1,20 @@
 {
   "name": "@trong-orm/absurd-web-backend",
   "version": "1.0.0",
-  "main": "src/index.ts",
   "author": "Sergey Popov",
   "license": "MIT",
+  "exports": {
+    ".": "./src/index.ts",
+    "./worker": "./src/worker/DB.worker.ts"
+  },
+  "types": "./src/index.ts",
+  "publishConfig": {
+    "exports": {
+      ".": "./lib/index.js",
+      "./worker": "./lib/DB.worker.js"
+    },
+    "types": "./lib/index.d.ts"
+  },
   "scripts": {
     "lint": "eslint \"src/**/*.{tsx,ts}\"",
     "check-typing": "tsc --noEmit"
@@ -17,6 +28,7 @@
     "rxjs": "^7.5.5"
   },
   "devDependencies": {
+    "@trong-orm/eslint-config-trong": "*",
     "@types/emscripten": "^1.39.6",
     "ts-essentials": "^9.1.2"
   }
