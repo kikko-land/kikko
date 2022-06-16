@@ -1,5 +1,3 @@
-import "./examples";
-
 export * from "./tokens/alias";
 export * from "./tokens/binary";
 export type { IOrderTerm } from "./tokens/order";

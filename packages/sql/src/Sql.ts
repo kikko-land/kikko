@@ -102,12 +102,12 @@ export function sql(
 
   // Iterate over rw values, strings, and children. The value is always
   // positioned between two strings, e.g. `index + 1`.
-  let i = 0,
-    pos = 0,
+  let pos = 0,
     tableI = 0;
-  while (i < _rawValues.length) {
-    const child = _rawValues[i++];
-    const rawString = _rawStrings[i];
+
+  _rawValues.forEach((val, i) => {
+    const child = _rawValues[i];
+    const rawString = _rawStrings[i + 1];
 
     // Check for nested `sql` queries.
     if (isSql(child)) {
@@ -115,16 +115,14 @@ export function sql(
       // Append child prefix text to current string.
       strings[pos] += sql._strings[0];
 
-      let childIndex = 0;
-      while (childIndex < sql._values.length) {
-        values[pos++] = sql._values[childIndex++];
-        strings[pos] = sql._strings[childIndex];
-      }
+      sql._values.forEach((childVal, childI) => {
+        values[pos++] = sql._values[childI];
+        strings[pos] = sql._strings[childI + 1];
+      });
 
-      let childTableIndex = 0;
-      while (childTableIndex < sql.tables.length) {
-        tables[tableI++] = sql.tables[childTableIndex++];
-      }
+      sql.tables.forEach((t, childTableI) => {
+        tables[tableI++] = sql.tables[childTableI++];
+      });
 
       // Append raw string to current string.
       strings[pos] += rawString;
@@ -136,7 +134,7 @@ export function sql(
       values[pos++] = child;
       strings[pos] = rawString;
     }
-  }
+  });
 
   return {
     _values: values,
