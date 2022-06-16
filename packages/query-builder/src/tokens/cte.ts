@@ -1,4 +1,4 @@
-import { Sql, sql } from "@trong-orm/sql";
+import { ISql, isSql, sql } from "@trong-orm/sql";
 
 import { IBaseToken, TokenType } from "../types";
 import { buildRawSql } from "./rawSql";
@@ -64,7 +64,7 @@ const cteTermState = <T extends ICTEState>(
     table: string;
     columns: string[];
     recursive: boolean;
-    select: ISelectStatement | IValuesStatement | Sql;
+    select: ISelectStatement | IValuesStatement | ISql;
   }
 ): T => {
   if (state.cteValue?.recursive === true && args.recursive === false) {
@@ -86,8 +86,7 @@ const cteTermState = <T extends ICTEState>(
           table: args.table,
           columns: args.columns,
           recursive: args.recursive,
-          select:
-            args.select instanceof Sql ? buildRawSql(args.select) : args.select,
+          select: isSql(args.select) ? buildRawSql(args.select) : args.select,
         }),
   };
 };
@@ -97,7 +96,7 @@ export function With<T extends ICTEState>(
   args: {
     table: string;
     columns: string[];
-    select: ISelectStatement | IValuesStatement | Sql;
+    select: ISelectStatement | IValuesStatement | ISql;
   }
 ): T {
   return cteTermState(this, { ...args, recursive: false });
@@ -108,7 +107,7 @@ export function withRecursive<T extends ICTEState>(
   args: {
     table: string;
     columns: string[];
-    select: ISelectStatement | IValuesStatement | Sql;
+    select: ISelectStatement | IValuesStatement | ISql;
   }
 ): T {
   return cteTermState(this, { ...args, recursive: true });

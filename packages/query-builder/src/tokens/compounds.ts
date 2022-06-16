@@ -1,11 +1,11 @@
-import { Sql, sql } from "@trong-orm/sql";
+import { ISql, sql } from "@trong-orm/sql";
 
 import { IBaseToken, TokenType } from "../types";
 import { toToken } from "./rawSql";
 import { ISelectStatement, isSelect } from "./statements/select";
 import { isValues, IValuesStatement } from "./statements/values";
 
-type IUnionArg = ISelectStatement | IValuesStatement | Sql;
+type IUnionArg = ISelectStatement | IValuesStatement | ISql;
 
 export interface ICompoundOperator extends IBaseToken<TokenType.OrderTerm> {
   compoundType: "UNION" | "UNION ALL" | "INTERSECT" | "EXCEPT";

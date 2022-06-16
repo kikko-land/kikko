@@ -13,11 +13,7 @@ export const isPrimitiveValue = (t: unknown): t is IPrimitiveValue => {
   return t === null || typeof t === "string" || typeof t === "number";
 };
 
-export type IRawValue =
-  | IPrimitiveValue
-  | Sql
-  | IContainsTable
-  | { toSql(): Sql };
+export type IRawValue = IPrimitiveValue | ISql | IContainsTable | ISqlAdapter;
 
 const insertRegex = /insert\s+(or\s+\w+\s+)?into\s+/gim;
 const deleteRegex = /delete\s+from\s+/gim;
@@ -32,7 +28,7 @@ const strip = (str: string) => {
 };
 
 export interface ISqlAdapter {
-  toSql(): Sql;
+  toSql(): ISql;
 }
 
 export function isSql(x: unknown): x is ISqlAdapter {
@@ -42,147 +38,175 @@ export function isSql(x: unknown): x is ISqlAdapter {
   return "toSql" in x;
 }
 
-/**
- * A SQL instance can be nested within each other to build SQL strings.
- */
-export class Sql implements ISqlAdapter {
-  values: IPrimitiveValue[];
-  strings: string[];
-  tables: ITableDef[];
+export interface ISql extends ISqlAdapter {
+  readonly _values: IPrimitiveValue[];
+  readonly _strings: string[];
+  readonly tables: ITableDef[];
 
-  constructor(
-    rawStrings: ReadonlyArray<string>,
-    rawValues: ReadonlyArray<IRawValue>
-  ) {
-    if (rawStrings.length - 1 !== rawValues.length) {
-      if (rawStrings.length === 0) {
-        throw new TypeError("Expected at least 1 string");
-      }
+  _cachedText?: string;
+  _hash?: string;
 
-      throw new TypeError(
-        `Expected ${rawStrings.length} strings to have ${
-          rawStrings.length - 1
-        } values`
-      );
-    }
+  get isModifyQuery(): boolean;
+  get isReadQuery(): boolean;
+  get isEmpty(): boolean;
 
-    const valuesLength = rawValues.reduce<number>(
-      (len, value) =>
-        len +
-        (isSql(value) ? value.toSql().values.length : isTable(value) ? 0 : 1),
-      0
-    );
-    const tablesLength = rawValues.reduce<number>(
-      (len, value) =>
-        len +
-        (isSql(value) ? value.toSql().tables.length : isTable(value) ? 1 : 0),
-      0
-    );
+  get hash(): string;
 
-    this.values = new Array(valuesLength);
-    this.strings = new Array(valuesLength + 1);
-    this.tables = new Array(tablesLength);
+  get preparedQuery(): {
+    values: IPrimitiveValue[];
+    text: string;
+  };
 
-    this.strings[0] = rawStrings[0];
+  inspect(): {
+    preparedQuery: ISql["preparedQuery"];
+    tables: ISql["tables"];
+  };
 
-    // Iterate over rw values, strings, and children. The value is always
-    // positioned between two strings, e.g. `index + 1`.
-    let i = 0,
-      pos = 0,
-      tableI = 0;
-    while (i < rawValues.length) {
-      const child = rawValues[i++];
-      const rawString = rawStrings[i];
-
-      // Check for nested `sql` queries.
-      if (isSql(child)) {
-        const sql = child.toSql();
-        // Append child prefix text to current string.
-        this.strings[pos] += sql.strings[0];
-
-        let childIndex = 0;
-        while (childIndex < sql.values.length) {
-          this.values[pos++] = sql.values[childIndex++];
-          this.strings[pos] = sql.strings[childIndex];
-        }
-
-        let childTableIndex = 0;
-        while (childTableIndex < sql.tables.length) {
-          this.tables[tableI++] = sql.tables[childTableIndex++];
-        }
-
-        // Append raw string to current string.
-        this.strings[pos] += rawString;
-      } else if (isTable(child)) {
-        this.strings[pos] += strip(child[tableSymbol].name) + rawString;
-
-        this.tables[tableI++] = child[tableSymbol];
-      } else {
-        this.values[pos++] = child;
-        this.strings[pos] = rawString;
-      }
-    }
-  }
-
-  get text() {
-    let i = 1,
-      value = this.strings[0];
-    while (i < this.strings.length) value += `$${i}${this.strings[i++]}`;
-
-    return value.trim();
-  }
-
-  get sql() {
-    let i = 1,
-      value = this.strings[0];
-    while (i < this.strings.length) value += `?${this.strings[i++]}`;
-    return value.trim();
-  }
-
-  get hash() {
-    return this.strings.join() + this.values.join();
-  }
-
-  get isModifyQuery() {
-    const query = this.sql;
-
-    // There some edge cases could happen here, so better regex could be introduced
-    // I don't want put AST parser to frontend lib
-    return (
-      query.match(insertRegex) !== null ||
-      query.match(deleteRegex) !== null ||
-      query.match(updateRegex) !== null
-    );
-  }
-
-  get isReadQuery() {
-    return !this.isModifyQuery;
-  }
-
-  get isEmpty() {
-    return this.sql.trim().length === 0;
-  }
-
-  inspect() {
-    return {
-      text: this.text,
-      sql: this.sql,
-      values: this.values,
-      tables: this.tables,
-    };
-  }
-
-  toSql() {
-    return this;
-  }
+  toString(): string;
 }
 
-export function sql(strings: ReadonlyArray<string>, ...values: IRawValue[]) {
-  return new Sql(strings, values);
+export function sql(
+  _rawStrings: ReadonlyArray<string>,
+  ..._rawValues: IRawValue[]
+): ISql {
+  if (_rawStrings.length - 1 !== _rawValues.length) {
+    if (_rawStrings.length === 0) {
+      throw new TypeError("Expected at least 1 string");
+    }
+
+    throw new TypeError(
+      `Expected ${_rawStrings.length} strings to have ${
+        _rawStrings.length - 1
+      } values`
+    );
+  }
+
+  const valuesLength = _rawValues.reduce<number>(
+    (len, value) =>
+      len +
+      (isSql(value) ? value.toSql()._values.length : isTable(value) ? 0 : 1),
+    0
+  );
+  const tablesLength = _rawValues.reduce<number>(
+    (len, value) =>
+      len +
+      (isSql(value) ? value.toSql().tables.length : isTable(value) ? 1 : 0),
+    0
+  );
+
+  const values: IPrimitiveValue[] = new Array(valuesLength);
+  const strings: string[] = new Array(valuesLength + 1);
+  const tables: ITableDef[] = new Array(tablesLength);
+
+  strings[0] = _rawStrings[0];
+
+  // Iterate over rw values, strings, and children. The value is always
+  // positioned between two strings, e.g. `index + 1`.
+  let i = 0,
+    pos = 0,
+    tableI = 0;
+  while (i < _rawValues.length) {
+    const child = _rawValues[i++];
+    const rawString = _rawStrings[i];
+
+    // Check for nested `sql` queries.
+    if (isSql(child)) {
+      const sql = child.toSql();
+      // Append child prefix text to current string.
+      strings[pos] += sql._strings[0];
+
+      let childIndex = 0;
+      while (childIndex < sql._values.length) {
+        values[pos++] = sql._values[childIndex++];
+        strings[pos] = sql._strings[childIndex];
+      }
+
+      let childTableIndex = 0;
+      while (childTableIndex < sql.tables.length) {
+        tables[tableI++] = sql.tables[childTableIndex++];
+      }
+
+      // Append raw string to current string.
+      strings[pos] += rawString;
+    } else if (isTable(child)) {
+      strings[pos] += strip(child[tableSymbol].name) + rawString;
+
+      tables[tableI++] = child[tableSymbol];
+    } else {
+      values[pos++] = child;
+      strings[pos] = rawString;
+    }
+  }
+
+  return {
+    _values: values,
+    _strings: strings,
+    tables: tables,
+
+    get isModifyQuery() {
+      const query = this.preparedQuery.text;
+
+      // There some edge cases could happen here, so better regex could be introduced
+      // I don't want put AST parser to frontend lib
+      return (
+        query.match(insertRegex) !== null ||
+        query.match(deleteRegex) !== null ||
+        query.match(updateRegex) !== null
+      );
+    },
+    get isReadQuery() {
+      return !this.isModifyQuery;
+    },
+    get isEmpty() {
+      return this.preparedQuery.text.trim().length === 0;
+    },
+
+    get hash() {
+      if (!this._hash) {
+        this._hash = this._strings.join() + this._values.join();
+      }
+
+      return this._hash;
+    },
+
+    get preparedQuery() {
+      if (!this._cachedText) {
+        this._cachedText = (
+          this._strings[0] +
+          this._strings
+            .slice(1)
+            .map((val, i) => `$${i}${val}`)
+            .join("")
+        ).trim();
+      }
+
+      return {
+        values: this._values,
+        text: this._cachedText,
+      };
+    },
+
+    inspect() {
+      return {
+        preparedQuery: this.preparedQuery,
+        tables: this.tables,
+      };
+    },
+
+    toSql() {
+      return this;
+    },
+
+    toString() {
+      const { values, text } = this.preparedQuery;
+
+      return `${text} - [${values.join(", ")}]`;
+    },
+  };
 }
 
 sql.raw = (value: string) => {
-  return new Sql([value], []);
+  return sql([value]);
 };
 sql.liter = (str: string) => {
   return sql.raw(strip(str));
@@ -203,8 +227,8 @@ sql.join = (
     );
   }
 
-  return new Sql(
+  return sql(
     [prefix, ...Array(values.length - 1).fill(separator), suffix],
-    values
+    ...values
   );
 };

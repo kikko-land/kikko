@@ -1,5 +1,5 @@
 import { IBaseToken } from "@trong-orm/query-builder/src/types";
-import { ISqlAdapter, Sql } from "@trong-orm/sql";
+import { ISqlAdapter } from "@trong-orm/sql";
 import { BehaviorSubject, Observable } from "rxjs";
 import { DeepReadonly } from "ts-essentials";
 
@@ -98,8 +98,4 @@ export interface ILocalDbState {
   };
   suppressLog?: boolean;
   queriesMiddlewares: IQueriesMiddleware[];
-}
-
-export interface IWithToSql {
-  toSql(): Sql;
 }

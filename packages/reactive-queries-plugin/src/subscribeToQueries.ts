@@ -1,4 +1,5 @@
-import { IDbState, IWithToSql } from "@trong-orm/core";
+import { IDbState } from "@trong-orm/core";
+import { ISqlAdapter } from "@trong-orm/sql";
 import { filter, Observable, switchMap, takeUntil } from "rxjs";
 
 import { IMessage } from "./getBroadcastCh";
@@ -6,7 +7,7 @@ import { getReactiveState } from "./utils";
 
 export const subscribeToQueries = (
   db: IDbState,
-  queries: IWithToSql[]
+  queries: ISqlAdapter[]
 ): Observable<unknown> => {
   const { eventsCh$ } = getReactiveState(db);
 

@@ -4,7 +4,7 @@ import {
   runQueries,
   runQuery,
 } from "@trong-orm/core";
-import { generateInsert, generateUpdate, Sql, sql } from "@trong-orm/sql";
+import { generateInsert, generateUpdate, ISql, sql } from "@trong-orm/sql";
 
 import {
   ICreateMiddleware,
@@ -19,7 +19,7 @@ import { chunk } from "./utils";
 const runQueriesInChunks = async <R extends Record<string, unknown>>(
   state: IDbState,
   objs: R[],
-  generateQuery: (chunkedObjs: R[]) => Sql
+  generateQuery: (chunkedObjs: R[]) => ISql
 ): Promise<R[]> => {
   // sqlite max vars = 32766
   // Let's take table avg columns count to 20, so 20 * 1000 will fit the restriction

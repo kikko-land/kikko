@@ -1,5 +1,5 @@
 import { IDbState } from "@trong-orm/core";
-import { Sql } from "@trong-orm/sql";
+import { ISql } from "@trong-orm/sql";
 
 import { IRecordConfig } from "./defineRecord";
 
@@ -10,8 +10,8 @@ export type ICreateRecordAction<Rec extends object & { id: string }> = {
 export type IUpdateRecordAction<Rec extends object & { id: string }> = {
   partialRecords: (Partial<Rec> & { id: string })[];
 };
-export type IDeleteRecordAction = { whereStatement: Sql };
-export type IGetAction = { query: Sql };
+export type IDeleteRecordAction = { whereStatement: ISql };
+export type IGetAction = { query: ISql };
 
 export type IRecAction<Rec extends object & { id: string }> =
   | ICreateRecordAction<Rec>

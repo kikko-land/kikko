@@ -1,4 +1,4 @@
-import { IDbState, IWithToSql, withSuppressedLog } from "@trong-orm/core";
+import { IDbState, withSuppressedLog } from "@trong-orm/core";
 import {
   DistributiveOmit,
   Falsy,
@@ -7,6 +7,7 @@ import {
 } from "@trong-orm/react-queries-hooks";
 import { subscribeToQueries } from "@trong-orm/reactive-queries-plugin";
 import { getRecords, IRecordConfig } from "@trong-orm/records";
+import { ISqlAdapter } from "@trong-orm/sql";
 import { useEffect, useMemo, useState } from "react";
 import { startWith, switchMap, takeUntil } from "rxjs";
 
@@ -16,7 +17,7 @@ const getRecords$ = <
 >(
   db: IDbState,
   recordConfig: IRecordConfig<Row, Rec>,
-  sql: IWithToSql
+  sql: ISqlAdapter
 ) => {
   return subscribeToQueries(db, [sql]).pipe(
     startWith(undefined),
@@ -30,7 +31,7 @@ export function useRecords<
   Rec extends object & { id: string }
 >(
   recordConfig: IRecordConfig<Row, Rec>,
-  _query: IWithToSql | Falsy,
+  _query: ISqlAdapter | Falsy,
   _opts?: { suppressLog?: boolean } | undefined
 ): IQueryResult<Rec> {
   const dbState = useDbState();
@@ -39,7 +40,7 @@ export function useRecords<
     suppressLog: _opts?.suppressLog !== undefined ? _opts.suppressLog : false,
   };
 
-  const [currentQuery, setCurrentQuery] = useState<IWithToSql | undefined>(
+  const [currentQuery, setCurrentQuery] = useState<ISqlAdapter | undefined>(
     _query || undefined
   );
   const [data, setData] = useState<Rec[] | undefined>();

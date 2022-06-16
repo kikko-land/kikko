@@ -1,4 +1,4 @@
-import { Sql } from "@trong-orm/sql";
+import { ISql } from "@trong-orm/sql";
 
 export enum TokenType {
   Binary = "Binary",
@@ -20,7 +20,7 @@ export enum TokenType {
 
 export interface IBaseToken<T extends TokenType = TokenType> {
   type: T;
-  toSql(): Sql;
+  toSql(): ISql;
 }
 
 export const isToken = (t: unknown): t is IBaseToken => {

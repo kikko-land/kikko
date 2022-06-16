@@ -1,4 +1,4 @@
-import { sql } from "./Sql";
+import { sql } from "./sql";
 
 export const generateInsert = (
   tableName: string,

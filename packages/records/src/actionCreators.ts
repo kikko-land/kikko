@@ -1,5 +1,5 @@
-import { IDbState, IWithToSql } from "@trong-orm/core";
-import { Sql, sql } from "@trong-orm/sql";
+import { IDbState } from "@trong-orm/core";
+import { ISql, ISqlAdapter, sql } from "@trong-orm/sql";
 
 import { IRecordConfig } from "./defineRecord";
 import { applyAction } from "./middlewares";
@@ -10,7 +10,7 @@ export const getRecords = async <
 >(
   db: IDbState,
   recordConfig: IRecordConfig<Row, Rec>,
-  sql: IWithToSql
+  sql: ISqlAdapter
 ) => {
   return (
     await applyAction(
@@ -70,7 +70,7 @@ export const deleteRecords = async <
 >(
   db: IDbState,
   recordConfig: IRecordConfig<Row, Rec>,
-  whereStatement: Sql
+  whereStatement: ISql
 ) => {
   return (
     await applyAction(

@@ -1,4 +1,4 @@
-import { Sql } from "@trong-orm/sql";
+import { ISql } from "@trong-orm/sql";
 
 import { IDbState, IQuery } from "./types";
 
@@ -12,6 +12,6 @@ export const assureDbIsRunning = (state: IDbState, toStart: () => string) => {
   }
 };
 
-export const unwrapQueries = (queries: Sql[]): IQuery[] => {
-  return queries.map((q) => ({ text: q.text, values: q.values }));
+export const unwrapQueries = (queries: ISql[]): IQuery[] => {
+  return queries.map((q) => q.preparedQuery);
 };

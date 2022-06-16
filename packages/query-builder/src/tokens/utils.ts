@@ -1,8 +1,8 @@
 import {
   IContainsTable,
   IPrimitiveValue,
+  ISql,
   ISqlAdapter,
-  Sql,
   sql,
 } from "@trong-orm/sql";
 
@@ -13,7 +13,7 @@ export const wrapParentheses = <
   T extends IBaseToken | ISqlAdapter | IPrimitiveValue | IContainsTable
 >(
   val: T
-): T | Sql =>
+): T | ISql =>
   (isBinaryOperator(val) && val.operator === "OR") ||
   (isToken(val) &&
     (val.type === TokenType.Select || val.type === TokenType.Values))

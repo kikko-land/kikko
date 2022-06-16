@@ -1,4 +1,4 @@
-import { ISqlAdapter, isSql, Sql, sql } from "@trong-orm/sql";
+import { ISql, ISqlAdapter, isSql, sql } from "@trong-orm/sql";
 
 import { IBaseToken, isToken, TokenType } from "../../types";
 import { alias } from "../alias";
@@ -115,10 +115,10 @@ export const select = (...selectArgs: ISelectArgType[]): ISelectStatement => {
     offset,
     withoutLimit,
     withoutOffset,
-    groupBy(...values: (IBaseToken | Sql)[]): ISelectStatement {
+    groupBy(...values: (IBaseToken | ISql)[]): ISelectStatement {
       return { ...this, groupByValues: values.map(toToken) };
     },
-    having(val: IBaseToken | Sql) {
+    having(val: IBaseToken | ISql) {
       return { ...this, havingValue: toToken(val) };
     },
     orderBy,

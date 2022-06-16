@@ -1,4 +1,4 @@
-import { Sql } from "@trong-orm/sql";
+import { ISql } from "@trong-orm/sql";
 import { nanoid } from "nanoid";
 import { BehaviorSubject, filter, firstValueFrom } from "rxjs";
 import { DeepReadonly } from "ts-essentials";
@@ -12,7 +12,7 @@ export type DistributiveOmit<
 
 export type IJob =
   | { type: "runTransaction"; id: string; transaction: ITransaction }
-  | { type: "runQueries"; queries: Sql[]; id: string }
+  | { type: "runQueries"; queries: ISql[]; id: string }
   | { type: "initDb"; name: string; id: string };
 
 export type IJobsState = DeepReadonly<{

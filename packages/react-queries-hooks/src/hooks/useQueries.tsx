@@ -1,12 +1,11 @@
 import {
-  IWithToSql,
   runInTransaction,
   runQueries,
   withSuppressedLog,
 } from "@trong-orm/core";
 import { IDbState } from "@trong-orm/core";
 import { subscribeToQueries } from "@trong-orm/reactive-queries-plugin";
-import { ISqlAdapter, Sql } from "@trong-orm/sql";
+import { ISqlAdapter } from "@trong-orm/sql";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Falsy, startWith, switchMap, takeUntil } from "rxjs";
 
@@ -21,7 +20,7 @@ import {
 
 function runQueries$<D extends Record<string, unknown>>(
   state: IDbState,
-  queries: IWithToSql[]
+  queries: ISqlAdapter[]
 ) {
   return subscribeToQueries(state, queries).pipe(
     startWith(undefined),
@@ -33,7 +32,7 @@ function runQueries$<D extends Record<string, unknown>>(
 }
 
 export function useQueries<D extends Record<string, unknown>>(
-  _queries: IWithToSql[] | Falsy,
+  _queries: ISqlAdapter[] | Falsy,
   _opts?: { suppressLog?: boolean; mapToObject?: boolean } | undefined
 ): IQueryResult<D[]> {
   const dbState = useDbState();
@@ -42,7 +41,7 @@ export function useQueries<D extends Record<string, unknown>>(
     suppressLog: _opts?.suppressLog !== undefined ? _opts.suppressLog : false,
   };
 
-  const [currentQueries, setCurrentQueries] = useState<IWithToSql[]>(
+  const [currentQueries, setCurrentQueries] = useState<ISqlAdapter[]>(
     _queries ? _queries : []
   );
   const [data, setData] = useState<D[][] | undefined>();
@@ -108,7 +107,7 @@ export function useQueries<D extends Record<string, unknown>>(
 }
 
 export function useQuery<D extends Record<string, unknown>>(
-  query: IWithToSql | Falsy,
+  query: ISqlAdapter | Falsy,
   _opts?: { suppressLog?: boolean; mapToObject?: boolean } | undefined
 ): IQueryResult<D> {
   const queries = useMemo(() => (query ? [query] : []), [query]);
@@ -134,7 +133,7 @@ export function useQuery<D extends Record<string, unknown>>(
 }
 
 export function useQueryFirstRow<D extends Record<string, unknown>>(
-  query: IWithToSql | Falsy,
+  query: ISqlAdapter | Falsy,
   _opts?: { suppressLog?: boolean; mapToObject?: boolean } | undefined
 ): ISingleQueryResult<D> {
   const res = useQuery<D>(query, _opts);

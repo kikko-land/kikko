@@ -1,3 +1,5 @@
+import { ISqlAdapter } from "@trong-orm/sql";
+
 import { acquireJob, IJob, releaseJob } from "./job";
 import {
   IDbState,
@@ -5,7 +7,6 @@ import {
   IQueriesMiddleware,
   IQueriesMiddlewareState,
   IQueryResult,
-  IWithToSql,
 } from "./types";
 import { assureDbIsRunning, unwrapQueries } from "./utils";
 
@@ -74,7 +75,7 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
     ).map((queriesResults, i) => {
       if (queriesResults.length > 1) {
         console.warn(
-          `Omitting query result of ${queries[i].toSql().sql}: ${JSON.stringify(
+          `Omitting query result of ${queries[i].toSql()}: ${JSON.stringify(
             queriesResults.slice(1)
           )}`
         );
@@ -93,7 +94,7 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
 
 export const runQueries = async <D extends Record<string, unknown>>(
   state: IDbState,
-  queries: IWithToSql[]
+  queries: ISqlAdapter[]
 ): Promise<D[][]> => {
   const middlewares: IQueriesMiddleware[] = [
     ...state.localState.queriesMiddlewares,
@@ -120,7 +121,7 @@ export const runQueries = async <D extends Record<string, unknown>>(
 
 export const runQuery = async <D extends Record<string, unknown>>(
   state: IDbState,
-  query: IWithToSql
+  query: ISqlAdapter
 ) => {
   return (await runQueries<D>(state, [query]))[0] || [];
 };
