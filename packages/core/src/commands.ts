@@ -1,4 +1,4 @@
-import { IPrimitiveValue, Sql } from "@trong-orm/sql";
+import { IPrimitiveValue, ISql } from "@trong-orm/sql";
 import { nanoid } from "nanoid";
 
 import { IDbState } from "./types";
@@ -40,7 +40,7 @@ export type ICommand =
 
 export const buildRunQueriesCommand = (
   state: IDbState,
-  queries: Sql[]
+  queries: ISql[]
 ): IExecQueriesCommand => {
   return {
     type: "runQueries",

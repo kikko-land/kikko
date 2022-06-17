@@ -1,5 +1,4 @@
 import { initAbsurdWebBackend } from "@trong-orm/absurd-web-backend";
-import DbWorker from "@trong-orm/absurd-web-backend/worker?worker";
 import { IInitDbClientConfig } from "@trong-orm/core";
 import { migrationPlugin } from "@trong-orm/migrations-plugin";
 import { DbProvider, EnsureDbLoaded } from "@trong-orm/react-queries-hooks";
@@ -13,7 +12,6 @@ import { createNotesTableMigration } from "./migrations/createNotesTable";
 const config: IInitDbClientConfig = {
   dbName: "helloWorld",
   dbBackend: initAbsurdWebBackend({
-    worker: () => new DbWorker(),
     wasmUrl: sqlWasmUrl,
   }),
   plugins: [

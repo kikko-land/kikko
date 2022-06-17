@@ -14,18 +14,11 @@ import {
 import { buildRunQueriesCommand } from "./commands";
 import { runWorkerCommand } from "./runWorkerCommand";
 import { IBackendState } from "./types";
+import DbWorker from "./worker/DB.worker?worker&inline";
 import { IInputWorkerMessage, IOutputWorkerMessage } from "./worker/types";
 
 export const initAbsurdWebBackend =
-  ({
-    worker,
-    wasmUrl,
-    queryTimeout,
-  }: {
-    worker: () => Worker;
-    wasmUrl: string;
-    queryTimeout?: number;
-  }) =>
+  ({ wasmUrl, queryTimeout }: { wasmUrl: string; queryTimeout?: number }) =>
   ({
     dbName,
     stopped$,
@@ -33,7 +26,7 @@ export const initAbsurdWebBackend =
     dbName: string;
     stopped$: Observable<void>;
   }): IDbBackend => {
-    const initializedWorker = worker();
+    const initializedWorker = new DbWorker();
     const messagesToWorker$ = new Subject<IInputWorkerMessage>();
     messagesToWorker$.pipe(takeUntil(stopped$)).subscribe((mes) => {
       initializedWorker.postMessage(mes);

@@ -6,13 +6,20 @@
   "private": true,
   "scripts": {
     "lint": "yarn workspaces run lint",
-    "check-typing": "yarn workspaces run check-typing"
+    "check-typing": "yarn workspaces run check-typing",
+    "postinstall": "patch-package"
   },
   "workspaces": [
     "packages/*"
   ],
   "dependencies": {},
   "devDependencies": {
+    "@rollup/plugin-typescript": "^8.3.3",
+    "patch-package": "^6.4.7",
+    "rollup": "^2.75.6",
+    "rollup-plugin-auto-external": "^2.0.0",
+    "rollup-plugin-copy": "^3.4.0",
+    "rollup-plugin-dts": "^4.2.2",
     "typescript": "^4.7.2"
   }
 }
