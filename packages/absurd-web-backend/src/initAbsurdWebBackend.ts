@@ -80,7 +80,7 @@ export const initAbsurdWebBackend =
         messagesToWorker$.next({
           type: "initialize",
           dbName: dbName,
-          wasmUrl: wasmUrl,
+          wasmUrl: new URL(wasmUrl, document.baseURI).toString(),
         });
 
         await initPromise;

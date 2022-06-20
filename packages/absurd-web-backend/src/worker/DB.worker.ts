@@ -1,11 +1,8 @@
-import { Subject } from "rxjs";
-
 import { DbBackend } from "./DbBackend";
 import { IInputWorkerMessage, IOutputWorkerMessage, IResponse } from "./types";
 
 // eslint-disable-next-line no-restricted-globals
 const ctx: Worker = self as unknown as Worker;
-const response$: Subject<IResponse> = new Subject();
 let db: DbBackend | undefined;
 
 ctx.addEventListener("message", async (event) => {
@@ -17,8 +14,6 @@ ctx.addEventListener("message", async (event) => {
     if (db) {
       // TODO: send error response
       throw new Error("DB already initialized!");
-
-      return;
     }
 
     db = new DbBackend(data.dbName, data.wasmUrl);
@@ -26,9 +21,6 @@ ctx.addEventListener("message", async (event) => {
     await db.init();
 
     postMessage({ type: "initialized" });
-    response$.subscribe((r) => {
-      postMessage({ type: "response", data: r });
-    });
   } else {
     if (!db) {
       postMessage({
@@ -58,7 +50,7 @@ ctx.addEventListener("message", async (event) => {
           commandId: data.data.commandId,
           status: "success",
           result: queriesResult,
-        },
+        } as IResponse,
       });
     } catch (e) {
       postMessage({
@@ -67,7 +59,7 @@ ctx.addEventListener("message", async (event) => {
           commandId: data.data.commandId,
           status: "error",
           message: e instanceof Error ? e.message : JSON.stringify(e),
-        },
+        } as IResponse,
       });
     }
   }
