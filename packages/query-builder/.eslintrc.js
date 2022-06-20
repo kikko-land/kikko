@@ -3,7 +3,7 @@ const rootDir = process.cwd().includes("packages/query-builder")
   : "./packages/query-builder";
 
 module.exports = {
-  extends: ["../common-scripts/eslintrc"],
+  extends: ["../common-scripts/eslintrc.cjs"],
   parserOptions: {
     ecmaFeatures: {
       jsx: true,

@@ -1,6 +1,6 @@
 {
   "name": "@trong-orm/migrations-plugin",
-  "version": "1.0.0",
+  "version": "1.0.7",
   "main": "./src/index.ts",
   "module": "./src/index.ts",
   "types": "./src/index.ts",
@@ -32,8 +32,8 @@
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
-    "@trong-orm/core": "^1.0.0",
-    "@trong-orm/sql": "^1.0.0"
+    "@trong-orm/core": "^1.0.7",
+    "@trong-orm/sql": "^1.0.7"
   },
   "devDependencies": {
     "@trong-orm/common-scripts": "*",

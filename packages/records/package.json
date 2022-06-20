@@ -1,6 +1,6 @@
 {
   "name": "@trong-orm/records",
-  "version": "1.0.0",
+  "version": "1.0.7",
   "author": "Sergey Popov",
   "license": "MIT",
   "main": "./src/index.ts",
@@ -32,8 +32,8 @@
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
-    "@trong-orm/core": "^1.0.1",
-    "@trong-orm/sql": "^1.0.1"
+    "@trong-orm/core": "^1.0.7",
+    "@trong-orm/sql": "^1.0.7"
   },
   "devDependencies": {
     "@trong-orm/common-scripts": "*",
