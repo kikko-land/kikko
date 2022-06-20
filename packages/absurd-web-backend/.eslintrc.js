@@ -3,7 +3,7 @@ const rootDir = process.cwd().includes("packages/absurd-web-backend")
   : "./packages/absurd-web-backend";
 
 module.exports = {
-  extends: ["../common-scripts/eslintrc"],
+  extends: ["../common-scripts/eslintrc.cjs"],
   parserOptions: {
     ecmaFeatures: {
       jsx: true,
