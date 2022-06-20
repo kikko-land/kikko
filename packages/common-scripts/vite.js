@@ -2,7 +2,9 @@ const path = require("path");
 const { defineConfig } = require("vite");
 const autoExternal = require("rollup-plugin-auto-external");
 
-exports.buildConfig = function (external = []) {
+exports.buildConfig = function (config) {
+  config = config || {};
+
   return defineConfig({
     build: {
       sourcemap: true,
@@ -17,8 +19,8 @@ exports.buildConfig = function (external = []) {
         output: {
           inlineDynamicImports: true,
         },
-        plugins: [autoExternal()],
-        external: external || [],
+        plugins: [...(config.disableAutoExternal ? [] : [autoExternal()])],
+        external: config.external || [],
       },
     },
   });

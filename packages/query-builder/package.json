@@ -1,16 +1,17 @@
 {
   "name": "@trong-orm/query-builder",
-  "version": "1.0.0",
-  "main": "src/index.ts",
+  "version": "1.0.1",
   "author": "Sergey Popov",
   "license": "MIT",
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "types": "./src/index.ts",
   "exports": {
     ".": {
       "types": "./src/index.ts",
       "import": "./src/index.ts"
     }
   },
-  "types": "./src/index.ts",
   "publishConfig": {
     "exports": {
       ".": {
@@ -20,7 +21,10 @@
         "import": "./dist/index.es.js",
         "default": "./dist/index.es.js"
       }
-    }
+    },
+    "main": "./dist/index.umd.js",
+    "module": "./dist/index.es.js",
+    "types": "./src/index.ts"
   },
   "scripts": {
     "compile": "yarn vite build",
@@ -28,9 +32,9 @@
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
-    "@trong-orm/sql": "^1.0.0"
+    "@trong-orm/sql": "^1.0.1"
   },
   "devDependencies": {
-    "@trong-orm/vite-lib-build-config": "*"
+    "@trong-orm/common-scripts": "*"
   }
 }

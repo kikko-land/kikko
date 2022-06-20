@@ -3,7 +3,7 @@ const rootDir = process.cwd().includes("packages/react-records-hooks")
   : "./packages/react-records-hooks";
 
 module.exports = {
-  extends: ["@trong-orm/eslint-config-trong"],
+  extends: ["../common-scripts/eslintrc"],
   parserOptions: {
     ecmaFeatures: {
       jsx: true,

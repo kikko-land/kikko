@@ -20,6 +20,8 @@ const config: IInitDbClientConfig = {
   ],
 };
 
+console.log(sqlWasmUrl);
+
 export const App = () => {
   return (
     <React.StrictMode>

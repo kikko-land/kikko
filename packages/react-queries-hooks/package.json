@@ -1,22 +1,46 @@
 {
   "name": "@trong-orm/react-queries-hooks",
   "version": "1.0.0",
-  "main": "src/index.ts",
   "author": "Sergey Popov",
   "license": "MIT",
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    }
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./src/index.ts",
+        "es2015": "./dist/index.es.js",
+        "require": "./dist/index.umd.js",
+        "import": "./dist/index.es.js",
+        "default": "./dist/index.es.js"
+      }
+    },
+    "main": "./dist/index.umd.js",
+    "module": "./dist/index.es.js",
+    "types": "./src/index.ts"
+  },
   "scripts": {
+    "compile": "yarn vite build",
     "lint": "eslint \"src/**/*.{tsx,ts}\"",
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
-    "@trong-orm/core": "*",
-    "@trong-orm/reactive-queries-plugin": "*",
-    "@trong-orm/sql": "*",
+    "@trong-orm/core": "^1.0.1",
+    "@trong-orm/reactive-queries-plugin": "^1.0.0",
+    "@trong-orm/sql": "^1.0.1",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
     "rxjs": "^7.5.5"
   },
   "devDependencies": {
+    "@trong-orm/common-scripts": "*",
     "@types/react": "^18.0.9",
     "@types/react-dom": "^18.0.5"
   }

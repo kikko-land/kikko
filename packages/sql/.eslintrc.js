@@ -3,7 +3,7 @@ const rootDir = process.cwd().includes("packages/sql")
   : "./packages/sql";
 
 module.exports = {
-  extends: ["@trong-orm/eslint-config-trong"],
+  extends: ["../common-scripts/eslintrc"],
   parserOptions: {
     ecmaFeatures: {
       jsx: true,

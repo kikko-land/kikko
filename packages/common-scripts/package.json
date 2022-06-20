@@ -1,5 +1,5 @@
 {
-  "name": "@trong-orm/eslint-config-trong",
+  "name": "@trong-orm/common-scripts",
   "version": "1.0.0",
   "author": "Sergey Popov",
   "license": "MIT",
@@ -38,6 +38,8 @@
     "eslint-plugin-react-hooks": "^4.5.0",
     "eslint-plugin-rxjs": "^5.0.2",
     "eslint-plugin-simple-import-sort": "^7.0.0",
-    "eslint-plugin-promise": "^6.0.0"
+    "eslint-plugin-promise": "^6.0.0",
+    "rollup-plugin-auto-external": "^2.0.0",
+    "vite": "^2.9.12"
   }
 }

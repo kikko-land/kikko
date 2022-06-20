@@ -3,7 +3,7 @@ const rootDir = process.cwd().includes("packages/core")
   : "./packages/core";
 
 module.exports = {
-  extends: ["@trong-orm/eslint-config-trong"],
+  extends: ["../common-scripts/eslintrc"],
   parserOptions: {
     ecmaFeatures: {
       jsx: true,

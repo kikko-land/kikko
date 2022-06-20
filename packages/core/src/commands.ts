@@ -44,7 +44,10 @@ export const buildRunQueriesCommand = (
 ): IExecQueriesCommand => {
   return {
     type: "runQueries",
-    queries: queries.map((q) => ({ values: q.values, text: q.text })),
+    queries: queries.map((q) => ({
+      values: q.preparedQuery.values,
+      text: q.preparedQuery.text,
+    })),
     spawnTransaction: false,
     commandId: nanoid(),
     suppressLog: state.localState.suppressLog,

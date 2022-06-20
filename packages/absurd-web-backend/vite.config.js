@@ -1,3 +1,3 @@
-const { buildConfig } = require("@trong-orm/vite-lib-build-config");
+const { buildConfig } = require("@trong-orm/common-scripts/vite");
 
-module.exports = buildConfig(["absurd-sql/dist/indexeddb-main-thread"]);
+module.exports = buildConfig({ disableAutoExternal: true });

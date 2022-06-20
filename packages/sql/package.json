@@ -1,15 +1,17 @@
 {
   "name": "@trong-orm/sql",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Sergey Popov",
   "license": "MIT",
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "types": "./src/index.ts",
   "exports": {
     ".": {
       "types": "./src/index.ts",
       "import": "./src/index.ts"
     }
   },
-  "types": "./src/index.ts",
   "publishConfig": {
     "exports": {
       ".": {
@@ -19,7 +21,10 @@
         "import": "./dist/index.es.js",
         "default": "./dist/index.es.js"
       }
-    }
+    },
+    "main": "./dist/index.umd.js",
+    "module": "./dist/index.es.js",
+    "types": "./src/index.ts"
   },
   "scripts": {
     "compile": "yarn vite build",
@@ -28,7 +33,6 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@trong-orm/vite-lib-build-config": "*",
-    "vite": "^2.9.12"
+    "@trong-orm/common-scripts": "*"
   }
 }

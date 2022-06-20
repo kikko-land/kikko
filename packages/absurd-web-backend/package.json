@@ -1,15 +1,17 @@
 {
   "name": "@trong-orm/absurd-web-backend",
-  "version": "1.0.1",
+  "version": "1.0.6",
   "author": "Sergey Popov",
   "license": "MIT",
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "types": "./src/index.ts",
   "exports": {
     ".": {
       "types": "./src/index.ts",
       "import": "./src/index.ts"
     }
   },
-  "types": "./src/index.ts",
   "publishConfig": {
     "exports": {
       ".": {
@@ -19,7 +21,10 @@
         "import": "./dist/index.es.js",
         "default": "./dist/index.es.js"
       }
-    }
+    },
+    "main": "./dist/index.umd.js",
+    "module": "./dist/index.es.js",
+    "types": "./src/index.ts"
   },
   "scripts": {
     "compile": "yarn vite build",
@@ -27,16 +32,15 @@
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
+    "absurd-sql": "^0.0.53",
     "@trong-orm/core": "^1.0.0",
     "@trong-orm/sql": "^1.0.0",
     "@trong-orm/sql.js": "^1.6.7",
-    "absurd-sql": "^0.0.53",
     "nanoid": "^3.3.4",
     "rxjs": "^7.5.5"
   },
   "devDependencies": {
-    "@trong-orm/vite-lib-build-config": "*",
-    "@trong-orm/eslint-config-trong": "*",
+    "@trong-orm/common-scripts": "*",
     "@types/emscripten": "^1.39.6",
     "ts-essentials": "^9.1.2"
   }
