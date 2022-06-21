@@ -14,6 +14,8 @@ TODO: paste screenshots
 
 The graphs are taken from [absurd-sql](https://github.com/jlongster/absurd-sql) repo.
 
+https://user-images.githubusercontent.com/7958527/174773307-9be37e1f-0700-45b4-8d25-aa2c83df6cec.mp4
+
 ## Installation for React
 
 ```
