@@ -1,4 +1,5 @@
 import { faker } from "@faker-js/faker";
+import { like$, select } from "@trong-orm/query-builder";
 import {
   createRecords,
   deleteAllRecords,
@@ -10,7 +11,6 @@ import {
   useRecords,
   useRunQuery,
 } from "@trong-orm/react";
-import { like$, select } from "@trong-orm/react/query-builder";
 import { nanoid } from "nanoid";
 import { useState } from "react";
 import Highlighter from "react-highlight-words";
