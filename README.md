@@ -2,6 +2,8 @@
 
 Trong ORM is a library for building reactive SQLite queries to run on any platforms. For the web apps it uses [absurd-sql](https://github.com/jlongster/absurd-sql), for electron/react-native/ionic — native sqlite calls. It supports React, Vue(WIP), Angular(WIP). It is actually framework/lib-agnostic, so you can integrate it to any framework/render libs.
 
+https://user-images.githubusercontent.com/7958527/174773307-9be37e1f-0700-45b4-8d25-aa2c83df6cec.mp4
+
 It provides out-of-the-box query builder(it is smart enough, we tried to build it to support all possible SQLite queries), but you can still use raw SQL queries (and it supports safe SQL statements, the syntax is almost the same as [sql-template-tag](https://github.com/blakeembrey/sql-template-tag) has).
 
 It also supply abstraction layer called `records`.
