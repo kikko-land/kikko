@@ -2,6 +2,8 @@
 
 Trong ORM is a JavaScript library for building reactive SQLite queries.
 
+https://user-images.githubusercontent.com/7958527/174773307-9be37e1f-0700-45b4-8d25-aa2c83df6cec.mp4
+
 ## Installation for React
 
 ```
