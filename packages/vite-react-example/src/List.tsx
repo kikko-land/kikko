@@ -1,17 +1,16 @@
-import "@trong-orm/query-builder";
-
 import { faker } from "@faker-js/faker";
-import { runAfterTransactionCommitted } from "@trong-orm/core";
-import { like$, select } from "@trong-orm/query-builder";
-import { useCacheQuery, useRunQuery } from "@trong-orm/react-queries-hooks";
-import { useRecords } from "@trong-orm/react-records-hooks";
 import {
   createRecords,
   deleteAllRecords,
   deleteRecordsByIds,
+  runAfterTransactionCommitted,
+  sql,
   updateRecords,
-} from "@trong-orm/records";
-import { sql } from "@trong-orm/sql";
+  useCacheQuery,
+  useRecords,
+  useRunQuery,
+} from "@trong-orm/react";
+import { like$, select } from "@trong-orm/react/query-builder";
 import { nanoid } from "nanoid";
 import { useState } from "react";
 import Highlighter from "react-highlight-words";

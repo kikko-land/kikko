@@ -1,6 +1,9 @@
-import { runAfterTransactionCommitted } from "@trong-orm/core";
-import { defineRecord, middlewaresSlice } from "@trong-orm/records";
-import { sql } from "@trong-orm/sql";
+import {
+  defineRecord,
+  middlewaresSlice,
+  runAfterTransactionCommitted,
+  sql,
+} from "@trong-orm/react";
 
 export interface INoteRow {
   id: string;

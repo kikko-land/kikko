@@ -21,29 +21,33 @@ const runOnDirs = async (
     console.log(
       `\nRunning "${command} ${args.join(" ")}" for ${path.basename(dir)}:`
     );
-    await new Promise<void>((resolve) => {
-      spawn(command, args, { cwd: dir, stdio: "inherit" }).on(
-        "exit",
-        async function (error) {
-          try {
+    if (beforeRun) {
+      await beforeRun(dir);
+    }
+
+    try {
+      await new Promise<void>((resolve) => {
+        spawn(command, args, { cwd: dir, stdio: "inherit" }).on(
+          "exit",
+          async function (error) {
             if (error) {
+              if (afterRun) {
+                await afterRun(dir);
+              }
+
               console.log(`Failed to run ${command} at ${dir}`);
               process.exit(1);
             }
 
-            if (beforeRun) {
-              await beforeRun(dir);
-            }
-
             resolve();
-          } finally {
-            if (afterRun) {
-              await afterRun(dir);
-            }
           }
-        }
-      );
-    });
+        );
+      });
+    } finally {
+      if (afterRun) {
+        await afterRun(dir);
+      }
+    }
   }
 };
 
@@ -151,7 +155,6 @@ const run = async () => {
     },
     async (dir) => {
       if (!existsSync(dir + "/package.json.backup")) return;
-
       await unlink(dir + "/package.json");
       await rename(dir + "/package.json.backup", dir + "/package.json");
     }

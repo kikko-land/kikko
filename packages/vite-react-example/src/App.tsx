@@ -1,8 +1,11 @@
-import { initAbsurdWebBackend } from "@trong-orm/absurd-web-backend";
-import { IInitDbClientConfig } from "@trong-orm/core";
-import { migrationPlugin } from "@trong-orm/migrations-plugin";
-import { DbProvider, EnsureDbLoaded } from "@trong-orm/react-queries-hooks";
-import { reactiveQueriesPlugin } from "@trong-orm/reactive-queries-plugin";
+import {
+  DbProvider,
+  EnsureDbLoaded,
+  IInitDbClientConfig,
+  initAbsurdWebBackend,
+  migrationPlugin,
+  reactiveQueriesPlugin,
+} from "@trong-orm/react";
 import sqlWasmUrl from "@trong-orm/sql.js/dist/sql-wasm.wasm?url";
 import React from "react";
 
@@ -19,8 +22,6 @@ const config: IInitDbClientConfig = {
     reactiveQueriesPlugin,
   ],
 };
-
-console.log(sqlWasmUrl);
 
 export const App = () => {
   return (

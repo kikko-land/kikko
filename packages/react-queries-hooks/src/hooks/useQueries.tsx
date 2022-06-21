@@ -12,8 +12,8 @@ import { Falsy, startWith, switchMap, takeUntil } from "rxjs";
 import { useDbState } from "../DbProvider";
 import {
   DistributiveOmit,
-  IQueryResult,
-  IQueryResultWithIdle,
+  IHookQueryResult,
+  IHookQueryResultWithIdle,
   ISingleQueryResult,
   ISingleQueryResultWithIdle,
 } from "./types";
@@ -34,7 +34,7 @@ function runQueries$<D extends Record<string, unknown>>(
 export function useQueries<D extends Record<string, unknown>>(
   _queries: ISqlAdapter[] | Falsy,
   _opts?: { suppressLog?: boolean; mapToObject?: boolean } | undefined
-): IQueryResult<D[]> {
+): IHookQueryResult<D[]> {
   const dbState = useDbState();
 
   const { suppressLog } = {
@@ -46,7 +46,7 @@ export function useQueries<D extends Record<string, unknown>>(
   );
   const [data, setData] = useState<D[][] | undefined>();
   const [response, setResponse] = useState<
-    DistributiveOmit<IQueryResult<D[][]>, "data">
+    DistributiveOmit<IHookQueryResult<D[][]>, "data">
   >(
     _queries
       ? dbState.type === "initialized"
@@ -109,7 +109,7 @@ export function useQueries<D extends Record<string, unknown>>(
 export function useQuery<D extends Record<string, unknown>>(
   query: ISqlAdapter | Falsy,
   _opts?: { suppressLog?: boolean; mapToObject?: boolean } | undefined
-): IQueryResult<D> {
+): IHookQueryResult<D> {
   const queries = useMemo(() => (query ? [query] : []), [query]);
 
   const result = useQueries<D>(queries, _opts);
@@ -185,7 +185,7 @@ export function useRunQuery<
 
   const [data, setData] = useState<R | undefined>();
   const [response, setResponse] = useState<
-    DistributiveOmit<IQueryResultWithIdle<D>, "data">
+    DistributiveOmit<IHookQueryResultWithIdle<D>, "data">
   >(dbState.type === "initialized" ? { type: "idle" } : { type: "waitingDb" });
 
   const toCall = useCallback(

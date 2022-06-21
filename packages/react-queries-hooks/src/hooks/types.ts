@@ -16,10 +16,10 @@ export type ISingleQueryResult<D> =
   | { type: "noSqlPresent"; data?: D };
 
 export type ISingleQueryResultWithIdle<D> =
-  | IQueryResult<D>
+  | IHookQueryResult<D>
   | { type: "idle"; data?: D };
 
-export type IQueryResult<D> =
+export type IHookQueryResult<D> =
   | {
       type: "loading";
       data: D[];
@@ -31,8 +31,8 @@ export type IQueryResult<D> =
   | { type: "loaded"; data: D[] }
   | { type: "noSqlPresent"; data: D[] };
 
-export type IQueryResultWithIdle<D> =
-  | IQueryResult<D>
+export type IHookQueryResultWithIdle<D> =
+  | IHookQueryResult<D>
   | { type: "idle"; data: D[] };
 
 export type Falsy = false | 0 | "" | null | undefined;

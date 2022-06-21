@@ -1,6 +1,6 @@
 {
   "name": "@trong-orm/reactive-queries-plugin",
-  "version": "1.0.10",
+  "version": "1.0.12",
   "author": "Sergey Popov",
   "license": "MIT",
   "main": "./src/index.ts",
@@ -32,9 +32,9 @@
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
-    "@trong-orm/core": "^1.0.10",
-    "@trong-orm/sql": "^1.0.10",
-    "@trong-orm/query-builder": "^1.0.10",
+    "@trong-orm/core": "^1.0.12",
+    "@trong-orm/sql": "^1.0.12",
+    "@trong-orm/query-builder": "^1.0.12",
     "broadcast-channel": "^4.12.0",
     "rxjs": "^7.5.5"
   },

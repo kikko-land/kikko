@@ -2,7 +2,7 @@ import { IDbState, withSuppressedLog } from "@trong-orm/core";
 import {
   DistributiveOmit,
   Falsy,
-  IQueryResult,
+  IHookQueryResult,
   useDbState,
 } from "@trong-orm/react-queries-hooks";
 import { subscribeToQueries } from "@trong-orm/reactive-queries-plugin";
@@ -33,7 +33,7 @@ export function useRecords<
   recordConfig: IRecordConfig<Row, Rec>,
   _query: ISqlAdapter | Falsy,
   _opts?: { suppressLog?: boolean } | undefined
-): IQueryResult<Rec> {
+): IHookQueryResult<Rec> {
   const dbState = useDbState();
 
   const { suppressLog } = {
@@ -45,7 +45,7 @@ export function useRecords<
   );
   const [data, setData] = useState<Rec[] | undefined>();
   const [response, setResponse] = useState<
-    DistributiveOmit<IQueryResult<Rec[]>, "data">
+    DistributiveOmit<IHookQueryResult<Rec[]>, "data">
   >(
     _query
       ? dbState.type === "initialized"

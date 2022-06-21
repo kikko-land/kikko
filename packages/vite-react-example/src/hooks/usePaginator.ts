@@ -1,6 +1,5 @@
-import { ISelectStatement, select } from "@trong-orm/query-builder";
-import { useQueryFirstRow } from "@trong-orm/react-queries-hooks";
-import { sql } from "@trong-orm/sql";
+import { sql, useQueryFirstRow } from "@trong-orm/react";
+import { ISelectStatement, select } from "@trong-orm/react/query-builder";
 import { useCallback, useEffect, useState } from "react";
 
 export const usePaginator = ({
