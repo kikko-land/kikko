@@ -1,11 +1,16 @@
-# Trong ORM
+<p align="center">
+  <h1 align="center">Trong ORM</h1>
+</p>
 
-[Read Doc](https://iridescent-torrone-b3fd85.netlify.app/)
+<p align="center">
+  <i>Build reactive interfaces on top of SQLite for any platform with any framework/lib.</i>
+</p>
 
-Build reactive interfaces on top of SQLite for any platform with any framework/lib.
+> ### Full documentation can be found on [the site](https://iridescent-torrone-b3fd85.netlify.app/)
 
-Trong ORM is a library to run reactive SQLite queries on any platforms. For the web apps it uses [absurd-sql](https://github.com/jlongster/absurd-sql), for electron/react-native/ionic — native sqlite calls(WIP). It supports React, Vue(WIP), Angular(WIP). It is actually framework/lib-agnostic, so you can integrate it to any framework/render libs you want.
+## Introduction
 
+Trong ORM allows you to run reactive SQLite queries on any platforms with any framework/lib. For the web apps it uses [absurd-sql](https://github.com/jlongster/absurd-sql), for electron/react-native/ionic — native sqlite calls(WIP). It supports React, Vue(WIP), Angular(WIP). It is actually framework/lib-agnostic, so you can integrate it to any framework/render libs you want.
 
 It provides out-of-the-box query builder, and we tried to build it to support all possible SQLite queries could be. But you can still use raw SQL queries, the syntax is almost the same as [sql-template-tag](https://github.com/blakeembrey/sql-template-tag) has, and they will be reactive.
 
