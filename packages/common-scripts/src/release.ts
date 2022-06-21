@@ -1,31 +1,51 @@
-import { readFile, writeFile, readdir } from "fs/promises";
+import { readFile, writeFile, readdir, unlink, rename } from "fs/promises";
+import { existsSync } from "fs";
 import { resolve } from "path";
 import { cwd } from "process";
-import { spawn } from "child_process";
+import { PackageJson } from "type-fest";
 import path from "path";
 import inquirer from "inquirer";
 
 const semverRegex =
   /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/;
 
-const runOnDirs = async (dirs: string[], command: string, args: string[]) => {
+const runOnDirs = async (
+  dirs: string[],
+  command: string,
+  args: string[],
+  beforeRun?: (dir: string) => Promise<void>,
+  afterRun?: (dir: string) => Promise<void>
+) => {
   for (const dir of dirs) {
     console.log(
       `\nRunning "${command} ${args.join(" ")}" for ${path.basename(dir)}:`
     );
-    await new Promise<void>((resolve) => {
-      spawn(command, args, { cwd: dir, stdio: "inherit" }).on(
-        "exit",
-        function (error) {
-          if (error) {
-            console.log(`Failed to run ${command} at ${dir}`);
-            process.exit(1);
-          }
+    try {
+      if (beforeRun) {
+        await beforeRun(dir);
+      }
+    } finally {
+      if (afterRun) {
+        await afterRun(dir);
+      }
+    }
+    // await new Promise<void>((resolve) => {
+    //   spawn(command, args, { cwd: dir, stdio: "inherit" }).on(
+    //     "exit",
+    //     async function (error) {
+    //       if (error) {
+    //         console.log(`Failed to run ${command} at ${dir}`);
+    //         process.exit(1);
+    //       }
 
-          resolve();
-        }
-      );
-    });
+    //       if (beforeRun) {
+    //         await beforeRun(dir);
+    //       }
+
+    //       resolve();
+    //     }
+    //   );
+    // });
   }
 };
 
@@ -69,9 +89,16 @@ const run = async () => {
 
   const updateJson = async (
     file: string,
-    cb: (arg: Record<string, unknown>) => Record<string, unknown>
+    cb: (arg: PackageJson) => PackageJson,
+    backup = false
   ) => {
-    const packageContent = JSON.parse((await readFile(file)).toString());
+    const content = (await readFile(file)).toString();
+
+    if (backup) {
+      await writeFile(file + ".backup", content);
+    }
+
+    const packageContent = JSON.parse(content);
 
     await writeFile(file, JSON.stringify(cb(packageContent), undefined, 2));
   };
@@ -96,22 +123,40 @@ const run = async () => {
     };
   });
 
-  await runOnDirs(
-    packages.map(({ dir }) => dir),
-    "yarn",
-    ["check-typing"]
-  );
+  // await runOnDirs(
+  //   packages.map(({ dir }) => dir),
+  //   "yarn",
+  //   ["check-typing"]
+  // );
+
+  // await runOnDirs(
+  //   packages.map(({ dir }) => dir),
+  //   "yarn",
+  //   ["compile"]
+  // );
 
   await runOnDirs(
     packages.map(({ dir }) => dir),
     "yarn",
-    ["compile"]
-  );
+    ["publish", "--non-interactive"],
+    async (dir) => {
+      await updateJson(
+        dir + "/package.json",
+        (json) => {
+          return {
+            ...json,
+            ...json["publishConfig"],
+          };
+        },
+        true
+      );
+    },
+    async (dir) => {
+      if (!existsSync(dir + "/package.json.backup")) return;
 
-  await runOnDirs(
-    packages.map(({ dir }) => dir),
-    "yarn",
-    ["publish", "--non-interactive"]
+      await unlink(dir + "/package.json");
+      await rename(dir + "/package.json.backup", dir + "/package.json");
+    }
   );
 };
 
