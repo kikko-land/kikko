@@ -8,7 +8,7 @@ const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 const config = {
   title: "Trong ORM",
   tagline: "Trong ORM",
-  url: "https://trong-orm.netlify.app",
+  url: "https://iridescent-torrone-b3fd85.netlify.app",
   baseUrl: "/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
