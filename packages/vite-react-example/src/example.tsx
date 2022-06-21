@@ -1,24 +1,3 @@
-# Trong
-
-Trong ORM is a JavaScript library for building reactive SQLite queries.
-
-## Installation for React
-
-```
-yarn add @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js
-```
-
-Or
-
-```
-npm i -S @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js
-```
-
-## Code example with React
-
-Searching text:
-
-```typescript
 import { like$, select } from "@trong-orm/query-builder";
 import { sql, table, useQuery, useQueryFirstRow } from "@trong-orm/react";
 import { useState } from "react";
@@ -67,12 +46,3 @@ export const List = () => {
     </>
   );
 };
-```
-
-## Usage example repositories
-
-With CRA:
-https://github.com/trong-orm/trong-cra-example
-
-With Vite + React:
-https://github.com/trong-orm/trong-orm/tree/main/packages/vite-react-examples
