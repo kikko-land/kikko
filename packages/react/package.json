@@ -1,12 +1,17 @@
 {
   "name": "@trong-orm/react",
-  "version": "1.0.15",
+  "version": "1.0.17",
   "author": "Sergey Popov",
   "license": "MIT",
   "main": "./src/index.ts",
   "module": "./src/index.ts",
   "types": "./src/index.ts",
   "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
     "./query-builder": {
       "types": "./src/query-builder.ts",
       "import": "./src/query-builder.ts",
@@ -15,6 +20,9 @@
   },
   "typesVersions": {
     "*": {
+      ".": [
+        "./src/index.ts"
+      ],
       "query-builder": [
         "./src/query-builder.ts"
       ]
@@ -22,6 +30,13 @@
   },
   "publishConfig": {
     "exports": {
+      ".": {
+        "types": "./src/index.ts",
+        "es2015": "./dist/index.es.js",
+        "require": "./dist/index.umd.js",
+        "import": "./dist/index.es.js",
+        "default": "./dist/index.es.js"
+      },
       "./query-builder": {
         "types": "./src/query-builder.ts",
         "es2015": "./dist/query-builder.es.js",
@@ -29,10 +44,7 @@
         "import": "./dist/query-builder.es.js",
         "default": "./dist/query-builder.es.js"
       }
-    },
-    "main": "./dist/index.umd.js",
-    "module": "./dist/index.es.js",
-    "types": "./src/index.ts"
+    }
   },
   "scripts": {
     "compile": "yarn vite build",
@@ -40,15 +52,15 @@
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
-    "@trong-orm/absurd-web-backend": "^1.0.15",
-    "@trong-orm/core": "^1.0.15",
-    "@trong-orm/migrations-plugin": "^1.0.15",
-    "@trong-orm/query-builder": "^1.0.15",
-    "@trong-orm/react-queries-hooks": "^1.0.15",
-    "@trong-orm/react-records-hooks": "^1.0.15",
-    "@trong-orm/reactive-queries-plugin": "^1.0.15",
-    "@trong-orm/records": "^1.0.15",
-    "@trong-orm/sql": "^1.0.15"
+    "@trong-orm/absurd-web-backend": "^1.0.17",
+    "@trong-orm/core": "^1.0.17",
+    "@trong-orm/migrations-plugin": "^1.0.17",
+    "@trong-orm/query-builder": "^1.0.17",
+    "@trong-orm/react-queries-hooks": "^1.0.17",
+    "@trong-orm/react-records-hooks": "^1.0.17",
+    "@trong-orm/reactive-queries-plugin": "^1.0.17",
+    "@trong-orm/records": "^1.0.17",
+    "@trong-orm/sql": "^1.0.17"
   },
   "devDependencies": {
     "@trong-orm/common-scripts": "*"

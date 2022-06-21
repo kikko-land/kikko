@@ -1,6 +1,6 @@
 {
   "name": "@trong-orm/core",
-  "version": "1.0.15",
+  "version": "1.0.17",
   "author": "Sergey Popov",
   "license": "MIT",
   "main": "./src/index.ts",
@@ -29,17 +29,17 @@
   "scripts": {
     "compile": "yarn vite build",
     "lint": "eslint \"src/**/*.{tsx,ts}\"",
-    "check-typing": "tsc --noEmit"
+    "check-typing": "tsc --noEmit",
+    "ts-essentials": "^9.1.2"
   },
   "dependencies": {
-    "@trong-orm/query-builder": "^1.0.15",
-    "@trong-orm/sql": "^1.0.15",
+    "@trong-orm/query-builder": "^1.0.17",
+    "@trong-orm/sql": "^1.0.17",
     "nanoid": "^3.3.4",
     "rxjs": "^7.5.5"
   },
   "devDependencies": {
     "@trong-orm/common-scripts": "*",
-    "@types/emscripten": "^1.39.6",
-    "ts-essentials": "^9.1.2"
+    "@types/emscripten": "^1.39.6"
   }
 }

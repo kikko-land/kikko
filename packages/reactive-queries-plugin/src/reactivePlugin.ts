@@ -73,7 +73,7 @@ export const reactiveQueriesPlugin: IDbClientPlugin = (db) => {
     }
 
     void notifyTablesContentChanged(db, [
-      ...transactionTables[transaction.id].writeTables,
+      ...Array.from(transactionTables[transaction.id].writeTables),
     ]);
 
     delete transactionTables[transaction.id];

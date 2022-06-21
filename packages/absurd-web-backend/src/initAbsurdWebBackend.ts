@@ -14,6 +14,8 @@ import {
 import { buildRunQueriesCommand } from "./commands";
 import { runWorkerCommand } from "./runWorkerCommand";
 import { IBackendState } from "./types";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import DbWorker from "./worker/DB.worker?worker&inline";
 import { IInputWorkerMessage, IOutputWorkerMessage } from "./worker/types";
 
