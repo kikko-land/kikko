@@ -3,6 +3,7 @@ import { existsSync } from "fs";
 import { resolve } from "path";
 import { cwd } from "process";
 import { PackageJson } from "type-fest";
+import { spawn } from "child_process";
 import path from "path";
 import inquirer from "inquirer";
 
@@ -20,32 +21,29 @@ const runOnDirs = async (
     console.log(
       `\nRunning "${command} ${args.join(" ")}" for ${path.basename(dir)}:`
     );
-    try {
-      if (beforeRun) {
-        await beforeRun(dir);
-      }
-    } finally {
-      if (afterRun) {
-        await afterRun(dir);
-      }
-    }
-    // await new Promise<void>((resolve) => {
-    //   spawn(command, args, { cwd: dir, stdio: "inherit" }).on(
-    //     "exit",
-    //     async function (error) {
-    //       if (error) {
-    //         console.log(`Failed to run ${command} at ${dir}`);
-    //         process.exit(1);
-    //       }
+    await new Promise<void>((resolve) => {
+      spawn(command, args, { cwd: dir, stdio: "inherit" }).on(
+        "exit",
+        async function (error) {
+          try {
+            if (error) {
+              console.log(`Failed to run ${command} at ${dir}`);
+              process.exit(1);
+            }
 
-    //       if (beforeRun) {
-    //         await beforeRun(dir);
-    //       }
+            if (beforeRun) {
+              await beforeRun(dir);
+            }
 
-    //       resolve();
-    //     }
-    //   );
-    // });
+            resolve();
+          } finally {
+            if (afterRun) {
+              await afterRun(dir);
+            }
+          }
+        }
+      );
+    });
   }
 };
 
@@ -123,17 +121,17 @@ const run = async () => {
     };
   });
 
-  // await runOnDirs(
-  //   packages.map(({ dir }) => dir),
-  //   "yarn",
-  //   ["check-typing"]
-  // );
+  await runOnDirs(
+    packages.map(({ dir }) => dir),
+    "yarn",
+    ["check-typing"]
+  );
 
-  // await runOnDirs(
-  //   packages.map(({ dir }) => dir),
-  //   "yarn",
-  //   ["compile"]
-  // );
+  await runOnDirs(
+    packages.map(({ dir }) => dir),
+    "yarn",
+    ["compile"]
+  );
 
   await runOnDirs(
     packages.map(({ dir }) => dir),
