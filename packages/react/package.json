@@ -1,6 +1,6 @@
 {
   "name": "@trong-orm/react",
-  "version": "1.0.22",
+  "version": "1.0.24",
   "author": "Sergey Popov",
   "license": "MIT",
   "main": "./src/index.ts",
@@ -8,16 +8,9 @@
   "types": "./src/index.ts",
   "exports": {
     ".": {
-      "types": "./dist/react/src/index.d.ts",
+      "types": "./src/index.ts",
       "import": "./src/index.ts",
       "default": "./src/index.ts"
-    }
-  },
-  "typesVersions": {
-    "*": {
-      ".": [
-        "./src/index.ts"
-      ]
     }
   },
   "publishConfig": {
@@ -29,7 +22,10 @@
         "import": "./dist/index.es.js",
         "default": "./dist/index.es.js"
       }
-    }
+    },
+    "main": "./dist/index.umd.js",
+    "module": "./dist/index.es.js",
+    "types": "./dist/react/src/index.d.ts"
   },
   "scripts": {
     "compile": "yarn vite build",
@@ -37,15 +33,15 @@
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
-    "@trong-orm/absurd-web-backend": "^1.0.22",
-    "@trong-orm/core": "^1.0.22",
-    "@trong-orm/migrations-plugin": "^1.0.22",
-    "@trong-orm/query-builder": "^1.0.22",
-    "@trong-orm/react-queries-hooks": "^1.0.22",
-    "@trong-orm/react-records-hooks": "^1.0.22",
-    "@trong-orm/reactive-queries-plugin": "^1.0.22",
-    "@trong-orm/records": "^1.0.22",
-    "@trong-orm/sql": "^1.0.22"
+    "@trong-orm/absurd-web-backend": "^1.0.24",
+    "@trong-orm/core": "^1.0.24",
+    "@trong-orm/migrations-plugin": "^1.0.24",
+    "@trong-orm/query-builder": "^1.0.24",
+    "@trong-orm/react-queries-hooks": "^1.0.24",
+    "@trong-orm/react-records-hooks": "^1.0.24",
+    "@trong-orm/reactive-queries-plugin": "^1.0.24",
+    "@trong-orm/records": "^1.0.24",
+    "@trong-orm/sql": "^1.0.24"
   },
   "devDependencies": {
     "@trong-orm/common-scripts": "*"
