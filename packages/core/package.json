@@ -1,6 +1,6 @@
 {
   "name": "@trong-orm/core",
-  "version": "1.0.21",
+  "version": "1.0.22",
   "author": "Sergey Popov",
   "license": "MIT",
   "main": "./src/index.ts",
@@ -32,8 +32,8 @@
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
-    "@trong-orm/query-builder": "^1.0.21",
-    "@trong-orm/sql": "^1.0.21",
+    "@trong-orm/query-builder": "^1.0.22",
+    "@trong-orm/sql": "^1.0.22",
     "nanoid": "^3.3.4",
     "rxjs": "^7.5.5",
     "ts-essentials": "^9.1.2"
