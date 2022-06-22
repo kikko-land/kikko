@@ -6,7 +6,7 @@
   <i>Build reactive interfaces on top of SQLite for any platform with any framework/lib.</i>
 </p>
 
-> ### Full documentation can be found on [the site](https://iridescent-torrone-b3fd85.netlify.app/)
+> ### Full documentation can be found on [the site](https://trong-orm.netlify.app/)
 
 ## Introduction
 
