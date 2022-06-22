@@ -1,6 +1,6 @@
 {
   "name": "@trong-orm/react",
-  "version": "1.0.24",
+  "version": "1.0.25",
   "author": "Sergey Popov",
   "license": "MIT",
   "main": "./src/index.ts",
@@ -33,15 +33,15 @@
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
-    "@trong-orm/absurd-web-backend": "^1.0.24",
-    "@trong-orm/core": "^1.0.24",
-    "@trong-orm/migrations-plugin": "^1.0.24",
-    "@trong-orm/query-builder": "^1.0.24",
-    "@trong-orm/react-queries-hooks": "^1.0.24",
-    "@trong-orm/react-records-hooks": "^1.0.24",
-    "@trong-orm/reactive-queries-plugin": "^1.0.24",
-    "@trong-orm/records": "^1.0.24",
-    "@trong-orm/sql": "^1.0.24"
+    "@trong-orm/absurd-web-backend": "^1.0.25",
+    "@trong-orm/core": "^1.0.25",
+    "@trong-orm/migrations-plugin": "^1.0.25",
+    "@trong-orm/query-builder": "^1.0.25",
+    "@trong-orm/react-queries-hooks": "^1.0.25",
+    "@trong-orm/react-records-hooks": "^1.0.25",
+    "@trong-orm/reactive-queries-plugin": "^1.0.25",
+    "@trong-orm/records": "^1.0.25",
+    "@trong-orm/sql": "^1.0.25"
   },
   "devDependencies": {
     "@trong-orm/common-scripts": "*"
