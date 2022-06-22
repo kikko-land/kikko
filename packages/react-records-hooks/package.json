@@ -37,11 +37,11 @@
     "@trong-orm/react-queries-hooks": "^1.0.22",
     "@trong-orm/records": "^1.0.22",
     "@trong-orm/sql": "^1.0.22",
-    "react": "^18.1.0",
+    "react": "^18.2.0",
     "rxjs": "^7.5.5"
   },
   "devDependencies": {
     "@trong-orm/common-scripts": "*",
-    "@types/react": "^18.0.9"
+    "@types/react": "^18.0.14"
   }
 }
