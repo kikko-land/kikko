@@ -40,11 +40,11 @@ export const asc = (
   val: IBaseToken | ISqlAdapter | string,
   nullOrder: "NULLS FIRST" | "NULLS LAST" = "NULLS FIRST"
 ) => {
-  return sql`${val} DESC ${nullOrder}`;
+  return orderTerm("ASC", val, nullOrder);
 };
 
 export interface IOrderState {
-  orderByValue?: IOrderTerm;
+  orderByValues: IOrderTerm[];
 
   orderBy: typeof orderBy;
   withoutOrder: typeof withoutOrder;
@@ -52,11 +52,11 @@ export interface IOrderState {
 
 export function orderBy<T extends IOrderState>(
   this: T,
-  orderTerm: IOrderTerm
+  ...orderTerm: IOrderTerm[]
 ): T {
   return {
     ...this,
-    orderByValue: orderTerm,
+    orderByValues: [...this.orderByValues, ...orderTerm],
   };
 }
 

@@ -12,7 +12,7 @@ export interface IFromState {
 
 export function from<T extends IFromState>(
   this: T,
-  ...values: (IBaseToken | ISqlAdapter | IContainsTable)[]
+  ...values: (IBaseToken | ISqlAdapter | IContainsTable | string)[]
 ) {
   return {
     ...this,

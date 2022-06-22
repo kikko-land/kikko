@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "@types/inquirer": "^8.2.1",
-    "type-fest": "^2.13.1"
+    "type-fest": "^2.13.1",
+    "vite-plugin-dts": "^1.2.0"
   }
 }

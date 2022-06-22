@@ -95,6 +95,7 @@ export const select = (...selectArgs: ISelectArgType[]): ISelectStatement => {
     distinctValue: false,
     groupByValues: [],
     compoundValues: [],
+    orderByValues: [],
     limitOffsetValue: buildInitialLimitOffsetState(),
     select(...selectArgs: ISelectArgType[]) {
       return {
@@ -164,7 +165,7 @@ export const select = (...selectArgs: ISelectArgType[]): ISelectStatement => {
           this.compoundValues.length > 0
             ? sql.join(this.compoundValues, " ")
             : null,
-          this.orderByValue ? this.orderByValue : null,
+          this.orderByValues ? sql.join(this.orderByValues) : null,
           this.limitOffsetValue.toSql().isEmpty ? null : this.limitOffsetValue,
         ].filter((v) => v),
         " "

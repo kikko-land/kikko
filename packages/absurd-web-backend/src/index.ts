@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference
-/// <reference path="../types/sqljs.d.ts" />
+/// <reference path="./sqljs.d.ts" />
 export * from "./commands";
 export * from "./initAbsurdWebBackend";
 export * from "./runWorkerCommand";

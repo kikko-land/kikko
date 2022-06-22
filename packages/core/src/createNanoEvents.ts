@@ -37,4 +37,6 @@ export function createNanoEvents<Events extends EventsMap<keyof Events>>() {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export type INanoEmitter<T extends EventsMap<keyof T>> = ReturnType<typeof createNanoEvents<T>>;
+export type INanoEmitter<T extends EventsMap<keyof T>> = ReturnType<
+  typeof createNanoEvents
+>;

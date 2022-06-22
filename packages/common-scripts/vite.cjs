@@ -1,6 +1,7 @@
 const path = require("path");
 const { defineConfig } = require("vite");
 const autoExternal = require("rollup-plugin-auto-external");
+const dts = require("vite-plugin-dts");
 
 exports.buildConfig = function (config) {
   config = config || {};
@@ -23,5 +24,6 @@ exports.buildConfig = function (config) {
         external: config.external || [],
       },
     },
+    plugins: [dts()],
   });
 };

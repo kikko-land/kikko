@@ -58,7 +58,7 @@ const config = {
         title: "Trong ORM Doc",
         items: [
           {
-            href: "https://github.com/facebook/docusaurus",
+            href: "https://github.com/trong-orm/trong-orm",
             label: "GitHub",
             position: "right",
           },

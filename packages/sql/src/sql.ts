@@ -210,6 +210,7 @@ sql.liter = (str: string) => {
   return sql.raw(strip(str));
 };
 sql.table = table;
+sql.isTable = isTable;
 sql.empty = sql.raw("");
 sql.join = (
   values: IRawValue[],
