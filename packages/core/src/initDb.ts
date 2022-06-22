@@ -2,7 +2,6 @@ import { nanoid } from "nanoid";
 import {
   BehaviorSubject,
   filter,
-  finalize,
   firstValueFrom,
   map,
   Observable,
@@ -96,10 +95,11 @@ export const initDbClient = async ({
 
       return currentState;
     }),
-    finalize(() => {
+    switchMap(async (currentState) => {
       releaseJob(jobsState$, job);
 
-      state.sharedState.eventsEmitter.emit("initialized", state);
+      await state.sharedState.eventsEmitter.emit("initialized", state);
+      return currentState;
     })
   );
 
@@ -119,9 +119,7 @@ export const stopDb = async (state: IDbState) => {
 
   await whenAllJobsDone(state.sharedState.jobsState$);
 
-  setTimeout(() => {
-    console.log("stopped db");
-  }, 0);
+  console.log("stopped db");
 
   state.sharedState.runningState$.next("stopped");
 };

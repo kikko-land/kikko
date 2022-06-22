@@ -1,4 +1,5 @@
 import {
+  EmptyError,
   filter,
   firstValueFrom,
   map,
@@ -13,7 +14,7 @@ import {
 import { ICommand } from "./commands";
 import { IBackendState } from "./types";
 
-export const runWorkerCommand = (
+export const runWorkerCommand = async (
   backendState: IBackendState,
   command: ICommand
 ) => {
@@ -59,5 +60,19 @@ export const runWorkerCommand = (
     data: command,
   });
 
-  return waitResponse;
+  try {
+    return await waitResponse;
+  } catch (e) {
+    if (e instanceof EmptyError) {
+      throw new Error(
+        `Failed to run command, usually it means DB is already stopped. Command:\n${JSON.stringify(
+          command,
+          undefined,
+          2
+        )}`
+      );
+    }
+
+    throw e;
+  }
 };
