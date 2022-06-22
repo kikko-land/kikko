@@ -20,11 +20,14 @@ const orderTerm = (
     val: typeof val === "string" ? val : toToken(val),
     nullOrder,
     toSql() {
-      return sql`ORDER BY ${
-        typeof this.val === "string" ? sql.liter(this.val) : this.val
-      } ${sql.raw(this.orderType)}${
-        nullOrder ? sql.raw(nullOrder) : sql.empty
-      }`;
+      return sql.join(
+        [
+          typeof this.val === "string" ? sql.liter(this.val) : this.val,
+          sql.raw(this.orderType),
+          nullOrder ? sql.raw(nullOrder) : sql.empty,
+        ],
+        " "
+      );
     },
   };
 };
@@ -38,7 +41,7 @@ export const desc = (
 
 export const asc = (
   val: IBaseToken | ISqlAdapter | string,
-  nullOrder: "NULLS FIRST" | "NULLS LAST" = "NULLS FIRST"
+  nullOrder?: "NULLS FIRST" | "NULLS LAST"
 ) => {
   return orderTerm("ASC", val, nullOrder);
 };

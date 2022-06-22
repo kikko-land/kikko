@@ -65,7 +65,9 @@ export const values = (
           this.compoundValues.length > 0
             ? sql.join(this.compoundValues, " ")
             : null,
-          this.orderByValues ? sql.join(this.orderByValues) : null,
+          this.orderByValues.length > 0
+            ? sql.join([sql`ORDER BY`, sql.join(this.orderByValues)], " ")
+            : null,
           this.limitOffsetValue.toSql().isEmpty ? null : this.limitOffsetValue,
         ].filter((v) => v),
         " "

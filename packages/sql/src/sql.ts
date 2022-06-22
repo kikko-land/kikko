@@ -49,6 +49,7 @@ export interface ISql extends ISqlAdapter {
   get isModifyQuery(): boolean;
   get isReadQuery(): boolean;
   get isEmpty(): boolean;
+  get raw(): string;
 
   get hash(): string;
 
@@ -165,6 +166,21 @@ export function sql(
       }
 
       return this._hash;
+    },
+
+    get raw() {
+      return (
+        this._strings[0] +
+        this._strings
+          .slice(1)
+          .map(
+            (val, i) =>
+              (typeof this._values[i] === "string"
+                ? '"' + this._values[i] + '"'
+                : this._values[i]) + val
+          )
+          .join("")
+      );
     },
 
     get preparedQuery() {

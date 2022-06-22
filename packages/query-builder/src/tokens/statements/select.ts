@@ -49,13 +49,13 @@ export interface ISelectStatement
     alias?: string;
   }[];
 
-  groupByValues: IBaseToken[];
+  groupByValues: (IBaseToken | string)[];
   havingValue?: IBaseToken;
 
   distinct(val: boolean): ISelectStatement;
   select(...args: ISelectArgType[]): ISelectStatement;
 
-  groupBy(...values: (IBaseToken | ISqlAdapter)[]): ISelectStatement;
+  groupBy(...values: (IBaseToken | ISqlAdapter | string)[]): ISelectStatement;
   having(val: IBaseToken | ISqlAdapter): ISelectStatement;
 }
 
@@ -116,8 +116,13 @@ export const select = (...selectArgs: ISelectArgType[]): ISelectStatement => {
     offset,
     withoutLimit,
     withoutOffset,
-    groupBy(...values: (IBaseToken | ISql)[]): ISelectStatement {
-      return { ...this, groupByValues: values.map(toToken) };
+    groupBy(...values: (IBaseToken | ISql | string)[]): ISelectStatement {
+      return {
+        ...this,
+        groupByValues: values.map((val) =>
+          typeof val === "string" ? val : toToken(val)
+        ),
+      };
     },
     having(val: IBaseToken | ISql) {
       return { ...this, havingValue: toToken(val) };
@@ -157,7 +162,11 @@ export const select = (...selectArgs: ISelectArgType[]): ISelectStatement => {
             : sql`FROM ${sql.join(this.fromValues)}`,
           this.whereValue ? sql`WHERE ${this.whereValue}` : null,
           this.groupByValues.length > 0
-            ? sql`GROUP BY ${sql.join(this.groupByValues)}`
+            ? sql`GROUP BY ${sql.join(
+                this.groupByValues.map((val) =>
+                  typeof val === "string" ? sql.liter(val) : val
+                )
+              )}`
             : null,
           this.groupByValues.length > 0 && this.havingValue
             ? sql`HAVING ${this.havingValue}`
@@ -165,7 +174,9 @@ export const select = (...selectArgs: ISelectArgType[]): ISelectStatement => {
           this.compoundValues.length > 0
             ? sql.join(this.compoundValues, " ")
             : null,
-          this.orderByValues ? sql.join(this.orderByValues) : null,
+          this.orderByValues.length > 0
+            ? sql.join([sql`ORDER BY`, sql.join(this.orderByValues)], " ")
+            : null,
           this.limitOffsetValue.toSql().isEmpty ? null : this.limitOffsetValue,
         ].filter((v) => v),
         " "

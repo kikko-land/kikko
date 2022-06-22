@@ -38,7 +38,6 @@ export const isBinaryOperator = (t: unknown): t is IBinaryOperator => {
     t !== null &&
     typeof t === "object" &&
     "type" in t &&
-    "format" in t &&
     (t as IBinaryOperator).type === TokenType.Binary
   );
 };

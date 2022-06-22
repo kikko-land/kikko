@@ -9,7 +9,6 @@ import {
   runAfterTransactionCommitted,
   runQuery,
   sql,
-  table,
   useQuery,
   useQueryFirstRow,
   useRunQuery,
@@ -17,7 +16,7 @@ import {
 import { nanoid } from "nanoid";
 import { useState } from "react";
 
-const notesTable = table("notes");
+const notesTable = sql.table("notes");
 
 export const List = () => {
   const [textToSearch, setTextToSearch] = useState<string>("");

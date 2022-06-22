@@ -1,3 +1,5 @@
+import "./builder-examples";
+
 import {
   DbProvider,
   EnsureDbLoaded,
