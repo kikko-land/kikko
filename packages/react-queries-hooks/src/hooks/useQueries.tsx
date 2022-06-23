@@ -1,13 +1,9 @@
-import {
-  runInTransaction,
-  runQueries,
-  withSuppressedLog,
-} from "@trong-orm/core";
+import { runInTransaction, withSuppressedLog } from "@trong-orm/core";
 import { IDbState } from "@trong-orm/core";
 import { subscribeToQueries } from "@trong-orm/reactive-queries-plugin";
 import { ISqlAdapter } from "@trong-orm/sql";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Falsy, startWith, switchMap, takeUntil } from "rxjs";
+import { Falsy } from "rxjs";
 
 import { useDbState } from "../DbProvider";
 import {
@@ -16,19 +12,6 @@ import {
   IRunQueryHookResult,
   ISingleQueryHookResult,
 } from "./types";
-
-function runQueries$<D extends Record<string, unknown>>(
-  state: IDbState,
-  queries: ISqlAdapter[]
-) {
-  return subscribeToQueries(state, queries).pipe(
-    startWith(undefined),
-    switchMap(async () => {
-      return runQueries<D>(state, queries);
-    }),
-    takeUntil(state.sharedState.stopStarted$)
-  );
-}
 
 export function useQueries<D extends Record<string, unknown>>(
   _queries: ISqlAdapter[] | Falsy,
@@ -69,7 +52,7 @@ export function useQueries<D extends Record<string, unknown>>(
 
     const db = suppressLog ? withSuppressedLog(dbState.db) : dbState.db;
 
-    const subscription = runQueries$<D>(db, currentQueries).subscribe(
+    const subscription = subscribeToQueries<D>(db, currentQueries).subscribe(
       (result) => {
         setData(result);
         setResponse({ type: "loaded" });

@@ -1,14 +1,14 @@
-import { IDbState } from "@trong-orm/core";
+import { IDbState, runQueries } from "@trong-orm/core";
 import { ISqlAdapter } from "@trong-orm/sql";
-import { filter, Observable, switchMap, takeUntil } from "rxjs";
+import { filter, Observable, startWith, switchMap, takeUntil } from "rxjs";
 
 import { IMessage } from "./getBroadcastCh";
 import { getReactiveState } from "./utils";
 
-export const subscribeToQueries = (
+export const subscribeToQueries = <D extends Record<string, unknown>>(
   db: IDbState,
   queries: ISqlAdapter[]
-): Observable<unknown> => {
+): Observable<D[][]> => {
   const { eventsCh$ } = getReactiveState(db);
 
   const readingTables = new Set(
@@ -35,6 +35,10 @@ export const subscribeToQueries = (
     filter(({ changesInTables }) =>
       changesInTables.some((table) => readingTables.has(table))
     ),
+    startWith(undefined), // to exec query at start
+    switchMap(async () => {
+      return runQueries<D>(db, queries);
+    }),
     takeUntil(db.sharedState.stopStarted$)
   );
 };
