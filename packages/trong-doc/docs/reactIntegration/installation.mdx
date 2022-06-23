@@ -23,15 +23,13 @@ import {
   migrationPlugin,
   reactiveQueriesPlugin,
 } from "@trong-orm/react";
-import {
-  initAbsurdWebBackend,
-} from "@trong-orm/absurd-web-backend";
+import { initAbsurdWebBackend } from "@trong-orm/absurd-web-backend";
 // For Vite:
 import sqlWasmUrl from "@trong-orm/sql.js/dist/sql-wasm.wasm?url";
 // For CRA:
 // import sqlWasmUrl from "@trong-orm/sql.js/dist/sql-wasm.wasm";
 
-const createNoteTable = {
+const createNotesTable: IMigration = {
   up: async (db) => {
     const query = sql`
       CREATE TABLE notes (

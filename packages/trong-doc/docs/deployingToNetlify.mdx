@@ -5,4 +5,22 @@ slug: /deploying-to-netlify
 
 # Deploying to Netlify
 
-WIP
+Here is the `netlify.toml` file that you need to put in the root of the repo.
+It puts headers in the server responses to support absurd-sql SQL backend.
+
+[Read why it is needed](/react-integration/web-backends#absurdsql)
+
+```toml
+# The following redirect is intended for use with most SPAs that handle
+# routing internally.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cross-Origin-Opener-Policy = "same-origin"
+    Cross-Origin-Embedder-Policy = "require-corp"
+```

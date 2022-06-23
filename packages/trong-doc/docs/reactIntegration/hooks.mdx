@@ -113,11 +113,14 @@ WIP
 ## useDb / useDbStrict
 
 ```typescript
+
 const Component = () => {
   // Or you can use `useDbStrict`, it will throw exception if DB not initialized
   const db = useDb();
 
   const exec = async () => {
+    if (!db) return;
+
     await runQuery(db, select().from("notes"));
   };
 };

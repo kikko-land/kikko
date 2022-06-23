@@ -8,13 +8,17 @@
 
 > ### Full documentation can be found on [the site](https://trong-orm.netlify.app/)
 
-## Introduction
-
 Trong ORM allows you to run reactive SQLite queries on any platforms with any framework/lib. For the web apps it uses absurd-sql, for electron/react-native/ionic — native sqlite calls(WIP). It supports React, Vue(WIP), Angular(WIP). It is actually framework/lib-agnostic, so you can integrate it to any framework/render libs you want.
 
-It provides out-of-the-box query builder, and we tried to add support of all possible SQLite queries could be. But you can still use raw SQL queries.
+## Core features
 
-Overall, this lib is very modular and every package could be used separately. It could be adopted to any framework or SQLite backends. It also supports plugin system, so you can inject your own code on any query or transaction run.
+- Multi-tab support for web. Mutate DB in one tab, and your data will be updated in other
+- Lib or framework agnostic — use with React, Angular, Vue or write adapter for your own lib
+- Run on any platform — web, mobile(react-native, cordova/ionic), desktop(electron, tauri)
+- Out-of-the-box [query builder](https://trong-orm.netlify.app/building-sql/query-builder). We tried to add support of all possible SQLite queries could be. But you can still use [raw SQL queries](https://trong-orm.netlify.app/building-sql/raw).
+- It is very modular. You could use `@trong-orm/sql`/`@trong-orm/query-builder`/`@trong-orm/core` without need to require the full lib. Use the only package you need
+- Full typescript support
+- [Plugin system](https://trong-orm.netlify.app/plugins/creating-your-own) allows you to integrate your own code on query/transaction run
 
 https://user-images.githubusercontent.com/7958527/174773307-9be37e1f-0700-45b4-8d25-aa2c83df6cec.mp4
 
