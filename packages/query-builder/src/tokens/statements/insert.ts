@@ -158,7 +158,7 @@ export const insert = (insertArg: IInsertArg): IInsertStatement => {
         [
           this.cteValue ? this.cteValue : null,
           sql`INSERT`,
-          this.orReplaceValue ? this.orReplaceValue : null,
+          this.orReplaceValue ? sql`OR ${sql.raw(this.orReplaceValue)}` : null,
           sql`INTO`,
           this.intoTable,
           columns.length > 0

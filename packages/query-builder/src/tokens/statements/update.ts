@@ -115,7 +115,7 @@ export const update = (tbl: string | IContainsTable): IUpdateStatement => {
         [
           this.cteValue ? this.cteValue : null,
           sql`UPDATE`,
-          this.orReplaceValue ? this.orReplaceValue : null,
+          this.orReplaceValue ? sql`OR ${sql.raw(this.orReplaceValue)}` : null,
           this.updateTable,
           sql`SET`,
           sql.join(
