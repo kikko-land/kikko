@@ -5,26 +5,123 @@ slug: /react-integration/hooks
 
 # Hooks
 
-## useDb
+## useQuery / useQueryFirstRow
 
-WIP
+Type declarations:
 
-## useDbStrict
+```tsx
+declare type IHookQueryResult<D> =
+  | {
+      type: "loading";
+      data: D[];
+    }
+  | {
+      type: "waitingDb";
+      data: D[];
+    }
+  | {
+      type: "loaded";
+      data: D[];
+    }
+  | {
+      type: "noSqlPresent";
+      data: D[];
+    };
 
-WIP
+declare function useQuery<D extends Record<string, unknown>>(
+  query: ISqlAdapter | Falsy,
+  _opts?:
+    | {
+        suppressLog?: boolean;
+        mapToObject?: boolean;
+      }
+    | undefined
+): IHookQueryResult<D>;
 
-## useQueries
+declare function useQueryFirstRow<D extends Record<string, unknown>>(
+  query: ISqlAdapter | Falsy,
+  _opts?:
+    | {
+        suppressLog?: boolean;
+        mapToObject?: boolean;
+      }
+    | undefined
+): ISingleQueryResult<D>;
+```
 
-WIP
+Usage example:
 
-## useQuery
+```tsx
+import { select, sql } from "@trong-orm/query-builder";
+import { useQuery, useQueryFirstRow } from "@trong-orm/react";
 
-WIP
+type IRow = {
+  id: string;
+  title: string;
+};
 
-## useQueryFirstRow
+type IComment = {
+  id: string;
+  message: string;
+};
 
-WIP
+const notesTable = sql.table("notes");
+const commentsTable = sql.table("comments");
+
+const List = () => {
+  const result = useQuery<IRow>(select().from(notesTable));
+
+  return result.type === "loaded"
+    ? result.data.map((row) => <div key={row.id}>Title: {row.title}</div>)
+    : "Loading...";
+};
+
+const Note = ({ id }: { id: string }) => {
+  // It will returns only first row from the set
+  const result = useQueryFirstRow<IRow>(
+    select().from(notesTable).where({ id: id })
+  );
+
+  // It also support falsy values, so you can wait when further data will appear:
+  const commentsResult = useQuery<IComment>(
+    result.data &&
+      select().from(commentsTable).where({ noteId: result.data.id })
+  );
+
+  return result.type === "loaded" ? (
+    <div>
+      Title: {result.data.title}
+      <br />
+      Comments:
+      <br />
+      {commentsResult.data.map((com) => (
+        <div id={com.id}>{com.message}</div>
+      ))}
+    </div>
+  ) : (
+    "Loading..."
+  );
+};
+```
+
+About how to build complex queries please refer to [query builder doc](/building-sql/query-builder).
 
 ## useRunQuery
 
 WIP
+
+## useDb / useDbStrict
+
+```typescript
+const Component = () => {
+  // Or you can use `useDbStrict`, it will throw exception if DB not initialized
+  const db = useDb();
+
+  const exec = async () => {
+    await runQuery(db, select().from("notes"));
+  };
+};
+```
+
+This hook is used internally, but you still can access db state
+if you need. Usually you need `useQuery`/`useRunQuery` to run queries.
