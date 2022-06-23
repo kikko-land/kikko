@@ -1,16 +1,16 @@
 import { faker } from "@faker-js/faker";
-import { deleteFrom, like$, select } from "@trong-orm/query-builder";
 import {
-  createRecords,
-  deleteAllRecords,
-  deleteRecordsByIds,
-  runAfterTransactionCommitted,
-  runInTransaction,
+  deleteFrom,
+  insert,
+  like$,
+  select,
+  update,
+} from "@trong-orm/query-builder";
+import {
   runQuery,
   sql,
-  updateRecords,
   useCacheQuery,
-  useRecords,
+  useQuery,
   useRunQuery,
 } from "@trong-orm/react";
 import { nanoid } from "nanoid";
@@ -18,43 +18,53 @@ import { useState } from "react";
 import Highlighter from "react-highlight-words";
 
 import { usePaginator } from "./hooks/usePaginator";
-import { INoteRecord, notesRecords } from "./records/notesRecords";
+
+type INoteRow = {
+  id: string;
+  title: string;
+  content: string;
+  createdAt: number;
+  updatedAt: number;
+};
+const notesTable = sql.table("notes");
 
 const Row = ({
-  rec,
+  row,
   textToSearch,
 }: {
-  rec: INoteRecord;
+  row: INoteRow;
   textToSearch: string;
 }) => {
   const [deleteRecord, deleteRecordState] = useRunQuery(() => async (db) => {
-    await deleteRecordsByIds(db, notesRecords, [rec.id]);
+    await runQuery(db, deleteFrom(notesTable).where({ id: row.id }));
   });
 
   const [updateRecord, updateRecordState] = useRunQuery(() => async (db) => {
     console.log(
-      await updateRecords(db, notesRecords, [
-        {
-          ...rec,
-          title: rec.title + " updated!",
-          content: rec.content + " updated!",
-        },
-      ])
+      await runQuery(
+        db,
+        update(notesTable)
+          .set({
+            title: row.title + " updated!",
+            content: row.content + " updated!",
+          })
+          .where({ id: row.id })
+      )
     );
   });
 
   return (
-    <tr key={rec.id}>
-      <td>{rec.title}</td>
+    <tr key={row.id}>
+      <td>{row.title}</td>
       <td>
         <Highlighter
           searchWords={[textToSearch]}
           autoEscape={true}
-          textToHighlight={rec.content}
+          textToHighlight={row.content}
         />
       </td>
-      <td>{rec.createdAt.toLocaleString()}</td>
-      <td>{rec.updatedAt.toLocaleString()}</td>
+      <td>{row.createdAt.toLocaleString()}</td>
+      <td>{row.updatedAt.toLocaleString()}</td>
       <td>
         <button
           onClick={() => deleteRecord()}
@@ -81,7 +91,7 @@ export const List = () => {
 
   const baseSql = useCacheQuery(
     select()
-      .from(notesRecords)
+      .from(notesTable)
       .where(
         textToSearch ? { content: like$("%" + textToSearch + "%") } : sql.empty
       )
@@ -100,29 +110,27 @@ export const List = () => {
     perPage: 50,
     baseQuery: baseSql,
   });
-  const recordsResult = useRecords(notesRecords, paginatedQuery);
+  const rowsResult = useQuery<INoteRow>(paginatedQuery);
 
   const [createNotes, createNotesState] = useRunQuery(
     (count: number) => async (db) => {
-      await createRecords(
+      runQuery(
         db,
-        notesRecords,
-        Array.from(Array(count).keys()).map((i) => ({
-          id: nanoid(),
-          title: faker.lorem.words(4),
-          content: faker.lorem.paragraph(),
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }))
+        insert(
+          Array.from(Array(count).keys()).map((i) => ({
+            id: nanoid(),
+            title: faker.lorem.words(4),
+            content: faker.lorem.paragraph(),
+            createdAt: new Date().getTime(),
+            updatedAt: new Date().getTime(),
+          }))
+        ).into(notesTable)
       );
     }
   );
 
   const [deleteAll, deleteAllState] = useRunQuery(() => async (db) => {
-    await runInTransaction(db, async (db) => {
-      await runQuery(db, deleteFrom("comments"));
-      await runQuery(db, deleteFrom("notes"));
-    });
+    await runQuery(db, deleteFrom(notesTable));
   });
 
   return (
@@ -186,9 +194,9 @@ export const List = () => {
           </tr>
         </thead>
         <tbody>
-          {recordsResult.type === "loaded" &&
-            recordsResult.data.map((r) => (
-              <Row rec={r} textToSearch={textToSearch} key={r.id} />
+          {rowsResult.type === "loaded" &&
+            rowsResult.data.map((r) => (
+              <Row row={r} textToSearch={textToSearch} key={r.id} />
             ))}
         </tbody>
       </table>
