@@ -10,7 +10,7 @@ slug: /react-integration/hooks
 Type declarations:
 
 ```tsx
-declare type IHookQueryResult<D> =
+declare type IQueryHookResult<D> =
   | {
       type: "loading";
       data: D[];
@@ -36,7 +36,25 @@ declare function useQuery<D extends Record<string, unknown>>(
         mapToObject?: boolean;
       }
     | undefined
-): IHookQueryResult<D>;
+): IQueryHookResult<D>;
+
+declare type ISingleQueryHookResult<D> =
+  | {
+      type: "loading";
+      data?: D;
+    }
+  | {
+      type: "waitingDb";
+      data?: D;
+    }
+  | {
+      type: "loaded";
+      data: D;
+    }
+  | {
+      type: "noSqlPresent";
+      data?: D;
+    };
 
 declare function useQueryFirstRow<D extends Record<string, unknown>>(
   query: ISqlAdapter | Falsy,
@@ -46,7 +64,7 @@ declare function useQueryFirstRow<D extends Record<string, unknown>>(
         mapToObject?: boolean;
       }
     | undefined
-): ISingleQueryResult<D>;
+): ISingleQueryHookResult<D>;
 ```
 
 Usage example:
