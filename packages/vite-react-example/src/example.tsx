@@ -93,23 +93,23 @@ export const List = () => {
         <button
           type="submit"
           disabled={
-            createNoteState.type === "loading" ||
+            createNoteState.type === "running" ||
             createNoteState.type === "waitingDb"
           }
         >
-          {createNoteState.type === "loading" ? "Loading..." : "Submit"}
+          {createNoteState.type === "running" ? "Loading..." : "Submit"}
         </button>
       </form>
       <br />
       <button
         type="submit"
         disabled={
-          deleteAllState.type === "loading" ||
+          deleteAllState.type === "running" ||
           deleteAllState.type === "waitingDb"
         }
         onClick={deleteAll}
       >
-        {deleteAllState.type === "loading" ? "Loading..." : "Delete all"}
+        {deleteAllState.type === "running" ? "Loading..." : "Delete all"}
       </button>
       <hr />
       Total found records:{" "}

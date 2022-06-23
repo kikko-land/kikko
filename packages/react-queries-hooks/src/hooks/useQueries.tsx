@@ -12,10 +12,9 @@ import { Falsy, startWith, switchMap, takeUntil } from "rxjs";
 import { useDbState } from "../DbProvider";
 import {
   DistributiveOmit,
-  IHookQueryResult,
-  IHookQueryResultWithIdle,
-  ISingleQueryResult,
-  ISingleQueryResultWithIdle,
+  IQueryHookResult,
+  IRunQueryHookResult,
+  ISingleQueryHookResult,
 } from "./types";
 
 function runQueries$<D extends Record<string, unknown>>(
@@ -34,7 +33,7 @@ function runQueries$<D extends Record<string, unknown>>(
 export function useQueries<D extends Record<string, unknown>>(
   _queries: ISqlAdapter[] | Falsy,
   _opts?: { suppressLog?: boolean; mapToObject?: boolean } | undefined
-): IHookQueryResult<D[]> {
+): IQueryHookResult<D[]> {
   const dbState = useDbState();
 
   const { suppressLog } = {
@@ -46,7 +45,7 @@ export function useQueries<D extends Record<string, unknown>>(
   );
   const [data, setData] = useState<D[][] | undefined>();
   const [response, setResponse] = useState<
-    DistributiveOmit<IHookQueryResult<D[][]>, "data">
+    DistributiveOmit<IQueryHookResult<D[][]>, "data">
   >(
     _queries
       ? dbState.type === "initialized"
@@ -109,7 +108,7 @@ export function useQueries<D extends Record<string, unknown>>(
 export function useQuery<D extends Record<string, unknown>>(
   query: ISqlAdapter | Falsy,
   _opts?: { suppressLog?: boolean; mapToObject?: boolean } | undefined
-): IHookQueryResult<D> {
+): IQueryHookResult<D> {
   const queries = useMemo(() => (query ? [query] : []), [query]);
 
   const result = useQueries<D>(queries, _opts);
@@ -135,7 +134,7 @@ export function useQuery<D extends Record<string, unknown>>(
 export function useQueryFirstRow<D extends Record<string, unknown>>(
   query: ISqlAdapter | Falsy,
   _opts?: { suppressLog?: boolean; mapToObject?: boolean } | undefined
-): ISingleQueryResult<D> {
+): ISingleQueryHookResult<D> {
   const res = useQuery<D>(query, _opts);
 
   return useMemo(() => {
@@ -168,12 +167,7 @@ export function useRunQuery<
 >(
   cb: D,
   _opts?: { suppressLog?: boolean; inTransaction?: boolean } | undefined
-): readonly [
-  (...args: Parameters<D>) => Promise<R>,
-  DistributiveOmit<ISingleQueryResultWithIdle<R>, "data"> & {
-    data?: R | undefined;
-  }
-] {
+): readonly [(...args: Parameters<D>) => Promise<R>, IRunQueryHookResult<R>] {
   const { suppressLog, inTransaction } = {
     suppressLog: _opts?.suppressLog !== undefined ? _opts.suppressLog : false,
     inTransaction:
@@ -183,10 +177,18 @@ export function useRunQuery<
   const dbState = useDbState();
   const isMounted = useIsMounted();
 
-  const [data, setData] = useState<R | undefined>();
-  const [response, setResponse] = useState<
-    DistributiveOmit<IHookQueryResultWithIdle<D>, "data">
-  >(dbState.type === "initialized" ? { type: "idle" } : { type: "waitingDb" });
+  const [data, setData] = useState<R>();
+  const [runStateType, setRunStateType] = useState<
+    IRunQueryHookResult<R>["type"]
+  >(dbState.type === "initialized" ? "idle" : "waitingDb");
+
+  useEffect(() => {
+    if (dbState.type === "initialized") {
+      setRunStateType("idle");
+    } else {
+      setRunStateType("waitingDb");
+    }
+  }, [dbState.type]);
 
   const toCall = useCallback(
     async (...args: Parameters<D>) => {
@@ -196,7 +198,7 @@ export function useRunQuery<
         throw new Error("Db not initialized!");
       }
 
-      setResponse({ type: "loading" });
+      setRunStateType("running");
 
       const db = suppressLog ? withSuppressedLog(dbState.db) : dbState.db;
       const res = await (inTransaction
@@ -205,7 +207,7 @@ export function useRunQuery<
 
       if (isMounted()) {
         setData(res);
-        setResponse({ type: "loaded" });
+        setRunStateType("done");
       }
 
       return res;
@@ -224,8 +226,9 @@ export function useRunQuery<
   }, []);
 
   const result = useMemo(() => {
-    return { ...response, data };
-  }, [data, response]);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return { type: runStateType, data: data! };
+  }, [data, runStateType]);
 
   return [run, result];
 }

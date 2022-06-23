@@ -75,7 +75,7 @@ const Row = ({
         <button
           onClick={() => updateRecord()}
           disabled={
-            updateRecordState.type !== "loaded" &&
+            updateRecordState.type !== "running" &&
             updateRecordState.type !== "idle"
           }
         >
@@ -140,11 +140,11 @@ export const List = () => {
           key={count}
           onClick={() => createNotes(count)}
           disabled={
-            createNotesState.type === "loading" ||
+            createNotesState.type === "running" ||
             createNotesState.type === "waitingDb"
           }
         >
-          {createNotesState.type === "loading"
+          {createNotesState.type === "running"
             ? "Loading..."
             : `Add  ${count} records!`}
         </button>
@@ -153,11 +153,11 @@ export const List = () => {
       <button
         onClick={deleteAll}
         disabled={
-          deleteAllState.type === "loading" ||
+          deleteAllState.type === "running" ||
           deleteAllState.type === "waitingDb"
         }
       >
-        {deleteAllState.type === "loading"
+        {deleteAllState.type === "running"
           ? "Loading..."
           : "Delete all records!"}
       </button>
