@@ -27,12 +27,10 @@ const config: IInitDbClientConfig = {
 
 export const App = () => {
   return (
-    <React.StrictMode>
-      <DbProvider config={config}>
-        <EnsureDbLoaded fallback={<div>Loading db...</div>}>
-          <List />
-        </EnsureDbLoaded>
-      </DbProvider>
-    </React.StrictMode>
+    <DbProvider config={config}>
+      <EnsureDbLoaded fallback={<div>Loading db...</div>}>
+        <List />
+      </EnsureDbLoaded>
+    </DbProvider>
   );
 };
