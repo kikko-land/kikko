@@ -11,6 +11,8 @@ But, with just one dialect, we managed to make builder that will be flexible eno
 And if query builder functionality is not enough you could always use [raw queries](raw) and even embed them into query builder. When you use
 raw builder your queries still remain reactive (but you need to mark tables you use with `sql.table('tableName')`).
 
+For now it still miss some functionality like create table/create trigger. We plan to add support for them too.
+
 ## Installation
 
 ```bash
@@ -23,7 +25,7 @@ Or
 yarn add @trong-orm/query-builder
 ```
 
-## Usage examples
+## Select statements usage examples
 
 <iframe
   src="https://codesandbox.io/embed/patient-dream-xcvzn5?fontsize=14&hidenavigation=1&theme=dark&view=editor"
@@ -38,3 +40,15 @@ yarn add @trong-orm/query-builder
   allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
   sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
 ></iframe>
+
+## Insert statements usage examples
+
+WIP
+
+## Update statements usage examples
+
+WIP
+
+## Delete statements usage examples
+
+WIP

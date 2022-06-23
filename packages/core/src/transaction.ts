@@ -5,8 +5,9 @@ import { acquireJob, releaseJob } from "./job";
 import { IDbState, ITransaction } from "./types";
 import { assureDbIsRunning, unwrapQueries } from "./utils";
 
-export const runInTransaction = async <T>(
+const runInTransactionFunc = async <T>(
   state: IDbState,
+  transactionType: "DEFERRED" | "IMMEDIATE" | "EXCLUSIVE",
   func: (state: IDbState) => Promise<T>
 ) => {
   const {
@@ -66,7 +67,7 @@ export const runInTransaction = async <T>(
     await eventsEmitter.emit("transactionWillStart", state, transaction);
 
     await dbBackend.execQueries(
-      unwrapQueries([sql`BEGIN TRANSACTION;`]),
+      unwrapQueries([sql`BEGIN ${sql.raw(transactionType)} TRANSACTION;`]),
       execOpts
     );
 
@@ -97,3 +98,22 @@ export const runInTransaction = async <T>(
     releaseJob(state.sharedState.jobsState$, job);
   }
 };
+
+// By default it is deferred
+export const runInDeferredTransaction = <T>(
+  state: IDbState,
+  func: (state: IDbState) => Promise<T>
+) => runInTransactionFunc(state, "DEFERRED", func);
+export const runInImmediateTransaction = <T>(
+  state: IDbState,
+  func: (state: IDbState) => Promise<T>
+) => runInTransactionFunc(state, "IMMEDIATE", func);
+export const runInExclusiveTransaction = <T>(
+  state: IDbState,
+  func: (state: IDbState) => Promise<T>
+) => runInTransactionFunc(state, "EXCLUSIVE", func);
+
+export const runInTransaction = <T>(
+  state: IDbState,
+  func: (state: IDbState) => Promise<T>
+) => runInDeferredTransaction(state, func);

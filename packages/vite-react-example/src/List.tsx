@@ -1,10 +1,12 @@
 import { faker } from "@faker-js/faker";
-import { like$, select } from "@trong-orm/query-builder";
+import { deleteFrom, like$, select } from "@trong-orm/query-builder";
 import {
   createRecords,
   deleteAllRecords,
   deleteRecordsByIds,
   runAfterTransactionCommitted,
+  runInTransaction,
+  runQuery,
   sql,
   updateRecords,
   useCacheQuery,
@@ -117,10 +119,9 @@ export const List = () => {
   );
 
   const [deleteAll, deleteAllState] = useRunQuery(() => async (db) => {
-    const deletedRecords = await deleteAllRecords(db, notesRecords);
-
-    runAfterTransactionCommitted(db, () => {
-      console.log("It runs after transaction committed!", deletedRecords);
+    await runInTransaction(db, async (db) => {
+      await runQuery(db, deleteFrom("comments"));
+      await runQuery(db, deleteFrom("notes"));
     });
   });
 
