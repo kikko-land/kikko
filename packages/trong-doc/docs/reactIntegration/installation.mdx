@@ -6,13 +6,13 @@ slug: /react-integration/installation
 # Installation for web
 
 ```bash
-yarn add @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js
+yarn add @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js @trong-orm/absurd-web-backend
 ```
 
 Or
 
 ```bash
-npm i -S @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js
+npm i -S @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js @trong-orm/absurd-web-backend
 ```
 
 Then configure trong:
@@ -20,10 +20,12 @@ Then configure trong:
 ```typescript
 import {
   IInitDbClientConfig,
-  initAbsurdWebBackend,
   migrationPlugin,
   reactiveQueriesPlugin,
 } from "@trong-orm/react";
+import {
+  initAbsurdWebBackend,
+} from "@trong-orm/absurd-web-backend";
 // For Vite:
 import sqlWasmUrl from "@trong-orm/sql.js/dist/sql-wasm.wasm?url";
 // For CRA:

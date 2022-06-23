@@ -10,3 +10,4 @@ export * from "./tokens/statements/update";
 export * from "./tokens/statements/values";
 export * from "./tokens/unary";
 export * from "./tokens/utils";
+export * from "@trong-orm/sql";

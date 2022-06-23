@@ -1,10 +1,10 @@
 import "./builder-examples";
 
+import { initAbsurdWebBackend } from "@trong-orm/absurd-web-backend";
 import {
   DbProvider,
   EnsureDbLoaded,
   IInitDbClientConfig,
-  initAbsurdWebBackend,
   migrationPlugin,
   reactiveQueriesPlugin,
 } from "@trong-orm/react";
