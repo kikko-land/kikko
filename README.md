@@ -27,6 +27,23 @@ https://user-images.githubusercontent.com/7958527/174773307-9be37e1f-0700-45b4-8
 
 [Source code](https://github.com/trong-orm/trong-orm/tree/main/packages/vite-react-example)
 
+## Currently supported
+
+#### SQLite Backends
+
+**Expo**: full support (both web and native)<br>
+**Web**: full support<br>
+**Electron**: WIP<br>
+**Tauri**: WIP<br>
+**Cordova/Ionic**: WIP<br>
+
+#### Frameworks or render libs
+
+**React**: full support<br>
+**Angular**: WIP<br>
+**Vue**: WIP<br>
+**SolidJS**: WIP
+
 ## It's better than IndexedDB
 
 Read performance: doing something like `SELECT SUM(value) FROM kv`:
