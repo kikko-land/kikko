@@ -73,9 +73,9 @@ export class DbBackend {
 
       if (!logOpts?.suppress) {
         console.log(
-          `%c[${this.dbName.substring(0, 10)}]${
+          `%c[${this.dbName}]${
             logOpts?.transactionId
-              ? `[tr_id=${logOpts.transactionId.split("-")[0]}]`
+              ? `[tr_id=${logOpts.transactionId.substring(0, 6)}]`
               : ""
           } ${sql} ${JSON.stringify(params)} Time: ${(
             (end - startTime) /

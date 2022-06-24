@@ -1,4 +1,3 @@
-import { BroadcastChannel } from "broadcast-channel";
 import { Observable, ReplaySubject, share, takeUntil } from "rxjs";
 
 export type IMessage = { changesInTables: string[] };
@@ -9,59 +8,82 @@ export interface INotifyChannel {
   removeEventListener(cb: IListener): void;
   close(): Promise<void>;
 }
-export const getBroadcastCh = (name: string, stop$: Observable<void>) => {
-  return new Observable<INotifyChannel>((sub) => {
-    let currentChannel: INotifyChannel | undefined = undefined;
 
-    const createChannel = () => {
-      const channel = new BroadcastChannel(name, {
-        type: "localstorage",
-        webWorkerSupport: false,
-        // idb: {
-        //   onclose: () => {
-        //     // the onclose event is just the IndexedDB closing.
-        //     // you should also close the channel before creating
-        //     // a new one.
-        //     void currentChannel?.close();
-        //     createChannel();
-        //   },
-        // },
+const createMultiTabChannel = async (
+  name: string,
+  webMultiTabSupport: boolean
+): Promise<INotifyChannel> => {
+  const webChannel = await (async () => {
+    if (!webMultiTabSupport) return undefined;
+
+    return new (await import("broadcast-channel")).BroadcastChannel(name, {
+      type: "localstorage",
+      webWorkerSupport: false,
+      // idb: {
+      //   onclose: () => {
+      //     // the onclose event is just the IndexedDB closing.
+      //     // you should also close the channel before creating
+      //     // a new one.
+      //     void currentChannel?.close();
+      //     createChannel();
+      //   },
+      // },
+    });
+  })();
+
+  let listeners: IListener[] = [];
+
+  return {
+    async postMessage(data) {
+      listeners.forEach((l) => {
+        l(data);
       });
 
-      let listeners: IListener[] = [];
+      if (webChannel) {
+        await webChannel.postMessage(data);
+      }
+    },
+    addEventListener(cb) {
+      listeners.push(cb);
 
-      const ch: INotifyChannel = {
-        async postMessage(data) {
-          listeners.forEach((l) => {
-            l(data);
-          });
+      webChannel?.addEventListener("message", cb);
+    },
+    removeEventListener(cb) {
+      listeners = listeners.filter((l) => l !== cb);
 
-          return channel.postMessage(data);
-        },
-        addEventListener(cb) {
-          listeners.push(cb);
+      webChannel?.removeEventListener("message", cb);
+    },
+    async close() {
+      listeners = [];
 
-          return channel.addEventListener("message", cb);
-        },
-        removeEventListener(cb) {
-          listeners = listeners.filter((l) => l !== cb);
+      if (webChannel) {
+        await webChannel.close();
+      }
+    },
+  };
+};
 
-          return channel.removeEventListener("message", cb);
-        },
-        close() {
-          listeners = [];
-          return channel.close();
-        },
-      };
+export const getBroadcastCh = (
+  name: string,
+  webMultiTabSupport: boolean,
+  stop$: Observable<void>
+) => {
+  return new Observable<INotifyChannel>((sub) => {
+    let isClosed = false;
+    let currentChannel: INotifyChannel | undefined;
 
-      currentChannel = ch;
+    const init = async () => {
+      const ch = await createMultiTabChannel(name, webMultiTabSupport);
 
-      sub.next(currentChannel);
+      if (isClosed) return;
+
+      sub.next(ch);
     };
 
-    createChannel();
+    void init();
 
     return () => {
+      isClosed = true;
       void currentChannel?.close();
     };
   }).pipe(

@@ -21,9 +21,14 @@ const notifyTablesContentChanged = async (
   );
 };
 
-export const reactiveQueriesPlugin: () => IDbClientPlugin = () => (db) => {
+export const reactiveQueriesPlugin: (opts?: {
+  webMultiTabSupport?: boolean;
+}) => IDbClientPlugin = (opts) => (db) => {
   const transactionTables: Record<string, { writeTables: Set<string> }> = {};
   const { dbName, eventsEmitter, stopStarted$ } = db.sharedState;
+
+  const webMultiTabSupport =
+    opts?.webMultiTabSupport !== undefined ? opts.webMultiTabSupport : true;
 
   const reactiveQueriesMiddleware: IQueriesMiddleware = (state) => {
     const transaction = state.dbState.localState.transactionsState.current;
@@ -80,7 +85,11 @@ export const reactiveQueriesPlugin: () => IDbClientPlugin = () => (db) => {
   });
 
   db.sharedState.reactiveQueriesState = {
-    eventsCh$: getBroadcastCh(dbName + "-reactiveQueriesPlugin", stopStarted$),
+    eventsCh$: getBroadcastCh(
+      dbName + "-reactiveQueriesPlugin",
+      webMultiTabSupport,
+      stopStarted$
+    ),
   };
 
   return {
