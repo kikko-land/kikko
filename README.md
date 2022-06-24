@@ -13,7 +13,7 @@ Trong ORM allows you to run reactive SQLite queries on any platforms with any fr
 ## Core features
 
 - Lib or framework agnostic — use with React, Angular, Vue or write adapter for your own lib
-- Run on any platform — web, mobile(react-native, cordova/ionic), desktop(electron, tauri)
+- Run on any platform — web, mobile(react-native/expo, cordova/ionic), desktop(electron, tauri)
 - Full typescript support
 - Out-of-the-box [query builder](https://trong-orm.netlify.app/building-sql/query-builder). We tried to add support of all possible SQLite queries could be. But you can still use [raw SQL queries](https://trong-orm.netlify.app/building-sql/raw).
 - It is very modular. You can use `@trong-orm/sql`/`@trong-orm/query-builder`/`@trong-orm/core` without need to require the full lib. Use the only package you need
@@ -45,3 +45,5 @@ https://github.com/trong-orm/trong-cra-example
 
 With Vite + React:
 https://github.com/trong-orm/trong-orm/tree/main/packages/vite-react-examples
+
+With Expo(native+web): https://github.com/trong-orm/trong-expo-example

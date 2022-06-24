@@ -1,19 +1,29 @@
 ---
 sidebar_position: 1
-slug: /react-integration/installation
+slug: /react-integration/web-installation
 ---
 
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
 # Installation for web
+
+<Tabs>
+  <TabItem value="yarn" label="yarn" default>
 
 ```bash
 yarn add @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js @trong-orm/absurd-web-backend
 ```
 
-Or
+  </TabItem>
+  <TabItem value="npm" label="npm">
 
 ```bash
 npm i -S @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js @trong-orm/absurd-web-backend
 ```
+
+  </TabItem>
+</Tabs>
 
 Then configure trong:
 
@@ -53,7 +63,10 @@ const config: IInitDbClientConfig = {
   dbBackend: initAbsurdWebBackend({
     wasmUrl: sqlWasmUrl,
   }),
-  plugins: [migrationPlugin([createNotesTable]), reactiveQueriesPlugin],
+  plugins: [
+    migrationPlugin({ migrations: [createNotesTable] }),
+    reactiveQueriesPlugin(),
+  ],
 };
 ```
 

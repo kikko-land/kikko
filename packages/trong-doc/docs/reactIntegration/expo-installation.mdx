@@ -1,0 +1,153 @@
+---
+sidebar_position: 2
+slug: /react-integration/expo-installation
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+# Installation for expo
+
+Trong supports both native and web versions.
+
+## Installation
+
+Install expo packages:
+
+```bash
+expo install expo-sqlite
+```
+
+Install trong packages:
+
+<Tabs>
+  <TabItem value="yarn" label="yarn" default>
+
+```bash
+yarn add @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js @trong-orm/absurd-web-backend @trong-orm/native-expo-backend
+```
+
+  </TabItem>
+  <TabItem value="npm" label="npm">
+
+```bash
+npm i -S @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js @trong-orm/absurd-web-backend @trong-orm/native-expo-backend
+```
+
+  </TabItem>
+</Tabs>
+
+Configure trong:
+
+```typescript
+const createNotesTable: IMigration = {
+  up: async (db) => {
+    const query = sql`
+      CREATE TABLE notes (
+        id varchar(20) PRIMARY KEY NOT NULL,
+        title TEXT NOT NULL,
+        content TEXT NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_note_title ON notes(title);
+    `;
+
+    await runQuery(db, query);
+  },
+  id: 1653668686076, // id should be uniq
+  name: "createNotesTable",
+};
+
+const config: IInitDbClientConfig = {
+  dbName: "trong-db",
+  dbBackend:
+    Platform.OS === "web"
+      ? require("@trong-orm/absurd-web-backend").initAbsurdWebBackend({
+          wasmUrl: require("@trong-orm/sql.js/dist/sql-wasm.wasm").default,
+        })
+      : require("@trong-orm/native-expo-backend").nativeExpoBackend(),
+  plugins: [
+    migrationsPlugin({ migrations: [createNotesTable] }),
+    reactiveQueriesPlugin({ webMultiTabSupport: Platform.OS === "web" }),
+  ],
+};
+```
+
+Create `webpack.config.js`:
+
+```javascript
+const createExpoWebpackConfigAsync = require("@expo/webpack-config");
+const path = require("path");
+
+module.exports = async function (env, argv) {
+  const config = await createExpoWebpackConfigAsync(env, argv);
+
+  config.module.rules.forEach((rule) => {
+    (rule.oneOf || []).forEach((oneOf) => {
+      if (oneOf.loader && oneOf.loader.indexOf("file-loader") >= 0) {
+        oneOf.exclude.push(/\.wasm$/);
+      }
+    });
+  });
+
+  config.module.rules.push({
+    test: /\.wasm$/,
+    loader: "file-loader",
+    type: "javascript/auto",
+  });
+
+  config.devServer = {
+    ...config.devServer,
+    headers: {
+      ...config.devServer.headers,
+      "Cross-Origin-Opener-Policy": "same-origin",
+      "Cross-Origin-Embedder-Policy": "require-corp",
+    },
+  };
+
+  return config;
+};
+```
+
+Create `metro.config.js`:
+
+```javascript
+const { getDefaultConfig } = require("expo/metro-config");
+
+const defaultConfig = getDefaultConfig(__dirname);
+
+defaultConfig.resolver.assetExts.push("db");
+defaultConfig.resolver.assetExts.push("wasm");
+
+module.exports = defaultConfig;
+```
+
+Modify `App.tsx`:
+
+```tsx
+export default function App() {
+  const isLoadingComplete = useCachedResources();
+  const colorScheme = useColorScheme();
+
+  return (() => {
+    if (!isLoadingComplete) {
+      return null;
+    } else {
+      return (
+        <SafeAreaProvider>
+          // highlight-start
+          <DbProvider config={config}>
+            <EnsureDbLoaded fallback={<Text>Loading db...</Text>}>
+              //highlight-end
+              <Navigation colorScheme={colorScheme} />
+              // highlight-start
+            </EnsureDbLoaded>
+          </DbProvider>
+          //highlight-end
+        </SafeAreaProvider>
+      );
+    }
+  })();
+}
+```
+
+Expo app example: https://github.com/trong-orm/trong-expo-example
