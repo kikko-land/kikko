@@ -1,5 +1,4 @@
-import { IQuery } from "@trong-orm/core";
-import { nanoid } from "nanoid";
+import { IQuery, makeId } from "@trong-orm/core";
 
 type IBaseCommand = {
   commandId: string;
@@ -22,7 +21,7 @@ export const buildRunQueriesCommand = (
   opts: { log: { suppress: boolean; transactionId?: string } }
 ): IExecQueriesCommand => {
   return {
-    commandId: nanoid(),
+    commandId: makeId(),
     type: "runQueries",
     queries: queries,
     logOpts: opts.log,

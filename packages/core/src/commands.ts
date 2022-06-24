@@ -1,7 +1,7 @@
 import { IPrimitiveValue, ISql } from "@trong-orm/sql";
-import { nanoid } from "nanoid";
 
 import { IDbState } from "./types";
+import { makeId } from "./utils";
 
 type IBaseCommand = {
   suppressLog?: boolean;
@@ -49,7 +49,7 @@ export const buildRunQueriesCommand = (
       text: q.preparedQuery.text,
     })),
     spawnTransaction: false,
-    commandId: nanoid(),
+    commandId: makeId(),
     suppressLog: state.localState.suppressLog,
   };
 };

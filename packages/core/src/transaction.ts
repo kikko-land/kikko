@@ -1,9 +1,8 @@
 import { sql } from "@trong-orm/sql";
-import { nanoid } from "nanoid";
 
 import { acquireJob, releaseJob } from "./job";
 import { IDbState, ITransaction } from "./types";
-import { assureDbIsRunning, unwrapQueries } from "./utils";
+import { assureDbIsRunning, makeId, unwrapQueries } from "./utils";
 
 const runInTransactionFunc = async <T>(
   state: IDbState,
@@ -38,7 +37,7 @@ const runInTransactionFunc = async <T>(
   assureDbIsRunning(state, () => "transaction");
 
   const transaction: ITransaction = {
-    id: nanoid(),
+    id: makeId(),
   };
 
   state = {

@@ -6,6 +6,7 @@ import {
   select,
 } from "@trong-orm/query-builder";
 import {
+  makeId,
   runAfterTransactionCommitted,
   runQuery,
   sql,
@@ -13,7 +14,6 @@ import {
   useQueryFirstRow,
   useRunQuery,
 } from "@trong-orm/react";
-import { nanoid } from "nanoid";
 import { useState } from "react";
 
 const notesTable = sql.table("notes");
@@ -46,7 +46,7 @@ export const List = () => {
         await runQuery(
           db,
           insert({
-            id: nanoid(),
+            id: makeId(),
             title,
             content,
             updatedAt: time,

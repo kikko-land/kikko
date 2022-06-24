@@ -1,4 +1,3 @@
-import { nanoid } from "nanoid";
 import {
   BehaviorSubject,
   filter,
@@ -19,6 +18,7 @@ import {
   IQueriesMiddleware,
   ITrongEvents,
 } from "./types";
+import { makeId } from "./utils";
 
 export type IDbClientPlugin = (state: IDbState) => IDbState;
 
@@ -55,7 +55,7 @@ export const initDbClient = async ({
 
   const state: IDbState = {
     sharedState: {
-      clientId: nanoid(),
+      clientId: makeId(),
       dbBackend: dbBackendCalled,
       dbName,
 

@@ -1,9 +1,9 @@
 import { ISql } from "@trong-orm/sql";
-import { nanoid } from "nanoid";
 import { BehaviorSubject, filter, firstValueFrom } from "rxjs";
 import { DeepReadonly } from "ts-essentials";
 
 import { ITransaction } from "./types";
+import { makeId } from "./utils";
 
 export type DistributiveOmit<
   T,
@@ -25,7 +25,7 @@ export const acquireJob = async (
   jobsState$: BehaviorSubject<IJobsState>,
   _job: DistributiveOmit<IJob, "id">
 ): Promise<IJob> => {
-  const id = nanoid();
+  const id = makeId();
   const job = { ..._job, id };
 
   const { current, queue } = jobsState$.value;

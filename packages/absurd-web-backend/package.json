@@ -36,7 +36,6 @@
     "@trong-orm/core": "^1.0.31",
     "@trong-orm/sql": "^1.0.31",
     "@trong-orm/sql.js": "^1.6.7",
-    "nanoid": "^3.3.4",
     "rxjs": "^7.5.5"
   },
   "devDependencies": {
@@ -45,3 +44,4 @@
     "ts-essentials": "^9.1.2"
   }
 }
+

@@ -7,13 +7,13 @@ import {
   update,
 } from "@trong-orm/query-builder";
 import {
+  makeId,
   runQuery,
   sql,
   useCacheQuery,
   useQuery,
   useRunQuery,
 } from "@trong-orm/react";
-import { nanoid } from "nanoid";
 import { useState } from "react";
 import Highlighter from "react-highlight-words";
 
@@ -118,7 +118,7 @@ export const List = () => {
         db,
         insert(
           Array.from(Array(count).keys()).map((i) => ({
-            id: nanoid(),
+            id: makeId(),
             title: faker.lorem.words(4),
             content: faker.lorem.paragraph(),
             createdAt: new Date().getTime(),
