@@ -5,13 +5,15 @@ slug: /building-sql/query-builder
 
 # Query builder
 
-All we know that it is often thing that query builders are sucks. Usually it happens cause they need to support all SQL dialects, which are a lot.
-But, with just one dialect, we managed to make builder that will be flexible enough, and will support all of the possilbe SQLite queries.
+All we know that it is often thing that query builders are sucks. Usually it happens because they need to support all SQL dialects, which are a lot.
+But, with just one dialect, we managed to make a builder that will be flexible enough, and will support all the possible SQLite queries.
 
-And if query builder functionality is not enough you could always use [raw queries](raw) and even embed them into query builder. When you use
+Also, it is fully immutable. When you make any object call, it returns a new object instance. It is especially helpful when you are building composable queries.
+
+And if query builder functionality is not enough, you could always use [raw queries](raw) and even embed them into query builder. When you use
 raw builder your queries still remain reactive (but you need to mark tables you use with `sql.table('tableName')`).
 
-For now it still miss some functionality like create table/create trigger. We plan to add support for them too.
+For now, it still misses some functionality like create table/create trigger. We plan to add support for them too.
 
 ## Installation
 
