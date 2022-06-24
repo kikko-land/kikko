@@ -5,7 +5,7 @@ import {
   DbProvider,
   EnsureDbLoaded,
   IInitDbClientConfig,
-  migrationPlugin,
+  migrationsPlugin,
   reactiveQueriesPlugin,
 } from "@trong-orm/react";
 import sqlWasmUrl from "@trong-orm/sql.js/dist/sql-wasm.wasm?url";
@@ -20,8 +20,8 @@ const config: IInitDbClientConfig = {
     wasmUrl: sqlWasmUrl,
   }),
   plugins: [
-    migrationPlugin([createNotesTableMigration]),
-    reactiveQueriesPlugin,
+    migrationsPlugin({ migrations: [createNotesTableMigration] }),
+    reactiveQueriesPlugin(),
   ],
 };
 

@@ -1,4 +1,9 @@
-import { IDbState, runInTransaction, runQuery } from "@trong-orm/core";
+import {
+  IDbClientPlugin,
+  IDbState,
+  runInTransaction,
+  runQuery,
+} from "@trong-orm/core";
 import { generateInsert, sql } from "@trong-orm/sql";
 
 import { IMigration } from "./types";
@@ -46,8 +51,9 @@ const runMigrations = (state: IDbState, migrations: IMigration[]) => {
   });
 };
 
-export const migrationPlugin =
-  (migrations: IMigration[]) => (state: IDbState) => {
+export const migrationsPlugin =
+  ({ migrations }: { migrations: IMigration[] }): IDbClientPlugin =>
+  (state: IDbState) => {
     state.sharedState.eventsEmitter.on("initialized", async () => {
       await runMigrations(state, migrations);
     });

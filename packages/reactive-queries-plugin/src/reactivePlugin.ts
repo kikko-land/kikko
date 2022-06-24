@@ -21,7 +21,7 @@ const notifyTablesContentChanged = async (
   );
 };
 
-export const reactiveQueriesPlugin: IDbClientPlugin = (db) => {
+export const reactiveQueriesPlugin: () => IDbClientPlugin = () => (db) => {
   const transactionTables: Record<string, { writeTables: Set<string> }> = {};
   const { dbName, eventsEmitter, stopStarted$ } = db.sharedState;
 
