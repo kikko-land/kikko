@@ -26,7 +26,7 @@ export interface IValuesStatement
     ICompoundState,
     ILimitOffsetState,
     ICTEState {
-  values: (IBaseToken | ISqlAdapter | IPrimitiveValue)[][];
+  _values: (IBaseToken | ISqlAdapter | IPrimitiveValue)[][];
 }
 
 export const values = (
@@ -34,12 +34,13 @@ export const values = (
 ): IValuesStatement => {
   return {
     type: TokenType.Values,
-    values: vals,
+    _values: vals,
+    _compoundValues: [],
+    _orderByValues: [],
+    _limitOffsetValue: buildInitialLimitOffsetState(),
+
     orderBy,
     withoutOrder,
-    compoundValues: [],
-    orderByValues: [],
-    limitOffsetValue: buildInitialLimitOffsetState(),
 
     union,
     unionAll,
@@ -58,17 +59,19 @@ export const values = (
     toSql() {
       return sql.join(
         [
-          this.cteValue ? this.cteValue : null,
+          this._cteValue ? this._cteValue : null,
           sql`VALUES ${sql.join(
-            this.values.map((val) => sql`(${sql.join(val)})`)
+            this._values.map((val) => sql`(${sql.join(val)})`)
           )}`,
-          this.compoundValues.length > 0
-            ? sql.join(this.compoundValues, " ")
+          this._compoundValues.length > 0
+            ? sql.join(this._compoundValues, " ")
             : null,
-          this.orderByValues.length > 0
-            ? sql.join([sql`ORDER BY`, sql.join(this.orderByValues)], " ")
+          this._orderByValues.length > 0
+            ? sql.join([sql`ORDER BY`, sql.join(this._orderByValues)], " ")
             : null,
-          this.limitOffsetValue.toSql().isEmpty ? null : this.limitOffsetValue,
+          this._limitOffsetValue.toSql().isEmpty
+            ? null
+            : this._limitOffsetValue,
         ].filter((v) => v),
         " "
       );

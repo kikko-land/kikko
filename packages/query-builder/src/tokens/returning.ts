@@ -6,11 +6,11 @@ import { toToken } from "./rawSql";
 import { ISelectStatement } from "./statements/select";
 
 type IReturnValue = {
-  toSelect: "*" | string | ISelectStatement | IBaseToken;
-  alias?: string;
+  _toSelect: "*" | string | ISelectStatement | IBaseToken;
+  _alias?: string;
 };
 export interface IReturningClause extends IBaseToken<TokenType.Returning> {
-  values: IReturnValue[];
+  _values: IReturnValue[];
 }
 
 type IReturningArg =
@@ -21,7 +21,7 @@ type IReturningArg =
   | { [key: string]: ISqlAdapter | string | ISelectStatement };
 
 export interface IReturningState {
-  returningValue: IReturningClause;
+  _returningValue: IReturningClause;
 
   returning: typeof returningForState;
   withoutReturning: typeof withoutReturningForState;
@@ -30,29 +30,29 @@ export interface IReturningState {
 export const returning = (...args: IReturningArg[]): IReturningClause => {
   return {
     type: TokenType.Returning,
-    values: args.flatMap((arg): IReturnValue | IReturnValue[] => {
+    _values: args.flatMap((arg): IReturnValue | IReturnValue[] => {
       if (isSql(arg) || isToken(arg)) {
-        return { toSelect: toToken(arg) };
+        return { _toSelect: toToken(arg) };
       } else if (typeof arg === "string") {
-        return { toSelect: arg };
+        return { _toSelect: arg };
       } else {
         return Object.entries(arg).map(([columnOrAs, aliasOrQuery]) => {
           return typeof aliasOrQuery === "string"
-            ? { toSelect: columnOrAs, alias: aliasOrQuery }
-            : { toSelect: toToken(aliasOrQuery), alias: columnOrAs };
+            ? { _toSelect: columnOrAs, _alias: aliasOrQuery }
+            : { _toSelect: toToken(aliasOrQuery), _alias: columnOrAs };
         });
       }
     }),
     toSql() {
-      return this.values.length > 0
+      return this._values.length > 0
         ? sql`RETURNING ${sql.join(
-            this.values.map((val) => {
-              if (val.toSelect === "*") {
+            this._values.map((val) => {
+              if (val._toSelect === "*") {
                 return sql`*`;
               } else {
-                return val.alias
-                  ? alias(val.toSelect, val.alias)
-                  : val.toSelect;
+                return val._alias
+                  ? alias(val._toSelect, val._alias)
+                  : val._toSelect;
               }
             })
           )}`
@@ -67,9 +67,9 @@ export function returningForState<T extends IReturningState>(
 ): T {
   return {
     ...this,
-    returningValue: {
-      ...this.returningValue,
-      values: [...this.returningValue.values, ...returning(...args).values],
+    _returningValue: {
+      ...this._returningValue,
+      _values: [...this._returningValue._values, ...returning(...args)._values],
     },
   };
 }
@@ -79,6 +79,6 @@ export function withoutReturningForState<T extends IReturningState>(
 ): T {
   return {
     ...this,
-    returningValue: returning(),
+    _returningValue: returning(),
   };
 }

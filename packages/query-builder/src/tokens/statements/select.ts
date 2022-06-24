@@ -42,15 +42,15 @@ export interface ISelectStatement
     ICTEState,
     IWhereState,
     IFromState {
-  distinctValue: boolean;
+  _distinctValue: boolean;
 
-  selectValues: {
+  _selectValues: {
     toSelect: "*" | string | ISelectStatement | IBaseToken;
     alias?: string;
   }[];
 
-  groupByValues: (IBaseToken | string)[];
-  havingValue?: IBaseToken;
+  _groupByValues: (IBaseToken | string)[];
+  _havingValue?: IBaseToken;
 
   distinct(val: boolean): ISelectStatement;
   select(...args: ISelectArgType[]): ISelectStatement;
@@ -70,7 +70,7 @@ type ISelectArgType =
 
 const selectArgsToValues = (
   args: ISelectArgType[]
-): ISelectStatement["selectValues"] => {
+): ISelectStatement["_selectValues"] => {
   if (args === null || args === undefined || args.length === 0)
     return [{ toSelect: "*" }];
 
@@ -90,23 +90,26 @@ const selectArgsToValues = (
 export const select = (...selectArgs: ISelectArgType[]): ISelectStatement => {
   return {
     type: TokenType.Select,
-    fromValues: [],
-    selectValues: selectArgsToValues(selectArgs),
-    distinctValue: false,
-    groupByValues: [],
-    compoundValues: [],
-    orderByValues: [],
-    limitOffsetValue: buildInitialLimitOffsetState(),
-    select(...selectArgs: ISelectArgType[]) {
+    _fromValues: [],
+    _selectValues: selectArgsToValues(selectArgs),
+    _distinctValue: false,
+    _groupByValues: [],
+    _compoundValues: [],
+    _orderByValues: [],
+    _limitOffsetValue: buildInitialLimitOffsetState(),
+    select(...selectArgs: ISelectArgType[]): ISelectStatement {
       return {
         ...this,
-        selectValues: [...this.selectValues, ...selectArgsToValues(selectArgs)],
+        _selectValues: [
+          ...this._selectValues,
+          ...selectArgsToValues(selectArgs),
+        ],
       };
     },
-    distinct(val: boolean) {
+    distinct(val: boolean): ISelectStatement {
       return {
         ...this,
-        distinctValue: val,
+        _distinctValue: val,
       };
     },
     from,
@@ -119,13 +122,13 @@ export const select = (...selectArgs: ISelectArgType[]): ISelectStatement => {
     groupBy(...values: (IBaseToken | ISql | string)[]): ISelectStatement {
       return {
         ...this,
-        groupByValues: values.map((val) =>
+        _groupByValues: values.map((val) =>
           typeof val === "string" ? val : toToken(val)
         ),
       };
     },
-    having(val: IBaseToken | ISql) {
-      return { ...this, havingValue: toToken(val) };
+    having(val: IBaseToken | ISql): ISelectStatement {
+      return { ...this, _havingValue: toToken(val) };
     },
     orderBy,
     withoutOrder,
@@ -143,11 +146,11 @@ export const select = (...selectArgs: ISelectArgType[]): ISelectStatement => {
     toSql() {
       return sql.join(
         [
-          this.cteValue ? this.cteValue : null,
+          this._cteValue ? this._cteValue : null,
           sql`SELECT`,
-          this.distinctValue ? sql`DISTINCT` : null,
+          this._distinctValue ? sql`DISTINCT` : null,
           sql.join(
-            this.selectValues.map((val) => {
+            this._selectValues.map((val) => {
               if (val.toSelect === "*") {
                 return sql`*`;
               } else {
@@ -157,27 +160,29 @@ export const select = (...selectArgs: ISelectArgType[]): ISelectStatement => {
               }
             })
           ),
-          this.fromValues.length === 0
+          this._fromValues.length === 0
             ? null
-            : sql`FROM ${sql.join(this.fromValues)}`,
-          this.whereValue ? sql`WHERE ${this.whereValue}` : null,
-          this.groupByValues.length > 0
+            : sql`FROM ${sql.join(this._fromValues)}`,
+          this._whereValue ? sql`WHERE ${this._whereValue}` : null,
+          this._groupByValues.length > 0
             ? sql`GROUP BY ${sql.join(
-                this.groupByValues.map((val) =>
+                this._groupByValues.map((val) =>
                   typeof val === "string" ? sql.liter(val) : val
                 )
               )}`
             : null,
-          this.groupByValues.length > 0 && this.havingValue
-            ? sql`HAVING ${this.havingValue}`
+          this._groupByValues.length > 0 && this._havingValue
+            ? sql`HAVING ${this._havingValue}`
             : null,
-          this.compoundValues.length > 0
-            ? sql.join(this.compoundValues, " ")
+          this._compoundValues.length > 0
+            ? sql.join(this._compoundValues, " ")
             : null,
-          this.orderByValues.length > 0
-            ? sql.join([sql`ORDER BY`, sql.join(this.orderByValues)], " ")
+          this._orderByValues.length > 0
+            ? sql.join([sql`ORDER BY`, sql.join(this._orderByValues)], " ")
             : null,
-          this.limitOffsetValue.toSql().isEmpty ? null : this.limitOffsetValue,
+          this._limitOffsetValue.toSql().isEmpty
+            ? null
+            : this._limitOffsetValue,
         ].filter((v) => v),
         " "
       );

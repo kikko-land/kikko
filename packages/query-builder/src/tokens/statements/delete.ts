@@ -15,14 +15,14 @@ export interface IDeleteStatement
     ICTEState,
     IWhereState,
     IReturningState {
-  deleteTable: IContainsTable;
+  _deleteTable: IContainsTable;
 }
 
 export const deleteFrom = (tbl: string | IContainsTable): IDeleteStatement => {
   return {
     type: TokenType.Delete,
-    deleteTable: typeof tbl === "string" ? sql.table(tbl) : tbl,
-    returningValue: returning(),
+    _deleteTable: typeof tbl === "string" ? sql.table(tbl) : tbl,
+    _returningValue: returning(),
 
     with: With,
     withoutWith,
@@ -37,10 +37,10 @@ export const deleteFrom = (tbl: string | IContainsTable): IDeleteStatement => {
     toSql() {
       return sql.join(
         [
-          this.cteValue ? this.cteValue : null,
-          sql`DELETE FROM ${this.deleteTable}`,
-          this.whereValue ? sql`WHERE ${this.whereValue}` : null,
-          this.returningValue,
+          this._cteValue ? this._cteValue : null,
+          sql`DELETE FROM ${this._deleteTable}`,
+          this._whereValue ? sql`WHERE ${this._whereValue}` : null,
+          this._returningValue,
         ].filter((v) => v),
         " "
       );

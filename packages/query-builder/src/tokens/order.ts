@@ -4,26 +4,26 @@ import { IBaseToken, TokenType } from "../types";
 import { toToken } from "./rawSql";
 
 export interface IOrderTerm extends IBaseToken<TokenType.OrderTerm> {
-  orderType: "DESC" | "ASC";
-  val: IBaseToken | string;
-  nullOrder?: "NULLS FIRST" | "NULLS LAST";
+  _orderType: "DESC" | "ASC";
+  _val: IBaseToken | string;
+  _nullOrder?: "NULLS FIRST" | "NULLS LAST";
 }
 
 const orderTerm = (
-  type: IOrderTerm["orderType"],
+  type: IOrderTerm["_orderType"],
   val: IBaseToken | ISqlAdapter | string,
-  nullOrder: IOrderTerm["nullOrder"]
+  nullOrder: IOrderTerm["_nullOrder"]
 ): IOrderTerm => {
   return {
     type: TokenType.OrderTerm,
-    orderType: type,
-    val: typeof val === "string" ? val : toToken(val),
-    nullOrder,
+    _orderType: type,
+    _val: typeof val === "string" ? val : toToken(val),
+    _nullOrder: nullOrder,
     toSql() {
       return sql.join(
         [
-          typeof this.val === "string" ? sql.liter(this.val) : this.val,
-          sql.raw(this.orderType),
+          typeof this._val === "string" ? sql.liter(this._val) : this._val,
+          sql.raw(this._orderType),
           nullOrder ? sql.raw(nullOrder) : sql.empty,
         ],
         " "
@@ -47,7 +47,7 @@ export const asc = (
 };
 
 export interface IOrderState {
-  orderByValues: IOrderTerm[];
+  _orderByValues: IOrderTerm[];
 
   orderBy: typeof orderBy;
   withoutOrder: typeof withoutOrder;
@@ -59,13 +59,13 @@ export function orderBy<T extends IOrderState>(
 ): T {
   return {
     ...this,
-    orderByValues: [...this.orderByValues, ...orderTerm],
+    _orderByValues: [...this._orderByValues, ...orderTerm],
   };
 }
 
 export function withoutOrder<T extends IOrderState>(this: T): T {
   return {
     ...this,
-    orderByValue: undefined,
+    _orderByValue: undefined,
   };
 }

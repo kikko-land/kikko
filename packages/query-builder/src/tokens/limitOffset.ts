@@ -6,12 +6,12 @@ import { wrapParentheses } from "./utils";
 
 export interface ILimitOffsetTerm
   extends IBaseToken<TokenType.LimitOffsetTerm> {
-  limitValue?: IBaseToken;
-  offsetValue?: IBaseToken;
+  _limitValue?: IBaseToken;
+  _offsetValue?: IBaseToken;
 }
 
 export interface ILimitOffsetState {
-  limitOffsetValue: ILimitOffsetTerm;
+  _limitOffsetValue: ILimitOffsetTerm;
 
   limit: typeof limit;
   offset: typeof offset;
@@ -23,14 +23,14 @@ export const buildInitialLimitOffsetState = (): ILimitOffsetTerm => {
   return {
     type: TokenType.LimitOffsetTerm,
     toSql() {
-      return this.limitValue
+      return this._limitValue
         ? sql.join(
             [
-              this.limitValue
-                ? sql`LIMIT ${wrapParentheses(this.limitValue)}`
+              this._limitValue
+                ? sql`LIMIT ${wrapParentheses(this._limitValue)}`
                 : null,
-              this.offsetValue && this.limitValue
-                ? sql`OFFSET ${wrapParentheses(this.offsetValue)}`
+              this._offsetValue && this._limitValue
+                ? sql`OFFSET ${wrapParentheses(this._offsetValue)}`
                 : null,
             ].filter((v) => v),
             " "
@@ -46,14 +46,14 @@ export function limit<T extends ILimitOffsetState>(
 ): T {
   return {
     ...this,
-    limitOffsetValue: { ...this.limitOffsetValue, limitValue: toToken(val) },
+    _limitOffsetValue: { ...this._limitOffsetValue, _limitValue: toToken(val) },
   };
 }
 
 export function withoutLimit<T extends ILimitOffsetState>(this: T): T {
   return {
     ...this,
-    limitOffsetValue: { ...this.limitOffsetValue, limitValue: undefined },
+    _limitOffsetValue: { ...this._limitOffsetValue, _limitValue: undefined },
   };
 }
 
@@ -63,13 +63,16 @@ export function offset<T extends ILimitOffsetState>(
 ): T {
   return {
     ...this,
-    limitOffsetValue: { ...this.limitOffsetValue, offsetValue: toToken(val) },
+    _limitOffsetValue: {
+      ...this._limitOffsetValue,
+      _offsetValue: toToken(val),
+    },
   };
 }
 
 export function withoutOffset<T extends ILimitOffsetState>(this: T): T {
   return {
     ...this,
-    limitOffsetValue: { ...this.limitOffsetValue, offsetValue: undefined },
+    _limitOffsetValue: { ...this._limitOffsetValue, _offsetValue: undefined },
   };
 }

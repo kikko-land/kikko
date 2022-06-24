@@ -5,7 +5,7 @@ import { wrapParentheses } from "./utils";
 
 // TODO: join
 export interface IFromState {
-  fromValues: (IContainsTable | IBaseToken)[];
+  _fromValues: (IContainsTable | IBaseToken)[];
 
   from: typeof from;
 }
@@ -13,11 +13,11 @@ export interface IFromState {
 export function from<T extends IFromState>(
   this: T,
   ...values: (IBaseToken | ISqlAdapter | IContainsTable | string)[]
-) {
+): T {
   return {
     ...this,
-    fromValues: [
-      ...this.fromValues,
+    _fromValues: [
+      ...this._fromValues,
       ...values.map((v) =>
         typeof v === "string" ? sql.table(v) : wrapParentheses(v)
       ),

@@ -5,8 +5,8 @@ import { toToken } from "./rawSql";
 import { wrapParentheses } from "./utils";
 
 export type IAlias = IBaseToken<TokenType.Alias> & {
-  left: IBaseToken;
-  right: string;
+  _left: IBaseToken;
+  _right: string;
 };
 
 export const alias = (
@@ -15,10 +15,10 @@ export const alias = (
 ): IAlias => {
   return {
     type: TokenType.Alias,
-    left: toToken(left),
-    right,
+    _left: toToken(left),
+    _right: right,
     toSql() {
-      return sql`${wrapParentheses(this.left)} AS ${sql.liter(this.right)}`;
+      return sql`${wrapParentheses(this._left)} AS ${sql.liter(this._right)}`;
     },
   };
 };

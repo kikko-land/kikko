@@ -7,7 +7,7 @@ import { wrapParentheses } from "./utils";
 // TODO: in null support
 // TODO: add ESCAPE for LIKE/NOT LIKE
 export interface IBinaryOperator extends IBaseToken<TokenType.Binary> {
-  operator:
+  _operator:
     | "<"
     | "<="
     | ">"
@@ -29,8 +29,8 @@ export interface IBinaryOperator extends IBaseToken<TokenType.Binary> {
     | "NOT MATCH"
     | "REGEXP"
     | "NOT REGEXP";
-  left: IBaseToken;
-  right: IBaseToken | IBaseToken[];
+  _left: IBaseToken;
+  _right: IBaseToken | IBaseToken[];
 }
 
 export const isBinaryOperator = (t: unknown): t is IBinaryOperator => {
@@ -43,7 +43,7 @@ export const isBinaryOperator = (t: unknown): t is IBinaryOperator => {
 };
 
 const binaryOperator = (
-  operator: IBinaryOperator["operator"],
+  operator: IBinaryOperator["_operator"],
   left: IBaseToken | ISqlAdapter | IPrimitiveValue,
   right:
     | IBaseToken
@@ -53,14 +53,14 @@ const binaryOperator = (
 ): IBinaryOperator => {
   return {
     type: TokenType.Binary,
-    left: toToken(left),
-    right: Array.isArray(right) ? right.map(toToken) : toToken(right),
-    operator,
+    _left: toToken(left),
+    _right: Array.isArray(right) ? right.map(toToken) : toToken(right),
+    _operator: operator,
     toSql() {
-      return sql`${wrapParentheses(this.left)} ${sql.raw(this.operator)} ${
-        Array.isArray(this.right)
-          ? sql`(${sql.join(this.right)})`
-          : wrapParentheses(this.right)
+      return sql`${wrapParentheses(this._left)} ${sql.raw(this._operator)} ${
+        Array.isArray(this._right)
+          ? sql`(${sql.join(this._right)})`
+          : wrapParentheses(this._right)
       }`;
     },
   };

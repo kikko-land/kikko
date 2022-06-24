@@ -8,12 +8,12 @@ import { isValues, IValuesStatement } from "./statements/values";
 type IUnionArg = ISelectStatement | IValuesStatement | ISql;
 
 export interface ICompoundOperator extends IBaseToken<TokenType.OrderTerm> {
-  compoundType: "UNION" | "UNION ALL" | "INTERSECT" | "EXCEPT";
-  value: ISelectStatement | IValuesStatement | IBaseToken<TokenType.RawSql>;
+  _compoundType: "UNION" | "UNION ALL" | "INTERSECT" | "EXCEPT";
+  _value: ISelectStatement | IValuesStatement | IBaseToken<TokenType.RawSql>;
 }
 
 export interface ICompoundState {
-  compoundValues: ICompoundOperator[];
+  _compoundValues: ICompoundOperator[];
 
   union: typeof union;
   unionAll: typeof unionAll;
@@ -29,21 +29,21 @@ const makeCompounds = <T extends ICompoundState>(
 ): T => {
   return {
     ...state,
-    compoundValues: [
-      ...state.compoundValues,
+    _compoundValues: [
+      ...state._compoundValues,
       ...values.map((val): ICompoundOperator => {
         const token = toToken(val);
 
         return {
           type: TokenType.OrderTerm,
-          compoundType: type,
-          value: isSelect(token)
+          _compoundType: type,
+          _value: isSelect(token)
             ? token.withoutWith().withoutLimit().withoutOrder().withoutOffset()
             : isValues(token)
             ? token.withoutWith().withoutLimit().withoutOrder().withoutOffset()
             : (token as IValuesStatement | IBaseToken<TokenType.RawSql>),
           toSql() {
-            return sql`${sql.raw(this.compoundType)} ${this.value}`;
+            return sql`${sql.raw(this._compoundType)} ${this._value}`;
           },
         };
       }),
@@ -77,5 +77,5 @@ export function except<T extends ICompoundState>(
 }
 
 export function withoutCompound<T extends ICompoundState>(this: T) {
-  return { ...this, compoundValues: [] };
+  return { ...this, _compoundValues: [] };
 }

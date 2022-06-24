@@ -47,8 +47,8 @@ export interface IUpdateStatement
     IFromState,
     IReturningState,
     IOrReplaceState {
-  updateTable: IContainsTable;
-  setValues: ISetValue[];
+  _updateTable: IContainsTable;
+  _setValues: ISetValue[];
 
   set(...args: ISetArgType[]): IUpdateStatement;
 }
@@ -68,10 +68,10 @@ type ISetArgType =
 export const update = (tbl: string | IContainsTable): IUpdateStatement => {
   return {
     type: TokenType.Update,
-    updateTable: typeof tbl === "string" ? sql.table(tbl) : tbl,
-    setValues: [],
-    fromValues: [],
-    returningValue: returning(),
+    _updateTable: typeof tbl === "string" ? sql.table(tbl) : tbl,
+    _setValues: [],
+    _fromValues: [],
+    _returningValue: returning(),
 
     with: With,
     withoutWith,
@@ -91,7 +91,7 @@ export const update = (tbl: string | IContainsTable): IUpdateStatement => {
     orReplace,
     orRollback,
 
-    set(...args: ISetArgType[]) {
+    set(...args: ISetArgType[]): IUpdateStatement {
       const vals = args.flatMap((m): ISetValue | ISetValue[] => {
         if (isToken(m)) {
           return m;
@@ -107,19 +107,21 @@ export const update = (tbl: string | IContainsTable): IUpdateStatement => {
         }
       });
 
-      return { ...this, setValues: [...this.setValues, ...vals] };
+      return { ...this, _setValues: [...this._setValues, ...vals] };
     },
 
     toSql() {
       return sql.join(
         [
-          this.cteValue ? this.cteValue : null,
+          this._cteValue ? this._cteValue : null,
           sql`UPDATE`,
-          this.orReplaceValue ? sql`OR ${sql.raw(this.orReplaceValue)}` : null,
-          this.updateTable,
+          this._orReplaceValue
+            ? sql`OR ${sql.raw(this._orReplaceValue)}`
+            : null,
+          this._updateTable,
           sql`SET`,
           sql.join(
-            this.setValues.map((val) =>
+            this._setValues.map((val) =>
               isToken(val)
                 ? val
                 : sql`${sql.liter(val.columnName)} = ${wrapParentheses(
@@ -127,11 +129,11 @@ export const update = (tbl: string | IContainsTable): IUpdateStatement => {
                   )}`
             )
           ),
-          this.fromValues.length === 0
+          this._fromValues.length === 0
             ? null
-            : sql`FROM ${sql.join(this.fromValues)}`,
-          this.whereValue ? sql`WHERE ${this.whereValue}` : null,
-          this.returningValue,
+            : sql`FROM ${sql.join(this._fromValues)}`,
+          this._whereValue ? sql`WHERE ${this._whereValue}` : null,
+          this._returningValue,
         ].filter((v) => v),
         " "
       );

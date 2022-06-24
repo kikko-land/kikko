@@ -1,5 +1,5 @@
 export interface IOrReplaceState {
-  orReplaceValue?: "ABORT" | "FAIL" | "IGNORE" | "REPLACE" | "ROLLBACK";
+  _orReplaceValue?: "ABORT" | "FAIL" | "IGNORE" | "REPLACE" | "ROLLBACK";
 
   orAbort: typeof orAbort;
   orFail: typeof orFail;
@@ -9,21 +9,21 @@ export interface IOrReplaceState {
 }
 
 export function orAbort<T extends IOrReplaceState>(this: T): T {
-  return { ...this, orReplaceValue: "ABORT" };
+  return { ...this, _orReplaceValue: "ABORT" };
 }
 
 export function orFail<T extends IOrReplaceState>(this: T): T {
-  return { ...this, orReplaceValue: "FAIL" };
+  return { ...this, _orReplaceValue: "FAIL" };
 }
 
 export function orIgnore<T extends IOrReplaceState>(this: T): T {
-  return { ...this, orReplaceValue: "IGNORE" };
+  return { ...this, _orReplaceValue: "IGNORE" };
 }
 
 export function orReplace<T extends IOrReplaceState>(this: T): T {
-  return { ...this, orReplaceValue: "REPLACE" };
+  return { ...this, _orReplaceValue: "REPLACE" };
 }
 
 export function orRollback<T extends IOrReplaceState>(this: T): T {
-  return { ...this, orReplaceValue: "ROLLBACK" };
+  return { ...this, _orReplaceValue: "ROLLBACK" };
 }
