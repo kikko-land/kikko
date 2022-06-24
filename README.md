@@ -29,7 +29,7 @@ https://user-images.githubusercontent.com/7958527/174773307-9be37e1f-0700-45b4-8
 
 ## Currently supported
 
-#### SQLite Backends
+### SQLite Backends
 
 **Expo**: full support (both web and native)<br>
 **Web**: full support<br>
@@ -37,7 +37,7 @@ https://user-images.githubusercontent.com/7958527/174773307-9be37e1f-0700-45b4-8
 **Tauri**: WIP<br>
 **Cordova/Ionic**: WIP<br>
 
-#### Frameworks or render libs
+### Frameworks or render libs
 
 **React**: full support<br>
 **Angular**: WIP<br>
