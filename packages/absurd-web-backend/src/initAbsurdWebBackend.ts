@@ -24,7 +24,7 @@ export const initAbsurdWebBackend =
     wasmUrl,
     queryTimeout,
   }: {
-    wasmUrl: string;
+    wasmUrl: string | (() => Promise<string>);
     queryTimeout?: number;
   }): IDbBackend =>
   ({ dbName, stopped$ }: { dbName: string; stopped$: Observable<void> }) => {
@@ -79,10 +79,12 @@ export const initAbsurdWebBackend =
           )
         );
 
+        const url = typeof wasmUrl === "string" ? wasmUrl : await wasmUrl();
+
         messagesToWorker$.next({
           type: "initialize",
           dbName: dbName,
-          wasmUrl: new URL(wasmUrl, document.baseURI).toString(),
+          wasmUrl: new URL(url, document.baseURI).toString(),
         });
 
         await initPromise;
