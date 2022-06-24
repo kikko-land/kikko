@@ -1,6 +1,6 @@
 {
   "name": "@trong-orm/sql",
-  "version": "1.0.27",
+  "version": "1.0.28",
   "author": "Sergey Popov",
   "license": "MIT",
   "main": "./src/index.ts",

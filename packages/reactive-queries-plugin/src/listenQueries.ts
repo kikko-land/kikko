@@ -5,7 +5,7 @@ import { filter, Observable, startWith, switchMap, takeUntil } from "rxjs";
 import { IMessage } from "./getBroadcastCh";
 import { getReactiveState } from "./utils";
 
-export const subscribeToQueries = <D extends Record<string, unknown>>(
+export const listenQueries = <D extends Record<string, unknown>>(
   db: IDbState,
   queries: ISqlAdapter[]
 ): Observable<D[][]> => {

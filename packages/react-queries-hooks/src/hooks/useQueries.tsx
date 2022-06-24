@@ -1,6 +1,6 @@
 import { runInTransaction, withSuppressedLog } from "@trong-orm/core";
 import { IDbState } from "@trong-orm/core";
-import { subscribeToQueries } from "@trong-orm/reactive-queries-plugin";
+import { listenQueries } from "@trong-orm/reactive-queries-plugin";
 import { ISqlAdapter } from "@trong-orm/sql";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Falsy } from "rxjs";
@@ -52,7 +52,7 @@ export function useQueries<D extends Record<string, unknown>>(
 
     const db = suppressLog ? withSuppressedLog(dbState.db) : dbState.db;
 
-    const subscription = subscribeToQueries<D>(db, currentQueries).subscribe(
+    const subscription = listenQueries<D>(db, currentQueries).subscribe(
       (result) => {
         setData(result);
         setResponse({ type: "loaded" });

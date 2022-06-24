@@ -12,7 +12,7 @@ Here is how you can listen changes in DB tables:
 ```typescript
 const notesTable = sql.table("notes");
 
-subscribeToQueries(db, [select().from(notesTable)]).subscribe((res) => {
+listenQueries(db, [select().from(notesTable)]).subscribe((res) => {
   console.log("Queries result: ", res);
 });
 ```
