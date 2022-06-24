@@ -1,5 +1,5 @@
 {
-  "name": "@trong-orm/reactive-queries-plugin",
+  "name": "@trong-orm/native-expo-backend",
   "version": "1.0.33",
   "author": "Sergey Popov",
   "license": "MIT",
@@ -15,7 +15,7 @@
   "publishConfig": {
     "exports": {
       ".": {
-        "types": "./dist/reactive-queries-plugin/src/index.d.ts",
+        "types": "./dist/native-expo-backend/src/index.d.ts",
         "es2015": "./dist/index.es.js",
         "require": "./dist/index.umd.js",
         "import": "./dist/index.es.js",
@@ -24,7 +24,7 @@
     },
     "main": "./dist/index.umd.js",
     "module": "./dist/index.es.js",
-    "types": "./dist/reactive-queries-plugin/src/index.d.ts"
+    "types": "./dist/native-expo-backend/src/index.d.ts"
   },
   "scripts": {
     "compile": "yarn vite build",
@@ -34,11 +34,16 @@
   "dependencies": {
     "@trong-orm/core": "^1.0.33",
     "@trong-orm/sql": "^1.0.33",
-    "@trong-orm/query-builder": "^1.0.33",
-    "broadcast-channel": "^4.12.0",
-    "rxjs": "^7.5.5"
+    "@trong-orm/sql.js": "^1.6.7"
+  },
+  "peerDependencies": {
+    "expo-sqlite": ">=10.0.0"
   },
   "devDependencies": {
-    "@trong-orm/common-scripts": "*"
+    "expo-sqlite": ">=10.0.0",
+    "@trong-orm/common-scripts": "*",
+    "@types/emscripten": "^1.39.6",
+    "ts-essentials": "^9.1.2"
   }
 }
+

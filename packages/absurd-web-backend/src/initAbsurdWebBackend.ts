@@ -20,14 +20,14 @@ import DbWorker from "./worker/DB.worker?worker&inline";
 import { IInputWorkerMessage, IOutputWorkerMessage } from "./worker/types";
 
 export const initAbsurdWebBackend =
-  ({ wasmUrl, queryTimeout }: { wasmUrl: string; queryTimeout?: number }) =>
   ({
-    dbName,
-    stopped$,
+    wasmUrl,
+    queryTimeout,
   }: {
-    dbName: string;
-    stopped$: Observable<void>;
-  }): IDbBackend => {
+    wasmUrl: string;
+    queryTimeout?: number;
+  }): IDbBackend =>
+  ({ dbName, stopped$ }: { dbName: string; stopped$: Observable<void> }) => {
     const initializedWorker = new DbWorker();
     const messagesToWorker$ = new Subject<IInputWorkerMessage>();
     messagesToWorker$.pipe(takeUntil(stopped$)).subscribe((mes) => {

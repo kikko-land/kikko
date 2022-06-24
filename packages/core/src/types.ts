@@ -65,17 +65,20 @@ export type IQueryValue = number | string | Uint8Array | null;
 export type IQuery = { values: IQueryValue[]; text: string };
 export type IQueryResult = { columns: string[]; values: IQueryValue[][] };
 
-export interface IDbBackend {
+export type IDbBackend = (db: {
+  dbName: string;
+  stopped$: Observable<void>;
+}) => {
   initialize(): Promise<void>;
   execQueries(
     queries: IQuery[],
     opts: { log: { suppress: boolean; transactionId?: string } }
   ): Promise<IQueryResult[][]>;
-}
+};
 
 export interface ISharedDbState {
   dbName: string;
-  dbBackend: IDbBackend;
+  dbBackend: ReturnType<IDbBackend>;
 
   runningState$: BehaviorSubject<"running" | "stopping" | "stopped">;
   stopStarted$: Observable<void>;

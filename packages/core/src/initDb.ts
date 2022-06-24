@@ -24,7 +24,7 @@ export type IDbClientPlugin = (state: IDbState) => IDbState;
 
 export type IInitDbClientConfig = {
   dbName: string;
-  dbBackend: (db: { dbName: string; stopped$: Observable<void> }) => IDbBackend;
+  dbBackend: IDbBackend;
   plugins?: IDbClientPlugin[];
   queriesMiddlewares?: IQueriesMiddleware[];
 };
