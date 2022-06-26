@@ -29,7 +29,7 @@ With CRA:
 https://github.com/trong-orm/trong-cra-example
 
 With Vite + React:
-https://github.com/trong-orm/trong-orm/tree/main/packages/vite-react-examples
+https://github.com/trong-orm/trong-orm/tree/main/packages/vite-react-example
 
 With Expo (native+web):
 https://github.com/trong-orm/trong-expo-example
