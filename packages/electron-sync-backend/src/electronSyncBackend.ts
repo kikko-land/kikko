@@ -1,16 +1,16 @@
 import { IDbBackend, IQuery, IQueryResult } from "@trong-orm/core";
-import type sqlite3 from "sqlite3";
+import type { Database } from "sqlite3";
 
 declare global {
   interface Window {
-    sqliteDb: typeof sqlite3;
+    initSqlite3Db: (file: string) => Database;
   }
 }
 
 export const electronSyncBackend =
   (path: (dbName: string) => string): IDbBackend =>
   ({ dbName, stopped$ }) => {
-    const db = new window.sqliteDb.Database(path(dbName));
+    const db = window.initSqlite3Db(path(dbName));
 
     db.serialize();
 
