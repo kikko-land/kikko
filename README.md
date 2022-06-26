@@ -122,23 +122,14 @@ export const List = () => {
         <br />
         <br />
 
-        <button
-          type="submit"
-          disabled={
-            createNoteState.type === "running" ||
-            createNoteState.type === "waitingDb"
-          }
-        >
+        <button type="submit" disabled={createNoteState.type === "running"}>
           {createNoteState.type === "running" ? "Loading..." : "Submit"}
         </button>
       </form>
       <br />
       <button
         type="submit"
-        disabled={
-          deleteAllState.type === "running" ||
-          deleteAllState.type === "waitingDb"
-        }
+        disabled={deleteAllState.type === "running"}
         onClick={deleteAll}
       >
         {deleteAllState.type === "running" ? "Loading..." : "Delete all"}
