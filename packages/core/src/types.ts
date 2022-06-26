@@ -63,7 +63,7 @@ export interface IDbState {
 
 export type IQueryValue = number | string | Uint8Array | null;
 export type IQuery = { values: IQueryValue[]; text: string };
-export type IQueryResult = { columns: string[]; values: IQueryValue[][] };
+export type IQueryResult = Record<string, IQueryValue>[];
 
 export type IDbBackend = (db: {
   dbName: string;

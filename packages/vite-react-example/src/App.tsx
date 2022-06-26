@@ -1,6 +1,6 @@
 import "./builder-examples";
 
-import { initAbsurdWebBackend } from "@trong-orm/absurd-web-backend";
+import { absurdWebBackend } from "@trong-orm/absurd-web-backend";
 import {
   DbProvider,
   EnsureDbLoaded,
@@ -16,7 +16,7 @@ import { createNotesTableMigration } from "./migrations/createNotesTable";
 
 const config: IInitDbClientConfig = {
   dbName: "helloWorld",
-  dbBackend: initAbsurdWebBackend({
+  dbBackend: absurdWebBackend({
     wasmUrl: sqlWasmUrl,
   }),
   plugins: [

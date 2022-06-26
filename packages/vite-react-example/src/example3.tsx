@@ -1,4 +1,4 @@
-import { initAbsurdWebBackend } from "@trong-orm/absurd-web-backend";
+import { absurdWebBackend } from "@trong-orm/absurd-web-backend";
 import {
   deleteFrom,
   in$,
@@ -109,7 +109,7 @@ const createNotesTable: IMigration = {
 
 const config: IInitDbClientConfig = {
   dbName: "db-name",
-  dbBackend: initAbsurdWebBackend({
+  dbBackend: absurdWebBackend({
     wasmUrl: sqlWasmUrl,
   }),
   plugins: [

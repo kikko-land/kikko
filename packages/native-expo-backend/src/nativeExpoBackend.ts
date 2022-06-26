@@ -60,14 +60,7 @@ export const nativeExpoBackend =
 
               const goodResults = results as ResultSet[];
 
-              resolve(
-                goodResults.map((res) => [
-                  {
-                    columns: Object.keys(res.rows[0] || {}),
-                    values: res.rows.map((obj) => Object.values(obj)),
-                  },
-                ])
-              );
+              resolve([goodResults.map(({ rows }) => rows)]);
             }
           );
         });

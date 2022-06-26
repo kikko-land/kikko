@@ -1,0 +1,4 @@
+{
+  "extends": "@trong-orm/common-scripts/tsconfig.base.json",
+  "include": ["src"]
+}

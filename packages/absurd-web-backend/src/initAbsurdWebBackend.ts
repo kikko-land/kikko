@@ -1,4 +1,5 @@
-import { IDbBackend, IQuery } from "@trong-orm/core";
+import { IDbBackend, IQuery, IQueryResult } from "@trong-orm/core";
+import { QueryExecResult } from "@trong-orm/sql.js";
 import { initBackend } from "absurd-sql/dist/indexeddb-main-thread";
 import {
   filter,
@@ -19,7 +20,21 @@ import { IBackendState } from "./types";
 import DbWorker from "./worker/DB.worker?worker&inline";
 import { IInputWorkerMessage, IOutputWorkerMessage } from "./worker/types";
 
-export const initAbsurdWebBackend =
+const mapRows = <T extends Record<string, unknown>>(
+  result: QueryExecResult
+) => {
+  return (result?.values?.map((res) => {
+    const obj: Record<string, unknown> = {};
+
+    result.columns.forEach((col, i) => {
+      obj[col] = res[i];
+    });
+
+    return obj;
+  }) || []) as T[];
+};
+
+export const absurdWebBackend =
   ({
     wasmUrl,
     queryTimeout,
@@ -89,8 +104,10 @@ export const initAbsurdWebBackend =
 
         await initPromise;
       },
-      execQueries(queries: IQuery[], opts) {
-        return runWorkerCommand(state, buildRunQueriesCommand(queries, opts));
+      async execQueries(queries: IQuery[], opts) {
+        return (
+          await runWorkerCommand(state, buildRunQueriesCommand(queries, opts))
+        ).map((results) => results.map((rows) => mapRows(rows)));
       },
     };
   };

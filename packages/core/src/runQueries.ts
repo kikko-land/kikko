@@ -6,21 +6,8 @@ import {
   INextQueriesMiddleware,
   IQueriesMiddleware,
   IQueriesMiddlewareState,
-  IQueryResult,
 } from "./types";
 import { assureDbIsRunning, unwrapQueries } from "./utils";
-
-const mapRows = <T extends Record<string, unknown>>(result: IQueryResult) => {
-  return (result?.values?.map((res) => {
-    const obj: Record<string, unknown> = {};
-
-    result.columns.forEach((col, i) => {
-      obj[col] = res[i];
-    });
-
-    return obj;
-  }) || []) as T[];
-};
 
 const runQueriesMiddleware: IQueriesMiddleware = async ({
   dbState,
@@ -81,7 +68,7 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
         );
       }
 
-      return queriesResults[0] ? mapRows(queriesResults[0]) : [];
+      return queriesResults[0] ? queriesResults[0] : [];
     });
 
     return { dbState, result, queries };
