@@ -33,7 +33,7 @@ import {
   migrationPlugin,
   reactiveQueriesPlugin,
 } from "@trong-orm/react";
-import { initAbsurdWebBackend } from "@trong-orm/absurd-web-backend";
+import { absurdWebBackend } from "@trong-orm/absurd-web-backend";
 // For Vite:
 import sqlWasmUrl from "@trong-orm/sql.js/dist/sql-wasm.wasm?url";
 // For CRA:
@@ -60,7 +60,7 @@ const createNotesTable: IMigration = {
 
 const config: IInitDbClientConfig = {
   dbName: "db-name",
-  dbBackend: initAbsurdWebBackend({
+  dbBackend: absurdWebBackend({
     wasmUrl: sqlWasmUrl,
   }),
   plugins: [

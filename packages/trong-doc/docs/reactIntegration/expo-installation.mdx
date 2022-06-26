@@ -61,7 +61,7 @@ const config: IInitDbClientConfig = {
   dbName: "trong-db",
   dbBackend:
     Platform.OS === "web"
-      ? require("@trong-orm/absurd-web-backend").initAbsurdWebBackend({
+      ? require("@trong-orm/absurd-web-backend").absurdWebBackend({
           wasmUrl: require("@trong-orm/sql.js/dist/sql-wasm.wasm").default,
         })
       : require("@trong-orm/native-expo-backend").nativeExpoBackend(),

@@ -1,4 +1,4 @@
-import { IDbBackend, IQuery, IQueryResult } from "@trong-orm/core";
+import { IDbBackend, IQuery } from "@trong-orm/core";
 import { QueryExecResult } from "@trong-orm/sql.js";
 import { initBackend } from "absurd-sql/dist/indexeddb-main-thread";
 import {
