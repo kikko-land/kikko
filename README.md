@@ -23,9 +23,18 @@ Trong ORM allows you to run reactive SQLite queries on any platforms with any fr
 - Multi-tab support for web. Mutate DB in one tab, and your data will be updated in other
 - [Plugin system](https://trong-orm.netlify.app/plugins/creating-your-own) allows you to integrate your own code on query/transaction run
 
-https://user-images.githubusercontent.com/7958527/174773307-9be37e1f-0700-45b4-8d25-aa2c83df6cec.mp4
+## Usage examples
 
-[Source code](https://github.com/trong-orm/trong-orm/tree/main/packages/vite-react-example)
+With CRA:
+https://github.com/trong-orm/trong-cra-example
+
+With Vite + React:
+https://github.com/trong-orm/trong-orm/tree/main/packages/vite-react-examples
+
+With Expo (native+web):
+https://github.com/trong-orm/trong-expo-example
+
+https://user-images.githubusercontent.com/7958527/174773307-9be37e1f-0700-45b4-8d25-aa2c83df6cec.mp4
 
 ## React quick example
 
@@ -195,13 +204,3 @@ Write performance: doing a bulk insert:
 The graphs are taken from [absurd-sql](https://github.com/jlongster/absurd-sql) repo.
 
 Overall, it works more consistent than IndexedDB. It is very often the case when IndexedDB crashes, but due to absurd-sql makes simple blocks read and writes, SQLite works more consistently.
-
-## Usage examples
-
-With CRA:
-https://github.com/trong-orm/trong-cra-example
-
-With Vite + React:
-https://github.com/trong-orm/trong-orm/tree/main/packages/vite-react-examples
-
-With Expo(native+web): https://github.com/trong-orm/trong-expo-example
