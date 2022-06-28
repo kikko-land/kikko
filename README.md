@@ -11,11 +11,11 @@
 > **CAUTION: Right now multi-tab mode doesn't work correctly and crashes sometimes due to [this bug](https://github.com/jlongster/absurd-sql/issues/30) at absurd-sql repo.
 > I am working to fix it.**
 
-Trong ORM allows you to run reactive SQLite queries on any platforms with any framework/lib. For the web apps it uses absurd-sql, for electron/react-native/ionic — native sqlite calls(WIP). It supports React, Vue(WIP), Angular(WIP). It is actually framework/lib-agnostic, so you can integrate it to any framework/render libs you want.
+Trong ORM allows you to run reactive SQLite queries on any platforms with any framework/lib. For the web apps it uses absurd-sql, for electron/react-native/ionic — native sqlite calls(WIP). It is actually framework/lib-agnostic, so you can integrate it to any framework/render libs you want.
 
 ## Core features
 
-- Lib or framework agnostic — use with React, Angular, Vue or write adapter for your own lib
+- Lib or framework agnostic — use with React or write adapter for your own lib
 - Run on any platform — web, mobile(react-native/expo, cordova/ionic), desktop(electron, tauri)
 - Full typescript support
 - Out-of-the-box [query builder](https://trong-orm.netlify.app/building-sql/query-builder). We tried to add support of all possible SQLite queries could be. But you can still use [raw SQL queries](https://trong-orm.netlify.app/building-sql/raw).
@@ -176,20 +176,11 @@ You can also check [how reactivity works](https://trong-orm.netlify.app/how-reac
 
 ## Currently supported
 
-### SQLite Backends
-
 **Expo**: full support (both web and native)<br>
 **Web**: full support<br>
 **Electron**: WIP<br>
 **Tauri**: WIP<br>
 **Cordova/Ionic**: WIP<br>
-
-### Frameworks or render libs
-
-**React**: full support<br>
-**Angular**: WIP<br>
-**Vue**: WIP<br>
-**SolidJS**: WIP
 
 ## It's better than IndexedDB
 
