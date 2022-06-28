@@ -1,0 +1,50 @@
+{
+  "name": "@trong-orm/electron-better-sqlite3-backend",
+  "version": "1.0.39",
+  "author": "Sergey Popov",
+  "license": "MIT",
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    }
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "es2015": "./dist/index.es.js",
+        "require": "./dist/index.umd.js",
+        "import": "./dist/index.es.js",
+        "default": "./dist/index.es.js"
+      }
+    },
+    "main": "./dist/index.umd.js",
+    "module": "./dist/index.es.js",
+    "types": "./dist/index.d.ts"
+  },
+  "scripts": {
+    "compile": "TO_BUILD=index yarn vite build",
+    "lint": "eslint \"src/**/*.{tsx,ts}\"",
+    "check-typing": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@trong-orm/core": "^1.0.39",
+    "@trong-orm/sql": "^1.0.39",
+    "@trong-orm/sql.js": "^1.6.7"
+  },
+  "peerDependencies": {
+    "better-sqlite3": ">=7.5.0"
+  },
+  "devDependencies": {
+    "@trong-orm/common-scripts": "*",
+    "@types/better-sqlite3": "^7.5.0",
+    "@types/emscripten": "^1.39.6",
+    "better-sqlite3": ">=7.5.0",
+    "electron": "^19.0.6",
+    "ts-essentials": "^9.1.2"
+  }
+}
