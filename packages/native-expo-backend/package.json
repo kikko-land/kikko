@@ -1,6 +1,6 @@
 {
   "name": "@trong-orm/native-expo-backend",
-  "version": "1.0.38",
+  "version": "1.0.39",
   "author": "Sergey Popov",
   "license": "MIT",
   "main": "./src/index.ts",
@@ -32,8 +32,8 @@
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
-    "@trong-orm/core": "^1.0.38",
-    "@trong-orm/sql": "^1.0.38",
+    "@trong-orm/core": "^1.0.39",
+    "@trong-orm/sql": "^1.0.39",
     "@trong-orm/sql.js": "^1.6.7"
   },
   "peerDependencies": {

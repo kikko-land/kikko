@@ -5,14 +5,16 @@ const dts = require("vite-plugin-dts");
 
 exports.buildConfig = function (config) {
   config = config || {};
+  config.entry = config.entry || "src/index.ts";
+  config.fileName = config.fileName || ((format) => `index.${format}.js`);
 
   return defineConfig({
     build: {
       sourcemap: true,
       lib: {
-        entry: path.resolve("./", "src/index.ts"),
+        entry: path.resolve("./", config.entry),
         name: "core",
-        fileName: (format) => `index.${format}.js`,
+        fileName: config.fileName,
       },
       rollupOptions: {
         // make sure to externalize deps that shouldn't be bundled
