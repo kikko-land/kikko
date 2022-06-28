@@ -14,6 +14,7 @@ import {
   useQuery,
   useRunQuery,
 } from "@trong-orm/react";
+import { chunk } from "lodash-es";
 import { useState } from "react";
 import Highlighter from "react-highlight-words";
 
@@ -40,16 +41,14 @@ const Row = ({
   });
 
   const [updateRecord, updateRecordState] = useRunQuery(() => async (db) => {
-    console.log(
-      await runQuery(
-        db,
-        update(notesTable)
-          .set({
-            title: row.title + " updated!",
-            content: row.content + " updated!",
-          })
-          .where({ id: row.id })
-      )
+    await runQuery(
+      db,
+      update(notesTable)
+        .set({
+          title: row.title + " updated!",
+          content: row.content + " updated!",
+        })
+        .where({ id: row.id })
     );
   });
 
@@ -63,8 +62,8 @@ const Row = ({
           textToHighlight={row.content}
         />
       </td>
-      <td>{row.createdAt.toLocaleString()}</td>
-      <td>{row.updatedAt.toLocaleString()}</td>
+      <td>{new Date(row.createdAt).toLocaleString()}</td>
+      <td>{new Date(row.updatedAt).toLocaleString()}</td>
       <td>
         <button
           onClick={() => deleteRecord()}
@@ -76,10 +75,11 @@ const Row = ({
           onClick={() => updateRecord()}
           disabled={
             updateRecordState.type !== "running" &&
-            updateRecordState.type !== "idle"
+            updateRecordState.type !== "idle" &&
+            updateRecordState.type !== "done"
           }
         >
-          Update
+          Update {updateRecordState.type}
         </button>
       </td>
     </tr>
@@ -114,18 +114,20 @@ export const List = () => {
 
   const [createNotes, createNotesState] = useRunQuery(
     (count: number) => async (db) => {
-      runQuery(
-        db,
-        insert(
-          Array.from(Array(count).keys()).map((i) => ({
-            id: makeId(),
-            title: faker.lorem.words(4),
-            content: faker.lorem.paragraph(),
-            createdAt: new Date().getTime(),
-            updatedAt: new Date().getTime(),
-          }))
-        ).into(notesTable)
-      );
+      for (const ch of chunk(Array.from(Array(count).keys()), 3000)) {
+        await runQuery(
+          db,
+          insert(
+            ch.map((i) => ({
+              id: makeId(),
+              title: faker.lorem.words(4),
+              content: faker.lorem.paragraph(),
+              createdAt: new Date().getTime(),
+              updatedAt: new Date().getTime(),
+            }))
+          ).into(notesTable)
+        );
+      }
     }
   );
 
@@ -135,7 +137,7 @@ export const List = () => {
 
   return (
     <>
-      {[100, 1000, 10_000, 100_000].map((count) => (
+      {[100, 1000, 10_000].map((count) => (
         <button
           key={count}
           onClick={() => createNotes(count)}

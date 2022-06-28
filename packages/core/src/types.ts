@@ -40,7 +40,7 @@ export interface ITransaction {
 
 export type IQueriesMiddlewareState = {
   dbState: IDbState;
-  result: Record<string, unknown>[][];
+  result: IQueryResult[];
   queries: (IBaseToken | ISqlAdapter)[];
 };
 
@@ -73,7 +73,7 @@ export type IDbBackend = (db: {
   execQueries(
     queries: IQuery[],
     opts: { log: { suppress: boolean; transactionId?: string } }
-  ): Promise<IQueryResult[][]>;
+  ): Promise<IQueryResult[]>;
 };
 
 export interface ISharedDbState {

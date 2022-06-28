@@ -1,5 +1,3 @@
-import { QueryExecResult } from "@trong-orm/sql.js";
-
 import { ICommand } from "../commands";
 
 export type IResponse = {
@@ -7,7 +5,7 @@ export type IResponse = {
 } & (
   | {
       status: "success";
-      result: QueryExecResult[][];
+      result: Record<string, number | string | Uint8Array | null>[][];
     }
   | {
       status: "error";

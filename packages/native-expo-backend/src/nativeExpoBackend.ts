@@ -20,10 +20,10 @@ export const nativeExpoBackend =
             transactionId?: string;
           };
         }
-      ): Promise<IQueryResult[][]> {
+      ): Promise<IQueryResult[]> {
         const startTime = performance.now();
 
-        return new Promise<IQueryResult[][]>((resolve, reject) => {
+        return new Promise<IQueryResult[]>((resolve, reject) => {
           db.exec(
             queries.map((q) => ({ sql: q.text, args: q.values })),
             false,
@@ -60,7 +60,7 @@ export const nativeExpoBackend =
 
               const goodResults = results as ResultSet[];
 
-              resolve([goodResults.map(({ rows }) => rows)]);
+              resolve(goodResults.map(({ rows }) => rows));
             }
           );
         });

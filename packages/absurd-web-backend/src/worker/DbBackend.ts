@@ -1,8 +1,4 @@
-import initSqlJs, {
-  BindParams,
-  Database,
-  QueryExecResult,
-} from "@trong-orm/sql.js";
+import initSqlJs, { BindParams, Database } from "@trong-orm/sql.js";
 import { SQLiteFS } from "absurd-sql";
 import IndexedDBBackend from "absurd-sql/dist/indexeddb-backend";
 
@@ -53,10 +49,19 @@ export class DbBackend {
       transactionId?: string;
       suppress: boolean;
     }
-  ): QueryExecResult[] {
+  ): Record<string, number | string | Uint8Array | null>[] {
     try {
+      const rows = [];
       const startTime = performance.now();
-      const res = this.sqlDb.exec(sql, params);
+
+      const stmt = this.sqlDb.prepare(sql, params);
+
+      while (stmt.step()) {
+        rows.push(stmt.getAsObject());
+      }
+
+      stmt.free();
+
       const end = performance.now();
 
       if (
@@ -89,7 +94,7 @@ export class DbBackend {
         );
       }
 
-      return res;
+      return rows;
     } catch (e) {
       console.error(
         `[${this.dbName}] Failed execute`,

@@ -189,7 +189,7 @@ export function sql(
           this._strings[0] +
           this._strings
             .slice(1)
-            .map((val, i) => `$${i}${val}`)
+            .map((val, i) => `?${val}`)
             .join("")
         ).trim();
       }

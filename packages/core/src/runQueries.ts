@@ -54,22 +54,10 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
   };
 
   try {
-    const result = (
-      await dbBackend.execQueries(
-        unwrapQueries(queries.map((q) => q.toSql())),
-        execOpts
-      )
-    ).map((queriesResults, i) => {
-      if (queriesResults.length > 1) {
-        console.warn(
-          `Omitting query result of ${queries[i].toSql()}: ${JSON.stringify(
-            queriesResults.slice(1)
-          )}`
-        );
-      }
-
-      return queriesResults[0] ? queriesResults[0] : [];
-    });
+    const result = await dbBackend.execQueries(
+      unwrapQueries(queries.map((q) => q.toSql())),
+      execOpts
+    );
 
     return { dbState, result, queries };
   } finally {

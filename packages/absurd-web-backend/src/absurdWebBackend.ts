@@ -105,9 +105,10 @@ export const absurdWebBackend =
         await initPromise;
       },
       async execQueries(queries: IQuery[], opts) {
-        return (
-          await runWorkerCommand(state, buildRunQueriesCommand(queries, opts))
-        ).map((results) => results.map((rows) => mapRows(rows)));
+        return await runWorkerCommand(
+          state,
+          buildRunQueriesCommand(queries, opts)
+        );
       },
     };
   };
