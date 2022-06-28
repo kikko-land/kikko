@@ -34,6 +34,9 @@ https://github.com/trong-orm/trong-orm/tree/main/packages/vite-react-example
 With Expo (native+web):
 https://github.com/trong-orm/trong-expo-example
 
+With Electron:
+https://github.com/trong-orm/trong-electron-better-sqlite3-example
+
 https://user-images.githubusercontent.com/7958527/174773307-9be37e1f-0700-45b4-8d25-aa2c83df6cec.mp4
 
 ## React quick example
@@ -178,7 +181,7 @@ You can also check [how reactivity works](https://trong-orm.netlify.app/how-reac
 
 **Expo**: full support (both web and native)<br>
 **Web**: full support<br>
-**Electron**: WIP<br>
+**Electron**: full support (with better-sqlite3)<br>
 **Tauri**: WIP<br>
 **Cordova/Ionic**: WIP<br>
 
