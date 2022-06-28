@@ -1,3 +1,5 @@
+import { IDbBackend, IQuery, IQueryResult } from "@trong-orm/core";
+
 declare global {
   interface Window {
     sqliteDb: (path: string) => Promise<{

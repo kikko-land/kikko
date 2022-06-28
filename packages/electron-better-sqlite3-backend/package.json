@@ -1,6 +1,6 @@
 {
   "name": "@trong-orm/electron-better-sqlite3-backend",
-  "version": "1.0.39",
+  "version": "1.0.41",
   "author": "Sergey Popov",
   "license": "MIT",
   "main": "./src/index.ts",
@@ -15,7 +15,7 @@
   "publishConfig": {
     "exports": {
       ".": {
-        "types": "./dist/index.d.ts",
+        "types": "./dist/electron-better-sqlite3-backend/src/index.d.ts",
         "es2015": "./dist/index.es.js",
         "require": "./dist/index.umd.js",
         "import": "./dist/index.es.js",
@@ -24,7 +24,7 @@
     },
     "main": "./dist/index.umd.js",
     "module": "./dist/index.es.js",
-    "types": "./dist/index.d.ts"
+    "types": "./dist/electron-better-sqlite3-backend/src/index.d.ts"
   },
   "scripts": {
     "compile": "TO_BUILD=index yarn vite build",
@@ -32,8 +32,8 @@
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
-    "@trong-orm/core": "^1.0.39",
-    "@trong-orm/sql": "^1.0.39",
+    "@trong-orm/core": "^1.0.41",
+    "@trong-orm/sql": "^1.0.41",
     "@trong-orm/sql.js": "^1.6.7"
   },
   "peerDependencies": {
