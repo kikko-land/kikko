@@ -1,6 +1,6 @@
 {
   "name": "@trong-orm/react",
-  "version": "1.0.43",
+  "version": "1.0.44",
   "author": "Sergey Popov",
   "license": "MIT",
   "main": "./src/index.ts",
@@ -33,11 +33,11 @@
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
-    "@trong-orm/core": "^1.0.43",
-    "@trong-orm/migrations-plugin": "^1.0.43",
-    "@trong-orm/react-queries-hooks": "^1.0.43",
-    "@trong-orm/reactive-queries-plugin": "^1.0.43",
-    "@trong-orm/sql": "^1.0.43"
+    "@trong-orm/core": "^1.0.44",
+    "@trong-orm/migrations-plugin": "^1.0.44",
+    "@trong-orm/react-queries-hooks": "^1.0.44",
+    "@trong-orm/reactive-queries-plugin": "^1.0.44",
+    "@trong-orm/sql": "^1.0.44"
   },
   "devDependencies": {
     "@trong-orm/common-scripts": "*"
