@@ -15,6 +15,7 @@ export enum TokenType {
   RawSql = "RawSql",
   CompoundOperator = "CompoundOperator",
   CTE = "CTE",
+  Join = "Join",
   Returning = "Returning",
 }
 

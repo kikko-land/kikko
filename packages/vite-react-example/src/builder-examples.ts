@@ -11,6 +11,7 @@ import {
   insert,
   like$,
   ltEq$,
+  naturalLeftOuterJoin,
   not,
   or,
   select,
@@ -149,3 +150,6 @@ console.log(
     .returning("*")
     .toSql().raw
 );
+
+// TODO: add alias support to join({alias: select().from('notes')})
+console.log(naturalLeftOuterJoin("notes").on({ a: "b" }).toSql().raw);
