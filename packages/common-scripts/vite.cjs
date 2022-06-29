@@ -7,9 +7,11 @@ exports.buildConfig = function (config) {
   config = config || {};
   config.entry = config.entry || "src/index.ts";
   config.fileName = config.fileName || ((format) => `index.${format}.js`);
+  config.outDir = config.outDir || "dist";
 
   return defineConfig({
     build: {
+      outDir: config.outDir,
       sourcemap: true,
       lib: {
         entry: path.resolve("./", config.entry),

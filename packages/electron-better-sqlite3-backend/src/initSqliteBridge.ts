@@ -1,7 +1,7 @@
-export const initSqliteBridge = async () => {
-  const { default: Database } = await import("better-sqlite3");
-  const { contextBridge } = await import("electron");
+import { Database } from "better-sqlite3";
+import { contextBridge } from "electron";
 
+export const initSqliteBridge = async () => {
   contextBridge.exposeInMainWorld("sqliteDb", async (file: string) => {
     const db = new Database(file);
 

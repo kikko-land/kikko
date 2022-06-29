@@ -10,6 +10,10 @@
     ".": {
       "types": "./src/index.ts",
       "import": "./src/index.ts"
+    },
+    "./preload": {
+      "types": "./src/electronBetterSqlite3Backend.ts",
+      "import": "./src/electronBetterSqlite3Backend.ts"
     }
   },
   "publishConfig": {
@@ -20,6 +24,13 @@
         "require": "./dist/index.umd.js",
         "import": "./dist/index.es.js",
         "default": "./dist/index.es.js"
+      },
+      "./preload": {
+        "types": "./preload-dist/initSqliteBridge.d.ts",
+        "es2015": "./preload-dist/initSqliteBridge.es.js",
+        "require": "./preload-dist/initSqliteBridge.umd.js",
+        "import": "./preload-dist/initSqliteBridge.es.js",
+        "default": "./preload-dist/initSqliteBridge.es.js"
       }
     },
     "main": "./dist/index.umd.js",
@@ -27,7 +38,9 @@
     "types": "./dist/electron-better-sqlite3-backend/src/index.d.ts"
   },
   "scripts": {
-    "compile": "TO_BUILD=index yarn vite build",
+    "compile": "run-s compile:index compile:preload",
+    "compile:index": "TO_BUILD=index yarn vite build",
+    "compile:preload": "TO_BUILD=preload yarn vite build",
     "lint": "eslint \"src/**/*.{tsx,ts}\"",
     "check-typing": "tsc --noEmit"
   },
@@ -45,6 +58,7 @@
     "@types/emscripten": "^1.39.6",
     "better-sqlite3": ">=7.5.0",
     "electron": "^19.0.6",
+    "npm-run-all": "^4.1.5",
     "ts-essentials": "^9.1.2"
   }
 }

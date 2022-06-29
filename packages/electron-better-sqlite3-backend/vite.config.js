@@ -9,8 +9,9 @@ module.exports = buildConfig({
       };
     } else if (process.env.TO_BUILD === "preload") {
       return {
-        entry: "src/preload.ts",
-        fileName: (format) => `preload.${format}.js`,
+        entry: "src/initSqliteBridge.ts",
+        fileName: (format) => `initSqliteBridge.${format}.js`,
+        outDir: "preload-dist",
       };
     } else {
       throw new Error("env TO_BUILD not set");
