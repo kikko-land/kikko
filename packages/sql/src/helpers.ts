@@ -16,7 +16,9 @@ export const generateInsert = (
 
   return sql`INSERT ${replace ? sql`OR REPLACE` : sql.empty} INTO ${sql.table(
     tableName
-  )} (${sql.join(keys.map((k) => sql.raw(k)))}) VALUES ${values} returning *`;
+  )} (${sql.join(keys.map((k) => sql.raw(k)))}) VALUES ${values} ${
+    returning ? sql`returning *` : sql.empty
+  }`;
 };
 
 export const generateUpdate = (
