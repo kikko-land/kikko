@@ -1,4 +1,4 @@
-import { Database } from "better-sqlite3";
+import Database from "better-sqlite3";
 import { contextBridge } from "electron";
 
 export const initSqliteBridge = async () => {
