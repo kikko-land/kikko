@@ -1,0 +1,96 @@
+---
+sidebar_position: 3
+slug: /backends/electron
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+# Electron
+
+This backend uses [better-sqlite3](https://github.com/WiseLibs/better-sqlite3).
+
+This guide is for https://www.electronforge.io/ , but it still will be helpful if you have custom electron configuration.
+
+## Installation
+
+Install trong packages and `better-sqlite3`:
+
+<Tabs>
+  <TabItem value="yarn" label="yarn" default>
+
+```bash
+yarn add @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js @trong-orm/electron-better-sqlite3-backend better-sqlite3
+```
+
+  </TabItem>
+  <TabItem value="npm" label="npm">
+
+```bash
+npm i -S @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js @trong-orm/electron-better-sqlite3-backend better-sqlite3
+```
+
+  </TabItem>
+</Tabs>
+
+Fix native modules webpack [issue](https://github.com/electron-userland/electron-forge/issues/2412) in `webpack.plugins.js`:
+
+```js
+const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
+// highlight-start
+const relocateLoader = require("@vercel/webpack-asset-relocator-loader");
+// highlight-end
+
+module.exports = [
+  new ForkTsCheckerWebpackPlugin(),
+  // highlight-start
+  {
+    apply(compiler) {
+      compiler.hooks.compilation.tap(
+        "webpack-asset-relocator-loader",
+        (compilation) => {
+          relocateLoader.initAssetCache(compilation, "native_modules");
+        }
+      );
+    },
+  },
+  // highlight-end
+];
+```
+
+Add this to `preload.ts`:
+
+```typescript
+// See https://github.com/import-js/eslint-plugin-import/issues/1810
+// eslint-disable-next-line import/no-unresolved
+import { initSqliteBridge } from "@trong-orm/electron-better-sqlite3-backend/preload";
+
+initSqliteBridge();
+```
+
+And init trong:
+
+```tsx
+import { electronBetterSqlite3Backend } from "@trong-orm/electron-better-sqlite3-backend";
+
+const config: IInitDbClientConfig = {
+  dbName: "helloWorld",
+  dbBackend: electronBetterSqlite3Backend((dbName) => `${dbName}.db`),
+  plugins: [
+    migrationsPlugin({ migrations: [createNotesTableMigration] }),
+    reactiveQueriesPlugin(),
+  ],
+};
+
+export const App = () => {
+  return (
+    <DbProvider config={config}>
+      <EnsureDbLoaded fallback={<div>Loading db...</div>}>
+        <List />
+      </EnsureDbLoaded>
+    </DbProvider>
+  );
+};
+```
+
+Usage example repo: https://github.com/trong-orm/trong-electron-better-sqlite3-example
