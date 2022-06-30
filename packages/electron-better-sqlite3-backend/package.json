@@ -1,6 +1,6 @@
 {
   "name": "@trong-orm/electron-better-sqlite3-backend",
-  "version": "1.0.46",
+  "version": "1.0.47",
   "author": "Sergey Popov",
   "license": "MIT",
   "main": "./src/index.ts",
@@ -52,8 +52,8 @@
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
-    "@trong-orm/core": "^1.0.46",
-    "@trong-orm/sql": "^1.0.46",
+    "@trong-orm/core": "^1.0.47",
+    "@trong-orm/sql": "^1.0.47",
     "@trong-orm/sql.js": "^1.6.7"
   },
   "peerDependencies": {
