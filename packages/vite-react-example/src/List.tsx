@@ -1,4 +1,3 @@
-import { faker } from "@faker-js/faker";
 import {
   deleteFrom,
   insert,
@@ -15,10 +14,22 @@ import {
   useRunQuery,
 } from "@trong-orm/react";
 import { chunk } from "lodash-es";
+import { LoremIpsum } from "lorem-ipsum";
 import { useState } from "react";
 import Highlighter from "react-highlight-words";
 
 import { usePaginator } from "./hooks/usePaginator";
+
+const lorem = new LoremIpsum({
+  sentencesPerParagraph: {
+    max: 8,
+    min: 4,
+  },
+  wordsPerSentence: {
+    max: 16,
+    min: 4,
+  },
+});
 
 type INoteRow = {
   id: string;
@@ -120,8 +131,8 @@ export const List = () => {
           insert(
             ch.map((i) => ({
               id: makeId(),
-              title: faker.lorem.words(4),
-              content: faker.lorem.paragraph(),
+              title: lorem.generateWords(4),
+              content: lorem.generateParagraphs(1),
               createdAt: new Date().getTime(),
               updatedAt: new Date().getTime(),
             }))

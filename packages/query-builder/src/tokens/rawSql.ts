@@ -2,7 +2,6 @@ import {
   IContainsTable,
   IPrimitiveValue,
   ISqlAdapter,
-  isSql,
   sql,
 } from "@trong-orm/sql";
 
@@ -24,7 +23,7 @@ export const toToken = (
 ): IBaseToken => {
   if (isToken(t)) return t;
 
-  if (isSql(t)) {
+  if (sql.isSql(t)) {
     return buildRawSql(t);
   }
 

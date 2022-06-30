@@ -1,4 +1,4 @@
-import { ISql, ISqlAdapter, isSql, sql } from "@trong-orm/sql";
+import { ISql, ISqlAdapter, sql } from "@trong-orm/sql";
 
 import { IBaseToken, isToken, TokenType } from "../../types";
 import { alias } from "../alias";
@@ -11,7 +11,28 @@ import {
   withoutCompound,
 } from "../compounds";
 import { ICTEState, With, withoutWith, withRecursive } from "../cte";
-import { from, IFromState } from "../from";
+import { from, fromToSql, IFromState } from "../from";
+import {
+  IJoinState,
+  join,
+  joinCross,
+  joinFull,
+  joinFullNatural,
+  joinFullNaturalOuter,
+  joinFullOuter,
+  joinInner,
+  joinInnerNatural,
+  joinLeft,
+  joinLeftNatural,
+  joinLeftNaturalOuter,
+  joinLeftOuter,
+  joinNatural,
+  joinRight,
+  joinRightNatural,
+  joinRightNaturalOuter,
+  joinRightOuter,
+  withoutJoin,
+} from "../join";
 import {
   buildInitialLimitOffsetState,
   ILimitOffsetState,
@@ -41,7 +62,8 @@ export interface ISelectStatement
     ILimitOffsetState,
     ICTEState,
     IWhereState,
-    IFromState {
+    IFromState,
+    IJoinState {
   _distinctValue: boolean;
 
   _selectValues: {
@@ -77,7 +99,7 @@ const selectArgsToValues = (
   return args.flatMap((arg, i) => {
     if (arg === "*" && i === 0) return { toSelect: "*" };
     if (typeof arg === "string") return { toSelect: arg };
-    if (isToken(arg) || isSql(arg)) return { toSelect: toToken(arg) };
+    if (isToken(arg) || sql.isSql(arg)) return { toSelect: toToken(arg) };
 
     return Object.entries(arg).map(([columnOrAs, aliasOrQuery]) =>
       typeof aliasOrQuery === "string"
@@ -96,6 +118,7 @@ export const select = (...selectArgs: ISelectArgType[]): ISelectStatement => {
     _groupByValues: [],
     _compoundValues: [],
     _orderByValues: [],
+    _joinValues: [],
     _limitOffsetValue: buildInitialLimitOffsetState(),
     select(...selectArgs: ISelectArgType[]): ISelectStatement {
       return {
@@ -143,6 +166,31 @@ export const select = (...selectArgs: ISelectArgType[]): ISelectStatement => {
     except,
     withoutCompound,
 
+    withoutJoin,
+
+    join,
+    joinCross,
+
+    joinNatural,
+
+    joinLeft,
+    joinLeftOuter,
+    joinLeftNatural: joinLeftNatural,
+    joinLeftNaturalOuter: joinLeftNaturalOuter,
+
+    joinRight,
+    joinRightOuter,
+    joinRightNatural: joinRightNatural,
+    joinRightNaturalOuter: joinRightNaturalOuter,
+
+    joinFull,
+    joinFullOuter,
+    joinFullNatural: joinFullNatural,
+    joinFullNaturalOuter: joinFullNaturalOuter,
+
+    joinInner,
+    joinInnerNatural: joinInnerNatural,
+
     toSql() {
       return sql.join(
         [
@@ -153,6 +201,8 @@ export const select = (...selectArgs: ISelectArgType[]): ISelectStatement => {
             this._selectValues.map((val) => {
               if (val.toSelect === "*") {
                 return sql`*`;
+              } else if (typeof val.toSelect === "string") {
+                return sql.liter(val.toSelect);
               } else {
                 return val.alias
                   ? alias(val.toSelect, val.alias)
@@ -160,9 +210,16 @@ export const select = (...selectArgs: ISelectArgType[]): ISelectStatement => {
               }
             })
           ),
-          this._fromValues.length === 0
-            ? null
-            : sql`FROM ${sql.join(this._fromValues)}`,
+          this._fromValues.length > 0 || this._joinValues.length > 0
+            ? sql`FROM`
+            : null,
+          fromToSql(this),
+          this._joinValues.length > 0
+            ? sql.join(
+                this._joinValues.map((expr) => expr.toSql()),
+                " "
+              )
+            : null,
           this._whereValue ? sql`WHERE ${this._whereValue}` : null,
           this._groupByValues.length > 0
             ? sql`GROUP BY ${sql.join(

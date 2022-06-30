@@ -31,7 +31,7 @@ export interface ISqlAdapter {
   toSql(): ISql;
 }
 
-export function isSql(x: unknown): x is ISqlAdapter {
+function isSql(x: unknown): x is ISqlAdapter {
   if (x === null) return false;
   if (typeof x !== "object") return false;
 
@@ -176,7 +176,7 @@ export function sql(
           .map(
             (val, i) =>
               (typeof this._values[i] === "string"
-                ? '"' + this._values[i] + '"'
+                ? "'" + this._values[i] + "'"
                 : this._values[i]) + val
           )
           .join("")
@@ -227,6 +227,7 @@ sql.liter = (str: string) => {
 };
 sql.table = table;
 sql.isTable = isTable;
+sql.isSql = isSql;
 sql.empty = sql.raw("");
 sql.join = (
   values: IRawValue[],

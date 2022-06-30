@@ -1,4 +1,4 @@
-import { ISqlAdapter, isSql, sql } from "@trong-orm/sql";
+import { ISqlAdapter, sql } from "@trong-orm/sql";
 
 import { IBaseToken, isToken, TokenType } from "../types";
 import { alias } from "./alias";
@@ -31,7 +31,7 @@ export const returning = (...args: IReturningArg[]): IReturningClause => {
   return {
     type: TokenType.Returning,
     _values: args.flatMap((arg): IReturnValue | IReturnValue[] => {
-      if (isSql(arg) || isToken(arg)) {
+      if (sql.isSql(arg) || isToken(arg)) {
         return { _toSelect: toToken(arg) };
       } else if (typeof arg === "string") {
         return { _toSelect: arg };

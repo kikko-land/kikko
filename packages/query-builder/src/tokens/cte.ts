@@ -1,4 +1,4 @@
-import { ISql, isSql, sql } from "@trong-orm/sql";
+import { ISql, sql } from "@trong-orm/sql";
 
 import { IBaseToken, TokenType } from "../types";
 import { buildRawSql } from "./rawSql";
@@ -86,7 +86,9 @@ const cteTermState = <T extends ICTEState>(
           table: args.table,
           columns: args.columns,
           recursive: args.recursive,
-          select: isSql(args.select) ? buildRawSql(args.select) : args.select,
+          select: sql.isSql(args.select)
+            ? buildRawSql(args.select)
+            : args.select,
         }),
   };
 };

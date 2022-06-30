@@ -2,13 +2,33 @@ import {
   IContainsTable,
   IPrimitiveValue,
   ISqlAdapter,
-  isSql,
   sql,
 } from "@trong-orm/sql";
 
 import { IBaseToken, isToken, TokenType } from "../../types";
 import { ICTEState, With, withoutWith, withRecursive } from "../cte";
-import { from, IFromState } from "../from";
+import { from, fromToSql, IFromState } from "../from";
+import {
+  IJoinState,
+  join,
+  joinCross,
+  joinFull,
+  joinFullNatural,
+  joinFullNaturalOuter,
+  joinFullOuter,
+  joinInner,
+  joinInnerNatural,
+  joinLeft,
+  joinLeftNatural,
+  joinLeftNaturalOuter,
+  joinLeftOuter,
+  joinNatural,
+  joinRight,
+  joinRightNatural,
+  joinRightNaturalOuter,
+  joinRightOuter,
+  withoutJoin,
+} from "../join";
 import {
   IOrReplaceState,
   orAbort,
@@ -46,7 +66,8 @@ export interface IUpdateStatement
     IWhereState,
     IFromState,
     IReturningState,
-    IOrReplaceState {
+    IOrReplaceState,
+    IJoinState {
   _updateTable: IContainsTable;
   _setValues: ISetValue[];
 
@@ -71,6 +92,7 @@ export const update = (tbl: string | IContainsTable): IUpdateStatement => {
     _updateTable: typeof tbl === "string" ? sql.table(tbl) : tbl,
     _setValues: [],
     _fromValues: [],
+    _joinValues: [],
     _returningValue: returning(),
 
     with: With,
@@ -91,17 +113,42 @@ export const update = (tbl: string | IContainsTable): IUpdateStatement => {
     orReplace,
     orRollback,
 
+    withoutJoin,
+
+    join,
+    joinCross,
+
+    joinNatural,
+
+    joinLeft,
+    joinLeftOuter,
+    joinLeftNatural: joinLeftNatural,
+    joinLeftNaturalOuter: joinLeftNaturalOuter,
+
+    joinRight,
+    joinRightOuter,
+    joinRightNatural: joinRightNatural,
+    joinRightNaturalOuter: joinRightNaturalOuter,
+
+    joinFull,
+    joinFullOuter,
+    joinFullNatural: joinFullNatural,
+    joinFullNaturalOuter: joinFullNaturalOuter,
+
+    joinInner,
+    joinInnerNatural: joinInnerNatural,
+
     set(...args: ISetArgType[]): IUpdateStatement {
       const vals = args.flatMap((m): ISetValue | ISetValue[] => {
         if (isToken(m)) {
           return m;
-        } else if (isSql(m)) {
+        } else if (sql.isSql(m)) {
           return buildRawSql(m);
         } else {
           return Object.entries(m).map(([key, val]) => {
             return {
               columnName: key,
-              toSet: !isToken(val) && isSql(val) ? buildRawSql(val) : val,
+              toSet: !isToken(val) && sql.isSql(val) ? buildRawSql(val) : val,
             };
           });
         }
@@ -129,9 +176,16 @@ export const update = (tbl: string | IContainsTable): IUpdateStatement => {
                   )}`
             )
           ),
-          this._fromValues.length === 0
-            ? null
-            : sql`FROM ${sql.join(this._fromValues)}`,
+          this._fromValues.length > 0 || this._joinValues.length > 0
+            ? sql`FROM`
+            : null,
+          fromToSql(this),
+          this._joinValues.length > 0
+            ? sql.join(
+                this._joinValues.map((expr) => expr.toSql()),
+                " "
+              )
+            : null,
           this._whereValue ? sql`WHERE ${this._whereValue}` : null,
           this._returningValue,
         ].filter((v) => v),

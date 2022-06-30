@@ -11,7 +11,6 @@ import {
   insert,
   like$,
   ltEq$,
-  naturalLeftOuterJoin,
   not,
   or,
   select,
@@ -31,7 +30,16 @@ console.log(
     alias(select("3"), "other_column")
   )
     .distinct(true)
-    .from(select().from("books").limit(10))
+    .joinRight("notes")
+    .joinLeftNaturalOuter(
+      { notes: select().from("notes") },
+      {
+        "notes.bookId": sql.liter("books.id"),
+      }
+    )
+    .from(select().from("books").limit(10), {
+      aliasedTable: select().from("wow"),
+    })
     .where(not(and({ title: eq$("Harry Potter") }, { pages: gtEq$(5) })))
     .where(or({ title: eq$("Little Prince"), otherCol: like$("Little") }))
     // Or you can use the full version, like gtEq(col, val)
@@ -44,7 +52,7 @@ console.log(
     .having(gtEq(sql`COUNT(pages)`, 5))
     // support union
     .union(select(sql`1`).limit(5))
-    .toSql().raw
+    .toSql().preparedQuery.text
 );
 
 // CTE
@@ -104,10 +112,10 @@ console.log(
       )
     )
     .where({
-      "inventory.itemId": sql`daily.itemId`,
+      "inventory.itemId": sql.liter("daily.itemId"),
     })
     .returning("*")
-    .toSql().raw
+    .toSql().preparedQuery.text
 );
 
 // Insert statements
@@ -150,6 +158,3 @@ console.log(
     .returning("*")
     .toSql().raw
 );
-
-// TODO: add alias support to join({alias: select().from('notes')})
-console.log(naturalLeftOuterJoin("notes").on({ a: "b" }).toSql().raw);

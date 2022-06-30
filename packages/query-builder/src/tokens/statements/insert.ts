@@ -2,7 +2,6 @@ import {
   IContainsTable,
   IPrimitiveValue,
   ISqlAdapter,
-  isSql,
   sql,
 } from "@trong-orm/sql";
 
@@ -60,7 +59,7 @@ const mapRecordArg = (arg: IRecArg) => {
     Object.entries(it).map(([columnName, value]) => {
       return {
         columnName,
-        value: isSql(value) && !isToken(value) ? buildRawSql(value) : value,
+        value: sql.isSql(value) && !isToken(value) ? buildRawSql(value) : value,
       };
     })
   );

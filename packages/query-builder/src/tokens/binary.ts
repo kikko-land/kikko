@@ -1,4 +1,4 @@
-import { IPrimitiveValue, ISqlAdapter, isSql, sql } from "@trong-orm/sql";
+import { IPrimitiveValue, ISqlAdapter, sql } from "@trong-orm/sql";
 
 import { IBaseToken, isToken, TokenType } from "../types";
 import { toToken } from "./rawSql";
@@ -189,13 +189,13 @@ export type IConditionValue =
 export const conditionValuesToToken = (values: IConditionValue[]) => {
   return values
     .flatMap((v) =>
-      isToken(v) || isSql(v)
+      isToken(v) || sql.isSql(v)
         ? toToken(v)
         : Object.entries(v).map(([k, expr]) =>
             toToken(
               typeof expr === "function"
                 ? expr(sql.liter(k))
-                : eq(sql.raw(k), expr)
+                : eq(sql.liter(k), expr)
             )
           )
     )

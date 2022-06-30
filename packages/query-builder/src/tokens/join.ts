@@ -1,9 +1,11 @@
 import { IContainsTable, ISqlAdapter, sql } from "@trong-orm/sql";
 import { isTable } from "@trong-orm/sql";
 
-import { IBaseToken, TokenType } from "../types";
+import { IBaseToken, isToken, TokenType } from "../types";
+import { alias } from "./alias";
 import { conditionValuesToToken, IConditionValue } from "./binary";
 import { toToken } from "./rawSql";
+import { ISelectStatement } from "./statements/select";
 import { wrapParentheses } from "./utils";
 
 type IJoinOperator =
@@ -24,54 +26,46 @@ type IJoinOperator =
       | {}
     ));
 
-type IJoinConstraint =
-  | {
-      on: IBaseToken;
-    }
-  | {
-      using: string[];
-    };
-
 export interface IJoinExpr extends IBaseToken<TokenType.Join> {
   _operator?: IJoinOperator;
-  _toJoin: IContainsTable | IBaseToken;
-  _joinConstraint?: IJoinConstraint;
-
-  on: (val: IConditionValue) => IJoinExpr;
-  using: (columns: string[]) => IJoinExpr;
+  _toJoin:
+    | IContainsTable
+    | IBaseToken
+    | { toSelect: IBaseToken; alias: string };
+  _on?: IConditionValue;
 }
 
 const baseJoin = (
   operator: IJoinOperator | undefined,
-  toJoin: IBaseToken | ISqlAdapter | IContainsTable | string
+  toJoin: IToJoinArg,
+  on?: IConditionValue
 ): IJoinExpr => {
   return {
     type: TokenType.Join,
     _operator: operator,
-    _toJoin:
-      typeof toJoin === "string"
-        ? sql.table(toJoin)
-        : isTable(toJoin)
-        ? toJoin
-        : toToken(wrapParentheses(toJoin)),
-    on(val: IConditionValue) {
-      return {
-        ...this,
-        _joinConstraint: { on: conditionValuesToToken([val])[0] },
-      };
-    },
-    using(columns: string[]) {
-      return {
-        ...this,
-        _joinConstraint: {
-          using: columns,
-        },
-      };
-    },
+    _toJoin: (() => {
+      if (typeof toJoin === "string") {
+        return sql.table(toJoin);
+      } else if (isTable(toJoin)) {
+        return toJoin;
+      } else if (isToken(toJoin) || sql.isSql(toJoin)) {
+        return toToken(toJoin);
+      } else {
+        const entries = Object.entries(toJoin);
+        if (entries.length === 0) {
+          throw new Error("No alias select present for join");
+        }
+        if (entries.length > 1) {
+          throw new Error("Only one select could be specified at join");
+        }
+        return { toSelect: toToken(entries[0][1]), alias: entries[0][0] };
+      }
+    })(),
+    _on: on,
 
     toSql() {
       const operatorSql = (() => {
-        if (!this._operator) return [];
+        if (!this._operator) return [sql`JOIN`];
 
         if ("joinType" in this._operator) {
           if (this._operator.joinType === "CROSS") {
@@ -97,16 +91,10 @@ const baseJoin = (
       return sql.join(
         [
           ...operatorSql,
-          wrapParentheses(this._toJoin),
-          ...(this._joinConstraint
-            ? "on" in this._joinConstraint
-              ? [sql`ON`, wrapParentheses(this._joinConstraint.on)]
-              : [
-                  sql`USING (`,
-                  sql.join(this._joinConstraint.using.map((v) => sql.liter(v))),
-                  sql`)`,
-                ]
-            : []),
+          "toSelect" in this._toJoin
+            ? alias(this._toJoin.toSelect, this._toJoin.alias)
+            : wrapParentheses(this._toJoin),
+          ...(this._on ? [sql`ON`, ...conditionValuesToToken([this._on])] : []),
         ],
         " "
       );
@@ -114,90 +102,311 @@ const baseJoin = (
   };
 };
 
-type IToJoinArg = IBaseToken | ISqlAdapter | IContainsTable | string;
+type IToJoinArg =
+  | IBaseToken
+  | ISqlAdapter
+  | IContainsTable
+  | string
+  | { [key: string]: ISqlAdapter | ISelectStatement | string };
 
-export const join = (toJoin: IToJoinArg) => {
-  return baseJoin(undefined, toJoin);
-};
+export interface IJoinState {
+  _joinValues: IJoinExpr[];
 
-export const crossJoin = (toJoin: IToJoinArg) => {
-  return baseJoin({ joinType: "CROSS" }, toJoin);
-};
+  withoutJoin: typeof withoutJoin;
 
-export const naturalJoin = (toJoin: IToJoinArg) => {
-  return baseJoin({ isNatural: true }, toJoin);
-};
-export const naturalLeftJoin = (toJoin: IToJoinArg) => {
-  return baseJoin(
-    { isNatural: true, isOuter: false, joinType: "LEFT" as const },
-    toJoin
-  );
-};
-export const naturalRightJoin = (toJoin: IToJoinArg) => {
-  return baseJoin(
-    { isNatural: true, isOuter: false, joinType: "RIGHT" as const },
-    toJoin
-  );
-};
-export const naturalFullJoin = (toJoin: IToJoinArg) => {
-  return baseJoin(
-    { isNatural: true, isOuter: false, joinType: "FULL" as const },
-    toJoin
-  );
-};
+  join: typeof join;
+  joinCross: typeof joinCross;
 
-export const naturalLeftOuterJoin = (toJoin: IToJoinArg) => {
-  return baseJoin(
-    { isNatural: true, isOuter: true, joinType: "LEFT" as const },
-    toJoin
-  );
-};
-export const naturalRightOuterJoin = (toJoin: IToJoinArg) => {
-  return baseJoin(
-    { isNatural: true, isOuter: true, joinType: "RIGHT" as const },
-    toJoin
-  );
-};
-export const naturalFullOuterJoin = (toJoin: IToJoinArg) => {
-  return baseJoin(
-    { isNatural: true, isOuter: true, joinType: "FULL" as const },
-    toJoin
-  );
-};
+  joinNatural: typeof joinNatural;
 
-export const naturalInnerJoin = (toJoin: IToJoinArg) => {
-  return baseJoin({ isNatural: true, joinType: "INNER" as const }, toJoin);
-};
+  joinLeft: typeof joinLeft;
+  joinLeftOuter: typeof joinLeftOuter;
+  joinLeftNatural: typeof joinLeftNatural;
+  joinLeftNaturalOuter: typeof joinLeftNaturalOuter;
 
-export const leftJoin = (toJoin: IToJoinArg) => {
-  return baseJoin({ isNatural: false, joinType: "LEFT" as const }, toJoin);
-};
-export const rightJoin = (toJoin: IToJoinArg) => {
-  return baseJoin({ isNatural: false, joinType: "RIGHT" as const }, toJoin);
-};
-export const fullJoin = (toJoin: IToJoinArg) => {
-  return baseJoin({ isNatural: false, joinType: "FULL" as const }, toJoin);
-};
+  joinRight: typeof joinRight;
+  joinRightOuter: typeof joinRightOuter;
+  joinRightNatural: typeof joinRightNatural;
+  joinRightNaturalOuter: typeof joinRightNaturalOuter;
 
-export const leftOuterJoin = (toJoin: IToJoinArg) => {
-  return baseJoin(
-    { isNatural: false, isOuter: true, joinType: "LEFT" as const },
-    toJoin
-  );
-};
-export const rightOuterJoin = (toJoin: IToJoinArg) => {
-  return baseJoin(
-    { isNatural: false, isOuter: true, joinType: "RIGHT" as const },
-    toJoin
-  );
-};
-export const fullOuterJoin = (toJoin: IToJoinArg) => {
-  return baseJoin(
-    { isNatural: false, isOuter: true, joinType: "FULL" as const },
-    toJoin
-  );
-};
+  joinFull: typeof joinFull;
+  joinFullOuter: typeof joinFullOuter;
+  joinFullNatural: typeof joinFullNatural;
+  joinFullNaturalOuter: typeof joinFullNaturalOuter;
 
-export const innerJoin = (toJoin: IToJoinArg) => {
-  return baseJoin({ isNatural: false, joinType: "INNER" as const }, toJoin);
-};
+  joinInner: typeof joinInner;
+  joinInnerNatural: typeof joinInnerNatural;
+}
+
+export function join<T extends IJoinState>(
+  this: T,
+  toJoin: IToJoinArg,
+  on?: IConditionValue
+): T {
+  return {
+    ...this,
+    _joinValues: [...this._joinValues, baseJoin(undefined, toJoin, on)],
+  };
+}
+
+export function joinCross<T extends IJoinState>(
+  this: T,
+  toJoin: IToJoinArg,
+  on?: IConditionValue
+): T {
+  return {
+    ...this,
+    _joinValues: [
+      ...this._joinValues,
+      baseJoin({ joinType: "CROSS" }, toJoin, on),
+    ],
+  };
+}
+
+export function joinNatural<T extends IJoinState>(
+  this: T,
+  toJoin: IToJoinArg,
+  on?: IConditionValue
+): T {
+  return {
+    ...this,
+    _joinValues: [
+      ...this._joinValues,
+      baseJoin({ isNatural: true }, toJoin, on),
+    ],
+  };
+}
+
+export function joinLeftNatural<T extends IJoinState>(
+  this: T,
+  toJoin: IToJoinArg,
+  on?: IConditionValue
+): T {
+  return {
+    ...this,
+    _joinValues: [
+      ...this._joinValues,
+      baseJoin(
+        { isNatural: true, isOuter: false, joinType: "LEFT" as const },
+        toJoin,
+        on
+      ),
+    ],
+  };
+}
+
+export function joinRightNatural<T extends IJoinState>(
+  this: T,
+  toJoin: IToJoinArg,
+  on?: IConditionValue
+): T {
+  return {
+    ...this,
+    _joinValues: [
+      ...this._joinValues,
+      baseJoin(
+        { isNatural: true, isOuter: false, joinType: "RIGHT" as const },
+        toJoin,
+        on
+      ),
+    ],
+  };
+}
+
+export function joinFullNatural<T extends IJoinState>(
+  this: T,
+  toJoin: IToJoinArg,
+  on?: IConditionValue
+): T {
+  return {
+    ...this,
+    _joinValues: [
+      ...this._joinValues,
+      baseJoin(
+        { isNatural: true, isOuter: false, joinType: "FULL" as const },
+        toJoin,
+        on
+      ),
+    ],
+  };
+}
+
+export function joinLeftNaturalOuter<T extends IJoinState>(
+  this: T,
+  toJoin: IToJoinArg,
+  on?: IConditionValue
+): T {
+  return {
+    ...this,
+    _joinValues: [
+      ...this._joinValues,
+      baseJoin(
+        { isNatural: true, isOuter: true, joinType: "LEFT" as const },
+        toJoin,
+        on
+      ),
+    ],
+  };
+}
+export function joinRightNaturalOuter<T extends IJoinState>(
+  this: T,
+  toJoin: IToJoinArg,
+  on?: IConditionValue
+): T {
+  return {
+    ...this,
+    _joinValues: [
+      ...this._joinValues,
+      baseJoin(
+        { isNatural: true, isOuter: true, joinType: "RIGHT" as const },
+        toJoin,
+        on
+      ),
+    ],
+  };
+}
+export function joinFullNaturalOuter<T extends IJoinState>(
+  this: T,
+  toJoin: IToJoinArg,
+  on?: IConditionValue
+): T {
+  return {
+    ...this,
+    _joinValues: [
+      ...this._joinValues,
+      baseJoin(
+        { isNatural: true, isOuter: true, joinType: "FULL" as const },
+        toJoin,
+        on
+      ),
+    ],
+  };
+}
+
+export function joinInnerNatural<T extends IJoinState>(
+  this: T,
+  toJoin: IToJoinArg,
+  on?: IConditionValue
+): T {
+  return {
+    ...this,
+    _joinValues: [
+      ...this._joinValues,
+      baseJoin({ isNatural: true, joinType: "INNER" as const }, toJoin, on),
+    ],
+  };
+}
+
+export function joinLeft<T extends IJoinState>(
+  this: T,
+  toJoin: IToJoinArg,
+  on?: IConditionValue
+): T {
+  return {
+    ...this,
+    _joinValues: [
+      ...this._joinValues,
+      baseJoin({ isNatural: false, joinType: "LEFT" as const }, toJoin, on),
+    ],
+  };
+}
+export function joinRight<T extends IJoinState>(
+  this: T,
+  toJoin: IToJoinArg,
+  on?: IConditionValue
+): T {
+  return {
+    ...this,
+    _joinValues: [
+      ...this._joinValues,
+      baseJoin({ isNatural: false, joinType: "RIGHT" as const }, toJoin, on),
+    ],
+  };
+}
+export function joinFull<T extends IJoinState>(
+  this: T,
+  toJoin: IToJoinArg,
+  on?: IConditionValue
+): T {
+  return {
+    ...this,
+    _joinValues: [
+      ...this._joinValues,
+      baseJoin({ isNatural: false, joinType: "FULL" as const }, toJoin, on),
+    ],
+  };
+}
+
+export function joinLeftOuter<T extends IJoinState>(
+  this: T,
+  toJoin: IToJoinArg,
+  on?: IConditionValue
+): T {
+  return {
+    ...this,
+    _joinValues: [
+      ...this._joinValues,
+      baseJoin(
+        { isNatural: false, isOuter: true, joinType: "LEFT" as const },
+        toJoin,
+        on
+      ),
+    ],
+  };
+}
+export function joinRightOuter<T extends IJoinState>(
+  this: T,
+  toJoin: IToJoinArg,
+  on?: IConditionValue
+): T {
+  return {
+    ...this,
+    _joinValues: [
+      ...this._joinValues,
+      baseJoin(
+        { isNatural: false, isOuter: true, joinType: "RIGHT" as const },
+        toJoin,
+        on
+      ),
+    ],
+  };
+}
+export function joinFullOuter<T extends IJoinState>(
+  this: T,
+  toJoin: IToJoinArg,
+  on?: IConditionValue
+): T {
+  return {
+    ...this,
+    _joinValues: [
+      ...this._joinValues,
+      baseJoin(
+        { isNatural: false, isOuter: true, joinType: "FULL" as const },
+        toJoin,
+        on
+      ),
+    ],
+  };
+}
+
+export function joinInner<T extends IJoinState>(
+  this: T,
+  toJoin: IToJoinArg,
+  on?: IConditionValue
+): T {
+  return {
+    ...this,
+    _joinValues: [
+      ...this._joinValues,
+      baseJoin({ isNatural: false, joinType: "INNER" as const }, toJoin),
+      on,
+    ],
+  };
+}
+
+export function withoutJoin<T extends IJoinState>(this: T): T {
+  return {
+    ...this,
+    _joinValues: [],
+  };
+}
