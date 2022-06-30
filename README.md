@@ -6,7 +6,9 @@
   <i>Build reactive interfaces on top of SQLite for any platform with any framework or lib.</i>
 </p>
 
-> ### Full documentation can be found on [the site](https://trong-orm.netlify.app/). <br> Also you can check [example at codesanbox](https://codesandbox.io/s/react-trong-example-q0e9iu) (multitab is not supported due to CORS)
+> ### Full documentation can be found on [the site](https://trong-orm.netlify.app/).
+>
+> ### Also you can check [example at CodeSanbox](https://codesandbox.io/s/react-trong-example-q0e9iu) (multi-tab is not supported due to CORS).
 
 > **CAUTION: Right now multi-tab mode doesn't work correctly and crashes sometimes due to [this bug](https://github.com/jlongster/absurd-sql/issues/30) at absurd-sql repo.
 > I am working to fix it.**
@@ -37,7 +39,7 @@ https://github.com/trong-orm/trong-expo-example
 With Electron:
 https://github.com/trong-orm/trong-electron-better-sqlite3-example
 
-Codesanbox: https://codesandbox.io/s/react-trong-example-q0e9iu
+CodeSandbox: https://codesandbox.io/s/react-trong-example-q0e9iu
 
 https://user-images.githubusercontent.com/7958527/174773307-9be37e1f-0700-45b4-8d25-aa2c83df6cec.mp4
 
@@ -67,22 +69,18 @@ const notesTable = sql.table("notes");
 export const List = () => {
   const [textToSearch, setTextToSearch] = useState<string>("");
 
-  const baseSql = select()
-    .from(notesTable)
-    .where(
-      textToSearch ? { content: like$("%" + textToSearch + "%") } : sql.empty
-    )
-    .orderBy(desc("createdAt"));
-
   const { data: recordsData } = useQuery<{
     id: string;
     title: string;
     content: string;
     createdAt: number;
-  }>(baseSql);
-
-  const countResult = useQueryFirstRow<{ count: number }>(
-    select({ count: sql`COUNT(*)` }).from(baseSql)
+  }>(
+    select()
+      .from(notesTable)
+      .where(
+        textToSearch ? { content: like$("%" + textToSearch + "%") } : sql.empty
+      )
+      .orderBy(desc("createdAt"))
   );
 
   const [createNote, createNoteState] = useRunQuery(
@@ -149,9 +147,6 @@ export const List = () => {
         {deleteAllState.type === "running" ? "Loading..." : "Delete all"}
       </button>
       <hr />
-      Total found records:{" "}
-      {countResult.data !== undefined ? countResult.data.count : "Loading..."}
-      <br />
       <br />
       <input
         value={textToSearch}
