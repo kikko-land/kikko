@@ -6,7 +6,7 @@
   <i>Build reactive interfaces on top of SQLite for any platform with any framework or lib.</i>
 </p>
 
-> ### Full documentation can be found on [the site](https://trong-orm.netlify.app/)
+> ### Full documentation can be found on [the site](https://trong-orm.netlify.app/). <br> Also you can check [example at codesanbox](https://codesandbox.io/s/react-trong-example-q0e9iu) (multitab is not supported due to CORS)
 
 > **CAUTION: Right now multi-tab mode doesn't work correctly and crashes sometimes due to [this bug](https://github.com/jlongster/absurd-sql/issues/30) at absurd-sql repo.
 > I am working to fix it.**
@@ -36,6 +36,8 @@ https://github.com/trong-orm/trong-expo-example
 
 With Electron:
 https://github.com/trong-orm/trong-electron-better-sqlite3-example
+
+Codesanbox: https://codesandbox.io/s/react-trong-example-q0e9iu
 
 https://user-images.githubusercontent.com/7958527/174773307-9be37e1f-0700-45b4-8d25-aa2c83df6cec.mp4
 
