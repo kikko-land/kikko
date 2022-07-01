@@ -25,23 +25,19 @@ Trong ORM allows you to run reactive SQLite queries on any platforms with any fr
 - Multi-tab support for web. Mutate DB in one tab, and your data will be updated in other
 - [Plugin system](https://trong-orm.netlify.app/plugins/creating-your-own) allows you to integrate your own code on query/transaction run
 
-## Usage examples
-
-With CRA:
-https://github.com/trong-orm/trong-cra-example
-
-With Vite + React:
-https://github.com/trong-orm/trong-orm/tree/main/packages/vite-react-example
-
-With Expo (native+web):
-https://github.com/trong-orm/trong-expo-example
-
-With Electron:
-https://github.com/trong-orm/trong-electron-better-sqlite3-example
-
-CodeSandbox: https://codesandbox.io/s/react-trong-example-q0e9iu
-
 https://user-images.githubusercontent.com/7958527/174773307-9be37e1f-0700-45b4-8d25-aa2c83df6cec.mp4
+
+## Supported platforms
+
+| Platform         | Uses                                                                                                                                       | Package                                                              | Example                                                                      | Doc                                                                                      |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------- | ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Vite             | [absurd-sql](https://github.com/jlongster/absurd-sql)                                                                                      | `@trong-orm/absurd-web-backend`                                      | https://github.com/trong-orm/trong-orm/tree/main/packages/vite-react-example | https://trong-orm.netlify.app/backends/web#configuration-and-usage-with-vite             |
+| Create-react-app | [absurd-sql](https://github.com/jlongster/absurd-sql)                                                                                      | `@trong-orm/absurd-web-backend`                                      | https://github.com/trong-orm/trong-cra-example                               | https://trong-orm.netlify.app/backends/web#configuration-and-usage-with-create-react-app |
+| Tauri + Vite     | [tauri-plugin-sqlite](https://github.com/lzdyes/tauri-plugin-sqlite)                                                                       | `@trong-orm/tauri-backend`                                           | https://github.com/trong-orm/trong-tauri-example                             | https://trong-orm.netlify.app/backends/tauri                                             |
+| Expo             | [absurd-sql](https://github.com/jlongster/absurd-sql) for web, [expo SQLite](https://docs.expo.dev/versions/latest/sdk/sqlite/) for native | `@trong-orm/absurd-web-backend`<br/>`@trong-orm/native-expo-backend` | https://github.com/trong-orm/trong-expo-example                              | https://trong-orm.netlify.app/backends/expo                                              |
+| Electron         | [better-sqlite3](https://github.com/WiseLibs/better-sqlite3)                                                                               | `@trong-orm/electron-better-sqlite3-backend`                         | https://github.com/trong-orm/trong-electron-better-sqlite3-example           | https://trong-orm.netlify.app/backends/electron                                          |
+| Cordova/Ionic    | [cordova-sqlite-storage](https://github.com/storesafe/cordova-sqlite-storage#alternative-browser-platform-usage-notes)                     | WIP                                                                  | WIP                                                                          | WIP                                                                                      |
+| React Native     | [react-native-sqlite-storage](https://github.com/andpor/react-native-sqlite-storage)                                                       | WIP                                                                  | WIP                                                                          | WIP                                                                                      |
 
 ## React quick example
 
