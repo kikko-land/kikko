@@ -43,19 +43,14 @@ https://user-images.githubusercontent.com/7958527/174773307-9be37e1f-0700-45b4-8
 
 ```tsx
 import {
-  deleteFrom,
   desc,
-  insert,
   like$,
   select,
 } from "@trong-orm/query-builder";
 import {
   makeId,
-  runAfterTransactionCommitted,
-  runQuery,
   sql,
   useQuery,
-  useQueryFirstRow,
   useRunQuery,
 } from "@trong-orm/react";
 import { useState } from "react";
@@ -79,71 +74,8 @@ export const List = () => {
       .orderBy(desc("createdAt"))
   );
 
-  const [createNote, createNoteState] = useRunQuery(
-    (db) =>
-      async ({ title, content }: { title: string; content: string }) => {
-        const time = new Date().getTime();
-        await runQuery(
-          db,
-          insert({
-            id: makeId(),
-            title,
-            content,
-            updatedAt: time,
-            createdAt: time,
-          }).into(notesTable)
-        );
-      }
-  );
-
-  const [deleteAll, deleteAllState] = useRunQuery((db) => async () => {
-    await runQuery(db, deleteFrom(notesTable));
-
-    runAfterTransactionCommitted(db, () => {
-      console.log("It runs after transaction committed!");
-    });
-  });
-
   return (
     <>
-      <form
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        onSubmit={(e: any) => {
-          e.preventDefault();
-          const title = e.target.title.value;
-          const content = e.target.content.value;
-
-          createNote({ title, content });
-        }}
-      >
-        <label>
-          Title
-          <input name="title" required />
-        </label>
-        <br />
-        <br />
-        <label>
-          Content
-          <textarea name="content" required />
-        </label>
-
-        <br />
-        <br />
-
-        <button type="submit" disabled={createNoteState.type === "running"}>
-          {createNoteState.type === "running" ? "Loading..." : "Submit"}
-        </button>
-      </form>
-      <br />
-      <button
-        type="submit"
-        disabled={deleteAllState.type === "running"}
-        onClick={deleteAll}
-      >
-        {deleteAllState.type === "running" ? "Loading..." : "Delete all"}
-      </button>
-      <hr />
-      <br />
       <input
         value={textToSearch}
         onChange={(e) => {
@@ -151,7 +83,9 @@ export const List = () => {
         }}
         placeholder="Search content"
       />
+      
       <br />
+      
       {recordsData.map(({ title, content, id, createdAt }) => (
         <div key={id}>
           <h1>{title}</h1>
