@@ -40,8 +40,8 @@ export const List = () => {
   );
 
   const [createNote, createNoteState] = useRunQuery(
-    ({ title, content }: { title: string; content: string }) =>
-      async (db) => {
+    (db) =>
+      async ({ title, content }: { title: string; content: string }) => {
         const time = new Date().getTime();
         await runQuery(
           db,
@@ -56,7 +56,7 @@ export const List = () => {
       }
   );
 
-  const [deleteAll, deleteAllState] = useRunQuery(() => async (db) => {
+  const [deleteAll, deleteAllState] = useRunQuery((db) => async () => {
     await runQuery(db, deleteFrom(notesTable));
 
     runAfterTransactionCommitted(db, () => {

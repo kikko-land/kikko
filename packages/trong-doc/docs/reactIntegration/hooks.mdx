@@ -142,7 +142,7 @@ export type IRunQueryHookResult<D> =
   | { type: "idle"; data?: D };
 
 export declare function useRunQuery<
-  D extends (...args: any[]) => (db: IDbState) => Promise<R>,
+  D extends (db: IDbState) => (...args: any[]) => Promise<R>,
   R
 >(
   cb: D,
@@ -152,7 +152,10 @@ export declare function useRunQuery<
         inTransaction?: boolean;
       }
     | undefined
-): readonly [(...args: Parameters<D>) => Promise<R>, IRunQueryHookResult<R>];
+): readonly [
+  (...args: Parameters<ReturnType<D>>) => Promise<R>,
+  IRunQueryHookResult<R>
+];
 ```
 
 Usage example:
@@ -166,17 +169,17 @@ type IRow = {
 const notesTable = sql.table("notes");
 
 const RunComponent = () => {
-  const [createRow, _createState] = useRunQuery((data: IRow) => async (db) => {
+  const [createRow, _createState] = useRunQuery((db) => async (data: IRow) => {
     await runQuery(db, insert(data).into(notesTable));
   });
 
   const [updateRow, _updateState] = useRunQuery(
-    (data: Partial<IRow> & { id: string }) => async (db) => {
+    (db) => async (data: Partial<IRow> & { id: string }) => {
       await runQuery(db, update(notesTable).set(data).where({ id: data.id }));
     }
   );
 
-  const [deleteRow, _deleteState] = useRunQuery((id: string) => async (db) => {
+  const [deleteRow, _deleteState] = useRunQuery((db) => async (id: string) => {
     await runQuery(db, deleteFrom(notesTable).where({ id }));
   });
 

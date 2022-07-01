@@ -47,11 +47,11 @@ const Row = ({
   row: INoteRow;
   textToSearch: string;
 }) => {
-  const [deleteRecord, deleteRecordState] = useRunQuery(() => async (db) => {
+  const [deleteRecord, deleteRecordState] = useRunQuery((db) => async () => {
     await runQuery(db, deleteFrom(notesTable).where({ id: row.id }));
   });
 
-  const [updateRecord, updateRecordState] = useRunQuery(() => async (db) => {
+  const [updateRecord, updateRecordState] = useRunQuery((db) => async () => {
     await runQuery(
       db,
       update(notesTable)
@@ -124,7 +124,7 @@ export const List = () => {
   const rowsResult = useQuery<INoteRow>(paginatedQuery);
 
   const [createNotes, createNotesState] = useRunQuery(
-    (count: number) => async (db) => {
+    (db) => async (count: number) => {
       for (const ch of chunk(Array.from(Array(count).keys()), 3000)) {
         await runQuery(
           db,
@@ -142,7 +142,7 @@ export const List = () => {
     }
   );
 
-  const [deleteAll, deleteAllState] = useRunQuery(() => async (db) => {
+  const [deleteAll, deleteAllState] = useRunQuery((db) => async () => {
     await runQuery(db, deleteFrom(notesTable));
   });
 

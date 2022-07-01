@@ -145,12 +145,15 @@ function useIsMounted() {
 
 export function useRunQuery<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  D extends (...args: any[]) => (db: IDbState) => Promise<R>,
+  D extends (db: IDbState) => (...args: any[]) => Promise<R>,
   R
 >(
   cb: D,
   _opts?: { suppressLog?: boolean; inTransaction?: boolean } | undefined
-): readonly [(...args: Parameters<D>) => Promise<R>, IRunQueryHookResult<R>] {
+): readonly [
+  (...args: Parameters<ReturnType<D>>) => Promise<R>,
+  IRunQueryHookResult<R>
+] {
   const { suppressLog, inTransaction } = {
     suppressLog: _opts?.suppressLog !== undefined ? _opts.suppressLog : false,
     inTransaction:
@@ -174,7 +177,7 @@ export function useRunQuery<
   }, [dbState.type]);
 
   const toCall = useCallback(
-    async (...args: Parameters<D>) => {
+    async (...args: Parameters<ReturnType<D>>) => {
       if (dbState.type !== "initialized") {
         // TODO: maybe wait db init as opts?
 
@@ -185,8 +188,8 @@ export function useRunQuery<
 
       const db = suppressLog ? withSuppressedLog(dbState.db) : dbState.db;
       const res = await (inTransaction
-        ? runInTransaction(db, cb(...args))
-        : cb(...args)(db));
+        ? runInTransaction(db, (db) => cb(db)(...args))
+        : cb(db)(...args));
 
       if (isMounted()) {
         setData(res);
@@ -199,12 +202,13 @@ export function useRunQuery<
   );
 
   // Simulation of useEvent
-  const toCallRef = useRef<(...args: Parameters<D>) => Promise<R>>(toCall);
+  const toCallRef =
+    useRef<(...args: Parameters<ReturnType<D>>) => Promise<R>>(toCall);
   useEffect(() => {
     toCallRef.current = toCall;
   }, [toCall]);
 
-  const run = useCallback((...args: Parameters<D>) => {
+  const run = useCallback((...args: Parameters<ReturnType<D>>) => {
     return toCallRef.current(...args);
   }, []);
 
