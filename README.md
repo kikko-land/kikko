@@ -170,14 +170,6 @@ Also checkout [example](https://codesandbox.io/s/react-trong-example-q0e9iu) at 
 All components that subscribed to particular tables will rendered when tables will be mutated.
 You can also check [how reactivity works](https://trong-orm.netlify.app/how-reactivity-works) in the doc.
 
-## Currently supported
-
-**Expo**: full support (both web and native)<br>
-**Web**: full support<br>
-**Electron**: full support (with better-sqlite3)<br>
-**Tauri**: WIP<br>
-**Cordova/Ionic**: WIP<br>
-
 ## It's better than IndexedDB
 
 Read performance: doing something like `SELECT SUM(value) FROM kv`:
