@@ -16,7 +16,6 @@ const sidebars = {
   // By default, Docusaurus generates a sidebar from the docs folder structure
   docs: [
     "intro",
-    "howReactivityWorks",
     {
       type: "category",
       label: "Core",
