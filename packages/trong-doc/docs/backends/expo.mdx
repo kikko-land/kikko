@@ -1,5 +1,5 @@
 ---
-sidebar_position: 2
+sidebar_position: 3
 slug: /backends/expo
 ---
 
@@ -36,41 +36,6 @@ npm i -S @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js @trong-orm/
 
   </TabItem>
 </Tabs>
-
-Configure trong:
-
-```typescript
-const createNotesTable: IMigration = {
-  up: async (db) => {
-    const query = sql`
-      CREATE TABLE notes (
-        id varchar(20) PRIMARY KEY NOT NULL,
-        title TEXT NOT NULL,
-        content TEXT NOT NULL
-      );
-      CREATE INDEX IF NOT EXISTS idx_note_title ON notes(title);
-    `;
-
-    await runQuery(db, query);
-  },
-  id: 1653668686076, // id should be uniq
-  name: "createNotesTable",
-};
-
-const config: IInitDbClientConfig = {
-  dbName: "trong-db",
-  dbBackend:
-    Platform.OS === "web"
-      ? require("@trong-orm/absurd-web-backend").absurdWebBackend({
-          wasmUrl: require("@trong-orm/sql.js/dist/sql-wasm.wasm").default,
-        })
-      : require("@trong-orm/native-expo-backend").nativeExpoBackend(),
-  plugins: [
-    migrationsPlugin({ migrations: [createNotesTable] }),
-    reactiveQueriesPlugin({ webMultiTabSupport: Platform.OS === "web" }),
-  ],
-};
-```
 
 Create `webpack.config.js`:
 
@@ -148,6 +113,24 @@ export default function App() {
     }
   })();
 }
+```
+
+Configure trong:
+
+```typescript
+const config: IInitDbClientConfig = {
+  dbName: "trong-db",
+  dbBackend:
+    Platform.OS === "web"
+      ? require("@trong-orm/absurd-web-backend").absurdWebBackend({
+          wasmUrl: require("@trong-orm/sql.js/dist/sql-wasm.wasm").default,
+        })
+      : require("@trong-orm/native-expo-backend").nativeExpoBackend(),
+  plugins: [
+    migrationsPlugin({ migrations: [] }),
+    reactiveQueriesPlugin({ webMultiTabSupport: Platform.OS === "web" }),
+  ],
+};
 ```
 
 Expo app example: https://github.com/trong-orm/trong-expo-example

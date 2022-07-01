@@ -1,0 +1,76 @@
+---
+sidebar_position: 2
+slug: /backends/tauri
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+# Tauri
+
+This backend uses [tauri-plugin-sqlite](https://github.com/lzdyes/tauri-plugin-sqlite).
+
+## Installation
+
+Edit `src-tauri/Cargo.toml`:
+
+```toml
+[dependencies.tauri-plugin-sqlite]
+git = "https://github.com/lzdyes/tauri-plugin-sqlite"
+tag = "v0.1.0"
+```
+
+Edit `src-tauri/src/main.rs`:
+
+```rust
+fn main() {
+    let context = tauri::generate_context!();
+    tauri::Builder::default()
+        .plugin(tauri_plugin_sqlite::init())
+        .run(context)
+        .expect("error while running tauri application");
+}
+```
+
+Install trong packages:
+
+<Tabs>
+  <TabItem value="yarn" label="yarn" default>
+
+```bash
+yarn add @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js @trong-orm/tauri-backend
+```
+
+  </TabItem>
+  <TabItem value="npm" label="npm">
+
+```bash
+npm i -S @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js @trong-orm/tauri-backend
+```
+
+  </TabItem>
+</Tabs>
+
+Configure trong:
+
+```tsx
+import { tauriBackend } from "@trong-orm/tauri-backend";
+
+const config: IInitDbClientConfig = {
+  dbName: "helloWorld",
+  dbBackend: tauriBackend((dbName) => `${dbName}.db`),
+  plugins: [migrationsPlugin({ migrations: [] }), reactiveQueriesPlugin()],
+};
+
+export const App = () => {
+  return (
+    <DbProvider config={config}>
+      <EnsureDbLoaded fallback={<div>Loading db...</div>}>
+        <List />
+      </EnsureDbLoaded>
+    </DbProvider>
+  );
+};
+```
+
+Usage example repo: https://github.com/trong-orm/trong-tauri-example

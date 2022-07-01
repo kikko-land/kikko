@@ -1,5 +1,5 @@
 {
-  "name": "@trong-orm/native-expo-backend",
+  "name": "@trong-orm/tauri-backend",
   "version": "1.0.47",
   "author": "Sergey Popov",
   "license": "MIT",
@@ -15,7 +15,7 @@
   "publishConfig": {
     "exports": {
       ".": {
-        "types": "./dist/native-expo-backend/src/index.d.ts",
+        "types": "./dist/tauri-backend/src/index.d.ts",
         "es2015": "./dist/index.es.js",
         "require": "./dist/index.umd.js",
         "import": "./dist/index.es.js",
@@ -24,7 +24,7 @@
     },
     "main": "./dist/index.umd.js",
     "module": "./dist/index.es.js",
-    "types": "./dist/native-expo-backend/src/index.d.ts"
+    "types": "./dist/tauri-backend/src/index.d.ts"
   },
   "scripts": {
     "compile": "yarn vite build",
@@ -35,7 +35,7 @@
     "@trong-orm/core": "^1.0.47",
     "@trong-orm/sql": "^1.0.47",
     "@trong-orm/sql.js": "^1.6.7",
-    "expo-sqlite": ">=10.0.0"
+    "tauri-plugin-sqlite-api": "github:lzdyes/tauri-plugin-sqlite#v0.1.0"
   },
   "devDependencies": {
     "@trong-orm/common-scripts": "*",

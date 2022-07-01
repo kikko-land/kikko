@@ -41,32 +41,13 @@ import sqlWasmUrl from "@trong-orm/sql.js/dist/sql-wasm.wasm?url";
 // For CRA:
 // import sqlWasmUrl from "@trong-orm/sql.js/dist/sql-wasm.wasm";
 
-const createNotesTable: IMigration = {
-  up: async (db) => {
-    const query = sql`
-      CREATE TABLE notes (
-        id varchar(20) PRIMARY KEY NOT NULL,
-        title TEXT NOT NULL,
-        content TEXT NOT NULL,
-        updatedAt INTEGER NOT NULL,
-        createdAt INTEGER NOT NULL
-      );
-      CREATE INDEX IF NOT EXISTS idx_note_title ON notes(title);
-    `;
-
-    await runQuery(db, query);
-  },
-  id: 1653668686076, // id should be uniq
-  name: "createNotesTable",
-};
-
 const config: IInitDbClientConfig = {
   dbName: "db-name",
   dbBackend: absurdWebBackend({
     wasmUrl: sqlWasmUrl,
   }),
   plugins: [
-    migrationPlugin({ migrations: [createNotesTable] }),
+    migrationPlugin({ migrations: [] }),
     reactiveQueriesPlugin(),
   ],
 };
@@ -107,7 +88,7 @@ Also to import wasm use this code:
 import sqlWasmUrl from "@trong-orm/sql.js/dist/sql-wasm.wasm?url";
 ```
 
-Code example: https://github.com/trong-orm/trong-orm/tree/main/packages/vite-react-examples
+Code example: https://github.com/trong-orm/trong-orm/tree/main/packages/vite-react-example
 
 ## Configuration and usage with create-react-app
 
