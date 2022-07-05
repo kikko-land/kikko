@@ -29,30 +29,21 @@ https://user-images.githubusercontent.com/7958527/174773307-9be37e1f-0700-45b4-8
 
 ## Supported platforms
 
-| Platform         | Uses                                                                                                                                       | Package                                                                                | Example                                                                              | Doc                                                                                              |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
-| Vite             | [absurd-sql](https://github.com/jlongster/absurd-sql)                                                                                      | `@trong-orm/absurd-web-backend`                                                        | [Link](https://github.com/trong-orm/trong-orm/tree/main/packages/vite-react-example) | [Link](https://trong-orm.netlify.app/backends/web#configuration-and-usage-with-vite)             |
-| Create-react-app | [absurd-sql](https://github.com/jlongster/absurd-sql)                                                                                      | `@trong-orm/absurd-web-backend`                                                        | [Link](https://github.com/trong-orm/trong-cra-example)                               | [Link](https://trong-orm.netlify.app/backends/web#configuration-and-usage-with-create-react-app) |
-| Tauri + Vite     | [tauri-plugin-sqlite](https://github.com/lzdyes/tauri-plugin-sqlite)                                                                       | `@trong-orm/tauri-backend`                                                             | [Link](https://github.com/trong-orm/trong-tauri-example)                             | [Link](https://trong-orm.netlify.app/backends/tauri)                                             |
-| Expo             | [absurd-sql](https://github.com/jlongster/absurd-sql) for web, [expo SQLite](https://docs.expo.dev/versions/latest/sdk/sqlite/) for native | `@trong-orm/absurd-web-backend`<br/>`@trong-orm/native-expo-backend`                   | [Link](https://github.com/trong-orm/trong-expo-example)                              | [Link](https://trong-orm.netlify.app/backends/expo)                                              |
-| Electron         | [better-sqlite3](https://github.com/WiseLibs/better-sqlite3)                                                                               | `@trong-orm/electron-better-sqlite3-backend`                                           | [Link](https://github.com/trong-orm/trong-electron-better-sqlite3-example)           | [Link](https://trong-orm.netlify.app/backends/electron)                                          |
-| Ionic            | [@awesome-cordova-plugins/sqlite](https://www.npmjs.com/package/@awesome-cordova-plugins/sqlite)                                           | [Link](https://github.com/trong-orm/trong-orm/tree/main/packages/native-ionic-backend) | WIP                                                                                  | WIP                                                                                              |
-| React Native     | [react-native-sqlite-storage](https://github.com/andpor/react-native-sqlite-storage)                                                       | WIP                                                                                    | WIP                                                                                  | WIP                                                                                              |
+| Platform         | Uses                                                                                                                                       | Package                                                              | Example                                                                              | Doc                                                                                              |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
+| Vite             | [absurd-sql](https://github.com/jlongster/absurd-sql)                                                                                      | `@trong-orm/absurd-web-backend`                                      | [Link](https://github.com/trong-orm/trong-orm/tree/main/packages/vite-react-example) | [Link](https://trong-orm.netlify.app/backends/web#configuration-and-usage-with-vite)             |
+| Create-react-app | [absurd-sql](https://github.com/jlongster/absurd-sql)                                                                                      | `@trong-orm/absurd-web-backend`                                      | [Link](https://github.com/trong-orm/trong-cra-example)                               | [Link](https://trong-orm.netlify.app/backends/web#configuration-and-usage-with-create-react-app) |
+| Tauri + Vite     | [tauri-plugin-sqlite](https://github.com/lzdyes/tauri-plugin-sqlite)                                                                       | `@trong-orm/tauri-backend`                                           | [Link](https://github.com/trong-orm/trong-tauri-example)                             | [Link](https://trong-orm.netlify.app/backends/tauri)                                             |
+| Expo             | [absurd-sql](https://github.com/jlongster/absurd-sql) for web, [expo SQLite](https://docs.expo.dev/versions/latest/sdk/sqlite/) for native | `@trong-orm/absurd-web-backend`<br/>`@trong-orm/native-expo-backend` | [Link](https://github.com/trong-orm/trong-expo-example)                              | [Link](https://trong-orm.netlify.app/backends/expo)                                              |
+| Electron         | [better-sqlite3](https://github.com/WiseLibs/better-sqlite3)                                                                               | `@trong-orm/electron-better-sqlite3-backend`                         | [Link](https://github.com/trong-orm/trong-electron-better-sqlite3-example)           | [Link](https://trong-orm.netlify.app/backends/electron)                                          |
+| Ionic            | [@awesome-cordova-plugins/sqlite](https://www.npmjs.com/package/@awesome-cordova-plugins/sqlite)                                           | `@trong-orm/native-ionic-backend`                                    | WIP                                                                                  | WIP                                                                                              |
+| React Native     | [react-native-sqlite-storage](https://github.com/andpor/react-native-sqlite-storage)                                                       | WIP                                                                  | WIP                                                                                  | WIP                                                                                              |
 
 ## React quick example
 
 ```tsx
-import {
-  desc,
-  like$,
-  select,
-} from "@trong-orm/query-builder";
-import {
-  makeId,
-  sql,
-  useQuery,
-  useRunQuery,
-} from "@trong-orm/react";
+import { desc, like$, select } from "@trong-orm/query-builder";
+import { makeId, sql, useQuery, useRunQuery } from "@trong-orm/react";
 import { useState } from "react";
 
 const notesTable = sql.table("notes");
@@ -83,9 +74,9 @@ export const List = () => {
         }}
         placeholder="Search content"
       />
-      
+
       <br />
-      
+
       {recordsData.map(({ title, content, id, createdAt }) => (
         <div key={id}>
           <h1>{title}</h1>
