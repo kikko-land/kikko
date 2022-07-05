@@ -32,7 +32,7 @@ Then configure trong:
 ```typescript
 import {
   IInitDbClientConfig,
-  migrationPlugin,
+  migrationsPlugin,
   reactiveQueriesPlugin,
 } from "@trong-orm/react";
 import { absurdWebBackend } from "@trong-orm/absurd-web-backend";
@@ -47,7 +47,7 @@ const config: IInitDbClientConfig = {
     wasmUrl: sqlWasmUrl,
   }),
   plugins: [
-    migrationPlugin({ migrations: [] }),
+    migrationsPlugin({ migrations: [] }),
     reactiveQueriesPlugin(),
   ],
 };

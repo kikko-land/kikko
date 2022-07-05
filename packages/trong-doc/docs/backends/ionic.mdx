@@ -1,0 +1,89 @@
+---
+sidebar_position: 5
+slug: /backends/ionic
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+# Ionic
+
+This backend uses [absurd-sql](https://github.com/jlongster/absurd-sql) for web and [@awesome-cordova-plugins/sqlite](https://www.npmjs.com/package/@awesome-cordova-plugins/sqlite) for native.
+
+## Installation
+
+Install trong packages:
+
+<Tabs>
+  <TabItem value="yarn" label="yarn" default>
+
+```bash
+yarn add @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js @trong-orm/native-ionic-backend @trong-orm/absurd-web-backend
+```
+
+  </TabItem>
+  <TabItem value="npm" label="npm">
+
+```bash
+npm i -S @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js @trong-orm/native-ionic-backend @trong-orm/absurd-web-backend
+```
+
+  </TabItem>
+</Tabs>
+
+Then configure trong:
+
+```typescript
+import {
+  DbProvider,
+  EnsureDbLoaded,
+  IInitDbClientConfig,
+  migrationsPlugin,
+  reactiveQueriesPlugin,
+} from "@trong-orm/react";
+import { isPlatform } from "@ionic/react";
+// @ts-ignore
+import sqlWasmUrl from "@trong-orm/sql.js/dist/sql-wasm.wasm";
+
+const config: IInitDbClientConfig = {
+  dbName: "test-db",
+  dbBackend: (async () =>
+    isPlatform("hybrid")
+      ? (await import("@trong-orm/native-ionic-backend")).ionicBackend(
+          (name) => `${name}.db`
+        )
+      : (await import("@trong-orm/absurd-web-backend")).absurdWebBackend({
+          wasmUrl: sqlWasmUrl,
+        }))(),
+  plugins: [
+    migrationsPlugin({ migrations: [] }),
+    reactiveQueriesPlugin(),
+  ],
+};
+```
+
+And then wrap your with DbProvider and EnsureDbLoaded(optional):
+
+```tsx
+import { DbProvider, EnsureDbLoaded } from "@trong-orm/react";
+
+<DbProvider config={config}>
+  <EnsureDbLoaded fallback={<div>Loading db...</div>}>
+    <App />
+  </EnsureDbLoaded>
+</DbProvider>;
+```
+
+If you using `create-react-app` create `src/setupProxy.js`:
+
+```javascript
+module.exports = function (app) {
+  app.use(function (req, res, next) {
+    res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+    res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+    next();
+  });
+};
+```
+
+Code example: https://github.com/trong-orm/trong-ionic-example

@@ -35,9 +35,11 @@
     "@trong-orm/core": "^1.1.3",
     "@trong-orm/sql": "^1.1.3",
     "@awesome-cordova-plugins/core": "^5.44.0",
-    "@awesome-cordova-plugins/sqlite": "^5.44.0"
+    "@awesome-cordova-plugins/sqlite": "^5.44.0",
+    "cordova-sqlite-storage": "^6.0.0"
   },
   "devDependencies": {
     "@trong-orm/common-scripts": "*"
   }
 }
+
