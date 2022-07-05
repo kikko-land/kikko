@@ -10,6 +10,9 @@
 >
 > ### Also you can check [example at CodeSanbox](https://codesandbox.io/s/react-trong-example-q0e9iu) (multi-tab is not supported due to CORS).
 
+<br/>
+<br/>
+
 |   | Trong ORM |
 | - | ------------ |
 | ⚡️ **Fast on big datasets** | And even for web! It even faster then IndexedDB. You can easily store 1m+ records at table, and everything will work smoothly. The SQLite project exists for 22+ years, and team made a great job to bring an excellent performance. And you can also use the whole power of SQL DBs — like indexes, triggers or views. |
@@ -22,11 +25,15 @@
 | 👯 **Multi-tab support for web** | Mutate DB in one tab, and your data will be updated in other. |
 | 🥹 **Full typescript support** | Yes! |
 
-https://user-images.githubusercontent.com/7958527/174773307-9be37e1f-0700-45b4-8d25-aa2c83df6cec.mp4
+<br/>
+<br/>
 
+https://user-images.githubusercontent.com/7958527/174773307-9be37e1f-0700-45b4-8d25-aa2c83df6cec.mp4
 
 > **CAUTION: Right now multi-tab mode doesn't work correctly and crashes sometimes due to [this bug](https://github.com/jlongster/absurd-sql/issues/30) at absurd-sql repo.
 > I am working to fix it.**
+
+<br/>
 
 ## Supported platforms
 
