@@ -75,7 +75,7 @@ type IDbInstance = {
 export type IDbBackend = (db: {
   dbName: string;
   stopped$: Observable<void>;
-}) => IDbInstance | Promise<IDbInstance>;
+}) => IDbInstance;
 
 export interface ISharedDbState {
   dbName: string;

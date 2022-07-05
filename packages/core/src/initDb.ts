@@ -3,7 +3,6 @@ import {
   filter,
   firstValueFrom,
   map,
-  Observable,
   of,
   pipe,
   switchMap,
@@ -24,7 +23,7 @@ export type IDbClientPlugin = (state: IDbState) => IDbState;
 
 export type IInitDbClientConfig = {
   dbName: string;
-  dbBackend: IDbBackend;
+  dbBackend: Promise<IDbBackend> | IDbBackend;
   plugins?: IDbClientPlugin[];
   queriesMiddlewares?: IQueriesMiddleware[];
 };
@@ -39,7 +38,7 @@ export const initDbClient = async ({
     "running"
   );
 
-  const dbBackendCalled = await dbBackend({
+  const dbBackendCalled = (await dbBackend)({
     dbName,
     stopped$: runningState$.pipe(
       filter((e) => e === "stopped"),
