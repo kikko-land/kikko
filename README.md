@@ -10,22 +10,23 @@
 >
 > ### Also you can check [example at CodeSanbox](https://codesandbox.io/s/react-trong-example-q0e9iu) (multi-tab is not supported due to CORS).
 
-> **CAUTION: Right now multi-tab mode doesn't work correctly and crashes sometimes due to [this bug](https://github.com/jlongster/absurd-sql/issues/30) at absurd-sql repo.
-> I am working to fix it.**
-
-Trong ORM allows you to run reactive SQLite queries on any platforms with any framework/lib. For the web apps it uses absurd-sql, for electron/react-native/ionic — native sqlite calls(WIP). It is actually framework/lib-agnostic, so you can integrate it to any framework/render libs you want.
-
-## Core features
-
-- Lib or framework agnostic — use with React or write adapter for your own lib
-- Wide platforms support — web, mobile(react-native/expo, cordova/ionic), desktop(electron, tauri)
-- Full typescript support
-- Out-of-the-box [query builder](https://trong-orm.netlify.app/building-sql/query-builder). We tried to add support of all possible SQLite queries could be. But you can still use [raw SQL queries](https://trong-orm.netlify.app/building-sql/raw).
-- It is very modular. You can use `@trong-orm/sql`/`@trong-orm/query-builder`/`@trong-orm/core` without need to require the full lib. Use the only package you need
-- Multi-tab support for web. Mutate DB in one tab, and your data will be updated in other
-- Plugin system allows you to integrate your own code on query/transaction run
+|   | Trong ORM |
+| - | ------------ |
+| ⚡️ **Fast on big datasets** | And even for web! It even faster then IndexedDB. You can easily store 1m+ records at table, and everything will work smoothly. The SQLite project exists for 22+ years, and team made a great job to bring an excellent performance. And you can also use the whole power of SQL DBs — like indexes, triggers or views. |
+| 🚀 **Fast startup time** | You don't need to load the whole DB into memory, and it guarantees the fast startup time for you app. |
+| 📱 **Wide platforms support** | Web, mobile(react-native, expo, cordova, ionic), desktop(electron, tauri). |
+| 🧰 **Lib-agnostic** | Use with React or write adapter for your own lib. |
+| 📦 **Out-of-the-box query builder** | We tried to add support of all possible SQLite queries could be. But you can still use raw SQL queries. |
+| 🧩 **Good modularity** | You can use `@trong-orm/sql`/`@trong-orm/query-builder`/`@trong-orm/core` without need to require the full lib. Use the only package you need. |
+| 🛠 **Plugin system** | Allows you to integrate your own code on query/transaction run. |
+| 👯 **Multi-tab support for web** | Mutate DB in one tab, and your data will be updated in other. |
+| 🥹 **Full typescript support** | Yes! |
 
 https://user-images.githubusercontent.com/7958527/174773307-9be37e1f-0700-45b4-8d25-aa2c83df6cec.mp4
+
+
+> **CAUTION: Right now multi-tab mode doesn't work correctly and crashes sometimes due to [this bug](https://github.com/jlongster/absurd-sql/issues/30) at absurd-sql repo.
+> I am working to fix it.**
 
 ## Supported platforms
 
