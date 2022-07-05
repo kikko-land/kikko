@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <i>Build reactive interfaces on top of SQLite for any platform with any framework or lib.</i>
+  <i>Build data heavy reactive interfaces on top of SQLite for any platform with any framework or lib.</i>
 </p>
 
 > ### Full documentation can be found on [the site](https://trong-orm.netlify.app/).
