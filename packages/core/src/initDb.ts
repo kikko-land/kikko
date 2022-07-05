@@ -39,7 +39,7 @@ export const initDbClient = async ({
     "running"
   );
 
-  const dbBackendCalled = dbBackend({
+  const dbBackendCalled = await dbBackend({
     dbName,
     stopped$: runningState$.pipe(
       filter((e) => e === "stopped"),

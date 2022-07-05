@@ -131,6 +131,20 @@
     "@jridgewell/gen-mapping" "^0.1.0"
     "@jridgewell/trace-mapping" "^0.3.9"
 
+"@awesome-cordova-plugins/core@^5.44.0":
+  version "5.44.0"
+  resolved "https://registry.yarnpkg.com/@awesome-cordova-plugins/core/-/core-5.44.0.tgz#7e90fa629ed2c9d2e53d9ee3bb39d2093e810364"
+  integrity sha512-LFa0RQyKoiMoh8GiFTOUh+SHdxs6XiozCAzOqq0YUrAAGb/sQRwZ+pDtqw0RTSQqN7DV3FH8ayeuHX8LEm3bNA==
+  dependencies:
+    "@types/cordova" latest
+
+"@awesome-cordova-plugins/sqlite@^5.44.0":
+  version "5.44.0"
+  resolved "https://registry.yarnpkg.com/@awesome-cordova-plugins/sqlite/-/sqlite-5.44.0.tgz#29c275eb1d042ce77d66f12b36febcf92f7b27dd"
+  integrity sha512-qhax28pWRa+6XtwHU/QRgGLqx4ymNjYeEwDaIWcIcdy1uaLdD5tsxpjb8AD1zsgny6vd/JTilo/xKElNzLOpmA==
+  dependencies:
+    "@types/cordova" latest
+
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.10.4", "@babel/code-frame@^7.12.13", "@babel/code-frame@^7.16.0", "@babel/code-frame@^7.16.7", "@babel/code-frame@^7.8.3":
   version "7.16.7"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.16.7.tgz#44416b6bd7624b998f5b1af5d470856c40138789"
@@ -2199,6 +2213,11 @@
   integrity sha512-cdeYyv4KWoEgpBISTxWvqYsVy444DOqehiF3fM3ne10AmJ62RSyNkUnxMJXHQWRQQX2eR94m5y1IZyDwBjV9FQ==
   dependencies:
     "@types/node" "*"
+
+"@types/cordova@latest":
+  version "0.0.34"
+  resolved "https://registry.yarnpkg.com/@types/cordova/-/cordova-0.0.34.tgz#ea7addf74ecec3d7629827a0c39e2c9addc73d04"
+  integrity sha512-rkiiTuf/z2wTd4RxFOb+clE7PF4AEJU0hsczbUdkHHBtkUmpWQpEddynNfJYKYtZFJKbq4F+brfekt1kx85IZA==
 
 "@types/emscripten@^1.39.6":
   version "1.39.6"
