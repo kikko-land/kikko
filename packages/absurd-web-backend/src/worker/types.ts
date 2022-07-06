@@ -18,5 +18,11 @@ export type IOutputWorkerMessage =
   | { type: "response"; data: IResponse };
 
 export type IInputWorkerMessage =
-  | { type: "initialize"; dbName: string; wasmUrl: string; pageSize: number }
+  | {
+      type: "initialize";
+      dbName: string;
+      wasmUrl: string;
+      pageSize: number;
+      cacheSize: number;
+    }
   | { type: "command"; data: ICommand };

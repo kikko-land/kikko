@@ -16,7 +16,12 @@ ctx.addEventListener("message", async (event) => {
       throw new Error("DB already initialized!");
     }
 
-    db = new DbBackend(data.dbName, data.wasmUrl, data.pageSize);
+    db = new DbBackend(
+      data.dbName,
+      data.wasmUrl,
+      data.pageSize,
+      data.cacheSize
+    );
 
     await db.init();
 

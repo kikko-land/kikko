@@ -10,7 +10,8 @@ export class DbBackend {
   constructor(
     private dbName: string,
     private wasmUrl: string,
-    private pageSize: number
+    private pageSize: number,
+    private cacheSize: number
   ) {}
 
   async init() {
@@ -37,10 +38,12 @@ export class DbBackend {
       filename: true,
     });
 
-    this.sqlExec(`
-      PRAGMA journal_mode=MEMORY;
+    console.log("Setting pragma");
+
+    this.sqlDb.exec(`
+      PRAGMA cache_size=${this.cacheSize};
       PRAGMA page_size=${this.pageSize};
-      PRAGMA foreign_keys=ON;
+      PRAGMA journal_mode=MEMORY;
     `);
   }
 

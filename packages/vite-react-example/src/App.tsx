@@ -9,7 +9,6 @@ import {
   reactiveQueriesPlugin,
 } from "@trong-orm/react";
 import sqlWasmUrl from "@trong-orm/sql.js/dist/sql-wasm.wasm?url";
-import React from "react";
 
 import { List } from "./List";
 import { createNotesTableMigration } from "./migrations/createNotesTable";
@@ -19,6 +18,7 @@ const config: IInitDbClientConfig = {
   dbBackend: absurdWebBackend({
     wasmUrl: sqlWasmUrl,
     pageSize: 32 * 1024,
+    cacheSize: -5000,
   }),
   plugins: [
     migrationsPlugin({ migrations: [createNotesTableMigration] }),

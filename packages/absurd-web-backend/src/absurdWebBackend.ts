@@ -25,10 +25,12 @@ export const absurdWebBackend =
     wasmUrl,
     queryTimeout,
     pageSize,
+    cacheSize,
   }: {
     wasmUrl: string | (() => Promise<string>);
     queryTimeout?: number;
     pageSize?: number;
+    cacheSize?: number;
   }): IDbBackend =>
   ({ dbName, stopped$ }: { dbName: string; stopped$: Observable<void> }) => {
     const initializedWorker = new DbWorker();
@@ -89,6 +91,7 @@ export const absurdWebBackend =
           dbName: dbName,
           wasmUrl: new URL(url, document.baseURI).toString(),
           pageSize: pageSize !== undefined ? pageSize : 32 * 1024,
+          cacheSize: cacheSize !== undefined ? cacheSize : -5000,
         });
 
         await initPromise;
