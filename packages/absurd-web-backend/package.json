@@ -1,6 +1,6 @@
 {
   "name": "@trong-orm/absurd-web-backend",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "author": "Sergey Popov",
   "license": "MIT",
   "main": "./src/index.ts",
@@ -33,8 +33,8 @@
   },
   "dependencies": {
     "absurd-sql": "^0.0.53",
-    "@trong-orm/core": "^1.1.4",
-    "@trong-orm/sql": "^1.1.4",
+    "@trong-orm/core": "^1.1.5",
+    "@trong-orm/sql": "^1.1.5",
     "@trong-orm/sql.js": "^1.6.7",
     "rxjs": "^7.5.5"
   },
