@@ -20,27 +20,15 @@ import { IBackendState } from "./types";
 import DbWorker from "./worker/DB.worker?worker&inline";
 import { IInputWorkerMessage, IOutputWorkerMessage } from "./worker/types";
 
-const mapRows = <T extends Record<string, unknown>>(
-  result: QueryExecResult
-) => {
-  return (result?.values?.map((res) => {
-    const obj: Record<string, unknown> = {};
-
-    result.columns.forEach((col, i) => {
-      obj[col] = res[i];
-    });
-
-    return obj;
-  }) || []) as T[];
-};
-
 export const absurdWebBackend =
   ({
     wasmUrl,
     queryTimeout,
+    pageSize,
   }: {
     wasmUrl: string | (() => Promise<string>);
     queryTimeout?: number;
+    pageSize?: number;
   }): IDbBackend =>
   ({ dbName, stopped$ }: { dbName: string; stopped$: Observable<void> }) => {
     const initializedWorker = new DbWorker();
@@ -100,6 +88,7 @@ export const absurdWebBackend =
           type: "initialize",
           dbName: dbName,
           wasmUrl: new URL(url, document.baseURI).toString(),
+          pageSize: pageSize !== undefined ? pageSize : 32 * 1024,
         });
 
         await initPromise;

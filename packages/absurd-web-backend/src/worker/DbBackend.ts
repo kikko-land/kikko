@@ -7,7 +7,11 @@ const colors = ["yellow", "cyan", "magenta"];
 export class DbBackend {
   private sqlDb!: Database;
 
-  constructor(private dbName: string, private wasmUrl: string) {}
+  constructor(
+    private dbName: string,
+    private wasmUrl: string,
+    private pageSize: number
+  ) {}
 
   async init() {
     const SQL = await initSqlJs({
@@ -35,7 +39,7 @@ export class DbBackend {
 
     this.sqlExec(`
       PRAGMA journal_mode=MEMORY;
-      PRAGMA page_size=${32 * 1024};
+      PRAGMA page_size=${this.pageSize};
       PRAGMA foreign_keys=ON;
     `);
   }
