@@ -47,11 +47,105 @@ https://user-images.githubusercontent.com/7958527/174773307-9be37e1f-0700-45b4-8
 | Ionic            | [@awesome-cordova-plugins/sqlite](https://www.npmjs.com/package/@awesome-cordova-plugins/sqlite)                                           | `@trong-orm/absurd-web-backend`<br/>`@trong-orm/native-ionic-backend` | [Link](https://github.com/trong-orm/trong-ionic-example)                             | [Link](https://trong-orm.netlify.app/backends/ionic)                                             |
 | React Native     | [react-native-sqlite-storage](https://github.com/andpor/react-native-sqlite-storage)                                                       | `@trong-orm/react-native-backend`                                     | [Link](https://github.com/trong-orm/trong-react-native-example)                      | [Link](https://trong-orm.netlify.app/backends/react-native/)                                     |
 
-## React quick example
+## React quick example for vite
+
+For the other platforms installation, please, refer to [the doc](https://trong-orm.netlify.app/installation).
+
+Install trong:
+
+```bash
+yarn add @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js @trong-orm/absurd-web-backend
+
+// Or
+
+npm i -S @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js @trong-orm/absurd-web-backend
+```
+
+Then configure trong at `App.tsx`:
+
+```ts
+import { absurdWebBackend } from "@trong-orm/absurd-web-backend";
+import {
+  DbProvider,
+  EnsureDbLoaded,
+  IInitDbClientConfig,
+  IMigration,
+  migrationsPlugin,
+  reactiveQueriesPlugin,
+  runQuery,
+  sql,
+} from "@trong-orm/react";
+import sqlWasmUrl from "@trong-orm/sql.js/dist/sql-wasm.wasm?url";
+
+import { List } from "./List";
+
+const createNotesTable: IMigration = {
+  up: async (db) => {
+    await runQuery(
+      db,
+      sql`
+      CREATE TABLE IF NOT EXISTS notes (
+        id varchar(20) PRIMARY KEY,
+        title TEXT NOT NULL,
+        content TEXT NOT NULL,
+        updatedAt INTEGER NOT NULL,
+        createdAt INTEGER NOT NULL
+      );
+    `
+    );
+
+    await runQuery(
+      db,
+      sql`
+      CREATE INDEX IF NOT EXISTS idx_note_title ON notes(title);
+    `
+    );
+  },
+  id: 1653668686076,
+  name: "createNotesTable",
+};
+
+const config: IInitDbClientConfig = {
+  dbName: "quick-example-db",
+  dbBackend: absurdWebBackend({
+    wasmUrl: sqlWasmUrl,
+  }),
+  plugins: [
+    migrationsPlugin({ migrations: [createNotesTable] }),
+    reactiveQueriesPlugin(),
+  ],
+};
+
+export const App = () => {
+  return (
+    <DbProvider config={config}>
+      <EnsureDbLoaded fallback={<div>Loading db...</div>}>
+        <List />
+      </EnsureDbLoaded>
+    </DbProvider>
+  );
+};
+```
+
+And create `List.tsx` file:
 
 ```tsx
-import { desc, like$, select } from "@trong-orm/query-builder";
-import { makeId, sql, useQuery, useRunQuery } from "@trong-orm/react";
+import {
+  deleteFrom,
+  desc,
+  insert,
+  like$,
+  select,
+} from "@trong-orm/query-builder";
+import {
+  makeId,
+  runAfterTransactionCommitted,
+  runQuery,
+  sql,
+  useQuery,
+  useQueryFirstRow,
+  useRunQuery,
+} from "@trong-orm/react";
 import { useState } from "react";
 
 const notesTable = sql.table("notes");
@@ -59,22 +153,101 @@ const notesTable = sql.table("notes");
 export const List = () => {
   const [textToSearch, setTextToSearch] = useState<string>("");
 
+  const baseSql = select()
+    .from(notesTable)
+    .where(
+      textToSearch ? { content: like$("%" + textToSearch + "%") } : sql.empty
+    )
+    .orderBy(desc("createdAt"));
+
   const { data: recordsData } = useQuery<{
     id: string;
     title: string;
     content: string;
     createdAt: number;
-  }>(
-    select()
-      .from(notesTable)
-      .where(
-        textToSearch ? { content: like$("%" + textToSearch + "%") } : sql.empty
-      )
-      .orderBy(desc("createdAt"))
+  }>(baseSql);
+
+  const countResult = useQueryFirstRow<{ count: number }>(
+    select({ count: sql`COUNT(*)` }).from(baseSql)
   );
+
+  const [createNote, createNoteState] = useRunQuery(
+    (db) =>
+      async ({ title, content }: { title: string; content: string }) => {
+        const time = new Date().getTime();
+        await runQuery(
+          db,
+          insert({
+            id: makeId(),
+            title,
+            content,
+            updatedAt: time,
+            createdAt: time,
+          }).into(notesTable)
+        );
+      }
+  );
+
+  const [deleteAll, deleteAllState] = useRunQuery((db) => async () => {
+    await runQuery(db, deleteFrom(notesTable));
+
+    runAfterTransactionCommitted(db, () => {
+      console.log("It runs after transaction committed!");
+    });
+  });
 
   return (
     <>
+      <form
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onSubmit={(e: any) => {
+          e.preventDefault();
+          const title = e.target.title.value;
+          const content = e.target.content.value;
+
+          createNote({ title, content });
+        }}
+      >
+        <label>
+          Title
+          <input name="title" required />
+        </label>
+        <br />
+        <br />
+        <label>
+          Content
+          <textarea name="content" required />
+        </label>
+
+        <br />
+        <br />
+
+        <button
+          type="submit"
+          disabled={
+            createNoteState.type === "running" ||
+            createNoteState.type === "waitingDb"
+          }
+        >
+          {createNoteState.type === "running" ? "Loading..." : "Submit"}
+        </button>
+      </form>
+      <br />
+      <button
+        type="submit"
+        disabled={
+          deleteAllState.type === "running" ||
+          deleteAllState.type === "waitingDb"
+        }
+        onClick={deleteAll}
+      >
+        {deleteAllState.type === "running" ? "Loading..." : "Delete all"}
+      </button>
+      <hr />
+      Total found records:{" "}
+      {countResult.data !== undefined ? countResult.data.count : "Loading..."}
+      <br />
+      <br />
       <input
         value={textToSearch}
         onChange={(e) => {
@@ -82,9 +255,7 @@ export const List = () => {
         }}
         placeholder="Search content"
       />
-
       <br />
-
       {recordsData.map(({ title, content, id, createdAt }) => (
         <div key={id}>
           <h1>{title}</h1>
