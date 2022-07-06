@@ -1,0 +1,43 @@
+{
+  "name": "@trong-orm/react-native-backend",
+  "version": "1.1.4",
+  "author": "Sergey Popov",
+  "license": "MIT",
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    }
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/react-native-backend/src/index.d.ts",
+        "es2015": "./dist/index.es.js",
+        "require": "./dist/index.umd.js",
+        "import": "./dist/index.es.js",
+        "default": "./dist/index.es.js"
+      }
+    },
+    "main": "./dist/index.umd.js",
+    "module": "./dist/index.es.js",
+    "types": "./dist/react-native-backend/src/index.d.ts"
+  },
+  "scripts": {
+    "compile": "yarn vite build",
+    "lint": "eslint \"src/**/*.{tsx,ts}\"",
+    "check-typing": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@trong-orm/core": "^1.1.4",
+    "@trong-orm/sql": "^1.1.4",
+    "react-native-sqlite-storage": "^6.0.1"
+  },
+  "devDependencies": {
+    "@trong-orm/common-scripts": "*",
+    "@types/react-native-sqlite-storage": "^5.0.2"
+  }
+}

@@ -1,0 +1,68 @@
+---
+sidebar_position: 6
+slug: /backends/react-native
+---
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+# React Native
+
+This backend uses [react-native-sqlite-storage](https://github.com/andpor/react-native-sqlite-storage).
+
+## Installation
+
+Install trong packages and react-native-sqlite-storage:
+
+<Tabs>
+  <TabItem value="yarn" label="yarn" default>
+
+```bash
+yarn add @trong-orm/react @trong-orm/query-builder @trong-orm/react-native-backend react-native-sqlite-storage
+```
+
+  </TabItem>
+  <TabItem value="npm" label="npm">
+
+```bash
+npm i -S @trong-orm/react @trong-orm/query-builder @trong-orm/react-native-backend react-native-sqlite-storage
+```
+
+  </TabItem>
+</Tabs>
+
+Then configure trong:
+
+```typescript
+import {
+  DbProvider,
+  EnsureDbLoaded,
+  IInitDbClientConfig,
+  migrationsPlugin,
+  reactiveQueriesPlugin,
+} from "@trong-orm/react";
+import { reactNativeBackend } from "@trong-orm/react-native-backend";
+
+const config: IInitDbClientConfig = {
+  dbName: "trong-db",
+  dbBackend: reactNativeBackend({ name: (dbName) => `${dbName}.db` }),
+  plugins: [
+    migrationsPlugin({ migrations: [createNotesTable] }),
+    reactiveQueriesPlugin(),
+  ],
+};
+```
+
+And then wrap your with DbProvider and EnsureDbLoaded(optional):
+
+```tsx
+import { DbProvider, EnsureDbLoaded } from "@trong-orm/react";
+
+<DbProvider config={config}>
+  <EnsureDbLoaded fallback={<div>Loading db...</div>}>
+    <App />
+  </EnsureDbLoaded>
+</DbProvider>;
+```
+
+Code example: https://github.com/trong-orm/trong-react-native-example

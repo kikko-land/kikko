@@ -19,7 +19,6 @@ Install trong packages:
 
 ```bash
 yarn add @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js @trong-orm/native-ionic-backend @trong-orm/absurd-web-backend cordova-sqlite-storage
-
 ```
 
   </TabItem>
@@ -56,10 +55,7 @@ const config: IInitDbClientConfig = {
       : (await import("@trong-orm/absurd-web-backend")).absurdWebBackend({
           wasmUrl: sqlWasmUrl,
         }))(),
-  plugins: [
-    migrationsPlugin({ migrations: [] }),
-    reactiveQueriesPlugin(),
-  ],
+  plugins: [migrationsPlugin({ migrations: [] }), reactiveQueriesPlugin()],
 };
 ```
 
