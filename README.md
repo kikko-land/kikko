@@ -30,6 +30,9 @@
 
 https://user-images.githubusercontent.com/7958527/174773307-9be37e1f-0700-45b4-8d25-aa2c83df6cec.mp4
 
+[Source code](https://github.com/trong-orm/trong-orm/tree/main/packages/vite-react-example) <br/>
+[CodeSandbox example](https://codesandbox.io/s/react-trong-example-q0e9iu)
+
 > **CAUTION: Right now multi-tab mode doesn't work correctly and crashes sometimes due to [this bug](https://github.com/jlongster/absurd-sql/issues/30) at absurd-sql repo.
 > I am working to fix it.**
 

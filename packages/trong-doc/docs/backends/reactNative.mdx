@@ -59,7 +59,7 @@ And then wrap your with DbProvider and EnsureDbLoaded(optional):
 import { DbProvider, EnsureDbLoaded } from "@trong-orm/react";
 
 <DbProvider config={config}>
-  <EnsureDbLoaded fallback={<div>Loading db...</div>}>
+  <EnsureDbLoaded fallback={<Text>Loading db...</Text>}>
     <App />
   </EnsureDbLoaded>
 </DbProvider>;
