@@ -18,7 +18,7 @@ const DEFAULT_OPTIONS: IOptions = {
 } as const;
 
 function log(...args: unknown[]) {
-  console.debug(...args);
+  // console.debug(...args);
 }
 
 interface IOpenedFile {
@@ -34,6 +34,14 @@ interface IOpenedFile {
   changedPages?: Set<number>;
   overwrite?: boolean;
 }
+function equal(buf1: Int8Array, buf2: Int8Array) {
+  if (buf1.length !== buf2.length) return false;
+
+  for (let i = 0; i !== buf1.length; i++) {
+    if (buf1[i] !== buf2[i]) return false;
+  }
+  return true;
+}
 
 // This sample VFS stores optionally versioned writes to IndexedDB, which
 // it uses with the SQLite xFileControl() batch atomic write feature.
@@ -45,6 +53,8 @@ export class IDBBatchAtomicVFS extends VFS.Base {
   private idb: IDBContext;
   private webLocks = new WebLocks();
   private pendingPurges = new Set<string>();
+
+  private cache = new Map<number, Int8Array>();
 
   constructor(
     idbDatabaseName = "wa-sqlite",
@@ -151,6 +161,13 @@ export class IDBBatchAtomicVFS extends VFS.Base {
 
       log(`xRead ${file.path} ${pData.value.length} ${iOffset}`);
 
+      const fromCache = this.cache.get(-iOffset);
+      if (fromCache && fromCache.length === pData.size) {
+        pData.value.set(fromCache);
+
+        return VFS.SQLITE_OK;
+      }
+
       try {
         // Read as many blocks as necessary to satisfy the read request.
         // Usually a read fits within a single write but there is at least
@@ -159,6 +176,8 @@ export class IDBBatchAtomicVFS extends VFS.Base {
         const result = await this.idb.run("readonly", async ({ blocks }) => {
           let pDataOffset = 0;
           while (pDataOffset < pData.value.length) {
+            // console.log("read", pDataOffset);
+
             // Fetch the IndexedDB block for this file location.
             const fileOffset = iOffset + pDataOffset;
 
@@ -183,6 +202,19 @@ export class IDBBatchAtomicVFS extends VFS.Base {
             buffer.set(
               block.data.subarray(blockOffset, blockOffset + nBytesToCopy)
             );
+
+            // if (this.cache.get(-iOffset)) {
+            //   console.log(
+            //     "cache hit!",
+            //     pData.size,
+            //     equal(
+            //       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            //       this.cache.get(-iOffset)!,
+            //       block.data.subarray(blockOffset, blockOffset + nBytesToCopy)
+            //     )
+            //   );
+            // }
+
             pDataOffset += nBytesToCopy;
           }
           return VFS.SQLITE_OK;
@@ -232,6 +264,10 @@ export class IDBBatchAtomicVFS extends VFS.Base {
               data: null,
             };
       block.data = pData.value.slice();
+
+      if (iOffset !== 0) {
+        this.cache.set(-iOffset, block.data);
+      }
 
       if (file.changedPages) {
         // This write is part of a batch atomic write. All writes in the
@@ -403,6 +439,8 @@ export class IDBBatchAtomicVFS extends VFS.Base {
         return VFS.SQLITE_OK;
 
       case 21: // SQLITE_FCNTL_SYNC
+        this.cache = new Map();
+
         // This is called at the end of each database transaction, whether
         // it is batch atomic or not. Handle page size changes here.
         if (file.overwrite) {
@@ -441,7 +479,7 @@ export class IDBBatchAtomicVFS extends VFS.Base {
             // Clear blocks from abandoned transactions that would conflict
             // with the new transaction.
 
-            this.idb.run("readwrite", async ({ blocks }) => {
+            await this.idb.run("readwrite", async ({ blocks }) => {
               if (!file.block0) {
                 throw new Error("block0 not present");
               }
@@ -458,6 +496,7 @@ export class IDBBatchAtomicVFS extends VFS.Base {
                 blocks.delete(key);
               }
             });
+
             return VFS.SQLITE_OK;
           } catch (e) {
             console.error(e);
@@ -466,6 +505,7 @@ export class IDBBatchAtomicVFS extends VFS.Base {
         });
 
       case 32: // SQLITE_FCNTL_COMMIT_ATOMIC_WRITE
+        console.log("commit!!");
         try {
           const block0 = Object.assign({}, file.block0);
           block0.data = block0.data.slice();

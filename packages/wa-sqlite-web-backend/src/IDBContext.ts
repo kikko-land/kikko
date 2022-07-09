@@ -7,7 +7,7 @@ const RETRYABLE_EXCEPTIONS = new Set([
 let nextTxId = 0;
 const mapTxToId = new WeakMap();
 function log(...args: unknown[]) {
-  console.debug(...args);
+  // console.debug(...args);
 }
 
 // This class manages IDBTransaction and IDBRequest instances. It tries
