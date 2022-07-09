@@ -7,6 +7,7 @@ import {
 } from "@trong-orm/query-builder";
 import {
   makeId,
+  runQueries,
   runQuery,
   sql,
   useCacheQuery,
@@ -100,6 +101,29 @@ const Row = ({
 export const List = () => {
   const [textToSearch, setTextToSearch] = useState<string>("");
 
+  const toRun = sql`
+  `;
+
+  const [run] = useRunQuery((db) => async () => {
+    await runQueries(db, [
+      sql`
+    CREATE TABLE IF NOT EXISTS test(field1);
+        `,
+      sql`
+    INSERT INTO test
+      WITH RECURSIVE
+        cte(x) AS (
+           SELECT random()
+           UNION ALL
+           SELECT random()
+             FROM cte
+            LIMIT 10000000
+      )
+    SELECT x FROM cte;
+        `,
+    ]);
+  });
+
   const baseSql = useCacheQuery(
     select()
       .from(notesTable)
@@ -148,6 +172,8 @@ export const List = () => {
 
   return (
     <>
+      <button onClick={run}>Run</button>
+
       {[100, 1000, 10_000].map((count) => (
         <button
           key={count}

@@ -22,6 +22,6 @@ export const createNotesTableMigration: IMigration = {
     `
     );
   },
-  id: 1653668686076,
+  id: 18,
   name: "createNotesTable",
 };
