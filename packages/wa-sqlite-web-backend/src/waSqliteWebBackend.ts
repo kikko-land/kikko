@@ -37,14 +37,13 @@ export const waSqliteWebBackend =
           "idb-batch-atomic-relaxed"
         );
 
-        await sqlite3.exec(db, `PRAGMA synchronous=0;`);
         await sqlite3.exec(
           db,
-          `PRAGMA cache_size=${pageSize === undefined ? -5000 : pageSize};`
+          `PRAGMA cache_size=${pageSize === undefined ? -20000 : pageSize};`
         );
         await sqlite3.exec(
           db,
-          `PRAGMA page_size=${cacheSize === undefined ? 64 * 1024 : cacheSize};`
+          `PRAGMA page_size=${cacheSize === undefined ? 32 * 1024 : cacheSize};`
         );
         await sqlite3.exec(db, `PRAGMA journal_mode=MEMORY;`);
 

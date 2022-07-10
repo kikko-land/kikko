@@ -21,26 +21,23 @@ function log(...args: unknown[]) {
   // console.debug(...args);
 }
 
+interface IBlock {
+  path: string;
+  offset: number;
+  version: number;
+  data: Int8Array;
+}
+
+interface IZeroFileBlock extends IBlock {
+  fileSize: number;
+}
+
 interface IOpenedFile {
   path: string;
   flags: number;
-  block0?: {
-    path: string;
-    offset: number;
-    version: number;
-    data: Int8Array;
-    fileSize: number;
-  };
+  block0?: IZeroFileBlock;
   changedPages?: Set<number>;
   overwrite?: boolean;
-}
-function equal(buf1: Int8Array, buf2: Int8Array) {
-  if (buf1.length !== buf2.length) return false;
-
-  for (let i = 0; i !== buf1.length; i++) {
-    if (buf1[i] !== buf2[i]) return false;
-  }
-  return true;
 }
 
 // This sample VFS stores optionally versioned writes to IndexedDB, which
@@ -54,7 +51,7 @@ export class IDBBatchAtomicVFS extends VFS.Base {
   private webLocks = new WebLocks();
   private pendingPurges = new Set<string>();
 
-  private cache = new Map<number, Int8Array>();
+  private blockToWrite = new Map<number, IBlock | IZeroFileBlock>();
 
   constructor(
     idbDatabaseName = "wa-sqlite",
@@ -161,7 +158,8 @@ export class IDBBatchAtomicVFS extends VFS.Base {
 
       log(`xRead ${file.path} ${pData.value.length} ${iOffset}`);
 
-      const fromCache = this.cache.get(-iOffset);
+      const fromCache = this.blockToWrite.get(-iOffset)?.data;
+
       if (fromCache && fromCache.length === pData.size) {
         pData.value.set(fromCache);
 
@@ -203,18 +201,6 @@ export class IDBBatchAtomicVFS extends VFS.Base {
               block.data.subarray(blockOffset, blockOffset + nBytesToCopy)
             );
 
-            // if (this.cache.get(-iOffset)) {
-            //   console.log(
-            //     "cache hit!",
-            //     pData.size,
-            //     equal(
-            //       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            //       this.cache.get(-iOffset)!,
-            //       block.data.subarray(blockOffset, blockOffset + nBytesToCopy)
-            //     )
-            //   );
-            // }
-
             pDataOffset += nBytesToCopy;
           }
           return VFS.SQLITE_OK;
@@ -254,20 +240,20 @@ export class IDBBatchAtomicVFS extends VFS.Base {
         file.block0.fileSize,
         iOffset + pData.value.length
       );
-      const block =
-        iOffset === 0
-          ? file.block0
-          : {
-              path: file.path,
-              offset: -iOffset,
-              version: file.block0.version,
-              data: null,
-            };
-      block.data = pData.value.slice();
+      const block: IBlock = (() => {
+        if (iOffset === 0) {
+          file.block0.data = pData.value.slice();
 
-      if (iOffset !== 0) {
-        this.cache.set(-iOffset, block.data);
-      }
+          return file.block0;
+        } else {
+          return {
+            path: file.path,
+            offset: -iOffset,
+            version: file.block0.version,
+            data: pData.value.slice(),
+          };
+        }
+      })();
 
       if (file.changedPages) {
         // This write is part of a batch atomic write. All writes in the
@@ -279,12 +265,15 @@ export class IDBBatchAtomicVFS extends VFS.Base {
 
         // Defer writing block 0 to IndexedDB until batch commit.
         if (iOffset !== 0) {
-          this.idb.run("readwrite", ({ blocks }) => blocks.put(block));
+          // this.idb.run("readwrite", ({ blocks }) => blocks.put(block));
         }
       } else {
         // Not a batch atomic write so write through.
-        this.idb.run("readwrite", ({ blocks }) => blocks.put(block));
+        // this.idb.run("readwrite", ({ blocks }) => blocks.put(block));
       }
+
+      this.blockToWrite.set(iOffset !== 0 ? -iOffset : 0, block);
+
       return VFS.SQLITE_OK;
     } catch (e) {
       console.error(e);
@@ -438,28 +427,53 @@ export class IDBBatchAtomicVFS extends VFS.Base {
         file.overwrite = true;
         return VFS.SQLITE_OK;
 
-      case 21: // SQLITE_FCNTL_SYNC
-        this.cache = new Map();
+      case 21: {
+        // SQLITE_FCNTL_SYNC
 
-        // This is called at the end of each database transaction, whether
-        // it is batch atomic or not. Handle page size changes here.
-        if (file.overwrite) {
-          // As an optimization we only check for and handle a page file
-          // changes if we know a VACUUM has been done because handleAsync()
-          // has to unwind and rewind the stack. We must be sure to follow
-          // the same conditional path in both calls.
-          try {
-            return this.handleAsync(async () => {
-              await this.#reblockIfNeeded(file);
-              return VFS.SQLITE_OK;
-            });
-          } catch (e) {
-            console.error(e);
-            return VFS.SQLITE_IOERR;
+        console.log(
+          "wriring blocks...",
+          Array.from(this.blockToWrite.keys()).length
+        );
+        return this.handleAsync(async () => {
+          console.time("blockToWrite");
+          await Promise.all(
+            Array.from(this.blockToWrite.keys()).map(async (k) => {
+              await this.idb.run("readwrite", async ({ blocks }) => {
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                const block = this.blockToWrite.get(k)!;
+
+                await blocks.put(block, [
+                  block.path,
+                  block.offset,
+                  block.version,
+                ]);
+              });
+            })
+          );
+          console.timeEnd("blockToWrite");
+
+          this.blockToWrite = new Map();
+
+          // This is called at the end of each database transaction, whether
+          // it is batch atomic or not. Handle page size changes here.
+          if (file.overwrite) {
+            // As an optimization we only check for and handle a page file
+            // changes if we know a VACUUM has been done because handleAsync()
+            // has to unwind and rewind the stack. We must be sure to follow
+            // the same conditional path in both calls.
+            try {
+              return this.handleAsync(async () => {
+                await this.#reblockIfNeeded(file);
+                return VFS.SQLITE_OK;
+              });
+            } catch (e) {
+              console.error(e);
+              return VFS.SQLITE_IOERR;
+            }
           }
-        }
-        return VFS.SQLITE_OK;
-
+          return VFS.SQLITE_OK;
+        });
+      }
       case 22: // SQLITE_FCNTL_COMMIT_PHASETWO
         // This is called after a commit is completed.
         file.overwrite = false;

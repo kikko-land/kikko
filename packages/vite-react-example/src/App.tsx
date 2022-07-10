@@ -1,6 +1,6 @@
 import "./builder-examples";
 
-import { absurdWebBackend } from "@trong-orm/absurd-web-backend";
+// import { absurdWebBackend } from "@trong-orm/absurd-web-backend";
 import {
   DbProvider,
   EnsureDbLoaded,
@@ -20,7 +20,7 @@ const config: IInitDbClientConfig = {
   // dbBackend: absurdWebBackend({
   //   wasmUrl: sqlWasmUrl,
   //   pageSize: 32 * 1024,
-  //   cacheSize: -5000,
+  //   cacheSize: -10000,
   // }),
   dbBackend: waSqliteWebBackend({ wasmUrl: sqlWasmUrl }),
   plugins: [
