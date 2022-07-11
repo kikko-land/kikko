@@ -1,6 +1,5 @@
+import { initBackend } from "@trong-orm/better-absurd-sql/dist/indexeddb-main-thread";
 import { IDbBackend, IQuery } from "@trong-orm/core";
-import { QueryExecResult } from "@trong-orm/sql.js";
-import { initBackend } from "absurd-sql/dist/indexeddb-main-thread";
 import {
   filter,
   first,

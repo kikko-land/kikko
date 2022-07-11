@@ -18,7 +18,7 @@ const DEFAULT_OPTIONS: IOptions = {
 } as const;
 
 function log(...args: unknown[]) {
-  // console.debug(...args);
+  console.debug(...args);
 }
 
 interface IBlock {
@@ -203,6 +203,7 @@ export class IDBBatchAtomicVFS extends VFS.Base {
 
             pDataOffset += nBytesToCopy;
           }
+
           return VFS.SQLITE_OK;
         });
         return result;
@@ -442,11 +443,7 @@ export class IDBBatchAtomicVFS extends VFS.Base {
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 const block = this.blockToWrite.get(k)!;
 
-                await blocks.put(block, [
-                  block.path,
-                  block.offset,
-                  block.version,
-                ]);
+                await blocks.put(block);
               });
             })
           );
@@ -603,6 +600,9 @@ export class IDBBatchAtomicVFS extends VFS.Base {
         const key = await this.idb.run("readonly", ({ blocks }) => {
           return blocks.getKey(this.#bound({ path }, 0));
         });
+
+        console.log({ key });
+
         pResOut.set(key ? 1 : 0);
         return VFS.SQLITE_OK;
       } catch (e) {
@@ -692,6 +692,8 @@ export class IDBBatchAtomicVFS extends VFS.Base {
 
       return file.block0?.version;
     })();
+
+    console.log([file.path, begin, version], [file.path, end, Infinity]);
 
     return IDBKeyRange.bound(
       [file.path, begin, version],

@@ -2,7 +2,8 @@ import { IDbBackend, IQuery, IQueryResult, IQueryValue } from "@trong-orm/core";
 import * as SQLite from "wa-sqlite";
 import SQLiteAsyncModule from "wa-sqlite/dist/wa-sqlite-async.mjs";
 
-import { IDBBatchAtomicVFS } from "./IDBBatchAtomicVFS";
+import { IDBAtomicVFS } from "./IDBAtomicVFS";
+// import { IDBBatchAtomicVFS } from "./IDBBatchAtomicVFS";
 
 export const waSqliteWebBackend =
   ({
@@ -25,7 +26,7 @@ export const waSqliteWebBackend =
         sqlite3 = SQLite.Factory(module);
 
         sqlite3.vfs_register(
-          new IDBBatchAtomicVFS("idb-batch-atomic-relaxed", {
+          new IDBAtomicVFS("idb-batch-atomic-relaxed", {
             purge: "manual",
             durability: "relaxed",
           })
@@ -39,7 +40,7 @@ export const waSqliteWebBackend =
 
         await sqlite3.exec(
           db,
-          `PRAGMA cache_size=${pageSize === undefined ? -20000 : pageSize};`
+          `PRAGMA cache_size=${pageSize === undefined ? -10000 : pageSize};`
         );
         await sqlite3.exec(
           db,

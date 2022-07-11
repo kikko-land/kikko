@@ -1,6 +1,6 @@
 import "./builder-examples";
 
-// import { absurdWebBackend } from "@trong-orm/absurd-web-backend";
+import { absurdWebBackend } from "@trong-orm/absurd-web-backend";
 import {
   DbProvider,
   EnsureDbLoaded,
@@ -8,7 +8,7 @@ import {
   migrationsPlugin,
   reactiveQueriesPlugin,
 } from "@trong-orm/react";
-// import sqlWasmUrl from "@trong-orm/sql.js/dist/sql-wasm.wasm?url";
+import absurdSqlWasmUrl from "@trong-orm/sql.js/dist/sql-wasm.wasm?url";
 import { waSqliteWebBackend } from "@trong-orm/wa-sqlite-web-backend";
 import sqlWasmUrl from "wa-sqlite/dist/wa-sqlite-async.wasm?url";
 
@@ -18,9 +18,9 @@ import { createNotesTableMigration } from "./migrations/createNotesTable";
 const config: IInitDbClientConfig = {
   dbName: "helloWorld",
   // dbBackend: absurdWebBackend({
-  //   wasmUrl: sqlWasmUrl,
+  //   wasmUrl: absurdSqlWasmUrl,
   //   pageSize: 32 * 1024,
-  //   cacheSize: -10000,
+  //   cacheSize: -5000,
   // }),
   dbBackend: waSqliteWebBackend({ wasmUrl: sqlWasmUrl }),
   plugins: [
