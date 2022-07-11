@@ -101,9 +101,6 @@ const Row = ({
 export const List = () => {
   const [textToSearch, setTextToSearch] = useState<string>("");
 
-  const toRun = sql`
-  `;
-
   const [run] = useRunQuery((db) => async () => {
     await runQueries(db, [
       sql`

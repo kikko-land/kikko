@@ -19,7 +19,7 @@ export const ionicBackend = (path: (dbName: string) => string): IDbBackend => {
             return;
           }
 
-          db.close();
+          void db.close();
         });
       },
 

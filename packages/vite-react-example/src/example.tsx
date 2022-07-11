@@ -73,7 +73,7 @@ export const List = () => {
           const title = e.target.title.value;
           const content = e.target.content.value;
 
-          createNote({ title, content });
+          void createNote({ title, content });
         }}
       >
         <label>

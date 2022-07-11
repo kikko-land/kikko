@@ -25,7 +25,7 @@ export const reactNativeBackend =
             return;
           }
 
-          db.close();
+          void db.close();
         });
       },
       async execQueries(

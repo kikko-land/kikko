@@ -34,7 +34,7 @@ export const DbProvider: React.FC<{
       initializedDb = db;
 
       if (shouldBeStopped) {
-        stopDb(db);
+        void stopDb(db);
 
         return;
       }
@@ -42,7 +42,7 @@ export const DbProvider: React.FC<{
       setCurrentState({ type: "initialized", db, config });
     };
 
-    cb();
+    void cb();
 
     return () => {
       shouldBeStopped = true;
@@ -50,7 +50,7 @@ export const DbProvider: React.FC<{
       if (initializedDb) {
         setCurrentState({ type: "notInitialized" });
 
-        stopDb(initializedDb);
+        void stopDb(initializedDb);
       }
     };
   }, [config]);
