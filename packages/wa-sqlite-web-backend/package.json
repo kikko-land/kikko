@@ -1,0 +1,46 @@
+{
+  "name": "@trong-orm/wa-sqlite-web-backend",
+  "version": "1.1.6",
+  "author": "Sergey Popov",
+  "license": "GPL-3.0",
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    }
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/wa-sqlite-web-backend/src/index.d.ts",
+        "es2015": "./dist/index.es.js",
+        "require": "./dist/index.umd.js",
+        "import": "./dist/index.es.js",
+        "default": "./dist/index.es.js"
+      }
+    },
+    "main": "./dist/index.umd.js",
+    "module": "./dist/index.es.js",
+    "types": "./dist/wa-sqlite-web-backend/src/index.d.ts"
+  },
+  "scripts": {
+    "compile": "yarn vite build",
+    "lint": "eslint \"src/**/*.{tsx,ts}\"",
+    "check-typing": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@trong-orm/core": "^1.1.6",
+    "@trong-orm/sql": "^1.1.6",
+    "@trong-orm/sql.js": "^1.6.7",
+    "rxjs": "^7.5.5",
+    "wa-sqlite": "rhashimoto/wa-sqlite#buildless"
+  },
+  "devDependencies": {
+    "@trong-orm/common-scripts": "*",
+    "@types/emscripten": "^1.39.6",
+    "ts-essentials": "^9.1.2"
+  }
+}
