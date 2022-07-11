@@ -1,6 +1,6 @@
 {
   "name": "@trong-orm/query-builder",
-  "version": "1.1.6",
+  "version": "1.2.0",
   "author": "Sergey Popov",
   "license": "MIT",
   "main": "./src/index.ts",
@@ -32,7 +32,7 @@
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
-    "@trong-orm/sql": "^1.1.6"
+    "@trong-orm/sql": "^1.2.0"
   },
   "devDependencies": {
     "@trong-orm/common-scripts": "*"
