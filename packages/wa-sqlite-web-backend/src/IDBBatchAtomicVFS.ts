@@ -104,7 +104,9 @@ export class IDBBatchAtomicVFS extends VFS.Base {
             };
 
             // Write metadata block to IndexedDB.
-            this.idb.run("readwrite", ({ blocks }) => blocks.put(file.block0));
+            await this.idb.run("readwrite", ({ blocks }) =>
+              blocks.put(file.block0)
+            );
             await this.idb.sync();
           } else {
             throw new Error(`file not found: ${file.path}`);
@@ -128,7 +130,7 @@ export class IDBBatchAtomicVFS extends VFS.Base {
 
           this.mapIdToFile.delete(fileId);
           if (file.flags & VFS.SQLITE_OPEN_DELETEONCLOSE) {
-            this.idb.run("readwrite", async ({ blocks }) => {
+            void this.idb.run("readwrite", async ({ blocks }) => {
               await blocks.delete(
                 IDBKeyRange.bound([file.path], [file.path, []])
               );
@@ -302,7 +304,7 @@ export class IDBBatchAtomicVFS extends VFS.Base {
       // Delete all blocks beyond the file size and update metadata.
       // This is never called within a transaction.
       const block0 = Object.assign({}, file.block0);
-      this.idb.run("readwrite", async ({ blocks }) => {
+      void this.idb.run("readwrite", async ({ blocks }) => {
         await blocks.delete(this.#bound(file, -Infinity, -iSize));
         await blocks.put(block0);
       });
@@ -504,7 +506,7 @@ export class IDBBatchAtomicVFS extends VFS.Base {
                   )
                 );
               for (const key of keys) {
-                blocks.delete(key);
+                await blocks.delete(key);
               }
             });
 
@@ -529,9 +531,9 @@ export class IDBBatchAtomicVFS extends VFS.Base {
 
           file.changedPages = undefined;
 
-          this.idb.run("readwrite", async ({ blocks }) => {
+          void this.idb.run("readwrite", async ({ blocks }) => {
             // Write block 0 to commit the new version.
-            blocks.put(block0);
+            await blocks.put(block0);
 
             // Blocks to purge are saved in a special IndexedDB object with
             // an "index" of "purge". Add pages changed by this transaction.
@@ -548,7 +550,7 @@ export class IDBBatchAtomicVFS extends VFS.Base {
               purgeBlock.data.set(pageIndex, block0.version);
             }
 
-            blocks.put(purgeBlock);
+            await blocks.put(purgeBlock);
             this.#maybePurge(file.path, purgeBlock.count);
           });
           return VFS.SQLITE_OK;
@@ -618,7 +620,7 @@ export class IDBBatchAtomicVFS extends VFS.Base {
       log(`xDelete ${path} ${syncDir}`);
 
       try {
-        this.idb.run("readwrite", ({ blocks }) => {
+        void this.idb.run("readwrite", ({ blocks }) => {
           return blocks.delete(IDBKeyRange.bound([path], [path, []]));
         });
         if (syncDir) {
@@ -638,7 +640,7 @@ export class IDBBatchAtomicVFS extends VFS.Base {
       const purgeBlock = await blocks.get([path, "purge", 0]);
       if (purgeBlock) {
         for (const [pageOffset, version] of purgeBlock.data) {
-          blocks.delete(
+          await blocks.delete(
             IDBKeyRange.bound(
               [path, pageOffset, version],
               [path, pageOffset, Infinity],
@@ -669,12 +671,12 @@ export class IDBBatchAtomicVFS extends VFS.Base {
 
     if (globalThis.requestIdleCallback) {
       globalThis.requestIdleCallback(() => {
-        this.purge(path);
+        void this.purge(path);
         this.pendingPurges.delete(path);
       });
     } else {
       setTimeout(() => {
-        this.purge(path);
+        void this.purge(path);
         this.pendingPurges.delete(path);
       });
     }
@@ -738,9 +740,9 @@ export class IDBBatchAtomicVFS extends VFS.Base {
           IDBKeyRange.bound([file.path, version + 1], [file.path, Infinity])
         );
       for (const key of keys) {
-        blocks.delete(key);
+        await blocks.delete(key);
       }
-      blocks.delete([file.path, "purge", 0]);
+      await blocks.delete([file.path, "purge", 0]);
 
       // Do the conversion in chunks of the larger of the page sizes.
       for (let iOffset = 0; iOffset < fileSize; iOffset += maxPageSize) {
@@ -755,7 +757,7 @@ export class IDBBatchAtomicVFS extends VFS.Base {
           nOldPages
         );
         for (const oldPage of oldPages) {
-          blocks.delete([oldPage.path, oldPage.offset, oldPage.version]);
+          await blocks.delete([oldPage.path, oldPage.offset, oldPage.version]);
         }
 
         // Convert to new pages.
@@ -776,7 +778,7 @@ export class IDBBatchAtomicVFS extends VFS.Base {
             file.block0 = { ...newPage, fileSize };
           }
 
-          blocks.put(newPage);
+          await blocks.put(newPage);
         } else {
           // Split an old page into nNewPages new pages.
           const oldPage = oldPages[0];
@@ -797,7 +799,7 @@ export class IDBBatchAtomicVFS extends VFS.Base {
               file.block0 = { ...newPage, fileSize };
             }
 
-            blocks.put(newPage);
+            await blocks.put(newPage);
           }
         }
       }

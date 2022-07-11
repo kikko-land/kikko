@@ -202,7 +202,7 @@ class Store {
     return this.addRequest(request);
   }
 
-  put(value: unknown, key: IDBValidKey) {
+  put(value: unknown, key?: IDBValidKey) {
     // cache.set(value.offset, value.data);
     log(`put ${this.store.name}`, value, key);
 

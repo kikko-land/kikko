@@ -3,17 +3,19 @@ import * as SQLite from "wa-sqlite";
 import SQLiteAsyncModule from "wa-sqlite/dist/wa-sqlite-async.mjs";
 
 import { IDBAtomicVFS } from "./IDBAtomicVFS";
-// import { IDBBatchAtomicVFS } from "./IDBBatchAtomicVFS";
+import { IDBBatchAtomicVFS } from "./IDBBatchAtomicVFS";
 
 export const waSqliteWebBackend =
   ({
     wasmUrl,
     pageSize,
     cacheSize,
+    vfs,
   }: {
     wasmUrl: string;
     pageSize?: number;
     cacheSize?: number;
+    vfs?: "atomic" | "batchAtomic";
   }): IDbBackend =>
   ({ dbName, stopped$ }) => {
     let sqlite3: SQLiteAPI | undefined;
@@ -25,8 +27,9 @@ export const waSqliteWebBackend =
 
         sqlite3 = SQLite.Factory(module);
 
+        const klass = vfs === "atomic" ? IDBAtomicVFS : IDBBatchAtomicVFS;
         sqlite3.vfs_register(
-          new IDBAtomicVFS("idb-batch-atomic-relaxed", {
+          new klass("idb-batch-atomic-relaxed", {
             purge: "manual",
             durability: "relaxed",
           })
