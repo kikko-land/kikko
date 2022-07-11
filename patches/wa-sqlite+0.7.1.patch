@@ -1,0 +1,58 @@
+diff --git a/node_modules/wa-sqlite/src/types/index.d.ts b/node_modules/wa-sqlite/src/types/index.d.ts
+index c935333..9c43cb8 100644
+--- a/node_modules/wa-sqlite/src/types/index.d.ts
++++ b/node_modules/wa-sqlite/src/types/index.d.ts
+@@ -103,7 +103,7 @@ declare interface SQLiteVFS {
+   xAccess(
+     name: string,
+     flags: number,
+-    pResOut: { set(value): void }
++    pResOut: { set(value: any): void }
+   ): number|Promise<number>;
+ }
+ 
+@@ -155,7 +155,7 @@ declare interface SQLiteModule {
+    */
+   xCreate?(
+     db: number,
+-    appData,
++    appData: any,
+     argv: string[],
+     pVTab: number,
+     pzErr: { set(value: string): void }
+@@ -166,7 +166,7 @@ declare interface SQLiteModule {
+    */
+   xConnect(
+     db: number,
+-    appData,
++    appData: any,
+     argv: string[],
+     pVTab: number,
+     pzErr: { set(value: string): void }
+@@ -444,7 +444,7 @@ declare interface SQLiteAPI {
+    * @param db database pointer
+    * @returns number of rows modified
+    */
+-  changes(db): number;
++  changes(db: any): number;
+ 
+   /**
+    * Close database connection
+@@ -452,7 +452,7 @@ declare interface SQLiteAPI {
+    * @param db database pointer
+    * @returns `SQLITE_OK` (throws exception on error)
+    */
+-  close(db): Promise<number>;
++  close(db: any): Promise<number>;
+ 
+   /**
+    * Call the appropriate `column_*` function based on the column type
+@@ -584,7 +584,7 @@ declare interface SQLiteAPI {
+    * @param appData 
+    * @returns `SQLITE_OK` (throws exception on error)
+    */
+-  create_module(db: number, zName: string, module: SQLiteModule, appData?): number;
++  create_module(db: number, zName: string, module: SQLiteModule, appData?: any): number;
+ 
+   /**
+    * Get number of columns in current row of a prepared statement

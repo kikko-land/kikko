@@ -7,11 +7,15 @@
   "scripts": {
     "release-all": "yarn workspace @trong-orm/common-scripts release-all",
     "lint": "yarn workspaces run lint",
-    "check-typing": "yarn workspaces run check-typing"
+    "check-typing": "yarn workspaces run check-typing",
+    "postinstall": "patch-package"
   },
   "workspaces": [
     "packages/*"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "patch-package": "^6.4.7",
+    "postinstall-postinstall": "^2.1.0"
+  },
   "devDependencies": {}
 }
