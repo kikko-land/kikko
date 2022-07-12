@@ -4,22 +4,25 @@ import SQLiteAsyncModule from "wa-sqlite/dist/wa-sqlite-async.mjs";
 
 import { IDBAtomicVFS } from "./IDBAtomicVFS";
 import { IDBBatchAtomicVFS } from "./IDBBatchAtomicVFS";
+import { IDBMinimalVFS } from "./IDBMinimalVFS";
 
 export const waSqliteWebBackend =
   ({
     wasmUrl,
     pageSize,
     cacheSize,
-    vfs,
+    vfs: _vfs,
   }: {
     wasmUrl: string;
     pageSize?: number;
     cacheSize?: number;
-    vfs?: "atomic" | "batchAtomic";
+    vfs?: "atomic" | "batch-atomic" | "minimal";
   }): IDbBackend =>
   ({ dbName, stopped$ }) => {
     let sqlite3: SQLiteAPI | undefined;
     let db: number | undefined;
+
+    const vfs = _vfs ? _vfs : "minimal";
 
     return {
       async initialize() {
@@ -27,27 +30,33 @@ export const waSqliteWebBackend =
 
         sqlite3 = SQLite.Factory(module);
 
-        const klass = vfs === "atomic" ? IDBAtomicVFS : IDBBatchAtomicVFS;
+        const klass =
+          vfs === "atomic"
+            ? IDBAtomicVFS
+            : vfs === "minimal"
+            ? IDBMinimalVFS
+            : IDBBatchAtomicVFS;
+
         sqlite3.vfs_register(
-          new klass("idb-batch-atomic-relaxed", {
+          new klass(`idb-${vfs}-relaxed`, {
             purge: "manual",
             durability: "relaxed",
           })
         );
 
         db = await sqlite3.open_v2(
-          dbName,
+          "wa-sqlite-" + dbName,
           undefined,
-          "idb-batch-atomic-relaxed"
+          `idb-${vfs}-relaxed`
         );
 
         await sqlite3.exec(
           db,
-          `PRAGMA cache_size=${pageSize === undefined ? -10000 : pageSize};`
+          `PRAGMA cache_size=${cacheSize === undefined ? -5000 : cacheSize};`
         );
         await sqlite3.exec(
           db,
-          `PRAGMA page_size=${cacheSize === undefined ? 32 * 1024 : cacheSize};`
+          `PRAGMA page_size=${pageSize === undefined ? 32 * 1024 : pageSize};`
         );
         await sqlite3.exec(db, `PRAGMA journal_mode=MEMORY;`);
 

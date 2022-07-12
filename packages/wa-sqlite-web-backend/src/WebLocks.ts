@@ -1,6 +1,7 @@
 import * as VFS from "wa-sqlite/src/VFS.js";
 
 const WEB_LOCKS =
+  // @ts-ignore
   navigator["locks"] ??
   console.warn("concurrency is unsafe without Web Locks API");
 

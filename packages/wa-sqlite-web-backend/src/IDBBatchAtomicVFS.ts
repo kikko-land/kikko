@@ -18,7 +18,7 @@ const DEFAULT_OPTIONS: IOptions = {
 } as const;
 
 function log(...args: unknown[]) {
-  console.debug(...args);
+  // console.debug(...args);
 }
 
 interface IBlock {
@@ -104,9 +104,7 @@ export class IDBBatchAtomicVFS extends VFS.Base {
             };
 
             // Write metadata block to IndexedDB.
-            await this.idb.run("readwrite", ({ blocks }) =>
-              blocks.put(file.block0)
-            );
+            this.idb.run("readwrite", ({ blocks }) => blocks.put(file.block0));
             await this.idb.sync();
           } else {
             throw new Error(`file not found: ${file.path}`);
@@ -130,7 +128,7 @@ export class IDBBatchAtomicVFS extends VFS.Base {
 
           this.mapIdToFile.delete(fileId);
           if (file.flags & VFS.SQLITE_OPEN_DELETEONCLOSE) {
-            void this.idb.run("readwrite", async ({ blocks }) => {
+            this.idb.run("readwrite", async ({ blocks }) => {
               await blocks.delete(
                 IDBKeyRange.bound([file.path], [file.path, []])
               );
@@ -176,8 +174,6 @@ export class IDBBatchAtomicVFS extends VFS.Base {
         const result = await this.idb.run("readonly", async ({ blocks }) => {
           let pDataOffset = 0;
           while (pDataOffset < pData.value.length) {
-            // console.log("read", pDataOffset);
-
             // Fetch the IndexedDB block for this file location.
             const fileOffset = iOffset + pDataOffset;
 
@@ -304,7 +300,7 @@ export class IDBBatchAtomicVFS extends VFS.Base {
       // Delete all blocks beyond the file size and update metadata.
       // This is never called within a transaction.
       const block0 = Object.assign({}, file.block0);
-      void this.idb.run("readwrite", async ({ blocks }) => {
+      this.idb.run("readwrite", async ({ blocks }) => {
         await blocks.delete(this.#bound(file, -Infinity, -iSize));
         await blocks.put(block0);
       });
@@ -325,7 +321,6 @@ export class IDBBatchAtomicVFS extends VFS.Base {
     try {
       if (this.options.durability !== "relaxed") {
         return this.handleAsync(async () => {
-          console.log("sync!");
           await this.idb.sync();
           return VFS.SQLITE_OK;
         });
@@ -434,7 +429,7 @@ export class IDBBatchAtomicVFS extends VFS.Base {
         // SQLITE_FCNTL_SYNC
 
         console.log(
-          "wriring blocks...",
+          "writing blocks...",
           Array.from(this.blockToWrite.keys()).length
         );
         return this.handleAsync(async () => {
@@ -506,7 +501,7 @@ export class IDBBatchAtomicVFS extends VFS.Base {
                   )
                 );
               for (const key of keys) {
-                await blocks.delete(key);
+                blocks.delete(key);
               }
             });
 
@@ -518,7 +513,6 @@ export class IDBBatchAtomicVFS extends VFS.Base {
         });
 
       case 32: // SQLITE_FCNTL_COMMIT_ATOMIC_WRITE
-        console.log("commit!!");
         try {
           const block0 = Object.assign({}, file.block0);
           block0.data = block0.data.slice();
@@ -531,9 +525,9 @@ export class IDBBatchAtomicVFS extends VFS.Base {
 
           file.changedPages = undefined;
 
-          void this.idb.run("readwrite", async ({ blocks }) => {
+          this.idb.run("readwrite", async ({ blocks }) => {
             // Write block 0 to commit the new version.
-            await blocks.put(block0);
+            blocks.put(block0);
 
             // Blocks to purge are saved in a special IndexedDB object with
             // an "index" of "purge". Add pages changed by this transaction.
@@ -550,7 +544,7 @@ export class IDBBatchAtomicVFS extends VFS.Base {
               purgeBlock.data.set(pageIndex, block0.version);
             }
 
-            await blocks.put(purgeBlock);
+            blocks.put(purgeBlock);
             this.#maybePurge(file.path, purgeBlock.count);
           });
           return VFS.SQLITE_OK;
@@ -603,8 +597,6 @@ export class IDBBatchAtomicVFS extends VFS.Base {
           return blocks.getKey(this.#bound({ path }, 0));
         });
 
-        console.log({ key });
-
         pResOut.set(key ? 1 : 0);
         return VFS.SQLITE_OK;
       } catch (e) {
@@ -620,7 +612,7 @@ export class IDBBatchAtomicVFS extends VFS.Base {
       log(`xDelete ${path} ${syncDir}`);
 
       try {
-        void this.idb.run("readwrite", ({ blocks }) => {
+        this.idb.run("readwrite", ({ blocks }) => {
           return blocks.delete(IDBKeyRange.bound([path], [path, []]));
         });
         if (syncDir) {
@@ -640,7 +632,7 @@ export class IDBBatchAtomicVFS extends VFS.Base {
       const purgeBlock = await blocks.get([path, "purge", 0]);
       if (purgeBlock) {
         for (const [pageOffset, version] of purgeBlock.data) {
-          await blocks.delete(
+          blocks.delete(
             IDBKeyRange.bound(
               [path, pageOffset, version],
               [path, pageOffset, Infinity],
@@ -671,12 +663,12 @@ export class IDBBatchAtomicVFS extends VFS.Base {
 
     if (globalThis.requestIdleCallback) {
       globalThis.requestIdleCallback(() => {
-        void this.purge(path);
+        this.purge(path);
         this.pendingPurges.delete(path);
       });
     } else {
       setTimeout(() => {
-        void this.purge(path);
+        this.purge(path);
         this.pendingPurges.delete(path);
       });
     }
@@ -694,8 +686,6 @@ export class IDBBatchAtomicVFS extends VFS.Base {
 
       return file.block0?.version;
     })();
-
-    console.log([file.path, begin, version], [file.path, end, Infinity]);
 
     return IDBKeyRange.bound(
       [file.path, begin, version],
@@ -740,9 +730,9 @@ export class IDBBatchAtomicVFS extends VFS.Base {
           IDBKeyRange.bound([file.path, version + 1], [file.path, Infinity])
         );
       for (const key of keys) {
-        await blocks.delete(key);
+        blocks.delete(key);
       }
-      await blocks.delete([file.path, "purge", 0]);
+      blocks.delete([file.path, "purge", 0]);
 
       // Do the conversion in chunks of the larger of the page sizes.
       for (let iOffset = 0; iOffset < fileSize; iOffset += maxPageSize) {
@@ -757,7 +747,7 @@ export class IDBBatchAtomicVFS extends VFS.Base {
           nOldPages
         );
         for (const oldPage of oldPages) {
-          await blocks.delete([oldPage.path, oldPage.offset, oldPage.version]);
+          blocks.delete([oldPage.path, oldPage.offset, oldPage.version]);
         }
 
         // Convert to new pages.
@@ -778,7 +768,7 @@ export class IDBBatchAtomicVFS extends VFS.Base {
             file.block0 = { ...newPage, fileSize };
           }
 
-          await blocks.put(newPage);
+          blocks.put(newPage);
         } else {
           // Split an old page into nNewPages new pages.
           const oldPage = oldPages[0];
@@ -799,7 +789,7 @@ export class IDBBatchAtomicVFS extends VFS.Base {
               file.block0 = { ...newPage, fileSize };
             }
 
-            await blocks.put(newPage);
+            blocks.put(newPage);
           }
         }
       }

@@ -5,6 +5,8 @@ import { WebLocks } from "./WebLocks";
 
 const SECTOR_SIZE = 512;
 
+const blockSize = 32 * 1024;
+
 type IOptions = {
   durability: "default" | "strict" | "relaxed";
   purge: "deferred" | "manual";
@@ -178,10 +180,21 @@ export class IDBAtomicVFS extends VFS.Base {
 
             if (!file.block0) throw new Error("Block0 not present");
 
-            const block =
-              fileOffset < file.block0.data.length
-                ? file.block0
-                : await blocks.get(this.#bound(-fileOffset));
+            const block0 = file.block0;
+
+            const block = await (async () => {
+              if (fileOffset < block0.data.length) {
+                return file.block0;
+              } else {
+                const res = await blocks.get(this.#bound(-fileOffset));
+                return "data" in res
+                  ? res
+                  : {
+                      data: res,
+                      offset: -fileOffset,
+                    };
+              }
+            })();
 
             if (!block || block.data.length - block.offset <= fileOffset) {
               pData.value.fill(0, pDataOffset);
@@ -403,26 +416,61 @@ export class IDBAtomicVFS extends VFS.Base {
           "writing blocks...",
           Array.from(this.blockToWrite.keys()).length
         );
+
+        const toWriteBlocks = this.blockToWrite;
+        this.blockToWrite = new Map();
+
         return this.handleAsync(async () => {
           console.time("blockToWrite");
-          let sum = 0;
-          await db.run("readwrite", async ({ blocks }) => {
-            for (const k of this.blockToWrite.keys()) {
-              const toWrite = this.blockToWrite.get(k)!;
 
-              const start = new Date().getTime();
-              await blocks.put(toWrite, toWrite.offset);
-              const end = new Date().getTime();
+          const idb = await db.dbReady;
 
-              sum += end - start;
+          await new Promise<void>((resolve, reject) => {
+            // @ts-expect-error lib dom misses third argument
+            const tx = idb.transaction("blocks", "readwrite", {
+              durability: "relaxed",
+            });
+
+            const blocksStore = tx.objectStore("blocks");
+
+            for (const k of toWriteBlocks.keys()) {
+              const toWrite = toWriteBlocks.get(k)!;
+
+              blocksStore.put(
+                toWrite.offset === 0 ? toWrite : toWrite.data,
+                Math.ceil(toWrite.offset / blockSize)
+              );
             }
-            // await Promise.all(
-            //   Array.from(this.blockToWrite.keys()).map(async (k) => {
-            //   })
-            // );
+
+            tx.addEventListener("complete", () => {
+              resolve();
+            });
+            tx.addEventListener("abort", reject);
+            tx.addEventListener("error", reject);
           });
 
-          console.log(sum);
+          //           await db.run("readwrite", async ({ blocks }) => {
+          //             // assuming toWriteBlocks is a Map...
+          //             for (const k of toWriteBlocks.keys()) {
+          //               const toWrite = toWriteBlocks.get(k)!;
+
+          //               void blocks.put(
+          //                 toWrite.offset === 0 ? toWrite : toWrite.data,
+          //                 Math.ceil(toWrite.offset / blockSize)
+          //               );
+          //             }
+          //             await db.sync();
+          //           });
+
+          // await db.run("readwrite", async ({ blocks }) => {
+          //   await Promise.all(
+          //     Array.from(this.blockToWrite.keys()).map(async (k) => {
+          //       const toWrite = toWriteBlocks.get(k)!;
+
+          //       await blocks.put(toWrite);
+          //     })
+          //   );
+          // });
 
           console.timeEnd("blockToWrite");
 
@@ -598,7 +646,7 @@ export class IDBAtomicVFS extends VFS.Base {
   }
 
   #bound(begin: number, end = 0) {
-    return IDBKeyRange.bound(begin, end);
+    return IDBKeyRange.bound(Math.ceil(begin / blockSize), end);
   }
 
   // The database page size can be changed with PRAGMA page_size and VACUUM.

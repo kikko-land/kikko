@@ -13,7 +13,7 @@ function log(...args: unknown[]) {
 // This class manages IDBTransaction and IDBRequest instances. It tries
 // to reuse transactions to minimize transaction overhead.
 export class IDBContext {
-  private dbReady: Promise<IDBDatabase>;
+  public dbReady: Promise<IDBDatabase>;
   private txOptions: { durability: string };
 
   private tx: IDBTransaction | undefined;
@@ -36,7 +36,7 @@ export class IDBContext {
    */
   async run<T>(
     mode: IDBTransactionMode,
-    f: (arg: Record<string, Store>) => Promise<T>
+    f: (arg: Record<string, Store>) => Promise<T> | T
   ): Promise<T> {
     // Ensure that functions run sequentially.
     return (this.chain = this.chain.then(() => {
@@ -46,7 +46,7 @@ export class IDBContext {
 
   private async performRun<T>(
     mode: IDBTransactionMode,
-    f: (arg: Record<string, Store>) => Promise<T>
+    f: (arg: Record<string, Store>) => Promise<T> | T
   ): Promise<T> {
     const db = await this.dbReady;
     const storeNames = Array.from(db.objectStoreNames);
