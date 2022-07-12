@@ -4,7 +4,9 @@ import SQLiteAsyncModule from "wa-sqlite/dist/wa-sqlite-async.mjs";
 
 import { IDBAtomicVFS } from "./IDBAtomicVFS";
 import { IDBBatchAtomicVFS } from "./IDBBatchAtomicVFS";
-import { IDBMinimalVFS } from "./IDBMinimalVFS";
+import { IDCachedWritesVFS } from "./IDBCachedWritesVFS";
+
+const colors = ["yellow", "cyan", "magenta"];
 
 export const waSqliteWebBackend =
   ({
@@ -24,6 +26,9 @@ export const waSqliteWebBackend =
 
     const vfs = _vfs ? _vfs : "minimal";
 
+    let currentTransactionI = 0;
+    let currentTransactionId: string | undefined;
+
     return {
       async initialize() {
         const module = await SQLiteAsyncModule({ locateFile: () => wasmUrl });
@@ -34,7 +39,7 @@ export const waSqliteWebBackend =
           vfs === "atomic"
             ? IDBAtomicVFS
             : vfs === "minimal"
-            ? IDBMinimalVFS
+            ? IDCachedWritesVFS
             : IDBBatchAtomicVFS;
 
         sqlite3.vfs_register(
@@ -76,6 +81,8 @@ export const waSqliteWebBackend =
           };
         }
       ): Promise<IQueryResult[]> {
+        const logOpts = opts.log;
+
         if (!sqlite3 || db === undefined) {
           throw new Error("DB is not initialized");
         }
@@ -121,15 +128,32 @@ export const waSqliteWebBackend =
           const end = performance.now();
 
           if (!opts.log.suppress) {
-            console.info(
-              `[${dbName}]${
-                opts.log.transactionId
-                  ? `[tr_id=${opts.log.transactionId.slice(0, 6)}]`
+            if (
+              logOpts?.transactionId &&
+              logOpts.transactionId !== currentTransactionId &&
+              !logOpts.suppress
+            ) {
+              currentTransactionId = logOpts.transactionId;
+              currentTransactionI++;
+            }
+            if (!logOpts?.transactionId) {
+              currentTransactionId = undefined;
+            }
+
+            console.log(
+              `%c[${dbName}]${
+                logOpts?.transactionId
+                  ? `[tr_id=${logOpts.transactionId.substring(0, 6)}]`
                   : ""
-              } ` +
-                q.text +
-                " Time: " +
-                ((end - startTime) / 1000).toFixed(4)
+              } ${q.text} ${JSON.stringify(q.values)} Time: ${(
+                (end - startTime) /
+                1000
+              ).toFixed(4)}`,
+              `color: ${
+                currentTransactionI
+                  ? colors[currentTransactionI % colors.length]
+                  : "white"
+              }`
             );
           }
         }

@@ -11,7 +11,6 @@ type IOptions = {
   durability: "default" | "strict" | "relaxed";
 };
 
-/** @type {{durability: "default"|"strict"|"relaxed"}} */
 const DEFAULT_OPTIONS: IOptions = { durability: "default" };
 
 interface IBlock {
@@ -25,18 +24,7 @@ interface IOpenedFile {
   fileSize: number;
 }
 
-/**
- * This is an IndexedDB VFS with very simple logic. It makes two assumptions
- * on how SQLite will call it:
- *
- *  1. Any overwritten data uses the same write offset and size.
- *  2. Any read requests data from only one write.
- *
- * It uses one trick - it stores each write as-is into IndexedDB using
- * the negative of the file offset as part of the key. This bypasses the
- * typical conversion to and from fixed-size blocks.
- */
-export class IDBMinimalVFS extends VFS.Base {
+export class IDCachedWritesVFS extends VFS.Base {
   private filesState = new Map<number, { file: IOpenedFile; db: IDBContext }>();
   private dbNameFileIdMap = new Map<string, number>();
   private webLocks = new WebLocks();
