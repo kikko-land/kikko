@@ -316,6 +316,14 @@ export class IDBMinimalVFS extends VFS.Base {
 
       if (filePendingWrites && filePendingWrites.size > 0) {
         console.time("writing bulk");
+
+        // void db.run("readwrite", async ({ blocks }) => {
+        //   for (const block of filePendingWrites.values()) {
+        //     await blocks.put(block);
+        //   }
+        // });
+        // await db.sync();
+
         const idb = await db.dbReady;
 
         await new Promise<void>((resolve, reject) => {
