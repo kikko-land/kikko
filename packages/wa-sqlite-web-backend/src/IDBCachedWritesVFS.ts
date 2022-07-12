@@ -7,6 +7,8 @@ function log(...args: unknown[]) {
   // console.debug(...args);
 }
 
+const blockSize = 32 * 1024;
+
 type IOptions = {
   durability: "default" | "strict" | "relaxed";
 };
@@ -119,6 +121,10 @@ export class IDCachedWritesVFS extends VFS.Base {
     });
   }
 
+  private cursorPromises: Map<
+    number,
+    { resolve: (res: unknown) => void; reject: () => void }
+  > = new Map();
   xRead(
     fileId: number,
     pData: {
@@ -127,19 +133,56 @@ export class IDCachedWritesVFS extends VFS.Base {
     },
     iOffset: number
   ) {
-    const { file, db } = this.getFileStateByIdOrThrow(fileId);
-
-    const filePendingWrites = this.pendingWrites.get(fileId);
-    const block = filePendingWrites?.get(iOffset);
-
-    if (block) {
-      pData.value.set(block.data);
-
-      return VFS.SQLITE_OK;
-    }
-
     return this.handleAsync(async () => {
-      log(`xRead ${file.path} ${pData.value.length} ${iOffset}`);
+      // TODO: not sure why, but if is not in handleAsync then code called twice.
+      // Is it stack unwind/rewind?
+      const { file, db } = this.getFileStateByIdOrThrow(fileId);
+
+      const filePendingWrites = this.pendingWrites.get(fileId);
+      const block = filePendingWrites?.get(iOffset);
+
+      if (block) {
+        pData.value.set(block.data);
+
+        return VFS.SQLITE_OK;
+      }
+
+      const dir = this.getReadDirection(fileId);
+
+      if (dir) {
+        this.prevReads.delete(fileId);
+
+        const keyRange = (() => {
+          if (dir === "prev") {
+            return IDBKeyRange.upperBound(-iOffset);
+          } else {
+            return IDBKeyRange.lowerBound(-iOffset);
+          }
+        })();
+
+        console.warn("Cursor reading!!!", dir, keyRange);
+      } else {
+        const res = this.prevReads.get(fileId);
+        if (!res) {
+          this.prevReads.set(fileId, [0, 0, -iOffset]);
+        } else {
+          res.push(-iOffset);
+          res.shift();
+        }
+      }
+
+      const waitCursor = () => {
+        return new Promise((resolve, reject) => {
+          if (this.cursorPromises.has(fileId)) {
+            throw new Error(
+              "waitCursor() called but something else is already waiting"
+            );
+          }
+          this.cursorPromises.set(fileId, { resolve, reject });
+        });
+      };
+
+      console.log(`xRead ${file.path} ${pData.value.length} ${iOffset}`);
 
       try {
         const block: IBlock = await db.run("readonly", ({ blocks }) => {
@@ -165,6 +208,58 @@ export class IDCachedWritesVFS extends VFS.Base {
         return VFS.SQLITE_IOERR;
       }
     });
+  }
+
+  // The ideas is taken from absurd-sql. Very smart!
+  // Also this might be helpful https://nolanlawson.com/2021/08/22/speeding-up-indexeddb-reads-and-writes/
+  private prevReads: Map<number, [number, number, number]> = new Map();
+  private getReadDirection(fileId: number) {
+    // There are a two ways we can read data: a direct `get` request
+    // or opening a cursor and iterating through data. We don't know
+    // what future reads look like, so we don't know the best strategy
+    // to pick. Always choosing one strategy forgoes a lot of
+    // optimization, because iterating with a cursor is a lot faster
+    // than many `get` calls. On the other hand, opening a cursor is
+    // slow, and so is calling `advance` to move a cursor over a huge
+    // range (like moving it 1000 items later), so many `get` calls would
+    // be faster. In general:
+    //
+    // * Many `get` calls are faster when doing random accesses
+    // * Iterating with a cursor is faster if doing mostly sequential
+    //   accesses
+    //
+    // We implement a heuristic and keeps track of the last 3 reads
+    // and detects when they are mostly sequential. If they are, we
+    // open a cursor and start reading by iterating it. If not, we do
+    // direct `get` calls.
+    //
+    // On top of all of this, each browser has different perf
+    // characteristics. We will probably want to make these thresholds
+    // configurable so the user can change them per-browser if needed,
+    // as well as fine-tuning them for their usage of sqlite.
+
+    let prevReads = this.prevReads.get(fileId);
+    if (prevReads) {
+      // Has there been 3 forward sequential reads within 10 blocks?
+      if (
+        prevReads[0] < prevReads[1] &&
+        prevReads[1] < prevReads[2] &&
+        Math.abs(prevReads[2] - prevReads[0]) < 10 * blockSize
+      ) {
+        return "next";
+      }
+
+      // Has there been 3 backwards sequential reads within 10 blocks?
+      if (
+        prevReads[0] > prevReads[1] &&
+        prevReads[1] > prevReads[2] &&
+        Math.abs(prevReads[0] - prevReads[2]) < 10 * blockSize
+      ) {
+        return "prev";
+      }
+    }
+
+    return null;
   }
 
   xWrite(
@@ -440,3 +535,96 @@ function openDatabase(idbDatabaseName: string) {
     });
   });
 }
+
+// read(position) {
+//   let waitCursor = () => {
+//     return new Promise((resolve, reject) => {
+//       if (this.cursorPromise != null) {
+//         throw new Error(
+//           'waitCursor() called but something else is already waiting'
+//         );
+//       }
+//       this.cursorPromise = { resolve, reject };
+//     });
+//   };
+
+//   if (this.cursor) {
+//     let cursor = this.cursor;
+
+//     if (
+//       cursor.direction === 'next' &&
+//       position > cursor.key &&
+//       position < cursor.key + 100
+//     ) {
+//       perf.record('stream-next');
+
+//       cursor.advance(position - cursor.key);
+//       return waitCursor();
+//     } else if (
+//       cursor.direction === 'prev' &&
+//       position < cursor.key &&
+//       position > cursor.key - 100
+//     ) {
+//       perf.record('stream-next');
+
+//       cursor.advance(cursor.key - position);
+//       return waitCursor();
+//     } else {
+//       // Ditch the cursor
+//       this.cursor = null;
+//       return this.read(position);
+//     }
+//   } else {
+//     // We don't already have a cursor. We need to a fresh read;
+//     // should we open a cursor or call `get`?
+
+//     let dir = this.getReadDirection();
+//     if (dir) {
+//       // Open a cursor
+//       this.prevReads = null;
+
+//       let keyRange;
+//       if (dir === 'prev') {
+//         keyRange = IDBKeyRange.upperBound(position);
+//       } else {
+//         keyRange = IDBKeyRange.lowerBound(position);
+//       }
+
+//       let req = this.store.openCursor(keyRange, dir);
+//       perf.record('stream');
+
+//       req.onsuccess = (e) => {
+//         perf.endRecording('stream');
+//         perf.endRecording('stream-next');
+
+//         let cursor = e.target.result;
+//         this.cursor = cursor;
+
+//         if (this.cursorPromise == null) {
+//           throw new Error('Got data from cursor but nothing is waiting it');
+//         }
+//         this.cursorPromise.resolve(cursor ? cursor.value : null);
+//         this.cursorPromise = null;
+//       };
+//       req.onerror = (e) => {
+//         console.log('Cursor failure:', e);
+
+//         if (this.cursorPromise == null) {
+//           throw new Error('Got data from cursor but nothing is waiting it');
+//         }
+//         this.cursorPromise.reject(e);
+//         this.cursorPromise = null;
+//       };
+
+//       return waitCursor();
+//     } else {
+//       if (this.prevReads == null) {
+//         this.prevReads = [0, 0, 0];
+//       }
+//       this.prevReads.push(position);
+//       this.prevReads.shift();
+
+//       return this.get(position);
+//     }
+//   }
+// }
