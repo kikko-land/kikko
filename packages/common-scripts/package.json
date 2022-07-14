@@ -1,12 +1,13 @@
 {
   "name": "@trong-orm/common-scripts",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "author": "Sergey Popov",
   "license": "MIT",
   "type": "module",
   "scripts": {
     "release-all": "node --loader ts-node/esm ./src/release.ts",
     "lint": "echo \"\"",
+    "compile": "echo \"\"",
     "check-typing": "echo \"\""
   },
   "dependencies": {
