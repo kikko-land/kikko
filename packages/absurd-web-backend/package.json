@@ -32,7 +32,7 @@
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
-    "@trong-orm/better-absurd-sql": "file:../../../better-absurd-sql",
+    "@trong-orm/better-absurd-sql": "^0.0.54",
     "@trong-orm/core": "^1.2.0",
     "@trong-orm/sql": "^1.2.0",
     "@trong-orm/sql.js": "^1.6.7",
