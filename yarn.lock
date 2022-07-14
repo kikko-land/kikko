@@ -2127,10 +2127,10 @@
   dependencies:
     type-fest "2.12.2"
 
-"@trong-orm/better-absurd-sql@^0.0.54":
-  version "0.0.54"
-  resolved "https://registry.yarnpkg.com/@trong-orm/better-absurd-sql/-/better-absurd-sql-0.0.54.tgz#6ec1d6fe3325f143c76a413a1d350886278ae871"
-  integrity sha512-BSBIM4ZK0WGUjyuL78QcLBJFL6D3mqEOWx7EusvwxfdBr8HF4b1cWKOMpeJPVC/OmPb0sNFbwpRnKXJQp94lpg==
+"@trong-orm/better-absurd-sql@^0.0.55":
+  version "0.0.55"
+  resolved "https://registry.yarnpkg.com/@trong-orm/better-absurd-sql/-/better-absurd-sql-0.0.55.tgz#eb4f3f0f60550e019704af1f6353d928fc6f9194"
+  integrity sha512-2QzBW3XME+5GcHb2qkvTjTMeiyJVKgByplgaK7OkkZINhAv+wTy6FBbIb2Z5gJ+ftxUMsM0rZ/eLENH4NREM6A==
   dependencies:
     safari-14-idb-fix "^1.0.4"
 
@@ -2139,10 +2139,10 @@
   resolved "https://registry.yarnpkg.com/@trong-orm/sql.js/-/sql.js-1.6.7.tgz#7586a7513f7bf2d48173876e630f0e083cfbc2c5"
   integrity sha512-A9Yz/EdUPzic2c1vcOllwCh7RJ7otsBfp9xsEqvpByKyKUVTXZHSwfnRYSApmwL5ferRXlNcz9iAKMKnQjO6DQ==
 
-"@trong-orm/wa-sqlite-web-backend@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@trong-orm/wa-sqlite-web-backend/-/wa-sqlite-web-backend-1.2.0.tgz#47bfb921697ad21da7a707b49de9a0c72104ef3e"
-  integrity sha512-1dwTiKVY9QuESLbcsILwQ+DPPV6+mBeoWbM0Qx7TIUJGROu2h38EhQ1kJdyfNzpUtgBV3y24/YvQVgU6zQJ/+A==
+"@trong-orm/wa-sqlite-web-backend@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@trong-orm/wa-sqlite-web-backend/-/wa-sqlite-web-backend-1.2.1.tgz#95af99b062e593443058ff4378407214166c02b6"
+  integrity sha512-C56pDN2d7vm3G3dgkrUnYTZoF0ZaWHFlK9YlWRXqtpQfsKsOto1AD3ZKGYGFCnPZbRs2yxTTO/uAk4dwkcaHmA==
   dependencies:
     "@trong-orm/core" "^1.1.6"
     "@trong-orm/sql" "^1.1.6"
