@@ -52,7 +52,7 @@ const runOnDirs = async (
 };
 
 const run = async () => {
-  const exceptPackages = ["common-scripts", "vite-react-example", "trong-doc"];
+  const exceptPackages = ["vite-react-example", "trong-doc"];
   const packagesPath = resolve(cwd(), "..");
   const mainPackageJsonPath = resolve(cwd(), "../../package.json");
 
