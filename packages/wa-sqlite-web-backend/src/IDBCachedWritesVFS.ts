@@ -33,6 +33,7 @@ export class IDCachedWritesVFS extends VFS.Base {
   private options;
 
   private pendingWrites: Map<number, Map<number, IBlock>> = new Map();
+  private cursors: Map<number, IDBCursorWithValue> = new Map();
 
   constructor(public name: string, options = DEFAULT_OPTIONS) {
     super();
@@ -123,7 +124,7 @@ export class IDCachedWritesVFS extends VFS.Base {
 
   private cursorPromises: Map<
     number,
-    { resolve: (res: unknown) => void; reject: () => void }
+    { resolve: (res: IBlock) => void; reject: (e: unknown) => void }
   > = new Map();
   xRead(
     fileId: number,
@@ -136,7 +137,7 @@ export class IDCachedWritesVFS extends VFS.Base {
     return this.handleAsync(async () => {
       // TODO: not sure why, but if is not in handleAsync then code called twice.
       // Is it stack unwind/rewind?
-      const { file, db } = this.getFileStateByIdOrThrow(fileId);
+      const { db } = this.getFileStateByIdOrThrow(fileId);
 
       const filePendingWrites = this.pendingWrites.get(fileId);
       const block = filePendingWrites?.get(iOffset);
@@ -149,30 +150,8 @@ export class IDCachedWritesVFS extends VFS.Base {
 
       const dir = this.getReadDirection(fileId);
 
-      if (dir) {
-        this.prevReads.delete(fileId);
-
-        const keyRange = (() => {
-          if (dir === "prev") {
-            return IDBKeyRange.upperBound(-iOffset);
-          } else {
-            return IDBKeyRange.lowerBound(-iOffset);
-          }
-        })();
-
-        console.warn("Cursor reading!!!", dir, keyRange);
-      } else {
-        const res = this.prevReads.get(fileId);
-        if (!res) {
-          this.prevReads.set(fileId, [0, 0, -iOffset]);
-        } else {
-          res.push(-iOffset);
-          res.shift();
-        }
-      }
-
-      const waitCursor = () => {
-        return new Promise((resolve, reject) => {
+      const waitCursor = async () => {
+        const block = await new Promise<IBlock>((resolve, reject) => {
           if (this.cursorPromises.has(fileId)) {
             throw new Error(
               "waitCursor() called but something else is already waiting"
@@ -180,9 +159,117 @@ export class IDCachedWritesVFS extends VFS.Base {
           }
           this.cursorPromises.set(fileId, { resolve, reject });
         });
+
+        // console.log({ block });
+
+        const blockOffset = iOffset + block.offset;
+        const nBytesToCopy = Math.min(
+          Math.max(block.data.length - blockOffset, 0), // source bytes
+          pData.value.length
+        ); // destination bytes
+        pData.value.set(
+          block.data.subarray(blockOffset, blockOffset + nBytesToCopy)
+        );
+
+        if (nBytesToCopy < pData.value.length) {
+          pData.value.fill(0, nBytesToCopy, pData.value.length);
+          return VFS.SQLITE_IOERR_SHORT_READ;
+        }
+
+        return VFS.SQLITE_OK;
       };
 
-      console.log(`xRead ${file.path} ${pData.value.length} ${iOffset}`);
+      const cursor = this.cursors.get(fileId);
+      if (cursor) {
+        const key = cursor.key as number;
+        // console.log({ key });
+        if (
+          cursor.direction === "next" &&
+          key < -iOffset &&
+          -iOffset < key + 100 * blockSize
+        ) {
+          cursor.advance(Math.abs(Math.ceil((-iOffset - key) / blockSize)));
+
+          return waitCursor();
+        } else if (
+          cursor.direction === "prev" &&
+          key - 100 * blockSize < -iOffset &&
+          -iOffset < key
+        ) {
+          cursor.advance(Math.abs(Math.ceil((-key - iOffset) / blockSize)));
+
+          return waitCursor();
+        } else {
+          // console.log(
+          //   "cursor miss(",
+          //   cursor.direction,
+          //   cursor.direction === "next"
+          //     ? [key, -iOffset, key + 100 * blockSize]
+          //     : [key - 100 * blockSize, -iOffset, key]
+          // );
+          this.cursors.delete(fileId);
+        }
+      } else {
+        if (dir) {
+          this.prevReads.delete(fileId);
+
+          const keyRange = (() => {
+            if (dir === "prev") {
+              return IDBKeyRange.upperBound(-iOffset);
+            } else {
+              return IDBKeyRange.lowerBound(-iOffset);
+            }
+          })();
+
+          const idb = await db.dbReady;
+
+          // @ts-expect-error lib dom misses third argument
+          const tx = idb.transaction("blocks", "readwrite", {
+            durability: "relaxed",
+          });
+
+          const blocksStore = tx.objectStore("blocks");
+
+          const req = blocksStore.openCursor(keyRange, dir);
+
+          req.onsuccess = (e) => {
+            let cursor: IDBCursorWithValue = (e.target as any).result;
+            this.cursors.set(fileId, cursor);
+
+            const promise = this.cursorPromises.get(fileId);
+
+            if (!promise)
+              throw new Error("Got data from cursor but nothing is waiting it");
+
+            promise.resolve(cursor ? cursor.value : null);
+            this.cursorPromises.delete(fileId);
+          };
+
+          req.onerror = (e) => {
+            console.log("Cursor failure:", e);
+
+            const promise = this.cursorPromises.get(fileId);
+
+            if (!promise)
+              throw new Error("Got data from cursor but nothing is waiting it");
+
+            promise.reject(e);
+            this.cursorPromises.delete(fileId);
+          };
+
+          return await waitCursor();
+        } else {
+          const res = this.prevReads.get(fileId);
+          if (!res) {
+            this.prevReads.set(fileId, [0, 0, -iOffset]);
+          } else {
+            res.push(-iOffset);
+            res.shift();
+          }
+        }
+      }
+
+      // console.log(`xRead ${file.path} ${pData.value.length} ${iOffset}`);
 
       try {
         const block: IBlock = await db.run("readonly", ({ blocks }) => {
@@ -289,13 +376,13 @@ export class IDCachedWritesVFS extends VFS.Base {
         return VFS.SQLITE_OK;
       }
 
-      return this.handleAsync(async () => {
+      void (async () => {
         file.fileSize = Math.max(file.fileSize, iOffset + pData.value.length);
 
         await db.run("readwrite", ({ blocks }) => blocks.put(block));
+      })();
 
-        return VFS.SQLITE_OK;
-      });
+      return VFS.SQLITE_OK;
     } catch (e) {
       console.error(e);
       return VFS.SQLITE_IOERR;

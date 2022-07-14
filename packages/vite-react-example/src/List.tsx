@@ -11,12 +11,13 @@ import {
   runQuery,
   sql,
   useCacheQuery,
+  useDbStrict,
   useQuery,
   useRunQuery,
 } from "@trong-orm/react";
 import { chunk } from "lodash-es";
 import { LoremIpsum } from "lorem-ipsum";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import Highlighter from "react-highlight-words";
 import { useSearchParam } from "react-use";
 
@@ -195,8 +196,6 @@ export const List = () => {
 
       <br />
       <br />
-
-      <button onClick={run}>Run</button>
 
       {[100, 1000, 10_000].map((count) => (
         <button

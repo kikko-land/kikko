@@ -78,6 +78,8 @@ export const useDbStrict = () => {
   const db = useDb();
 
   if (!db) throw new Error("DB is not initialized!");
+
+  return db;
 };
 
 export const EnsureDbLoaded: React.FC<{

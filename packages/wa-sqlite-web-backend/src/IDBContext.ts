@@ -71,8 +71,8 @@ export class IDBContext {
         // @ts-expect-error lib dom misses third argument
         this.tx = db.transaction(storeNames, mode, this.txOptions);
 
-        const timeStart = Date.now();
-        console.log("start transaction");
+        // const timeStart = Date.now();
+        // console.log("start transaction");
 
         const tx = this.tx;
         this.txComplete = new Promise((resolve) => {
@@ -83,7 +83,7 @@ export class IDBContext {
 
             resolve();
 
-            console.log("end transaction", Date.now() - timeStart);
+            // console.log("end transaction", Date.now() - timeStart);
 
             log(`transaction ${mapTxToId.get(tx)} complete`);
           });
