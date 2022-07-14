@@ -11,14 +11,17 @@ import {
   runQuery,
   sql,
   useCacheQuery,
+  useDbStrict,
   useQuery,
   useRunQuery,
 } from "@trong-orm/react";
 import { chunk } from "lodash-es";
 import { LoremIpsum } from "lorem-ipsum";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import Highlighter from "react-highlight-words";
+import { useSearchParam } from "react-use";
 
+import { backendOptions } from "./App";
 import { usePaginator } from "./hooks/usePaginator";
 
 const lorem = new LoremIpsum({
@@ -99,6 +102,9 @@ const Row = ({
 };
 
 export const List = () => {
+  const backendName = (useSearchParam("backend") ||
+    "waMinimal") as keyof typeof backendOptions;
+
   const [textToSearch, setTextToSearch] = useState<string>("");
 
   const [run] = useRunQuery((db) => async () => {
@@ -169,7 +175,27 @@ export const List = () => {
 
   return (
     <>
-      <button onClick={run}>Run</button>
+      <select
+        value={backendName}
+        onChange={(e) => {
+          // eslint-disable-next-line no-restricted-globals
+          history.pushState(
+            {},
+            "",
+            // eslint-disable-next-line no-restricted-globals
+            location.pathname + "?backend=" + e.target.value
+          );
+        }}
+      >
+        {Object.entries(backendOptions).map(([name, val]) => (
+          <option key={name} value={name}>
+            {name}
+          </option>
+        ))}
+      </select>
+
+      <br />
+      <br />
 
       {[100, 1000, 10_000].map((count) => (
         <button
