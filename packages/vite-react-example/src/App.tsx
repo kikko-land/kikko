@@ -11,7 +11,7 @@ import {
 import absurdSqlWasmUrl from "@trong-orm/sql.js/dist/sql-wasm.wasm?url";
 import { waSqliteWebBackend } from "@trong-orm/wa-sqlite-web-backend";
 import { useMemo } from "react";
-import { useSearchParam } from "react-use";
+import { useLocation } from "react-use";
 import sqlWasmUrl from "wa-sqlite/dist/wa-sqlite-async.wasm?url";
 
 import { List } from "./List";
@@ -44,6 +44,20 @@ export type IBackendConfig =
   | { type: "absurd" }
   | { type: "wa-sqlite"; vfs: "atomic" | "batch-atomic" | "minimal" };
 
+function parseQuery(queryString: string) {
+  const query: Record<string, string> = {};
+  const pairs = (
+    queryString[0] === "?" ? queryString.substr(1) : queryString
+  ).split("&");
+
+  for (let i = 0; i < pairs.length; i++) {
+    const pair = pairs[i].split("=");
+
+    query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || "");
+  }
+  return query;
+}
+
 export const backendOptions = {
   absurd: { type: "absurd" },
   waMinimal: {
@@ -53,7 +67,7 @@ export const backendOptions = {
 } as const;
 
 export const App = () => {
-  const backendName = (useSearchParam("backend") ||
+  const backendName = (parseQuery(useLocation().search || "")["backend"] ||
     "waMinimal") as keyof typeof backendOptions;
 
   const config = useMemo(() => {
