@@ -19,7 +19,7 @@ import { createNotesTableMigration } from "./migrations/createNotesTable";
 
 const buildConfig = (config: IBackendConfig): IInitDbClientConfig => {
   return {
-    dbName: "helloWorld",
+    dbName: `helloWorld-${config.type}`,
     dbBackend:
       config.type === "absurd"
         ? absurdWebBackend({
