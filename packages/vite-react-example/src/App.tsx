@@ -46,14 +46,6 @@ export type IBackendConfig =
 
 export const backendOptions = {
   absurd: { type: "absurd" },
-  waSqliteAtomic: {
-    type: "wa-sqlite",
-    vfs: "atomic",
-  },
-  waSqliteBatchAtomic: {
-    type: "wa-sqlite",
-    vfs: "batch-atomic",
-  },
   waMinimal: {
     type: "wa-sqlite",
     vfs: "minimal",

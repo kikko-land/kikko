@@ -2139,16 +2139,18 @@
   resolved "https://registry.yarnpkg.com/@trong-orm/sql.js/-/sql.js-1.6.7.tgz#7586a7513f7bf2d48173876e630f0e083cfbc2c5"
   integrity sha512-A9Yz/EdUPzic2c1vcOllwCh7RJ7otsBfp9xsEqvpByKyKUVTXZHSwfnRYSApmwL5ferRXlNcz9iAKMKnQjO6DQ==
 
-"@trong-orm/wa-sqlite-web-backend@^1.2.1":
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/@trong-orm/wa-sqlite-web-backend/-/wa-sqlite-web-backend-1.2.1.tgz#95af99b062e593443058ff4378407214166c02b6"
-  integrity sha512-C56pDN2d7vm3G3dgkrUnYTZoF0ZaWHFlK9YlWRXqtpQfsKsOto1AD3ZKGYGFCnPZbRs2yxTTO/uAk4dwkcaHmA==
+"@trong-orm/wa-sqlite-web-backend@^1.3.4":
+  version "1.3.4"
+  resolved "https://registry.yarnpkg.com/@trong-orm/wa-sqlite-web-backend/-/wa-sqlite-web-backend-1.3.4.tgz#52ea08fb70ec773b6fd424666c621d110dcf1af9"
+  integrity sha512-39CIw/8xw8SXpRF+z7M275dnK7Snl9IpNWilTJh0rjxF39IB+LifIUYxinY7bnU6NhBV39uWHiZzhimcYIA2UA==
   dependencies:
     "@trong-orm/core" "^1.1.6"
     "@trong-orm/sql" "^1.1.6"
     "@trong-orm/sql.js" "^1.6.7"
     patch-package "^6.4.7"
     postinstall-postinstall "^2.1.0"
+    react "^18.2.0"
+    react-dom "^18.2.0"
     rxjs "^7.5.5"
     wa-sqlite rhashimoto/wa-sqlite#buildless
 
@@ -8343,6 +8345,14 @@ react-dom@^18.1.0:
     loose-envify "^1.1.0"
     scheduler "^0.22.0"
 
+react-dom@^18.2.0:
+  version "18.2.0"
+  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-18.2.0.tgz#22aaf38708db2674ed9ada224ca4aa708d821e3d"
+  integrity sha512-6IMTriUmvsjHUjNtEDudZfuDQUoWXVxKHhlEGSk81n4YFS+r/Kl99wXiwlVXtPBtJenozv2P+hxDsw9eA7Xo6g==
+  dependencies:
+    loose-envify "^1.1.0"
+    scheduler "^0.23.0"
+
 react-error-overlay@^6.0.11:
   version "6.0.11"
   resolved "https://registry.yarnpkg.com/react-error-overlay/-/react-error-overlay-6.0.11.tgz#92835de5841c5cf08ba00ddd2d677b6d17ff9adb"
@@ -8492,6 +8502,13 @@ react@^18.1.0:
   version "18.1.0"
   resolved "https://registry.yarnpkg.com/react/-/react-18.1.0.tgz#6f8620382decb17fdc5cc223a115e2adbf104890"
   integrity sha512-4oL8ivCz5ZEPyclFQXaNksK3adutVS8l2xzZU0cqEFrE9Sb7fC0EFK5uEk74wIreL1DERyjvsU915j1pcT2uEQ==
+  dependencies:
+    loose-envify "^1.1.0"
+
+react@^18.2.0:
+  version "18.2.0"
+  resolved "https://registry.yarnpkg.com/react/-/react-18.2.0.tgz#555bd98592883255fa00de14f1151a917b5d77d5"
+  integrity sha512-/3IjMdb2L9QbBdWiW5e3P2/npwMBaU9mHCSCUzNln0ZCYbcfTsGbTJrU/kGemdH2IWmB2ioZ+zkxtmq6g09fGQ==
   dependencies:
     loose-envify "^1.1.0"
 
@@ -8970,6 +8987,13 @@ scheduler@^0.22.0:
   version "0.22.0"
   resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.22.0.tgz#83a5d63594edf074add9a7198b1bae76c3db01b8"
   integrity sha512-6QAm1BgQI88NPYymgGQLCZgvep4FyePDWFpXVK+zNSUgHwlqpJy8VEh8Et0KxTACS4VWwMousBElAZOH9nkkoQ==
+  dependencies:
+    loose-envify "^1.1.0"
+
+scheduler@^0.23.0:
+  version "0.23.0"
+  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.23.0.tgz#ba8041afc3d30eb206a487b6b384002e4e61fdfe"
+  integrity sha512-CtuThmgHNg7zIZWAXi3AsyIzA3n4xx7aNyjwC2VJldO2LMVDhFK+63xGqq6CsJH4rTAt6/M+N4GhZiDYPx9eUw==
   dependencies:
     loose-envify "^1.1.0"
 
