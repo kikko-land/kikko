@@ -3,6 +3,7 @@ import {
   DbProvider,
   EnsureDbLoaded,
   IInitDbClientConfig,
+  makeId,
   migrationsPlugin,
 } from "@trong-orm/react";
 import absurdSqlWasmUrl from "@trong-orm/sql.js/dist/sql-wasm.wasm?url";
@@ -16,7 +17,7 @@ import { Benchmark } from "./Benchmark";
 
 const buildConfig = (config: IBackendConfig): IInitDbClientConfig => {
   return {
-    dbName: `benchmark-${config.type}`,
+    dbName: `benchmark-${config.type}-${makeId().substr(0, 5)}`,
     dbBackend:
       config.type === "absurd"
         ? absurdWebBackend({
