@@ -1,4 +1,4 @@
-import "./builder-examples";
+import "../builder-examples";
 
 import { absurdWebBackend } from "@trong-orm/absurd-web-backend";
 import {
@@ -14,8 +14,8 @@ import { useMemo } from "react";
 import { useLocation } from "react-use";
 import sqlWasmUrl from "wa-sqlite/dist/wa-sqlite-async.wasm?url";
 
+import { createNotesTableMigration } from "../migrations/createNotesTable";
 import { List } from "./List";
-import { createNotesTableMigration } from "./migrations/createNotesTable";
 
 const buildConfig = (config: IBackendConfig): IInitDbClientConfig => {
   return {
@@ -34,7 +34,9 @@ const buildConfig = (config: IBackendConfig): IInitDbClientConfig => {
             vfs: config.vfs,
           }),
     plugins: [
-      migrationsPlugin({ migrations: [createNotesTableMigration] }),
+      migrationsPlugin({
+        migrations: [createNotesTableMigration],
+      }),
       reactiveQueriesPlugin(),
     ],
   };
@@ -66,7 +68,7 @@ export const backendOptions = {
   },
 } as const;
 
-export const App = () => {
+export const AppList = () => {
   const backendName = (parseQuery(useLocation().search || "")["backend"] ||
     "waMinimal") as keyof typeof backendOptions;
 

@@ -42,8 +42,8 @@ export class DbBackend {
 
     this.sqlDb.exec(`
       PRAGMA cache_size=${this.cacheSize};
-      PRAGMA page_size=${this.pageSize};
       PRAGMA journal_mode=MEMORY;
+      PRAGMA page_size=${this.pageSize};
     `);
   }
 

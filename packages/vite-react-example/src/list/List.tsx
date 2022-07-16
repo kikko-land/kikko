@@ -11,18 +11,17 @@ import {
   runQuery,
   sql,
   useCacheQuery,
-  useDbStrict,
   useQuery,
   useRunQuery,
 } from "@trong-orm/react";
 import { chunk } from "lodash-es";
 import { LoremIpsum } from "lorem-ipsum";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import Highlighter from "react-highlight-words";
 import { useSearchParam } from "react-use";
 
-import { backendOptions } from "./App";
-import { usePaginator } from "./hooks/usePaginator";
+import { usePaginator } from "../hooks/usePaginator";
+import { backendOptions } from "./AppList";
 
 const lorem = new LoremIpsum({
   sentencesPerParagraph: {

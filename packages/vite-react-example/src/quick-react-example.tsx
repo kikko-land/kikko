@@ -12,7 +12,7 @@ import {
 // For Vite:
 import sqlWasmUrl from "@trong-orm/sql.js/dist/sql-wasm.wasm?url";
 
-import { List } from "./List";
+import { List } from "./list/List";
 
 const createNotesTable: IMigration = {
   up: async (db) => {
