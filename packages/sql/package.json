@@ -29,10 +29,12 @@
   "scripts": {
     "compile": "yarn vite build",
     "lint": "eslint \"src/**/*.{tsx,ts}\"",
-    "check-typing": "tsc --noEmit"
+    "check-typing": "tsc --noEmit",
+    "test": "vitest"
   },
   "dependencies": {},
   "devDependencies": {
-    "@trong-orm/common-scripts": "^1.2.1"
+    "@trong-orm/common-scripts": "^1.2.1",
+    "vitest": "^0.19.1"
   }
 }

@@ -8,9 +8,14 @@ import {
 
 // Code is taken and adopted from https://github.com/blakeembrey/sql-template-tag
 
-export type IPrimitiveValue = string | number | null;
+export type IPrimitiveValue = string | number | null | Uint8Array;
 export const isPrimitiveValue = (t: unknown): t is IPrimitiveValue => {
-  return t === null || typeof t === "string" || typeof t === "number";
+  return (
+    t === null ||
+    typeof t === "string" ||
+    typeof t === "number" ||
+    t instanceof Uint8Array
+  );
 };
 
 export type IRawValue = IPrimitiveValue | ISql | IContainsTable | ISqlAdapter;
@@ -235,7 +240,7 @@ sql.join = (
   prefix = "",
   suffix = ""
 ) => {
-  values = values.filter((v) => (isSql(v) ? !v.toSql().isEmpty : v));
+  values = values.filter((v) => (isSql(v) ? !v.toSql().isEmpty : true));
 
   if (values.length === 0) {
     throw new TypeError(
