@@ -5,6 +5,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
+    "bump-versions": "yarn changeset",
     "publish-packages": "yarn turbo run lint && yarn turbo run build && yarn workspace @trong-orm/common-scripts publish-packages",
     "build": "yarn turbo run build",
     "lint": "yarn turbo run lint",
