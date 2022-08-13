@@ -1,6 +1,6 @@
 {
   "name": "trong",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "author": "Sergey Popov",
   "license": "MIT",
   "private": true,
@@ -13,5 +13,7 @@
     "packages/*"
   ],
   "dependencies": {},
-  "devDependencies": {}
+  "devDependencies": {
+    "@changesets/cli": "^2.24.2"
+  }
 }
