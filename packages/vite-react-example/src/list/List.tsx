@@ -106,7 +106,7 @@ export const List = () => {
 
   const [textToSearch, setTextToSearch] = useState<string>("");
 
-  const [run] = useRunQuery((db) => async () => {
+  useRunQuery((db) => async () => {
     await runQueries(db, [
       sql`
     CREATE TABLE IF NOT EXISTS test(field1);

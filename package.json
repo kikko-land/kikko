@@ -5,10 +5,10 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "prepublish": "yarn workspace @trong-orm/common-scripts prepublish",
-    "postpublish": "yarn workspace @trong-orm/common-scripts postpublish",
+    "publish-packages": "yarn turbo run lint && yarn turbo run build && yarn workspace @trong-orm/common-scripts publish-packages",
+    "build": "yarn turbo run build",
     "lint": "yarn turbo run lint",
-    "check-typing": "yarn workspaces run check-typing"
+    "check-typing": "yarn turbo run check-typing"
   },
   "workspaces": [
     "packages/*"

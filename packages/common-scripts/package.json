@@ -5,8 +5,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "prepublish": "node --loader ts-node/esm ./src/prepublish.ts",
-    "postpublish": "node --loader ts-node/esm ./src/postpublish.ts",
+    "publish-packages": "node --loader ts-node/esm ./src/publish.ts",
     "lint": "echo \"\"",
     "build": "echo \"\"",
     "check-typing": "echo \"\""
@@ -37,4 +36,3 @@
     "vite-plugin-dts": "^1.2.1"
   }
 }
-
