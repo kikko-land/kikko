@@ -27,8 +27,8 @@
     "types": "./dist/absurd-web-backend/src/index.d.ts"
   },
   "scripts": {
-    "compile": "yarn vite build",
-    "lint": "eslint \"src/**/*.{tsx,ts}\"",
+    "build": "yarn vite build",
+    "lint": "eslint \"src/**/*.{tsx,ts}\" --max-warnings=0",
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
@@ -44,3 +44,4 @@
     "ts-essentials": "^9.1.2"
   }
 }
+

@@ -45,10 +45,10 @@
     }
   },
   "scripts": {
-    "compile": "run-s compile:index compile:preload",
-    "compile:index": "TO_BUILD=index yarn vite build",
-    "compile:preload": "TO_BUILD=preload yarn vite build",
-    "lint": "eslint \"src/**/*.{tsx,ts}\"",
+    "build": "run-s build:index build:preload",
+    "build:index": "TO_BUILD=index yarn vite build",
+    "build:preload": "TO_BUILD=preload yarn vite build",
+    "lint": "eslint \"src/**/*.{tsx,ts}\" --max-warnings=0",
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
@@ -66,3 +66,4 @@
     "ts-essentials": "^9.1.2"
   }
 }
+

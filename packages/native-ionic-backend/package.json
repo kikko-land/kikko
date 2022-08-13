@@ -27,8 +27,8 @@
     "types": "./dist/native-ionic-backend/src/index.d.ts"
   },
   "scripts": {
-    "compile": "yarn vite build",
-    "lint": "eslint \"src/**/*.{tsx,ts}\"",
+    "build": "yarn vite build",
+    "lint": "eslint \"src/**/*.{tsx,ts}\" --max-warnings=0",
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
@@ -42,3 +42,4 @@
     "@trong-orm/common-scripts": "^1.2.2"
   }
 }
+

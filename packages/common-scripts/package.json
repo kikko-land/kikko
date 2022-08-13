@@ -5,8 +5,10 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
+    "prepublish": "node --loader ts-node/esm ./src/prepublish.ts",
+    "postpublish": "node --loader ts-node/esm ./src/postpublish.ts",
     "lint": "echo \"\"",
-    "compile": "echo \"\"",
+    "build": "echo \"\"",
     "check-typing": "echo \"\""
   },
   "dependencies": {

@@ -5,8 +5,9 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "release-all": "yarn workspace @trong-orm/common-scripts release-all",
-    "lint": "yarn workspaces run lint",
+    "prepublish": "yarn workspace @trong-orm/common-scripts prepublish",
+    "postpublish": "yarn workspace @trong-orm/common-scripts postpublish",
+    "lint": "yarn turbo run lint",
     "check-typing": "yarn workspaces run check-typing"
   },
   "workspaces": [
@@ -14,6 +15,7 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "@changesets/cli": "^2.24.2"
+    "@changesets/cli": "^2.24.2",
+    "turbo": "^1.4.3"
   }
 }
