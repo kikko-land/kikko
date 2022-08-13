@@ -5,7 +5,6 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "release-all": "node --loader ts-node/esm ./src/release.ts",
     "lint": "echo \"\"",
     "compile": "echo \"\"",
     "check-typing": "echo \"\""
@@ -36,3 +35,4 @@
     "vite-plugin-dts": "^1.2.1"
   }
 }
+
