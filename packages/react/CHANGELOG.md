@@ -1,5 +1,18 @@
 # @trong-orm/react
 
+## 1.3.1
+
+### Patch Changes
+
+- 3c0419b: Releasing with changesets
+- Updated dependencies [3c0419b]
+- Updated dependencies
+  - @trong-orm/core@1.3.1
+  - @trong-orm/migrations-plugin@1.3.1
+  - @trong-orm/react-queries-hooks@1.3.1
+  - @trong-orm/reactive-queries-plugin@1.3.1
+  - @trong-orm/sql@1.3.1
+
 ## 1.3.0
 
 ### Minor Changes

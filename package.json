@@ -5,7 +5,8 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "bump-versions": "yarn changeset",
+    "add-changeset": "yarn changeset",
+    "bump-versions": "yarn changeset version",
     "publish-packages": "yarn turbo run lint && yarn turbo run build && yarn workspace @trong-orm/common-scripts publish-packages",
     "build": "yarn turbo run build",
     "lint": "yarn turbo run lint",
@@ -18,5 +19,8 @@
   "devDependencies": {
     "@changesets/cli": "^2.24.2",
     "turbo": "^1.4.3"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
