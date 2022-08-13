@@ -71,10 +71,13 @@ export interface ISql extends ISqlAdapter {
   toString(): string;
 }
 
-export function sql(
+function internalSql(
   _rawStrings: ReadonlyArray<string>,
-  ..._rawValues: IRawValue[]
+  _rawValues: IRawValue[]
+
 ): ISql {
+
+
   if (_rawStrings.length - 1 !== _rawValues.length) {
     if (_rawStrings.length === 0) {
       throw new TypeError("Expected at least 1 string");
@@ -224,6 +227,13 @@ export function sql(
   };
 }
 
+export function sql(
+  rawStrings: ReadonlyArray<string>,
+  ...rawValues: IRawValue[]
+): ISql {
+  return internalSql(rawStrings, rawValues)
+}
+
 sql.raw = (value: string) => {
   return sql([value]);
 };
@@ -248,8 +258,8 @@ sql.join = (
     );
   }
 
-  return sql(
+  return internalSql(
     [prefix, ...Array(values.length - 1).fill(separator), suffix],
-    ...values
+    values
   );
 };

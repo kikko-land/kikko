@@ -15,7 +15,8 @@ describe("sql", () => {
 
     expect(query.preparedQuery).toEqual({
       values: [1, null, 1, 2, 3],
-      text: 'SELECT * FROM "users" WHERE "num"=? AND nullColl=? AND ids IN (?, ?, ?)',
+      text:
+        'SELECT * FROM "users" WHERE "num"=? AND nullColl=? AND ids IN (?, ?, ?)',
     });
   });
 
@@ -40,6 +41,20 @@ describe("sql", () => {
         values: [null, 0, 1, 2, 3, new Uint8Array([0, 0, 0])],
         text: "?, ?, ?, ?, ?, ?",
       });
+    });
+  });
+
+  describe("join", () => {
+    it("works with a lot of values", () => {
+      const toJoin: number[] = [];
+
+      for (let i = 0; i < 10_000_000; i++) {
+        toJoin.push(i);
+      }
+
+      expect(() => {
+        void sql.join(toJoin);
+      }).not.toThrowError();
     });
   });
 });
