@@ -1,4 +1,4 @@
-import { getPackages, updateJson } from "./utils";
+import { getPackages, updateJson } from "./utils.js";
 
 const run = async () => {
   const packages = await getPackages();

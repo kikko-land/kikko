@@ -1,6 +1,6 @@
 import { unlink, rename } from "fs/promises";
 import { existsSync } from "fs";
-import { getPackages } from "./utils";
+import { getPackages } from "./utils.js";
 
 const run = async () => {
   const packages = await getPackages();
