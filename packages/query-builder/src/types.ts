@@ -17,6 +17,8 @@ export enum TokenType {
   CTE = "CTE",
   Join = "Join",
   Returning = "Returning",
+  WindowFn = "WindowFn",
+  WindowBody = "WindowBody",
 }
 
 export interface IBaseToken<T extends TokenType = TokenType> {
