@@ -11173,10 +11173,10 @@ vfile@^4.0.0:
     unist-util-stringify-position "^2.0.0"
     vfile-message "^2.0.0"
 
-vite-plugin-checker@^0.4.6:
-  version "0.4.6"
-  resolved "https://registry.yarnpkg.com/vite-plugin-checker/-/vite-plugin-checker-0.4.6.tgz#c954a3c9be4a7751b9f6b3f18cea7120732b8448"
-  integrity "sha1-yVSjyb5Kd1G59rPxjOpxIHMrhEg= sha512-oFel33hlsc8aUspfq0ThQRpWsfrG772fmZ5qPHKUhmew6ieejd2viITlwXHIRBY6hE3U0kirXoTWwft3DdbK+g=="
+vite-plugin-checker@^0.4.9:
+  version "0.4.9"
+  resolved "https://registry.yarnpkg.com/vite-plugin-checker/-/vite-plugin-checker-0.4.9.tgz#ec0c6cd5c1d98a826915a729cf1de3026c8db3bb"
+  integrity sha512-Oii9mTum8bqZovWejcR739kCqST32oG6LdB/XMdwcLVzmcjq0gf1iVDIedVzJJ7t6GLQAYgjNwvB0fuMiT3tlg==
   dependencies:
     "@babel/code-frame" "^7.12.13"
     ansi-escapes "^4.3.0"
