@@ -14,6 +14,7 @@
     "@kikko-land/query-builder": "*",
     "@kikko-land/react": "*",
     "@kikko-land/sql.js": "^1.6.8",
+    "@kikko-land/wa-sqlite-web-backend": "^0.1.1",
     "lodash-es": "^4.17.21",
     "lorem-ipsum": "^2.0.8",
     "react": "^18.1.0",
