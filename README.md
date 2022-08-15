@@ -1,9 +1,10 @@
 <p align="center">
-  <h1 align="center">Kikko(Trong ORM in the past)</h1>
-</p>
+
+![Dark-mix](https://user-images.githubusercontent.com/7958527/184723648-8a0dbc82-06d0-43ee-b09d-29fb659df2a8.svg)
 
 <p align="center">
   <i>Kikko is a wrapper around SQLite interfaces. It brings transaction support, middlewares for queries, and SQLite adapters for the most popular platforms (checkout supported platforms). <br> <br> Build data heavy reactive interfaces on top of SQLite for any platform with any framework or lib.</i>
+</p>
 </p>
 
 > ### Full documentation can be found on [the site](https://kikko-doc.netlify.app/).
