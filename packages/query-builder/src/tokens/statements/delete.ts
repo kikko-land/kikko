@@ -1,4 +1,4 @@
-import { IContainsTable, sql } from "@trong-orm/sql";
+import { IContainsTable, sql } from "@kikko-land/sql";
 
 import { IBaseToken, TokenType } from "../../types";
 import { ICTEState, With, withoutWith, withRecursive } from "../cte";

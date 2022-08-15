@@ -14,20 +14,20 @@ This guide is for https://www.electronforge.io/ , but it still will be helpful i
 
 ## Installation
 
-Install trong packages :
+Install Kikko packages :
 
 <Tabs>
   <TabItem value="yarn" label="yarn" default>
 
 ```bash
-yarn add @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js @trong-orm/electron-better-sqlite3-backend
+yarn add @kikko-land/react @kikko-land/query-builder @kikko-land/sql.js @kikko-land/electron-better-sqlite3-backend
 ```
 
   </TabItem>
   <TabItem value="npm" label="npm">
 
 ```bash
-npm i -S @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js @trong-orm/electron-better-sqlite3-backend
+npm i -S @kikko-land/react @kikko-land/query-builder @kikko-land/sql.js @kikko-land/electron-better-sqlite3-backend
 ```
 
   </TabItem>
@@ -63,23 +63,20 @@ Add this to `preload.ts`:
 ```typescript
 // See https://github.com/import-js/eslint-plugin-import/issues/1810
 // eslint-disable-next-line import/no-unresolved
-import { initSqliteBridge } from "@trong-orm/electron-better-sqlite3-backend/preload";
+import { initSqliteBridge } from "@kikko-land/electron-better-sqlite3-backend/preload";
 
 initSqliteBridge();
 ```
 
-And init trong:
+And init Kikko:
 
 ```tsx
-import { electronBetterSqlite3Backend } from "@trong-orm/electron-better-sqlite3-backend";
+import { electronBetterSqlite3Backend } from "@kikko-land/electron-better-sqlite3-backend";
 
 const config: IInitDbClientConfig = {
   dbName: "helloWorld",
   dbBackend: electronBetterSqlite3Backend((dbName) => `${dbName}.db`),
-  plugins: [
-    migrationsPlugin({ migrations: [] }),
-    reactiveQueriesPlugin(),
-  ],
+  plugins: [migrationsPlugin({ migrations: [] }), reactiveQueriesPlugin()],
 };
 
 export const App = () => {
@@ -93,4 +90,4 @@ export const App = () => {
 };
 ```
 
-Usage example repo: https://github.com/trong-orm/trong-electron-better-sqlite3-example
+Usage example repo: https://github.com/kikko-land/kikko-electron-better-sqlite3-example

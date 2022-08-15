@@ -1,4 +1,4 @@
-# @trong-orm/common-scripts
+# @kikko-land/common-scripts
 
 ## 1.3.1
 

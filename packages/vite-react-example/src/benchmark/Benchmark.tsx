@@ -1,4 +1,4 @@
-import { sql } from "@trong-orm/query-builder";
+import { sql } from "@kikko-land/query-builder";
 import {
   makeId,
   runAfterTransactionCommitted,
@@ -8,7 +8,7 @@ import {
   suppressLog,
   useDbStrict,
   useRunQuery,
-} from "@trong-orm/react";
+} from "@kikko-land/react";
 import { useCallback, useState } from "react";
 import { useSearchParam } from "react-use";
 

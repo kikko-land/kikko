@@ -1,4 +1,4 @@
-import { IContainsTable, ISql, ISqlAdapter, sql } from "@trong-orm/sql";
+import { IContainsTable, ISql, ISqlAdapter, sql } from "@kikko-land/sql";
 
 import { IBaseToken, isToken } from "../types";
 import { alias } from "./alias";

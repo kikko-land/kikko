@@ -1,6 +1,6 @@
-import { SQLiteFS } from "@trong-orm/better-absurd-sql";
-import IndexedDBBackend from "@trong-orm/better-absurd-sql/dist/indexeddb-backend";
-import initSqlJs, { BindParams, Database } from "@trong-orm/sql.js";
+import { SQLiteFS } from "@kikko-land/better-absurd-sql";
+import IndexedDBBackend from "@kikko-land/better-absurd-sql/dist/indexeddb-backend";
+import initSqlJs, { BindParams, Database } from "@kikko-land/sql.js";
 
 const colors = ["yellow", "cyan", "magenta"];
 

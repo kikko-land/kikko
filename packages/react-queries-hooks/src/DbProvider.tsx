@@ -3,7 +3,7 @@ import {
   IInitDbClientConfig,
   initDbClient,
   stopDb,
-} from "@trong-orm/core";
+} from "@kikko-land/core";
 import React, { ReactElement, useContext, useEffect, useState } from "react";
 
 export type IDbInitState =

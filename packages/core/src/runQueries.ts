@@ -1,4 +1,4 @@
-import { ISqlAdapter } from "@trong-orm/sql";
+import { ISqlAdapter } from "@kikko-land/sql";
 
 import { acquireJob, IJob, releaseJob } from "./job";
 import {

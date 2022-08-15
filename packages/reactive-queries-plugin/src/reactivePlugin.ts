@@ -1,4 +1,8 @@
-import { IDbClientPlugin, IDbState, IQueriesMiddleware } from "@trong-orm/core";
+import {
+  IDbClientPlugin,
+  IDbState,
+  IQueriesMiddleware,
+} from "@kikko-land/core";
 import { firstValueFrom, switchMap } from "rxjs";
 
 import { getBroadcastCh } from "./getBroadcastCh";

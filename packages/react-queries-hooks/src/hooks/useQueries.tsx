@@ -1,7 +1,7 @@
-import { runInTransaction, withSuppressedLog } from "@trong-orm/core";
-import { IDbState } from "@trong-orm/core";
-import { listenQueries } from "@trong-orm/reactive-queries-plugin";
-import { ISqlAdapter } from "@trong-orm/sql";
+import { runInTransaction, withSuppressedLog } from "@kikko-land/core";
+import { IDbState } from "@kikko-land/core";
+import { listenQueries } from "@kikko-land/reactive-queries-plugin";
+import { ISqlAdapter } from "@kikko-land/sql";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Falsy } from "rxjs";
 

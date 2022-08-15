@@ -1,4 +1,4 @@
-import { sql } from "@trong-orm/sql";
+import { sql } from "@kikko-land/sql";
 
 import { acquireJob, releaseJob } from "./job";
 import { IDbState, ITransaction } from "./types";

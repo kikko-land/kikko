@@ -1,4 +1,4 @@
-import { IPrimitiveValue, ISqlAdapter, sql } from "@trong-orm/sql";
+import { IPrimitiveValue, ISqlAdapter, sql } from "@kikko-land/sql";
 
 import { IBaseToken, isToken, TokenType } from "../types";
 import { toToken } from "./rawSql";

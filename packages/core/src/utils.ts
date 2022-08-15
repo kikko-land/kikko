@@ -1,4 +1,4 @@
-import { ISql } from "@trong-orm/sql";
+import { ISql } from "@kikko-land/sql";
 
 import { IDbState, IQuery } from "./types";
 

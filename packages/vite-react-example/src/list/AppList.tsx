@@ -1,15 +1,15 @@
 import "../builder-examples";
 
-import { absurdWebBackend } from "@trong-orm/absurd-web-backend";
+import { absurdWebBackend } from "@kikko-land/absurd-web-backend";
 import {
   DbProvider,
   EnsureDbLoaded,
   IInitDbClientConfig,
   migrationsPlugin,
   reactiveQueriesPlugin,
-} from "@trong-orm/react";
-import absurdSqlWasmUrl from "@trong-orm/sql.js/dist/sql-wasm.wasm?url";
-import { waSqliteWebBackend } from "@trong-orm/wa-sqlite-web-backend";
+} from "@kikko-land/react";
+import absurdSqlWasmUrl from "@kikko-land/sql.js/dist/sql-wasm.wasm?url";
+import { waSqliteWebBackend } from "@kikko-land/wa-sqlite-web-backend";
 import { useMemo } from "react";
 import { useLocation } from "react-use";
 import sqlWasmUrl from "wa-sqlite/dist/wa-sqlite-async.wasm?url";

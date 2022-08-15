@@ -1,12 +1,12 @@
-import { IBaseToken } from "@trong-orm/query-builder/src/types";
-import { ISqlAdapter } from "@trong-orm/sql";
+import { IBaseToken } from "@kikko-land/query-builder/src/types";
+import { ISqlAdapter } from "@kikko-land/sql";
 import { BehaviorSubject, Observable } from "rxjs";
 import { DeepReadonly } from "ts-essentials";
 
 import { INanoEmitter } from "./createNanoEvents";
 import { IJobsState } from "./job";
 
-export interface ITrongEvents {
+export interface IKikkoEvents {
   initialized: (db: IDbState) => Promise<void> | void;
   transactionWillStart: (
     db: IDbState,
@@ -84,7 +84,7 @@ export interface ISharedDbState {
   runningState$: BehaviorSubject<"running" | "stopping" | "stopped">;
   stopStarted$: Observable<void>;
 
-  eventsEmitter: INanoEmitter<ITrongEvents>;
+  eventsEmitter: INanoEmitter<IKikkoEvents>;
 
   // Used to detect current tab id. Uniq for each tab
   clientId: string;

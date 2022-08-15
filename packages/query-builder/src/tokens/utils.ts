@@ -4,7 +4,7 @@ import {
   ISql,
   ISqlAdapter,
   sql,
-} from "@trong-orm/sql";
+} from "@kikko-land/sql";
 
 import { IBaseToken, isToken, TokenType } from "../types";
 import { isBinaryOperator } from "./binary";

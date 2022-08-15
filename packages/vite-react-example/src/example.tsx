@@ -4,7 +4,7 @@ import {
   insert,
   like$,
   select,
-} from "@trong-orm/query-builder";
+} from "@kikko-land/query-builder";
 import {
   makeId,
   runAfterTransactionCommitted,
@@ -13,7 +13,7 @@ import {
   useQuery,
   useQueryFirstRow,
   useRunQuery,
-} from "@trong-orm/react";
+} from "@kikko-land/react";
 import { useState } from "react";
 
 const notesTable = sql.table("notes");

@@ -1,4 +1,4 @@
-import { ISql } from "@trong-orm/sql";
+import { ISql } from "@kikko-land/sql";
 import { BehaviorSubject, filter, firstValueFrom } from "rxjs";
 import { DeepReadonly } from "ts-essentials";
 

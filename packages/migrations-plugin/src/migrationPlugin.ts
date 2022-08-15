@@ -3,8 +3,8 @@ import {
   IDbState,
   runInTransaction,
   runQuery,
-} from "@trong-orm/core";
-import { generateInsert, sql } from "@trong-orm/sql";
+} from "@kikko-land/core";
+import { generateInsert, sql } from "@kikko-land/sql";
 
 import { IMigration } from "./types";
 

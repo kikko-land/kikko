@@ -46,13 +46,13 @@ const runCommand = async (
 };
 
 const getPackages = async () => {
-  const exceptPackages = ["vite-react-example", "trong-doc"];
+  const exceptPackages = ["vite-react-example", "kikko-doc"];
   const packagesPath = resolve(cwd(), "..");
 
   return (await readdir(resolve(packagesPath), { withFileTypes: true }))
     .filter((w) => w.isDirectory() && !exceptPackages.includes(w.name))
     .map((w) => ({
-      name: `@trong-orm/${w.name}`,
+      name: `@kikko-land/${w.name}`,
       dir: `${packagesPath}/${w.name}`,
     }));
 };

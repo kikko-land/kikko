@@ -1,3 +1,3 @@
-const { buildConfig } = require("@trong-orm/common-scripts/vite.cjs");
+const { buildConfig } = require("@kikko-land/common-scripts/vite.cjs");
 
 module.exports = buildConfig();

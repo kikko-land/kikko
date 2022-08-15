@@ -8,30 +8,30 @@ import TabItem from "@theme/TabItem";
 
 # Ionic
 
-This backend uses [better-absurd-sql](https://github.com/trong-orm/better-absurd-sql) for web and [@awesome-cordova-plugins/sqlite](https://www.npmjs.com/package/@awesome-cordova-plugins/sqlite) for native.
+This backend uses [better-absurd-sql](https://github.com/kikko-land/better-absurd-sql) for web and [@awesome-cordova-plugins/sqlite](https://www.npmjs.com/package/@awesome-cordova-plugins/sqlite) for native.
 
 ## Installation
 
-Install trong packages:
+Install Kikko packages:
 
 <Tabs>
   <TabItem value="yarn" label="yarn" default>
 
 ```bash
-yarn add @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js @trong-orm/native-ionic-backend @trong-orm/absurd-web-backend cordova-sqlite-storage
+yarn add @kikko-land/react @kikko-land/query-builder @kikko-land/sql.js @kikko-land/native-ionic-backend @kikko-land/absurd-web-backend cordova-sqlite-storage
 ```
 
   </TabItem>
   <TabItem value="npm" label="npm">
 
 ```bash
-npm i -S @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js @trong-orm/native-ionic-backend @trong-orm/absurd-web-backend cordova-sqlite-storage
+npm i -S @kikko-land/react @kikko-land/query-builder @kikko-land/sql.js @kikko-land/native-ionic-backend @kikko-land/absurd-web-backend cordova-sqlite-storage
 ```
 
   </TabItem>
 </Tabs>
 
-Then configure trong:
+Then configure Kikko:
 
 ```typescript
 import {
@@ -40,19 +40,19 @@ import {
   IInitDbClientConfig,
   migrationsPlugin,
   reactiveQueriesPlugin,
-} from "@trong-orm/react";
+} from "@kikko-land/react";
 import { isPlatform } from "@ionic/react";
 // @ts-ignore
-import sqlWasmUrl from "@trong-orm/sql.js/dist/sql-wasm.wasm";
+import sqlWasmUrl from "@kikko-land/sql.js/dist/sql-wasm.wasm";
 
 const config: IInitDbClientConfig = {
   dbName: "test-db",
   dbBackend: (async () =>
     isPlatform("hybrid")
-      ? (await import("@trong-orm/native-ionic-backend")).ionicBackend(
+      ? (await import("@kikko-land/native-ionic-backend")).ionicBackend(
           (name) => `${name}.db`
         )
-      : (await import("@trong-orm/absurd-web-backend")).absurdWebBackend({
+      : (await import("@kikko-land/absurd-web-backend")).absurdWebBackend({
           wasmUrl: sqlWasmUrl,
         }))(),
   plugins: [migrationsPlugin({ migrations: [] }), reactiveQueriesPlugin()],
@@ -62,7 +62,7 @@ const config: IInitDbClientConfig = {
 And then wrap your with DbProvider and EnsureDbLoaded(optional):
 
 ```tsx
-import { DbProvider, EnsureDbLoaded } from "@trong-orm/react";
+import { DbProvider, EnsureDbLoaded } from "@kikko-land/react";
 
 <DbProvider config={config}>
   <EnsureDbLoaded fallback={<div>Loading db...</div>}>
@@ -83,4 +83,4 @@ module.exports = function (app) {
 };
 ```
 
-Code example: https://github.com/trong-orm/trong-ionic-example
+Code example: https://github.com/kikko-land/kikko-ionic-example

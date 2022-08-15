@@ -12,26 +12,26 @@ This backend uses [react-native-sqlite-storage](https://github.com/andpor/react-
 
 ## Installation
 
-Install trong packages and react-native-sqlite-storage:
+Install Kikko packages and react-native-sqlite-storage:
 
 <Tabs>
   <TabItem value="yarn" label="yarn" default>
 
 ```bash
-yarn add @trong-orm/react @trong-orm/query-builder @trong-orm/react-native-backend react-native-sqlite-storage
+yarn add @kikko-land/react @kikko-land/query-builder @kikko-land/react-native-backend react-native-sqlite-storage
 ```
 
   </TabItem>
   <TabItem value="npm" label="npm">
 
 ```bash
-npm i -S @trong-orm/react @trong-orm/query-builder @trong-orm/react-native-backend react-native-sqlite-storage
+npm i -S @kikko-land/react @kikko-land/query-builder @kikko-land/react-native-backend react-native-sqlite-storage
 ```
 
   </TabItem>
 </Tabs>
 
-Then configure trong:
+Then configure Kikko:
 
 ```typescript
 import {
@@ -40,11 +40,11 @@ import {
   IInitDbClientConfig,
   migrationsPlugin,
   reactiveQueriesPlugin,
-} from "@trong-orm/react";
-import { reactNativeBackend } from "@trong-orm/react-native-backend";
+} from "@kikko-land/react";
+import { reactNativeBackend } from "@kikko-land/react-native-backend";
 
 const config: IInitDbClientConfig = {
-  dbName: "trong-db",
+  dbName: "kikko-db",
   dbBackend: reactNativeBackend({ name: (dbName) => `${dbName}.db` }),
   plugins: [
     migrationsPlugin({ migrations: [createNotesTable] }),
@@ -56,7 +56,7 @@ const config: IInitDbClientConfig = {
 And then wrap your with DbProvider and EnsureDbLoaded(optional):
 
 ```tsx
-import { DbProvider, EnsureDbLoaded } from "@trong-orm/react";
+import { DbProvider, EnsureDbLoaded } from "@kikko-land/react";
 
 <DbProvider config={config}>
   <EnsureDbLoaded fallback={<Text>Loading db...</Text>}>
@@ -65,4 +65,4 @@ import { DbProvider, EnsureDbLoaded } from "@trong-orm/react";
 </DbProvider>;
 ```
 
-Code example: https://github.com/trong-orm/trong-react-native-example
+Code example: https://github.com/kikko-land/kikko-react-native-example

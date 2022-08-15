@@ -13,14 +13,14 @@
 <br/>
 <br/>
 
-|                                     | Kikko                                                                                                                                                                                                                                                                                                               |
+|                                     | Kikko                                                                                                                                                                                                                                                                                                                   |
 | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ⚡️ **Fast on big datasets**        | And even for web! It even faster then IndexedDB. You can easily store 1m+ records at table, and everything will work smoothly. The SQLite project exists for 22+ years, and team made a great job to bring an excellent performance. And you can also use the whole power of SQL DBs — like indexes, triggers or views. |
 | 🚀 **Fast startup time**            | You don't need to load the whole DB into memory, and it guarantees the fast startup time for you app.                                                                                                                                                                                                                   |
 | 📱 **Wide platforms support**       | Web, mobile(react-native, expo, cordova, ionic), desktop(electron, tauri).                                                                                                                                                                                                                                              |
 | 🧰 **Lib-agnostic**                 | Use with React or write adapter for your own lib.                                                                                                                                                                                                                                                                       |
 | 📦 **Out-of-the-box query builder** | We tried to add support of all possible SQLite queries could be. But you can still use raw SQL queries.                                                                                                                                                                                                                 |
-| 🧩 **Good modularity**              | You can use `@kikko-land/sql`/`@kikko-land/query-builder`/`@kikko-land/core` without need to require the full lib. Use the only package you need.                                                                                                                                                                          |
+| 🧩 **Good modularity**              | You can use `@kikko-land/sql`/`@kikko-land/query-builder`/`@kikko-land/core` without need to require the full lib. Use the only package you need.                                                                                                                                                                       |
 | 🛠 **Plugin system**                 | Allows you to integrate your own code on query/transaction run.                                                                                                                                                                                                                                                         |
 | 👯 **Multi-tab support for web**    | Mutate DB in one tab, and your data will be updated in other.                                                                                                                                                                                                                                                           |
 | 🥹 **Full typescript support**       | Yes!                                                                                                                                                                                                                                                                                                                    |
@@ -40,34 +40,34 @@ https://user-images.githubusercontent.com/7958527/174773307-9be37e1f-0700-45b4-8
 
 ## Supported platforms
 
-| Platform         | Uses                                                                                                                                                                | Package                                                               | Example                                                                              | Doc                                                                                              |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
-| Vite             | [@trong-orm/better-absurd-sql](https://github.com/trong-orm/better-absurd-sql)                                                                                      | `@trong-orm/absurd-web-backend`                                       | [Link](https://github.com/trong-orm/trong-orm/tree/main/packages/vite-react-example) | [Link](https://trong-orm.netlify.app/backends/web#configuration-and-usage-with-vite)             |
-| Create-react-app | [@trong-orm/better-absurd-sql](https://github.com/trong-orm/better-absurd-sql)                                                                                      | `@trong-orm/absurd-web-backend`                                       | [Link](https://github.com/trong-orm/trong-cra-example)                               | [Link](https://trong-orm.netlify.app/backends/web#configuration-and-usage-with-create-react-app) |
-| Tauri + Vite     | [tauri-plugin-sqlite](https://github.com/lzdyes/tauri-plugin-sqlite)                                                                                                | `@trong-orm/tauri-backend`                                            | [Link](https://github.com/trong-orm/trong-tauri-example)                             | [Link](https://trong-orm.netlify.app/backends/tauri)                                             |
-| Expo             | [@trong-orm/better-absurd-sql](https://github.com/trong-orm/better-absurd-sql) for web, [expo SQLite](https://docs.expo.dev/versions/latest/sdk/sqlite/) for native | `@trong-orm/absurd-web-backend`<br/>`@trong-orm/native-expo-backend`  | [Link](https://github.com/trong-orm/trong-expo-example)                              | [Link](https://trong-orm.netlify.app/backends/expo)                                              |
-| Electron         | [better-sqlite3](https://github.com/WiseLibs/better-sqlite3)                                                                                                        | `@trong-orm/electron-better-sqlite3-backend`                          | [Link](https://github.com/trong-orm/trong-electron-better-sqlite3-example)           | [Link](https://trong-orm.netlify.app/backends/electron)                                          |
-| Ionic            | [@awesome-cordova-plugins/sqlite](https://www.npmjs.com/package/@awesome-cordova-plugins/sqlite)                                                                    | `@trong-orm/absurd-web-backend`<br/>`@trong-orm/native-ionic-backend` | [Link](https://github.com/trong-orm/trong-ionic-example)                             | [Link](https://trong-orm.netlify.app/backends/ionic)                                             |
-| React Native     | [react-native-sqlite-storage](https://github.com/andpor/react-native-sqlite-storage)                                                                                | `@trong-orm/react-native-backend`                                     | [Link](https://github.com/trong-orm/trong-react-native-example)                      | [Link](https://trong-orm.netlify.app/backends/react-native/)                                     |
+| Platform         | Uses                                                                                                                                                                  | Package                                                                 | Example                                                                           | Doc                                                                                              |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Vite             | [@kikko-land/better-absurd-sql](https://github.com/kikko-land/better-absurd-sql)                                                                                      | `@kikko-land/absurd-web-backend`                                        | [Link](https://github.com/kikko-land/kikko/tree/main/packages/vite-react-example) | [Link](https://kikko-doc.netlify.app/backends/web#configuration-and-usage-with-vite)             |
+| Create-react-app | [@kikko-land/better-absurd-sql](https://github.com/kikko-land/better-absurd-sql)                                                                                      | `@kikko-land/absurd-web-backend`                                        | [Link](https://github.com/kikko-land/kikko-cra-example)                           | [Link](https://kikko-doc.netlify.app/backends/web#configuration-and-usage-with-create-react-app) |
+| Tauri + Vite     | [tauri-plugin-sqlite](https://github.com/lzdyes/tauri-plugin-sqlite)                                                                                                  | `@kikko-land/tauri-backend`                                             | [Link](https://github.com/kikko-land/kikko-tauri-example)                         | [Link](https://kikko-doc.netlify.app/backends/tauri)                                             |
+| Expo             | [@kikko-land/better-absurd-sql](https://github.com/kikko-land/better-absurd-sql) for web, [expo SQLite](https://docs.expo.dev/versions/latest/sdk/sqlite/) for native | `@kikko-land/absurd-web-backend`<br/>`@kikko-land/native-expo-backend`  | [Link](https://github.com/kikko-land/kikko-expo-example)                          | [Link](https://kikko-doc.netlify.app/backends/expo)                                              |
+| Electron         | [better-sqlite3](https://github.com/WiseLibs/better-sqlite3)                                                                                                          | `@kikko-land/electron-better-sqlite3-backend`                           | [Link](https://github.com/kikko-land/kikko-electron-better-sqlite3-example)       | [Link](https://kikko-doc.netlify.app/backends/electron)                                          |
+| Ionic            | [@awesome-cordova-plugins/sqlite](https://www.npmjs.com/package/@awesome-cordova-plugins/sqlite)                                                                      | `@kikko-land/absurd-web-backend`<br/>`@kikko-land/native-ionic-backend` | [Link](https://github.com/kikko-land/kikko-ionic-example)                         | [Link](https://kikko-doc.netlify.app/backends/ionic)                                             |
+| React Native     | [react-native-sqlite-storage](https://github.com/andpor/react-native-sqlite-storage)                                                                                  | `@kikko-land/react-native-backend`                                      | [Link](https://github.com/kikko-land/kikko-react-native-example)                  | [Link](https://kikko-doc.netlify.app/backends/react-native/)                                     |
 
 ## React quick example for vite
 
-For the other platforms installation, please, refer to [the doc](https://trong-orm.netlify.app/installation).
+For the other platforms installation, please, refer to [the doc](https://kikko-doc.netlify.app/installation).
 
-Install trong:
+Install Kikko:
 
 ```bash
-yarn add @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js @trong-orm/absurd-web-backend
+yarn add @kikko-land/react @kikko-land/query-builder @kikko-land/sql.js @kikko-land/absurd-web-backend
 
 // Or
 
-npm i -S @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js @trong-orm/absurd-web-backend
+npm i -S @kikko-land/react @kikko-land/query-builder @kikko-land/sql.js @kikko-land/absurd-web-backend
 ```
 
-Then configure trong at `App.tsx`:
+Then configure Kikko at `App.tsx`:
 
 ```ts
-import { absurdWebBackend } from "@trong-orm/absurd-web-backend";
+import { absurdWebBackend } from "@kikko-land/absurd-web-backend";
 import {
   DbProvider,
   EnsureDbLoaded,
@@ -77,8 +77,8 @@ import {
   reactiveQueriesPlugin,
   runQuery,
   sql,
-} from "@trong-orm/react";
-import sqlWasmUrl from "@trong-orm/sql.js/dist/sql-wasm.wasm?url";
+} from "@kikko-land/react";
+import sqlWasmUrl from "@kikko-land/sql.js/dist/sql-wasm.wasm?url";
 
 import { List } from "./List";
 
@@ -139,7 +139,7 @@ import {
   insert,
   like$,
   select,
-} from "@trong-orm/query-builder";
+} from "@kikko-land/query-builder";
 import {
   makeId,
   runAfterTransactionCommitted,
@@ -148,7 +148,7 @@ import {
   useQuery,
   useQueryFirstRow,
   useRunQuery,
-} from "@trong-orm/react";
+} from "@kikko-land/react";
 import { useState } from "react";
 
 const notesTable = sql.table("notes");
@@ -175,20 +175,19 @@ export const List = () => {
   );
 
   const [createNote, createNoteState] = useRunQuery(
-    (db) =>
-      async ({ title, content }: { title: string; content: string }) => {
-        const time = new Date().getTime();
-        await runQuery(
-          db,
-          insert({
-            id: makeId(),
-            title,
-            content,
-            updatedAt: time,
-            createdAt: time,
-          }).into(notesTable)
-        );
-      }
+    (db) => async ({ title, content }: { title: string; content: string }) => {
+      const time = new Date().getTime();
+      await runQuery(
+        db,
+        insert({
+          id: makeId(),
+          title,
+          content,
+          updatedAt: time,
+          createdAt: time,
+        }).into(notesTable)
+      );
+    }
   );
 
   const [deleteAll, deleteAllState] = useRunQuery((db) => async () => {
@@ -275,7 +274,7 @@ export const List = () => {
 Also checkout [example](https://codesandbox.io/s/react-trong-example-q0e9iu) at sandbox.
 
 All components that subscribed to particular tables will rendered when tables will be mutated.
-You can also check [how reactivity works](https://trong-orm.netlify.app/how-reactivity-works) in the doc.
+You can also check [how reactivity works](https://kikko-doc.netlify.app/how-reactivity-works) in the doc.
 
 ## It's better than IndexedDB
 

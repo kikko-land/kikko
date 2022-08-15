@@ -1,5 +1,5 @@
-import { IDbState, runQueries } from "@trong-orm/core";
-import { ISqlAdapter } from "@trong-orm/sql";
+import { IDbState, runQueries } from "@kikko-land/core";
+import { ISqlAdapter } from "@kikko-land/sql";
 import { filter, Observable, startWith, switchMap, takeUntil } from "rxjs";
 
 import { IMessage } from "./getBroadcastCh";

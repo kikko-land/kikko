@@ -3,7 +3,7 @@ import {
   IPrimitiveValue,
   ISqlAdapter,
   sql,
-} from "@trong-orm/sql";
+} from "@kikko-land/sql";
 
 import { IBaseToken, isToken, TokenType } from "../types";
 
