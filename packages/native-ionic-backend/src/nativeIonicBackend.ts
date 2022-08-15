@@ -1,5 +1,5 @@
 import { SQLite, SQLiteObject } from "@awesome-cordova-plugins/sqlite";
-import { IDbBackend, IQuery, IQueryResult } from "@trong-orm/core";
+import { IDbBackend, IQuery, IQueryResult } from "@kikko-land/core";
 
 export const ionicBackend = (path: (dbName: string) => string): IDbBackend => {
   return ({ dbName, stopped$ }) => {

@@ -1,4 +1,4 @@
-# @trong-orm/sql
+# @kikko-land/sql
 
 ## 1.3.1
 

@@ -1,4 +1,4 @@
-import { IDbBackend, IQuery, IQueryResult } from "@trong-orm/core";
+import { IDbBackend, IQuery, IQueryResult } from "@kikko-land/core";
 import SQLite from "tauri-plugin-sqlite-api";
 
 export const tauriBackend =

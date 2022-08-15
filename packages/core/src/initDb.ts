@@ -14,8 +14,8 @@ import { acquireJob, IJobsState, releaseJob, whenAllJobsDone } from "./job";
 import {
   IDbBackend,
   IDbState,
+  IKikkoEvents,
   IQueriesMiddleware,
-  ITrongEvents,
 } from "./types";
 import { makeId } from "./utils";
 
@@ -65,7 +65,7 @@ export const initDbClient = async ({
         take(1)
       ),
 
-      eventsEmitter: createNanoEvents<ITrongEvents>(),
+      eventsEmitter: createNanoEvents<IKikkoEvents>(),
 
       jobsState$,
       transactionsState: {},

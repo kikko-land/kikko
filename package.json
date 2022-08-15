@@ -1,13 +1,13 @@
 {
-  "name": "trong",
-  "version": "1.2.2",
+  "name": "kikko",
+  "version": "0.1.0",
   "author": "Sergey Popov",
   "license": "MIT",
   "private": true,
   "scripts": {
     "add-changeset": "yarn changeset",
     "bump-versions": "yarn changeset version",
-    "publish-packages": "yarn turbo run lint && yarn turbo run build && yarn workspace @trong-orm/common-scripts publish-packages",
+    "publish-packages": "yarn turbo run lint && yarn turbo run build && yarn workspace @kikko-land/common-scripts publish-packages",
     "build": "yarn turbo run build",
     "lint": "yarn turbo run lint",
     "check-typing": "yarn turbo run check-typing"

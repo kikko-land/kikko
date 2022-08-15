@@ -5,7 +5,7 @@ slug: /core/usage
 
 # Init, run and listen queries
 
-You can use `trong-orm` without react or any other libs integrations.
+You can use `kikko` without react or any other libs integrations.
 
 Here is CodeSandbox with examples:
 
@@ -23,13 +23,13 @@ Here is CodeSandbox with examples:
   sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
 ></iframe>
 
-## Init Trong
+## Init Kikko
 
 ```typescript
 const db = await initDbClient({
   dbName: "helloWorld4",
   dbBackend: absurdWebBackend({
-    wasmUrl: "https://trong-orm.netlify.app/wasm/sql-wasm.wasm",
+    wasmUrl: "https://kikko-doc.netlify.app/wasm/sql-wasm.wasm",
   }),
   plugins: [
     // migrationsPlugin({ migrations: [] }), // Uncomment if you need migration support

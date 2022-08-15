@@ -1,4 +1,4 @@
-import { IMigration, runQuery, sql } from "@trong-orm/react";
+import { IMigration, runQuery, sql } from "@kikko-land/react";
 
 export const createNotesTableMigration: IMigration = {
   up: async (db) => {

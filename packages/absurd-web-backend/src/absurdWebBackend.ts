@@ -1,5 +1,5 @@
-import { initBackend } from "@trong-orm/better-absurd-sql/dist/indexeddb-main-thread";
-import { IDbBackend, IQuery } from "@trong-orm/core";
+import { initBackend } from "@kikko-land/better-absurd-sql/dist/indexeddb-main-thread";
+import { IDbBackend, IQuery } from "@kikko-land/core";
 import {
   filter,
   first,

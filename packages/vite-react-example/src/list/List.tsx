@@ -4,7 +4,7 @@ import {
   like$,
   select,
   update,
-} from "@trong-orm/query-builder";
+} from "@kikko-land/query-builder";
 import {
   makeId,
   runQueries,
@@ -13,7 +13,7 @@ import {
   useCacheQuery,
   useQuery,
   useRunQuery,
-} from "@trong-orm/react";
+} from "@kikko-land/react";
 import { chunk } from "lodash-es";
 import { LoremIpsum } from "lorem-ipsum";
 import { useState } from "react";

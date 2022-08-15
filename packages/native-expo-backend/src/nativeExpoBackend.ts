@@ -1,4 +1,4 @@
-import { IDbBackend, IQuery, IQueryResult } from "@trong-orm/core";
+import { IDbBackend, IQuery, IQueryResult } from "@kikko-land/core";
 import { openDatabase, ResultSet, ResultSetError } from "expo-sqlite";
 
 export const nativeExpoBackend =

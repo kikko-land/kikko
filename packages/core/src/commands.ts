@@ -1,4 +1,4 @@
-import { IPrimitiveValue, ISql } from "@trong-orm/sql";
+import { IPrimitiveValue, ISql } from "@kikko-land/sql";
 
 import { IDbState } from "./types";
 import { makeId } from "./utils";

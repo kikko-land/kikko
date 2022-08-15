@@ -8,7 +8,7 @@ import TabItem from "@theme/TabItem";
 
 # Expo
 
-This backend uses [better-absurd-sql](https://github.com/trong-orm/better-absurd-sql) for web and [Expo SQLite](https://docs.expo.dev/versions/latest/sdk/sqlite/) for native.
+This backend uses [better-absurd-sql](https://github.com/kikko-land/better-absurd-sql) for web and [Expo SQLite](https://docs.expo.dev/versions/latest/sdk/sqlite/) for native.
 
 ## Installation
 
@@ -18,20 +18,20 @@ Install expo packages:
 expo install expo-sqlite
 ```
 
-Install trong packages:
+Install Kikko packages:
 
 <Tabs>
   <TabItem value="yarn" label="yarn" default>
 
 ```bash
-yarn add @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js @trong-orm/absurd-web-backend @trong-orm/native-expo-backend
+yarn add @kikko-land/react @kikko-land/query-builder @kikko-land/sql.js @kikko-land/absurd-web-backend @kikko-land/native-expo-backend
 ```
 
   </TabItem>
   <TabItem value="npm" label="npm">
 
 ```bash
-npm i -S @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js @trong-orm/absurd-web-backend @trong-orm/native-expo-backend
+npm i -S @kikko-land/react @kikko-land/query-builder @kikko-land/sql.js @kikko-land/absurd-web-backend @kikko-land/native-expo-backend
 ```
 
   </TabItem>
@@ -115,17 +115,17 @@ export default function App() {
 }
 ```
 
-Configure trong:
+Configure Kikko:
 
 ```typescript
 const config: IInitDbClientConfig = {
-  dbName: "trong-db",
+  dbName: "kikko-db",
   dbBackend:
     Platform.OS === "web"
-      ? require("@trong-orm/absurd-web-backend").absurdWebBackend({
-          wasmUrl: require("@trong-orm/sql.js/dist/sql-wasm.wasm").default,
+      ? require("@kikko-land/absurd-web-backend").absurdWebBackend({
+          wasmUrl: require("@kikko-land/sql.js/dist/sql-wasm.wasm").default,
         })
-      : require("@trong-orm/native-expo-backend").nativeExpoBackend(),
+      : require("@kikko-land/native-expo-backend").nativeExpoBackend(),
   plugins: [
     migrationsPlugin({ migrations: [] }),
     reactiveQueriesPlugin({ webMultiTabSupport: Platform.OS === "web" }),
@@ -133,4 +133,4 @@ const config: IInitDbClientConfig = {
 };
 ```
 
-Expo app example: https://github.com/trong-orm/trong-expo-example
+Expo app example: https://github.com/kikko-land/kikko-expo-example

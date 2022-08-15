@@ -1,4 +1,4 @@
-# @trong-orm/query-builder
+# @kikko-land/query-builder
 
 ## 1.3.1
 
@@ -7,7 +7,7 @@
 - 3c0419b: Releasing with changesets
 - Updated dependencies [3c0419b]
 - Updated dependencies
-  - @trong-orm/sql@1.3.1
+  - @kikko-land/sql@1.3.1
 
 ## 1.3.0
 
@@ -18,4 +18,4 @@
 ### Patch Changes
 
 - Updated dependencies [63fa2da]
-  - @trong-orm/sql@1.3.0
+  - @kikko-land/sql@1.3.0

@@ -1,6 +1,6 @@
 {
-  "name": "@trong-orm/sql",
-  "version": "1.3.1",
+  "name": "@kikko-land/sql",
+  "version": "0.1.0",
   "author": "Sergey Popov",
   "license": "MIT",
   "main": "./src/index.ts",
@@ -34,7 +34,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@trong-orm/common-scripts": "^1.3.1",
+    "@kikko-land/common-scripts": "^0.1.0",
     "vitest": "^0.19.1"
   }
 }

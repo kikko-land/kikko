@@ -1,4 +1,4 @@
-import { ISql, sql } from "@trong-orm/sql";
+import { ISql, sql } from "@kikko-land/sql";
 
 import { IBaseToken, TokenType } from "../types";
 import { buildRawSql } from "./rawSql";

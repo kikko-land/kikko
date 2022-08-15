@@ -8,48 +8,45 @@ import TabItem from "@theme/TabItem";
 
 # Web
 
-This backend uses [better-absurd-sql](https://github.com/trong-orm/better-absurd-sql).
+This backend uses [better-absurd-sql](https://github.com/kikko-land/better-absurd-sql).
 
 <Tabs>
   <TabItem value="yarn" label="yarn" default>
 
 ```bash
-yarn add @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js @trong-orm/absurd-web-backend
+yarn add @kikko-land/react @kikko-land/query-builder @kikko-land/sql.js @kikko-land/absurd-web-backend
 ```
 
   </TabItem>
   <TabItem value="npm" label="npm">
 
 ```bash
-npm i -S @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js @trong-orm/absurd-web-backend
+npm i -S @kikko-land/react @kikko-land/query-builder @kikko-land/sql.js @kikko-land/absurd-web-backend
 ```
 
   </TabItem>
 </Tabs>
 
-Then configure trong:
+Then configure Kikko:
 
 ```typescript
 import {
   IInitDbClientConfig,
   migrationsPlugin,
   reactiveQueriesPlugin,
-} from "@trong-orm/react";
-import { absurdWebBackend } from "@trong-orm/absurd-web-backend";
+} from "@kikko-land/react";
+import { absurdWebBackend } from "@kikko-land/absurd-web-backend";
 // For Vite:
-import sqlWasmUrl from "@trong-orm/sql.js/dist/sql-wasm.wasm?url";
+import sqlWasmUrl from "@kikko-land/sql.js/dist/sql-wasm.wasm?url";
 // For CRA:
-// import sqlWasmUrl from "@trong-orm/sql.js/dist/sql-wasm.wasm";
+// import sqlWasmUrl from "@kikko-land/sql.js/dist/sql-wasm.wasm";
 
 const config: IInitDbClientConfig = {
   dbName: "db-name",
   dbBackend: absurdWebBackend({
     wasmUrl: sqlWasmUrl,
   }),
-  plugins: [
-    migrationsPlugin({ migrations: [] }),
-    reactiveQueriesPlugin(),
-  ],
+  plugins: [migrationsPlugin({ migrations: [] }), reactiveQueriesPlugin()],
 };
 ```
 
@@ -58,7 +55,7 @@ It uses migration plugin. Is is useful when you need to run queries(like table c
 And then wrap your with `DbProvider` and `EnsureDbLoaded`(optional):
 
 ```tsx
-import { DbProvider, EnsureDbLoaded } from "@trong-orm/react";
+import { DbProvider, EnsureDbLoaded } from "@kikko-land/react";
 
 <DbProvider config={config}>
   <EnsureDbLoaded fallback={<div>Loading db...</div>}>
@@ -85,10 +82,10 @@ export default defineConfig({
 Also to import wasm use this code:
 
 ```typescript
-import sqlWasmUrl from "@trong-orm/sql.js/dist/sql-wasm.wasm?url";
+import sqlWasmUrl from "@kikko-land/sql.js/dist/sql-wasm.wasm?url";
 ```
 
-Code example: https://github.com/trong-orm/trong-orm/tree/main/packages/vite-react-example
+Code example: https://github.com/kikko-land/kikko/tree/main/packages/vite-react-example
 
 ## Configuration and usage with create-react-app
 
@@ -107,7 +104,7 @@ module.exports = function (app) {
 Also to import wasm use this code:
 
 ```typescript
-import sqlWasmUrl from "@trong-orm/sql.js/dist/sql-wasm.wasm";
+import sqlWasmUrl from "@kikko-land/sql.js/dist/sql-wasm.wasm";
 ```
 
-Code example: https://github.com/trong-orm/trong-cra-example
+Code example: https://github.com/kikko-land/kikko-cra-example

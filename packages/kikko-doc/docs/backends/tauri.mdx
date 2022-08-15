@@ -32,29 +32,29 @@ fn main() {
 }
 ```
 
-Install trong packages:
+Install Kikko packages:
 
 <Tabs>
   <TabItem value="yarn" label="yarn" default>
 
 ```bash
-yarn add @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js @trong-orm/tauri-backend
+yarn add @kikko-land/react @kikko-land/query-builder @kikko-land/sql.js @kikko-land/tauri-backend
 ```
 
   </TabItem>
   <TabItem value="npm" label="npm">
 
 ```bash
-npm i -S @trong-orm/react @trong-orm/query-builder @trong-orm/sql.js @trong-orm/tauri-backend
+npm i -S @kikko-land/react @kikko-land/query-builder @kikko-land/sql.js @kikko-land/tauri-backend
 ```
 
   </TabItem>
 </Tabs>
 
-Configure trong:
+Configure Kikko:
 
 ```tsx
-import { tauriBackend } from "@trong-orm/tauri-backend";
+import { tauriBackend } from "@kikko-land/tauri-backend";
 
 const config: IInitDbClientConfig = {
   dbName: "helloWorld",
@@ -73,4 +73,4 @@ export const App = () => {
 };
 ```
 
-Usage example repo: https://github.com/trong-orm/trong-tauri-example
+Usage example repo: https://github.com/kikko-land/kikko-tauri-example

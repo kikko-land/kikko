@@ -1,4 +1,4 @@
-import { IQuery, makeId } from "@trong-orm/core";
+import { IQuery, makeId } from "@kikko-land/core";
 
 type IBaseCommand = {
   commandId: string;

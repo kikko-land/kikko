@@ -1,6 +1,6 @@
-declare module "@trong-orm/sql.js" {
+declare module "@kikko-land/sql.js" {
   /// <reference types="emscripten" />
-  import { SQLiteFS } from "@trong-orm/better-absurd-sql";
+  import { SQLiteFS } from "@kikko-land/better-absurd-sql";
 
   export type SqlValue = number | string | Uint8Array | null;
   export type ParamsObject = Record<string, SqlValue>;
@@ -310,18 +310,18 @@ declare module "@trong-orm/sql.js" {
   export default SqlJs;
 }
 
-declare module "@trong-orm/better-absurd-sql" {
+declare module "@kikko-land/better-absurd-sql" {
   export class SQLiteFS {
     constructor(arg1: any, backend: any);
   }
 }
 
-declare module "@trong-orm/better-absurd-sql/dist/indexeddb-backend" {
+declare module "@kikko-land/better-absurd-sql/dist/indexeddb-backend" {
   class Backend {}
 
   export default Backend;
 }
 
-declare module "@trong-orm/better-absurd-sql/dist/indexeddb-main-thread" {
+declare module "@kikko-land/better-absurd-sql/dist/indexeddb-main-thread" {
   export function initBackend(w: Worker): void;
 }

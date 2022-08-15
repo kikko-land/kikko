@@ -1,4 +1,4 @@
-import { absurdWebBackend } from "@trong-orm/absurd-web-backend";
+import { absurdWebBackend } from "@kikko-land/absurd-web-backend";
 import {
   DbProvider,
   EnsureDbLoaded,
@@ -8,9 +8,9 @@ import {
   reactiveQueriesPlugin,
   runQuery,
   sql,
-} from "@trong-orm/react";
+} from "@kikko-land/react";
 // For Vite:
-import sqlWasmUrl from "@trong-orm/sql.js/dist/sql-wasm.wasm?url";
+import sqlWasmUrl from "@kikko-land/sql.js/dist/sql-wasm.wasm?url";
 
 import { List } from "./list/List";
 
