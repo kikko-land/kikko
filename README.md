@@ -1,5 +1,5 @@
 <p align="center">
-  <h1 align="center">Kikko(Trong ORM in past)</h1>
+  <h1 align="center">Kikko(Trong ORM in the past)</h1>
 </p>
 
 <p align="center">
