@@ -2044,11 +2044,6 @@
   dependencies:
     safari-14-idb-fix "^1.0.4"
 
-"@kikko-land/sql.js@^1.6.7":
-  version "1.6.7"
-  resolved "https://registry.yarnpkg.com/@kikko-land/sql.js/-/sql.js-1.6.7.tgz#7586a7513f7bf2d48173876e630f0e083cfbc2c5"
-  integrity "sha1-AaHLahFc8Mwce/aFTeTxEWq4jUw= sha512-2t+PU+bjiooa5BJrj7EUpTkglrRxdCUiTvzjap9KeeC1AgJX8corOBnobDJ5R4he4yBWkEWgBW2Cjn0KAW2WpA=="
-
 "@kikko-land/sql.js@^1.6.8":
   version "1.6.8"
   resolved "https://registry.yarnpkg.com/@kikko-land/sql.js/-/sql.js-1.6.8.tgz#e388e11b7ec5b6c534e7e1474860e31f39ba3d58"
