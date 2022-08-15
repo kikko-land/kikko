@@ -1,9 +1,9 @@
 <p align="center">
-  <h1 align="center">Trong ORM</h1>
+  <h1 align="center">Kikko(Trong ORM in past)</h1>
 </p>
 
 <p align="center">
-  <i>Build data heavy reactive interfaces on top of SQLite for any platform with any framework or lib.</i>
+  <i>Kikko is a wrapper around SQLite interfaces. It brings transaction support, middlewares for queries, and SQLite adapters for the most popular platforms (checkout supported platforms). <br> <br> Build data heavy reactive interfaces on top of SQLite for any platform with any framework or lib.</i>
 </p>
 
 > ### Full documentation can be found on [the site](https://trong-orm.netlify.app/).
@@ -13,14 +13,14 @@
 <br/>
 <br/>
 
-|                                     | Trong ORM                                                                                                                                                                                                                                                                                                               |
+|                                     | Kikko                                                                                                                                                                                                                                                                                                               |
 | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ⚡️ **Fast on big datasets**        | And even for web! It even faster then IndexedDB. You can easily store 1m+ records at table, and everything will work smoothly. The SQLite project exists for 22+ years, and team made a great job to bring an excellent performance. And you can also use the whole power of SQL DBs — like indexes, triggers or views. |
 | 🚀 **Fast startup time**            | You don't need to load the whole DB into memory, and it guarantees the fast startup time for you app.                                                                                                                                                                                                                   |
 | 📱 **Wide platforms support**       | Web, mobile(react-native, expo, cordova, ionic), desktop(electron, tauri).                                                                                                                                                                                                                                              |
 | 🧰 **Lib-agnostic**                 | Use with React or write adapter for your own lib.                                                                                                                                                                                                                                                                       |
 | 📦 **Out-of-the-box query builder** | We tried to add support of all possible SQLite queries could be. But you can still use raw SQL queries.                                                                                                                                                                                                                 |
-| 🧩 **Good modularity**              | You can use `@trong-orm/sql`/`@trong-orm/query-builder`/`@trong-orm/core` without need to require the full lib. Use the only package you need.                                                                                                                                                                          |
+| 🧩 **Good modularity**              | You can use `@kikko-land/sql`/`@kikko-land/query-builder`/`@kikko-land/core` without need to require the full lib. Use the only package you need.                                                                                                                                                                          |
 | 🛠 **Plugin system**                 | Allows you to integrate your own code on query/transaction run.                                                                                                                                                                                                                                                         |
 | 👯 **Multi-tab support for web**    | Mutate DB in one tab, and your data will be updated in other.                                                                                                                                                                                                                                                           |
 | 🥹 **Full typescript support**       | Yes!                                                                                                                                                                                                                                                                                                                    |
@@ -30,7 +30,7 @@
 
 https://user-images.githubusercontent.com/7958527/174773307-9be37e1f-0700-45b4-8d25-aa2c83df6cec.mp4
 
-[Source code](https://github.com/trong-orm/trong-orm/tree/main/packages/vite-react-example) <br/>
+[Source code](https://github.com/kikko-land/kikko/tree/main/packages/vite-react-example) <br/>
 [CodeSandbox example](https://codesandbox.io/s/react-trong-example-q0e9iu)
 
 > **CAUTION: Right now multi-tab mode doesn't work correctly and crashes sometimes due to [this bug](https://github.com/jlongster/absurd-sql/issues/30) at absurd-sql repo.
