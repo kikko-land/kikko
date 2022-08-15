@@ -1,6 +1,6 @@
 {
   "name": "@kikko-land/react-native-backend",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Sergey Popov",
   "license": "MIT",
   "main": "./src/index.ts",
@@ -32,12 +32,12 @@
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
-    "@kikko-land/core": "^0.1.0",
-    "@kikko-land/sql": "^0.1.0",
+    "@kikko-land/core": "^0.1.1",
+    "@kikko-land/sql": "^0.1.1",
     "react-native-sqlite-storage": "^6.0.1"
   },
   "devDependencies": {
-    "@kikko-land/common-scripts": "^0.1.0",
+    "@kikko-land/common-scripts": "^0.1.1",
     "@types/react-native-sqlite-storage": "^5.0.2"
   }
 }

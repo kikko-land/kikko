@@ -1,5 +1,11 @@
 # @kikko-land/sql
 
+## 0.1.1
+
+### Patch Changes
+
+- 81605a8: Trong renamed to kikko
+
 ## 1.3.1
 
 ### Patch Changes

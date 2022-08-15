@@ -1,6 +1,6 @@
 {
   "name": "@kikko-land/react-queries-hooks",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "Sergey Popov",
   "license": "MIT",
   "main": "./src/index.ts",
@@ -32,16 +32,16 @@
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
-    "@kikko-land/core": "^0.1.0",
-    "@kikko-land/reactive-queries-plugin": "^0.1.0",
-    "@kikko-land/sql": "^0.1.0",
+    "@kikko-land/core": "^0.1.1",
+    "@kikko-land/reactive-queries-plugin": "^0.1.1",
+    "@kikko-land/sql": "^0.1.1",
     "rxjs": "^7.5.5"
   },
   "peerDependencies": {
     "react": ">=16.8.0"
   },
   "devDependencies": {
-    "@kikko-land/common-scripts": "^0.1.0",
+    "@kikko-land/common-scripts": "^0.1.1",
     "@types/react": "^18.0.9"
   }
 }

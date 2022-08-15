@@ -1,5 +1,15 @@
 # @kikko-land/react-queries-hooks
 
+## 0.1.1
+
+### Patch Changes
+
+- 81605a8: Trong renamed to kikko
+- Updated dependencies [81605a8]
+  - @kikko-land/core@0.1.1
+  - @kikko-land/reactive-queries-plugin@0.1.1
+  - @kikko-land/sql@0.1.1
+
 ## 1.3.1
 
 ### Patch Changes
