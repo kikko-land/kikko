@@ -34,7 +34,7 @@
   "dependencies": {
     "@kikko-land/core": "^0.1.0",
     "@kikko-land/sql": "^0.1.0",
-    "@kikko-land/sql.js": "^1.6.7",
+    "@kikko-land/sql.js": "^1.6.8",
     "tauri-plugin-sqlite-api": "github:lzdyes/tauri-plugin-sqlite#v0.1.0"
   },
   "devDependencies": {

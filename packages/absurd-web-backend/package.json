@@ -35,7 +35,7 @@
     "@kikko-land/better-absurd-sql": "^0.0.55",
     "@kikko-land/core": "^0.1.0",
     "@kikko-land/sql": "^0.1.0",
-    "@kikko-land/sql.js": "^1.6.7",
+    "@kikko-land/sql.js": "^1.6.8",
     "rxjs": "^7.5.5"
   },
   "devDependencies": {
