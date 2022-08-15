@@ -2037,10 +2037,10 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
-"@kikko-land/better-absurd-sql@^0.0.55":
-  version "0.0.55"
-  resolved "https://registry.yarnpkg.com/@kikko-land/better-absurd-sql/-/better-absurd-sql-0.0.55.tgz#eb4f3f0f60550e019704af1f6353d928fc6f9194"
-  integrity "sha1-lHP1OZWuY8jScdeELG9sv5as3BE= sha512-aXJpaC8yLI6cVZ8rfjVHmAf51SPKNv/yJRY4GKB4QaD9JOHF77UUgdcvhFmyBAuDYHmLbUzUtLLRmDmqBakG6g=="
+"@kikko-land/better-absurd-sql@^0.0.56":
+  version "0.0.56"
+  resolved "https://registry.yarnpkg.com/@kikko-land/better-absurd-sql/-/better-absurd-sql-0.0.56.tgz#0a240cd546cd519a96e4171fb2001166fc0697ac"
+  integrity sha512-ego4YptH88+MX/AUYMEiJf22MX8po3YOUlaUs3vMvoWzjr9L6Zihwcjf8tqARE4XE/mtZoSRsviOC7TuC6Copg==
   dependencies:
     safari-14-idb-fix "^1.0.4"
 
@@ -2048,6 +2048,11 @@
   version "1.6.7"
   resolved "https://registry.yarnpkg.com/@kikko-land/sql.js/-/sql.js-1.6.7.tgz#7586a7513f7bf2d48173876e630f0e083cfbc2c5"
   integrity "sha1-AaHLahFc8Mwce/aFTeTxEWq4jUw= sha512-2t+PU+bjiooa5BJrj7EUpTkglrRxdCUiTvzjap9KeeC1AgJX8corOBnobDJ5R4he4yBWkEWgBW2Cjn0KAW2WpA=="
+
+"@kikko-land/sql.js@^1.6.8":
+  version "1.6.8"
+  resolved "https://registry.yarnpkg.com/@kikko-land/sql.js/-/sql.js-1.6.8.tgz#e388e11b7ec5b6c534e7e1474860e31f39ba3d58"
+  integrity sha512-2/8V69uMsqjjWCZlgT2lF9I9ImVzQjwd0MfWXNcswvYV6OPW4xQC2SMCfFzqAhHuLx0LW67ir9C7IIid/g/krA==
 
 "@leichtgewicht/ip-codec@^2.0.1":
   version "2.0.4"
