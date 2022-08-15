@@ -6,7 +6,7 @@
   <i>Kikko is a wrapper around SQLite interfaces. It brings transaction support, middlewares for queries, and SQLite adapters for the most popular platforms (checkout supported platforms). <br> <br> Build data heavy reactive interfaces on top of SQLite for any platform with any framework or lib.</i>
 </p>
 
-> ### Full documentation can be found on [the site](https://trong-orm.netlify.app/).
+> ### Full documentation can be found on [the site](https://kikko-doc.netlify.app/).
 >
 > ### Also you can check [example at CodeSanbox](https://codesandbox.io/s/react-trong-example-q0e9iu) (multi-tab is not supported due to CORS).
 
