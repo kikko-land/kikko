@@ -1,5 +1,5 @@
-import { runInTransaction, withSuppressedLog } from "@kikko-land/core";
-import { IDbState } from "@kikko-land/core";
+import { runInTransaction, withSuppressedLog } from "@kikko-land/kikko";
+import { IDbState } from "@kikko-land/kikko";
 import { listenQueries } from "@kikko-land/reactive-queries-plugin";
 import { ISqlAdapter } from "@kikko-land/sql";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -202,8 +202,9 @@ export function useRunQuery<
   );
 
   // Simulation of useEvent
-  const toCallRef =
-    useRef<(...args: Parameters<ReturnType<D>>) => Promise<R>>(toCall);
+  const toCallRef = useRef<(...args: Parameters<ReturnType<D>>) => Promise<R>>(
+    toCall
+  );
   useEffect(() => {
     toCallRef.current = toCall;
   }, [toCall]);

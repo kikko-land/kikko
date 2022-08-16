@@ -2044,6 +2044,16 @@
   dependencies:
     safari-14-idb-fix "^1.0.4"
 
+"@kikko-land/core@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@kikko-land/core/-/core-0.1.1.tgz#28a45f826838fb63d48a0c1351178b498ac69f52"
+  integrity sha512-H+UOmr4Sfq7zLLeFHFCKMQPzRGKJ0KNWfpLKeltqIUbO0u4NOtohZXUC5Gm94vFk+GprpZA6i9UChfDrjZ/srQ==
+  dependencies:
+    "@kikko-land/query-builder" "^0.1.1"
+    "@kikko-land/sql" "^0.1.1"
+    rxjs "^7.5.5"
+    ts-essentials "^9.1.2"
+
 "@kikko-land/sql.js@^1.6.8":
   version "1.6.8"
   resolved "https://registry.yarnpkg.com/@kikko-land/sql.js/-/sql.js-1.6.8.tgz#e388e11b7ec5b6c534e7e1474860e31f39ba3d58"

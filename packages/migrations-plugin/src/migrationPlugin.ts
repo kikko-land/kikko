@@ -3,7 +3,7 @@ import {
   IDbState,
   runInTransaction,
   runQuery,
-} from "@kikko-land/core";
+} from "@kikko-land/kikko";
 import { generateInsert, sql } from "@kikko-land/sql";
 
 import { IMigration } from "./types";
@@ -51,12 +51,14 @@ const runMigrations = (state: IDbState, migrations: IMigration[]) => {
   });
 };
 
-export const migrationsPlugin =
-  ({ migrations }: { migrations: IMigration[] }): IDbClientPlugin =>
-  (state: IDbState) => {
-    state.sharedState.eventsEmitter.on("initialized", async () => {
-      await runMigrations(state, migrations);
-    });
+export const migrationsPlugin = ({
+  migrations,
+}: {
+  migrations: IMigration[];
+}): IDbClientPlugin => (state: IDbState) => {
+  state.sharedState.eventsEmitter.on("initialized", async () => {
+    await runMigrations(state, migrations);
+  });
 
-    return state;
-  };
+  return state;
+};

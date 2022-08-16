@@ -33,7 +33,7 @@
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
-    "@kikko-land/core": "^0.1.1",
+    "@kikko-land/kikko": "^0.1.1",
     "@kikko-land/migrations-plugin": "^0.1.1",
     "@kikko-land/react-queries-hooks": "^0.1.1",
     "@kikko-land/reactive-queries-plugin": "^0.1.1",

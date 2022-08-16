@@ -1,4 +1,4 @@
-import { IDbState } from "@kikko-land/core";
+import { IDbState } from "@kikko-land/kikko";
 
 export const getReactiveState = (state: IDbState) => {
   const reactiveState = state.sharedState.reactiveQueriesState;

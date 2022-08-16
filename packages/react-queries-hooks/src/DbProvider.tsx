@@ -3,7 +3,7 @@ import {
   IInitDbClientConfig,
   initDbClient,
   stopDb,
-} from "@kikko-land/core";
+} from "@kikko-land/kikko";
 import React, { ReactElement, useContext, useEffect, useState } from "react";
 
 export type IDbInitState =

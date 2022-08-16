@@ -1,4 +1,4 @@
-import { IDbState } from "@kikko-land/core";
+import { IDbState } from "@kikko-land/kikko";
 
 export type IMigration = {
   up: (state: IDbState) => Promise<void>;

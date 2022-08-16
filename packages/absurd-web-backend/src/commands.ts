@@ -1,4 +1,4 @@
-import { IQuery, makeId } from "@kikko-land/core";
+import { IQuery, makeId } from "@kikko-land/kikko";
 
 type IBaseCommand = {
   commandId: string;
