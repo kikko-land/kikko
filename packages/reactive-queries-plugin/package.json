@@ -1,6 +1,6 @@
 {
   "name": "@kikko-land/reactive-queries-plugin",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "author": "Sergey Popov",
   "license": "MIT",
   "main": "./src/index.ts",
@@ -32,7 +32,7 @@
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
-    "@kikko-land/kikko": "^0.1.1",
+    "@kikko-land/kikko": "^0.2.0",
     "@kikko-land/sql": "^0.1.1",
     "@kikko-land/query-builder": "^0.1.1",
     "broadcast-channel": "^4.13.0",

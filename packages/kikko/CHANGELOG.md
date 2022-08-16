@@ -1,5 +1,11 @@
 # @kikko-land/core
 
+## 0.2.0
+
+### Minor Changes
+
+- 174767c: Rename kikko to core
+
 ## 0.1.1
 
 ### Patch Changes

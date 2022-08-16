@@ -1,5 +1,16 @@
 # @kikko-land/native-expo-backend
 
+## 0.2.0
+
+### Minor Changes
+
+- 174767c: Rename kikko to core
+
+### Patch Changes
+
+- Updated dependencies [174767c]
+  - @kikko-land/kikko@0.2.0
+
 ## 0.1.1
 
 ### Patch Changes
