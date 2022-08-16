@@ -48,7 +48,7 @@ const config: IInitDbClientConfig = {
   dbBackend: reactNativeBackend({ name: (dbName) => `${dbName}.db` }),
   plugins: [
     migrationsPlugin({ migrations: [createNotesTable] }),
-    reactiveQueriesPlugin(),
+    reactiveQueriesPlugin({ webMultiTabSupport: false }),
   ],
 };
 ```
