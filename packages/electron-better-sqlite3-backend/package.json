@@ -52,7 +52,7 @@
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
-    "@kikko-land/core": "^0.1.1",
+    "@kikko-land/kikko": "^0.1.1",
     "@kikko-land/sql": "^0.1.1",
     "@kikko-land/sql.js": "^1.6.8",
     "better-sqlite3": ">=7.5.0"

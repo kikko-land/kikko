@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@kikko-land/better-absurd-sql": "^0.0.56",
-    "@kikko-land/core": "^0.1.1",
+    "@kikko-land/kikko": "^0.1.1",
     "@kikko-land/sql": "^0.1.1",
     "@kikko-land/sql.js": "^1.6.8",
     "rxjs": "^7.5.5"

@@ -1,4 +1,4 @@
-import { IDbState, runQueries } from "@kikko-land/core";
+import { IDbState, runQueries } from "@kikko-land/kikko";
 import { ISqlAdapter } from "@kikko-land/sql";
 import { filter, Observable, startWith, switchMap, takeUntil } from "rxjs";
 

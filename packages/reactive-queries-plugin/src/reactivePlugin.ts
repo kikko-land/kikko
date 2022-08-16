@@ -2,7 +2,7 @@ import {
   IDbClientPlugin,
   IDbState,
   IQueriesMiddleware,
-} from "@kikko-land/core";
+} from "@kikko-land/kikko";
 import { firstValueFrom, switchMap } from "rxjs";
 
 import { getBroadcastCh } from "./getBroadcastCh";
