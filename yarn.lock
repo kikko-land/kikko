@@ -2044,27 +2044,17 @@
   dependencies:
     safari-14-idb-fix "^1.0.4"
 
-"@kikko-land/core@^0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@kikko-land/core/-/core-0.1.1.tgz#28a45f826838fb63d48a0c1351178b498ac69f52"
-  integrity sha512-H+UOmr4Sfq7zLLeFHFCKMQPzRGKJ0KNWfpLKeltqIUbO0u4NOtohZXUC5Gm94vFk+GprpZA6i9UChfDrjZ/srQ==
-  dependencies:
-    "@kikko-land/query-builder" "^0.1.1"
-    "@kikko-land/sql" "^0.1.1"
-    rxjs "^7.5.5"
-    ts-essentials "^9.1.2"
-
 "@kikko-land/sql.js@^1.6.8":
   version "1.6.8"
   resolved "https://registry.yarnpkg.com/@kikko-land/sql.js/-/sql.js-1.6.8.tgz#e388e11b7ec5b6c534e7e1474860e31f39ba3d58"
   integrity sha512-2/8V69uMsqjjWCZlgT2lF9I9ImVzQjwd0MfWXNcswvYV6OPW4xQC2SMCfFzqAhHuLx0LW67ir9C7IIid/g/krA==
 
-"@kikko-land/wa-sqlite-web-backend@^0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@kikko-land/wa-sqlite-web-backend/-/wa-sqlite-web-backend-0.1.1.tgz#819935c0f4f049da84597fa2f76e7ab6cc3c3799"
-  integrity sha512-YHYBkffQcNyuDGO7CrO7F34sBsF0SIMm/Qd8/M2z846skRSMflDDyHiO+MYciyrT4mdiOnCZzgBdoKIwanWFwA==
+"@kikko-land/wa-sqlite-web-backend@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@kikko-land/wa-sqlite-web-backend/-/wa-sqlite-web-backend-0.2.0.tgz#108b195d6d323ad81d0b54b0abfd8a92a5a307e2"
+  integrity sha512-gfy+IAkeegFRxHMcdaiw6lBO+FPexpOJM3DQ1tTxKqte99UvJBoP4av97O3G5/f+yr6SMVljLBMsilbUKewZdw==
   dependencies:
-    "@kikko-land/core" "^0.1.1"
+    "@kikko-land/kikko" "^0.2.1"
     "@kikko-land/sql" "^0.1.1"
     "@kikko-land/sql.js" "^1.6.8"
     patch-package "^6.4.7"
