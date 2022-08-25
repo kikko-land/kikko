@@ -3,7 +3,7 @@
 ![Dark-mix](https://user-images.githubusercontent.com/7958527/184724299-1ca49493-c35d-4ad7-82e7-c4375e07086f.svg)
 
 <p align="center">
-  <i>Kikko is a wrapper around SQLite interfaces. It brings transaction support, middlewares for queries, and SQLite adapters for the most popular platforms (checkout supported platforms). <br> <br> Build data heavy reactive interfaces on top of SQLite for any platform with any framework or lib.</i>
+  <i>Kikko is a wrapper around SQLite interfaces. It brings transaction support, middlewares for queries, and SQLite adapters for the most popular platforms. <br> <br> Build data heavy reactive interfaces on top of SQLite for any platform with any framework or lib.</i>
 </p>
 </p>
 
