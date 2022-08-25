@@ -277,7 +277,7 @@ Also checkout [example](https://codesandbox.io/s/react-trong-example-q0e9iu) at 
 All components that subscribed to particular tables will rendered when tables will be mutated.
 You can also check [how reactivity works](https://kikko-doc.netlify.app/how-reactivity-works) in the doc.
 
-## It's better than IndexedDB
+## WASM SQLite is better than IndexedDB
 
 Read performance: doing something like `SELECT SUM(value) FROM kv`:
 
