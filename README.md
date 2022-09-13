@@ -9,7 +9,7 @@
 
 > ### Full documentation can be found on [the site](https://kikko-doc.netlify.app/).
 >
-> ### Also you can check [example at CodeSanbox](https://codesandbox.io/s/react-trong-example-q0e9iu) (multi-tab is not supported due to CORS).
+> ### Also you can check [React example at CodeSanbox](https://codesandbox.io/s/react-trong-example-q0e9iu) (multi-tab is not supported due to CORS).
 
 <br/>
 <br/>
