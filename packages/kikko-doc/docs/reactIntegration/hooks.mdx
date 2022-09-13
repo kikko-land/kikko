@@ -7,66 +7,6 @@ slug: /react-integration/hooks
 
 ## useQuery / useQueryFirstRow
 
-Type declarations:
-
-```tsx
-declare type IQueryHookResult<D> =
-  | {
-      type: "loading";
-      data: D[];
-    }
-  | {
-      type: "waitingDb";
-      data: D[];
-    }
-  | {
-      type: "loaded";
-      data: D[];
-    }
-  | {
-      type: "noSqlPresent";
-      data: D[];
-    };
-
-declare function useQuery<D extends Record<string, unknown>>(
-  query: ISqlAdapter | Falsy,
-  _opts?:
-    | {
-        suppressLog?: boolean;
-        mapToObject?: boolean;
-      }
-    | undefined
-): IQueryHookResult<D>;
-
-declare type ISingleQueryHookResult<D> =
-  | {
-      type: "loading";
-      data?: D;
-    }
-  | {
-      type: "waitingDb";
-      data?: D;
-    }
-  | {
-      type: "loaded";
-      data: D;
-    }
-  | {
-      type: "noSqlPresent";
-      data?: D;
-    };
-
-declare function useQueryFirstRow<D extends Record<string, unknown>>(
-  query: ISqlAdapter | Falsy,
-  _opts?:
-    | {
-        suppressLog?: boolean;
-        mapToObject?: boolean;
-      }
-    | undefined
-): ISingleQueryHookResult<D>;
-```
-
 Usage example:
 
 ```tsx
@@ -125,38 +65,6 @@ const Note = ({ id }: { id: string }) => {
 About how to build complex queries please refer to [query builder doc](/building-sql/query-builder).
 
 ## useRunQuery
-
-Type declarations:
-
-```typescript
-export type IRunQueryHookResult<D> =
-  | {
-      type: "running";
-      data?: D;
-    }
-  | {
-      type: "waitingDb";
-      data?: D;
-    }
-  | { type: "done"; data: D }
-  | { type: "idle"; data?: D };
-
-export declare function useRunQuery<
-  D extends (db: IDbState) => (...args: any[]) => Promise<R>,
-  R
->(
-  cb: D,
-  _opts?:
-    | {
-        suppressLog?: boolean;
-        inTransaction?: boolean;
-      }
-    | undefined
-): readonly [
-  (...args: Parameters<ReturnType<D>>) => Promise<R>,
-  IRunQueryHookResult<R>
-];
-```
 
 Usage example:
 
