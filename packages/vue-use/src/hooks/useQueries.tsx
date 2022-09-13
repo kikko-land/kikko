@@ -9,14 +9,14 @@ import {
 import { listenQueries } from "@kikko-land/reactive-queries-plugin";
 import { ISqlAdapter } from "@kikko-land/sql";
 import {
-  watchEffect,
+  computed,
+  ComputedRef,
   getCurrentScope,
   onScopeDispose,
   Ref,
-  computed,
-  ComputedRef,
-  shallowRef,
   ref,
+  shallowRef,
+  watchEffect,
 } from "vue";
 
 export type ISingleQueryHookResult<D> =
@@ -52,7 +52,7 @@ export const useInitDb = (
     const db = await initDbClient(config);
 
     if (isStopped) {
-      stopDb(db);
+      void stopDb(db);
 
       return;
     }
@@ -63,7 +63,7 @@ export const useInitDb = (
     };
 
     cleanup = () => {
-      stopDb(db);
+      void stopDb(db);
 
       cleanup = () => {};
     };
@@ -233,10 +233,6 @@ export function useRunQuery<
     ) {
       runState.value = "waitingDb";
     }
-  });
-
-  watchEffect((onCleanup) => {
-    const dbState = dbStateRef.value;
   });
 
   const cbRef = shallowRef(cb) as Ref<typeof cb>;
