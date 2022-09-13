@@ -29,3 +29,26 @@ npm i -S @kikko-land/react @kikko-land/query-builder
 </Tabs>
 
 You also need to install and configure SQLite backend you need. Please, checkout [backend section](/backends/web) in the doc for more info.
+
+After wrap the whole app with this components(usage example for vite web):
+
+```ts
+import { absurdWebBackend } from "@kikko-land/absurd-web-backend";
+import { DbProvider, EnsureDbLoaded } from "@kikko-land/react";
+import sqlWasmUrl from "@kikko-land/sql.js/dist/sql-wasm.wasm?url";
+
+const config: IInitDbClientConfig = {
+  dbName: "db-name",
+  dbBackend: absurdWebBackend({
+    wasmUrl: sqlWasmUrl,
+  }),
+  plugins: [migrationsPlugin({ migrations: [] }), reactiveQueriesPlugin()],
+};
+
+export const App = () =>
+  <DbProvider config={config}>
+    <EnsureDbLoaded fallback={<Text>Loading db...</Text>}>
+      <YourApp />
+    </EnsureDbLoaded>
+  </DbProvider>;
+```
