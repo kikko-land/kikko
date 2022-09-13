@@ -6,8 +6,8 @@ import {
   stopDb,
   withSuppressedLog,
 } from "@kikko-land/kikko";
-import { ISqlAdapter } from "@kikko-land/query-builder";
 import { listenQueries } from "@kikko-land/reactive-queries-plugin";
+import { ISqlAdapter } from "@kikko-land/sql";
 import {
   watchEffect,
   getCurrentScope,
