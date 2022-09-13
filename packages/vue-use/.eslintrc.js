@@ -1,6 +1,6 @@
-const rootDir = process.cwd().includes("packages/react")
+const rootDir = process.cwd().includes("packages/vue-use")
   ? "./"
-  : "./packages/react";
+  : "./packages/vue-use";
 
 module.exports = {
   extends: ["../common-scripts/eslintrc.cjs"],
