@@ -14,14 +14,14 @@ This backend uses [better-absurd-sql](https://github.com/kikko-land/better-absur
   <TabItem value="yarn" label="yarn" default>
 
 ```bash
-yarn add @kikko-land/react @kikko-land/query-builder @kikko-land/sql.js @kikko-land/absurd-web-backend
+yarn add @kikko-land/query-builder @kikko-land/sql.js @kikko-land/absurd-web-backend
 ```
 
   </TabItem>
   <TabItem value="npm" label="npm">
 
 ```bash
-npm i -S @kikko-land/react @kikko-land/query-builder @kikko-land/sql.js @kikko-land/absurd-web-backend
+npm i -S @kikko-land/query-builder @kikko-land/sql.js @kikko-land/absurd-web-backend
 ```
 
   </TabItem>
@@ -30,11 +30,6 @@ npm i -S @kikko-land/react @kikko-land/query-builder @kikko-land/sql.js @kikko-l
 Then configure Kikko:
 
 ```typescript
-import {
-  IInitDbClientConfig,
-  migrationsPlugin,
-  reactiveQueriesPlugin,
-} from "@kikko-land/react";
 import { absurdWebBackend } from "@kikko-land/absurd-web-backend";
 // For Vite:
 import sqlWasmUrl from "@kikko-land/sql.js/dist/sql-wasm.wasm?url";
@@ -73,7 +68,9 @@ Also to import wasm use this code:
 import sqlWasmUrl from "@kikko-land/sql.js/dist/sql-wasm.wasm?url";
 ```
 
-Code example: https://github.com/kikko-land/kikko/tree/main/packages/vite-react-example
+Code example for react + vite: https://github.com/kikko-land/kikko/tree/main/packages/vite-react-example
+
+Code example for vue + tauri + vite: [https://github.com/kikko-land/kikko/tree/main/packages/vite-react-example](https://github.com/kikko-land/kikko-tauri-vue)
 
 ## Configuration and usage with create-react-app
 
