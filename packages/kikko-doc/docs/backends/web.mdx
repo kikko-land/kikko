@@ -52,18 +52,6 @@ const config: IInitDbClientConfig = {
 
 It uses migration plugin. Is is useful when you need to run queries(like table creation) on app start and only once.
 
-And then wrap your with `DbProvider` and `EnsureDbLoaded`(optional):
-
-```tsx
-import { DbProvider, EnsureDbLoaded } from "@kikko-land/react";
-
-<DbProvider config={config}>
-  <EnsureDbLoaded fallback={<div>Loading db...</div>}>
-    <App />
-  </EnsureDbLoaded>
-</DbProvider>;
-```
-
 ## Configuration and usage with Vite
 
 For vite add this to vite config:
