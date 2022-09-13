@@ -61,16 +61,6 @@ const config: IInitDbClientConfig = {
   dbBackend: tauriBackend((dbName) => `${dbName}.db`),
   plugins: [migrationsPlugin({ migrations: [] }), reactiveQueriesPlugin()],
 };
-
-export const App = () => {
-  return (
-    <DbProvider config={config}>
-      <EnsureDbLoaded fallback={<div>Loading db...</div>}>
-        <List />
-      </EnsureDbLoaded>
-    </DbProvider>
-  );
-};
 ```
 
 Usage example repo: https://github.com/kikko-land/kikko-tauri-example
