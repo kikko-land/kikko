@@ -18,14 +18,14 @@ Install Kikko packages:
   <TabItem value="yarn" label="yarn" default>
 
 ```bash
-yarn add @kikko-land/react @kikko-land/query-builder @kikko-land/sql.js @kikko-land/native-ionic-backend @kikko-land/absurd-web-backend cordova-sqlite-storage
+yarn add @kikko-land/query-builder @kikko-land/sql.js @kikko-land/native-ionic-backend @kikko-land/absurd-web-backend cordova-sqlite-storage
 ```
 
   </TabItem>
   <TabItem value="npm" label="npm">
 
 ```bash
-npm i -S @kikko-land/react @kikko-land/query-builder @kikko-land/sql.js @kikko-land/native-ionic-backend @kikko-land/absurd-web-backend cordova-sqlite-storage
+npm i -S @kikko-land/query-builder @kikko-land/sql.js @kikko-land/native-ionic-backend @kikko-land/absurd-web-backend cordova-sqlite-storage
 ```
 
   </TabItem>
@@ -34,13 +34,6 @@ npm i -S @kikko-land/react @kikko-land/query-builder @kikko-land/sql.js @kikko-l
 Then configure Kikko:
 
 ```typescript
-import {
-  DbProvider,
-  EnsureDbLoaded,
-  IInitDbClientConfig,
-  migrationsPlugin,
-  reactiveQueriesPlugin,
-} from "@kikko-land/react";
 import { isPlatform } from "@ionic/react";
 // @ts-ignore
 import sqlWasmUrl from "@kikko-land/sql.js/dist/sql-wasm.wasm";
@@ -59,18 +52,6 @@ const config: IInitDbClientConfig = {
 };
 ```
 
-And then wrap your with DbProvider and EnsureDbLoaded(optional):
-
-```tsx
-import { DbProvider, EnsureDbLoaded } from "@kikko-land/react";
-
-<DbProvider config={config}>
-  <EnsureDbLoaded fallback={<div>Loading db...</div>}>
-    <App />
-  </EnsureDbLoaded>
-</DbProvider>;
-```
-
 If you using `create-react-app` create `src/setupProxy.js`:
 
 ```javascript
@@ -83,4 +64,4 @@ module.exports = function (app) {
 };
 ```
 
-Code example: https://github.com/kikko-land/kikko-ionic-example
+Code example with react + ionic: https://github.com/kikko-land/kikko-ionic-example
