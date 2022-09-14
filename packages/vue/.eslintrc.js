@@ -1,6 +1,6 @@
-const rootDir = process.cwd().includes("packages/vue-use")
+const rootDir = process.cwd().includes("packages/vue")
   ? "./"
-  : "./packages/vue-use";
+  : "./packages/vue";
 
 module.exports = {
   extends: ["../common-scripts/eslintrc.cjs"],
