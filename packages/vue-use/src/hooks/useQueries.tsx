@@ -82,7 +82,7 @@ export const useInitDb = (
   return stop;
 };
 
-export type IQueryResult<D> =
+export type IUseQueryResult<D> =
   | {
       type: "loading";
       data: D[];
@@ -98,10 +98,10 @@ export const useQueries = <D extends Record<string, unknown>>(
   dbStateRef: Ref<IDbInitState>,
   queries: ISqlAdapter[] | Falsy,
   _opts?: { suppressLog?: boolean; mapToObject?: boolean } | undefined
-): ComputedRef<IQueryResult<D[]>> => {
+): ComputedRef<IUseQueryResult<D[]>> => {
   const queriesRef = shallowRef(queries);
   const dataRef = shallowRef<D[][]>([]) as Ref<D[][]>;
-  const resultTypeRef = shallowRef<IQueryResult<D>["type"]>("waitingDb");
+  const resultTypeRef = shallowRef<IUseQueryResult<D>["type"]>("waitingDb");
 
   watchEffect((onCleanup) => {
     const dbState = dbStateRef.value;
@@ -161,7 +161,7 @@ export const useQuery = <D extends Record<string, unknown>>(
   dbStateRef: Ref<IDbInitState>,
   query: ISqlAdapter | Falsy,
   _opts?: { suppressLog?: boolean; mapToObject?: boolean } | undefined
-): ComputedRef<IQueryResult<D>> => {
+): ComputedRef<IUseQueryResult<D>> => {
   const result = useQueries<D>(dbStateRef, query ? [query] : [], _opts);
 
   return computed(() => ({
