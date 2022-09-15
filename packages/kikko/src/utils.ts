@@ -4,7 +4,7 @@ import { IDbState, IQuery } from "./types";
 
 export const assureDbIsRunning = (state: IDbState, toStart: () => string) => {
   const {
-    sharedState: { runningState$, dbName },
+    sharedState: { runningState: runningState$, dbName },
   } = state;
 
   if (runningState$.value !== "running") {

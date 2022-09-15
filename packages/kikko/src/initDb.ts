@@ -1,14 +1,3 @@
-import {
-  BehaviorSubject,
-  filter,
-  firstValueFrom,
-  map,
-  of,
-  pipe,
-  switchMap,
-  take,
-} from "rxjs";
-
 import { createNanoEvents } from "./createNanoEvents";
 import { acquireJob, IJobsState, releaseJob, whenAllJobsDone } from "./job";
 import { reactiveVar } from "./reactiveVar";
@@ -35,17 +24,11 @@ export const initDbClient = async ({
   queriesMiddlewares,
   dbBackend,
 }: IInitDbClientConfig): Promise<IDbState> => {
-  const runningState$ = new BehaviorSubject<"running" | "stopping" | "stopped">(
+  const runningState = reactiveVar<"running" | "stopping" | "stopped">(
     "running"
   );
-
   const dbBackendCalled = (await dbBackend)({
     dbName,
-    stopped$: runningState$.pipe(
-      filter((e) => e === "stopped"),
-      map(() => undefined as void),
-      take(1)
-    ),
   });
 
   const jobsState = reactiveVar({
@@ -59,12 +42,7 @@ export const initDbClient = async ({
       dbBackend: dbBackendCalled,
       dbName,
 
-      runningState$,
-      stopStarted$: runningState$.pipe(
-        filter((e) => e === "stopping"),
-        map(() => undefined as void),
-        take(1)
-      ),
+      runningState: runningState,
 
       eventsEmitter: createNanoEvents<IKikkoEvents>(),
 
@@ -82,44 +60,34 @@ export const initDbClient = async ({
     name: dbName,
   });
 
-  const initializerPipe = pipe(
-    switchMap(async () => {
-      await dbBackendCalled.initialize();
-    }),
-    map(() => {
-      let currentState = state;
+  const getRunningState = () => state.sharedState.runningState.value;
 
-      for (const plugin of plugins || []) {
-        currentState = plugin(state);
-      }
+  try {
+    if (getRunningState() === "running") return state;
 
-      return currentState;
-    }),
-    switchMap(async (currentState) => {
-      releaseJob(jobsState, job);
+    await dbBackendCalled.initialize();
 
-      await state.sharedState.eventsEmitter.emit("initialized", state);
-      return currentState;
-    })
-  );
+    if (getRunningState() === "running") return state;
 
-  return firstValueFrom(
-    state.sharedState.runningState$.pipe(
-      switchMap((runningState) =>
-        runningState === "running"
-          ? of(undefined).pipe(initializerPipe)
-          : of(state)
-      )
-    )
-  );
+    let currentState = state;
+
+    for (const plugin of plugins || []) {
+      currentState = plugin(state);
+    }
+
+    await state.sharedState.eventsEmitter.emit("initialized", state);
+
+    return currentState;
+  } finally {
+    releaseJob(jobsState, job);
+  }
 };
 
 export const stopDb = async (state: IDbState) => {
-  state.sharedState.runningState$.next("stopping");
+  state.sharedState.runningState.value = "stopping";
 
   await whenAllJobsDone(state.sharedState.jobsState);
+  await state.sharedState.dbBackend.stop();
 
-  console.log("stopped db");
-
-  state.sharedState.runningState$.next("stopped");
+  state.sharedState.runningState.value = "stopped";
 };

@@ -34,7 +34,6 @@
   "dependencies": {
     "@kikko-land/query-builder": "^0.1.1",
     "@kikko-land/sql": "^0.1.1",
-    "rxjs": "^7.5.5",
     "ts-essentials": "^9.1.2"
   },
   "devDependencies": {
