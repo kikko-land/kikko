@@ -1,7 +1,7 @@
 import { ISql } from "@kikko-land/sql";
-import { BehaviorSubject, filter, firstValueFrom } from "rxjs";
 import { DeepReadonly } from "ts-essentials";
 
+import { ReactiveVar } from "./reactiveVar";
 import { ITransaction } from "./types";
 import { makeId } from "./utils";
 
@@ -22,50 +22,53 @@ export type IJobsState = DeepReadonly<{
 
 // Actually it works like locking mechanism
 export const acquireJob = async (
-  jobsState$: BehaviorSubject<IJobsState>,
+  jobsState: ReactiveVar<IJobsState>,
   _job: DistributiveOmit<IJob, "id">
 ): Promise<IJob> => {
   const id = makeId();
   const job = { ..._job, id };
 
-  const { current, queue } = jobsState$.value;
+  const { current, queue } = jobsState.value;
 
   if (current || queue.length > 0) {
-    const promise = firstValueFrom(
-      jobsState$.pipe(filter(({ current }) => current?.id === id))
-    );
+    const promise = jobsState.waitTill((newVal) => newVal.current?.id === id);
 
-    jobsState$.next({ queue: [...queue, job], current });
+    jobsState.value = {
+      queue: [...queue, job],
+      current,
+    };
 
     await promise;
   } else {
-    jobsState$.next({ queue: [], current: job });
+    jobsState.value = {
+      queue: [],
+      current: job,
+    };
   }
 
   return job;
 };
 
-export const releaseJob = (
-  jobsState$: BehaviorSubject<IJobsState>,
-  job: IJob
-) => {
-  const { current, queue } = jobsState$.value;
+export const releaseJob = (jobsState: ReactiveVar<IJobsState>, job: IJob) => {
+  const { current, queue } = jobsState.value;
 
   if (current?.id !== job.id) {
     throw new Error(
       `Can't release job that is not currently running, current: ${JSON.stringify(
-        current
-      )}, queue: ${JSON.stringify(queue)}, toRelease: ${JSON.stringify(job)}`
+        current,
+        null,
+        2
+      )}, queue: ${JSON.stringify(queue, null, 2)}, toRelease: ${JSON.stringify(
+        job,
+        null,
+        2
+      )}`
     );
   }
 
-  jobsState$.next({ queue: queue.slice(1), current: queue[0] });
+  jobsState.value = { queue: queue.slice(1), current: queue[0] };
 };
 
-export const whenAllJobsDone = async (
-  jobsState$: BehaviorSubject<IJobsState>
-) => {
-  return firstValueFrom(
-    jobsState$.pipe(filter(({ queue }) => queue.length === 0))
-  );
+export const whenAllJobsDone = async (jobsState: ReactiveVar<IJobsState>) => {
+  return jobsState.waitTill(({ queue }) => queue.length === 0);
 };

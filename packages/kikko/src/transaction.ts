@@ -48,7 +48,7 @@ const runInTransactionFunc = async <T>(
     },
   };
 
-  const job = await acquireJob(state.sharedState.jobsState$, {
+  const job = await acquireJob(state.sharedState.jobsState, {
     type: "runTransaction",
     transaction,
   });
@@ -94,7 +94,7 @@ const runInTransactionFunc = async <T>(
       throw e;
     }
   } finally {
-    releaseJob(state.sharedState.jobsState$, job);
+    releaseJob(state.sharedState.jobsState, job);
   }
 };
 

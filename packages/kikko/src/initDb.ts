@@ -11,6 +11,7 @@ import {
 
 import { createNanoEvents } from "./createNanoEvents";
 import { acquireJob, IJobsState, releaseJob, whenAllJobsDone } from "./job";
+import { reactiveVar } from "./reactiveVar";
 import {
   IDbBackend,
   IDbState,
@@ -47,10 +48,10 @@ export const initDbClient = async ({
     ),
   });
 
-  const jobsState$ = new BehaviorSubject<IJobsState>({
+  const jobsState = reactiveVar({
     queue: [],
     current: undefined,
-  });
+  } as IJobsState);
 
   const state: IDbState = {
     sharedState: {
@@ -67,7 +68,7 @@ export const initDbClient = async ({
 
       eventsEmitter: createNanoEvents<IKikkoEvents>(),
 
-      jobsState$,
+      jobsState: jobsState,
       transactionsState: {},
     },
     localState: {
@@ -76,7 +77,7 @@ export const initDbClient = async ({
     },
   };
 
-  const job = await acquireJob(state.sharedState.jobsState$, {
+  const job = await acquireJob(state.sharedState.jobsState, {
     type: "initDb",
     name: dbName,
   });
@@ -95,7 +96,7 @@ export const initDbClient = async ({
       return currentState;
     }),
     switchMap(async (currentState) => {
-      releaseJob(jobsState$, job);
+      releaseJob(jobsState, job);
 
       await state.sharedState.eventsEmitter.emit("initialized", state);
       return currentState;
@@ -116,7 +117,7 @@ export const initDbClient = async ({
 export const stopDb = async (state: IDbState) => {
   state.sharedState.runningState$.next("stopping");
 
-  await whenAllJobsDone(state.sharedState.jobsState$);
+  await whenAllJobsDone(state.sharedState.jobsState);
 
   console.log("stopped db");
 

@@ -5,6 +5,7 @@ import { DeepReadonly } from "ts-essentials";
 
 import { INanoEmitter } from "./createNanoEvents";
 import { IJobsState } from "./job";
+import { ReactiveVar } from "./reactiveVar";
 
 export interface IKikkoEvents {
   initialized: (db: IDbState) => Promise<void> | void;
@@ -89,7 +90,7 @@ export interface ISharedDbState {
   // Used to detect current tab id. Uniq for each tab
   clientId: string;
 
-  jobsState$: BehaviorSubject<IJobsState>;
+  jobsState: ReactiveVar<IJobsState>;
 
   transactionsState: {
     current?: ITransaction;
