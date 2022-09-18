@@ -1,5 +1,17 @@
 # @kikko-land/native-ionic-backend
 
+## 0.4.0
+
+### Minor Changes
+
+- a52a3cb: Upgrade packages
+
+### Patch Changes
+
+- Updated dependencies [a52a3cb]
+  - @kikko-land/kikko@0.4.0
+  - @kikko-land/sql@0.2.0
+
 ## 0.3.0
 
 ### Minor Changes

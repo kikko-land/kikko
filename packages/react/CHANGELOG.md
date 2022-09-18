@@ -1,5 +1,20 @@
 # @kikko-land/react
 
+## 0.3.0
+
+### Minor Changes
+
+- a52a3cb: Upgrade packages
+
+### Patch Changes
+
+- Updated dependencies [a52a3cb]
+  - @kikko-land/kikko@0.4.0
+  - @kikko-land/migrations-plugin@0.4.0
+  - @kikko-land/react-queries-hooks@0.4.0
+  - @kikko-land/reactive-queries-plugin@0.4.0
+  - @kikko-land/sql@0.2.0
+
 ## 0.2.1
 
 ### Patch Changes
