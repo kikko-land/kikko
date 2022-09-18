@@ -34,7 +34,8 @@ export const absurdWebBackend = ({
     [],
     "incomingMessagesQueue"
   );
-  const initializedWorker = new DbWorker();
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-call
+  const initializedWorker: Worker = new DbWorker() as Worker;
   const isTerminated = reactiveVar(false, "isTerminated");
 
   const unsubscribeOutcoming = outcomingMessagesQueue.subscribe((newVals) => {
@@ -118,6 +119,8 @@ export const absurdWebBackend = ({
       incomingMessagesQueue.stop();
 
       initializedWorker.terminate();
+
+      return Promise.resolve();
     },
   };
 };

@@ -57,6 +57,8 @@ export const tauriBackend = (path: (dbName: string) => string): IDbBackend => ({
     },
     async stop() {
       isStopped = true;
+
+      return Promise.resolve();
       // TODO: how to close db?
     },
   };

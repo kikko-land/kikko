@@ -71,7 +71,9 @@ export const runWorkerCommand = async (
     if (result.type === "response" && result.data.status === "success") {
       return result.data.result;
     } else {
-      throw new Error(`Unknown data format while handle command ${command}`);
+      throw new Error(
+        `Unknown data format while handle command ${JSON.stringify(command)}`
+      );
     }
   })();
 

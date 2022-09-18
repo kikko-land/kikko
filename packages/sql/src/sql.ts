@@ -103,9 +103,9 @@ function internalSql(
     0
   );
 
-  const values: IPrimitiveValue[] = new Array(valuesLength);
-  const strings: string[] = new Array(valuesLength + 1);
-  const tables: ITableDef[] = new Array(tablesLength);
+  const values: IPrimitiveValue[] = new Array<IPrimitiveValue>(valuesLength);
+  const strings: string[] = new Array<string>(valuesLength + 1);
+  const tables: ITableDef[] = new Array<ITableDef>(tablesLength);
 
   strings[0] = _rawStrings[0];
 
@@ -183,9 +183,9 @@ function internalSql(
           .slice(1)
           .map(
             (val, i) =>
-              (typeof this._values[i] === "string"
-                ? "'" + this._values[i] + "'"
-                : this._values[i]) + val
+              `${(typeof this._values[i] === "string"
+                ? `'${this._values[i] as string}'`
+                : this._values[i])?.toString() || 'NULL'}${val}`
           )
           .join("")
       );
@@ -259,7 +259,7 @@ sql.join = (
   }
 
   return internalSql(
-    [prefix, ...Array(values.length - 1).fill(separator), suffix],
+    [prefix, ...Array<string>(values.length - 1).fill(separator), suffix],
     values
   );
 };
