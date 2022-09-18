@@ -2,25 +2,23 @@ import { SQLite, SQLiteObject } from "@awesome-cordova-plugins/sqlite";
 import { IDbBackend, IQuery, IQueryResult } from "@kikko-land/kikko";
 
 export const ionicBackend = (path: (dbName: string) => string): IDbBackend => {
-  return ({ dbName, stopped$ }) => {
+  return ({ dbName }) => {
+    let isStopped = true;
     let db: SQLiteObject | undefined = undefined;
 
     return {
       async initialize() {
+        if (isStopped)
+          throw new Error("Failed to start DB cause it is stopped");
+
         db = await SQLite.create({
           name: path(dbName),
           location: "default",
         });
 
-        stopped$.subscribe(() => {
-          if (!db) {
-            console.error("Failed to stop DB‚ it is not initialized");
-
-            return;
-          }
-
-          void db.close();
-        });
+        if (isStopped) {
+          await db.close();
+        }
       },
 
       async execQueries(
@@ -71,6 +69,13 @@ export const ionicBackend = (path: (dbName: string) => string): IDbBackend => {
         }
 
         return res;
+      },
+      async stop() {
+        isStopped = true;
+
+        if (db) {
+          await db.close();
+        }
       },
     };
   };

@@ -34,8 +34,7 @@
   "dependencies": {
     "@kikko-land/kikko": "^0.2.0",
     "@kikko-land/reactive-queries-plugin": "^0.2.0",
-    "@kikko-land/sql": "^0.1.1",
-    "rxjs": "^7.5.5"
+    "@kikko-land/sql": "^0.1.1"
   },
   "peerDependencies": {
     "react": ">=16.8.0"

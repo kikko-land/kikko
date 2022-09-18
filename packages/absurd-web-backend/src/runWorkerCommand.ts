@@ -1,5 +1,4 @@
 import { TimeoutError } from "@kikko-land/kikko";
-import { EmptyError } from "rxjs";
 
 import { ICommand } from "./commands";
 import { IBackendState } from "./types";
@@ -84,19 +83,5 @@ export const runWorkerCommand = async (
     },
   ];
 
-  try {
-    return await waitResponse;
-  } catch (e) {
-    if (e instanceof EmptyError) {
-      throw new Error(
-        `Failed to run command, usually it means DB is already stopped. Command:\n${JSON.stringify(
-          command,
-          undefined,
-          2
-        )}`
-      );
-    }
-
-    throw e;
-  }
+  return await waitResponse;
 };

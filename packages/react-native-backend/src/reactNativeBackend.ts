@@ -8,23 +8,22 @@ import {
 export const reactNativeBackend = (initOpts: {
   name: (dbName: string) => string;
   location?: Location;
-}): IDbBackend => ({ dbName, stopped$ }) => {
+}): IDbBackend => ({ dbName }) => {
+  let isStopped = true;
   let db: SQLiteDatabase | undefined;
 
   return {
     async initialize() {
+      if (isStopped) throw new Error("Failed to start DB cause it is stopped");
+
       db = await openDatabase({
         name: initOpts.name(dbName),
         location: initOpts.location,
       });
 
-      stopped$.subscribe(() => {
-        if (!db) {
-          return;
-        }
-
-        void db.close();
-      });
+      if (isStopped) {
+        await db.close();
+      }
     },
     async execQueries(
       queries: IQuery[],
@@ -67,6 +66,13 @@ export const reactNativeBackend = (initOpts: {
       }
 
       return result;
+    },
+    async stop() {
+      isStopped = true;
+
+      if (db) {
+        await db.close();
+      }
     },
   };
 };

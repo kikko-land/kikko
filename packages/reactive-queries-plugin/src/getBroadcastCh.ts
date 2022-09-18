@@ -1,4 +1,4 @@
-import { Observable, ReplaySubject, share, takeUntil } from "rxjs";
+import { ReactiveVar, reactiveVar } from "@kikko-land/kikko";
 
 export type IMessage = { changesInTables: string[] };
 export type IListener = (msg: IMessage) => void;
@@ -66,30 +66,32 @@ const createMultiTabChannel = async (
 export const getBroadcastCh = (
   name: string,
   webMultiTabSupport: boolean,
-  stop$: Observable<void>
+  rDbState: ReactiveVar<"running" | "stopping" | "stopped">
 ) => {
-  return new Observable<INotifyChannel>((sub) => {
-    let isClosed = false;
-    let currentChannel: INotifyChannel | undefined;
-
-    const init = async () => {
-      const ch = await createMultiTabChannel(name, webMultiTabSupport);
-
-      if (isClosed) return;
-
-      sub.next(ch);
-    };
-
-    void init();
-
-    return () => {
-      isClosed = true;
-      void currentChannel?.close();
-    };
-  }).pipe(
-    share({
-      connector: () => new ReplaySubject(1),
-    }),
-    takeUntil(stop$)
+  const rCh = reactiveVar<INotifyChannel | undefined>(
+    undefined,
+    "notifyChannel"
   );
+
+  let isClosed = false;
+  let currentChannel: INotifyChannel | undefined;
+
+  const init = async () => {
+    const ch = await createMultiTabChannel(name, webMultiTabSupport);
+
+    if (isClosed) return;
+
+    rCh.value = ch;
+  };
+
+  void init();
+
+  void (async () => {
+    await rDbState.waitTill((v) => v === "stopping", { timeout: "infinite" });
+
+    isClosed = true;
+    void currentChannel?.close();
+  })();
+
+  return rCh;
 };

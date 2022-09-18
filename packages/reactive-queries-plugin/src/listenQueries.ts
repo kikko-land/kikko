@@ -1,15 +1,15 @@
 import { IDbState, runQueries } from "@kikko-land/kikko";
 import { ISqlAdapter } from "@kikko-land/sql";
-import { filter, Observable, startWith, switchMap, takeUntil } from "rxjs";
 
 import { IMessage } from "./getBroadcastCh";
 import { getReactiveState } from "./utils";
 
 export const listenQueries = <D extends Record<string, unknown>>(
   db: IDbState,
-  queries: ISqlAdapter[]
-): Observable<D[][]> => {
-  const { eventsCh$ } = getReactiveState(db);
+  queries: ISqlAdapter[],
+  subscriber: (evs: D[][]) => void
+): (() => void) => {
+  const { rEventsCh } = getReactiveState(db);
 
   const readingTables = new Set(
     queries
@@ -18,27 +18,45 @@ export const listenQueries = <D extends Record<string, unknown>>(
       .map((t) => t.name)
   );
 
-  return eventsCh$.pipe(
-    switchMap((ch) => {
-      return new Observable<IMessage>((subscriber) => {
-        const func = (data: IMessage) => {
-          subscriber.next(data);
-        };
+  let currentChannelUnsub: (() => void) | undefined;
 
-        ch.addEventListener(func);
+  const runAndEmitQuery = async () => {
+    subscriber(await runQueries<D>(db, queries));
+  };
 
-        return () => {
-          ch.removeEventListener(func);
-        };
-      });
-    }),
-    filter(({ changesInTables }) =>
-      changesInTables.some((table) => readingTables.has(table))
-    ),
-    startWith(undefined), // to exec query at start
-    switchMap(async () => {
-      return runQueries<D>(db, queries);
-    }),
-    takeUntil(db.sharedState.stopStarted$)
-  );
+  const chChangeUnsub = rEventsCh.subscribe((ch) => {
+    if (currentChannelUnsub) currentChannelUnsub();
+
+    if (!ch) return;
+
+    const func = ({ changesInTables }: IMessage) => {
+      if (!changesInTables.some((table) => readingTables.has(table))) return;
+      void runAndEmitQuery();
+    };
+
+    ch.addEventListener(func);
+
+    currentChannelUnsub = () => {
+      ch.removeEventListener(func);
+    };
+  });
+
+  // Emit first value
+  void runAndEmitQuery();
+
+  const unsubRunningState = db.sharedState.runningState.subscribe((v) => {
+    queueMicrotask(() => {
+      if (v === "stopping" || v === "stopped") {
+        unsubAll();
+      }
+    });
+  });
+
+  const unsubAll = () => {
+    unsubRunningState();
+    currentChannelUnsub?.();
+    chChangeUnsub();
+  };
+
+  return unsubAll;
 };

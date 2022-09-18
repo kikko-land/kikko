@@ -25,16 +25,20 @@ export const initDbClient = async ({
   dbBackend,
 }: IInitDbClientConfig): Promise<IDbState> => {
   const runningState = reactiveVar<"running" | "stopping" | "stopped">(
-    "running"
+    "running",
+    "runningState"
   );
   const dbBackendCalled = (await dbBackend)({
     dbName,
   });
 
-  const jobsState = reactiveVar({
-    queue: [],
-    current: undefined,
-  } as IJobsState);
+  const jobsState = reactiveVar(
+    {
+      queue: [],
+      current: undefined,
+    } as IJobsState,
+    "jobsState"
+  );
 
   const state: IDbState = {
     sharedState: {
@@ -60,27 +64,27 @@ export const initDbClient = async ({
     name: dbName,
   });
 
-  const getRunningState = () => state.sharedState.runningState.value;
+  let currentState = state;
 
   try {
-    if (getRunningState() === "running") return state;
+    const getRunningState = () => state.sharedState.runningState.value;
+
+    if (getRunningState() !== "running") return state;
 
     await dbBackendCalled.initialize();
 
-    if (getRunningState() === "running") return state;
-
-    let currentState = state;
+    if (getRunningState() !== "running") return state;
 
     for (const plugin of plugins || []) {
-      currentState = plugin(state);
+      currentState = plugin(currentState);
     }
-
-    await state.sharedState.eventsEmitter.emit("initialized", state);
-
-    return currentState;
   } finally {
     releaseJob(jobsState, job);
   }
+
+  await state.sharedState.eventsEmitter.emit("initialized", state);
+
+  return currentState;
 };
 
 export const stopDb = async (state: IDbState) => {
@@ -90,4 +94,9 @@ export const stopDb = async (state: IDbState) => {
   await state.sharedState.dbBackend.stop();
 
   state.sharedState.runningState.value = "stopped";
+
+  queueMicrotask(() => {
+    state.sharedState.runningState.stop();
+    state.sharedState.jobsState.stop();
+  });
 };

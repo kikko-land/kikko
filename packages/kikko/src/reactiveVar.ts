@@ -2,9 +2,14 @@ export interface ReactiveVar<T> {
   __state: {
     subscriptions: ((val: T) => void)[];
     value: T;
+    isStopped: boolean;
+    onStop: (() => void)[];
   };
   value: T;
-  subscribe(sub: (val: T) => void, emitValueOnSubscribe?: boolean): () => void;
+  subscribe(
+    sub: (val: T) => void | (() => void),
+    emitValueOnSubscribe?: boolean
+  ): () => void;
   waitTill(
     filter: (val: T) => boolean,
     opts?: {
@@ -13,17 +18,27 @@ export interface ReactiveVar<T> {
       timeout?: number | "infinite";
     }
   ): Promise<void>;
+  isStopped: boolean;
+  stop(): void;
 }
 
 export class TimeoutError extends Error {}
+export class StoppedError extends Error {}
 
-export const reactiveVar = <T>(val: T): ReactiveVar<T> => {
+export const reactiveVar = <T>(val: T, label: string): ReactiveVar<T> => {
   return {
     __state: {
       subscriptions: [],
       value: val,
+      isStopped: false,
+      onStop: [],
+    },
+    get isStopped() {
+      return this.__state.isStopped;
     },
     set value(val: T) {
+      if (this.isStopped) throw new Error(`reactiveVar ${label} is stopped!`);
+
       this.__state.value = val;
 
       for (const sub of this.__state.subscriptions) {
@@ -31,9 +46,16 @@ export const reactiveVar = <T>(val: T): ReactiveVar<T> => {
       }
     },
     get value() {
+      if (this.isStopped) throw new Error(`reactiveVar ${label} is stopped!`);
+
       return this.__state.value;
     },
-    subscribe(sub: (val: T) => void, emitValueOnSubscribe: boolean = true) {
+    subscribe(
+      sub: (val: T) => void | (() => void),
+      emitValueOnSubscribe: boolean = true
+    ) {
+      if (this.isStopped) throw new Error(`reactiveVar ${label} is stopped!`);
+
       this.__state.subscriptions.push(sub);
 
       if (emitValueOnSubscribe) {
@@ -53,6 +75,8 @@ export const reactiveVar = <T>(val: T): ReactiveVar<T> => {
         timeout?: number | "infinite";
       }
     ) {
+      if (this.isStopped) throw new Error(`reactiveVar ${label} is stopped!`);
+
       const toWait = new Promise<void>((resolve, reject) => {
         const unsubscriptions: (() => void)[] = [];
 
@@ -63,13 +87,17 @@ export const reactiveVar = <T>(val: T): ReactiveVar<T> => {
         };
 
         unsubscriptions.push(
-          this.subscribe((newVal) => {
+          opts?.stopIf?.subscribe((newVal) => {
             if (!newVal) return;
 
             unsubAll();
 
-            resolve();
-          }, true)
+            reject(
+              new StoppedError(
+                `waitUntil for reactiveVar ${label} is stopped due to stop signal`
+              )
+            );
+          }, true) || (() => {})
         );
 
         unsubscriptions.push(
@@ -82,20 +110,49 @@ export const reactiveVar = <T>(val: T): ReactiveVar<T> => {
           }, true)
         );
 
-        if (opts?.timeout !== undefined && opts.timeout !== "infinite") {
-          const id = setTimeout(() => {
-            unsubAll();
+        if (opts?.timeout === undefined || opts?.timeout !== "infinite") {
+          const id = setTimeout(
+            () => {
+              unsubAll();
 
-            reject(new TimeoutError());
-          }, opts.timeout);
+              reject(
+                new TimeoutError(
+                  `waitUntil for reactiveVar ${label} is timed out`
+                )
+              );
+            },
+            opts?.timeout === undefined ? 5000 : opts.timeout
+          );
 
           unsubscriptions.push(() => {
             clearTimeout(id);
           });
         }
+
+        this.__state.onStop.push(() => {
+          unsubAll();
+
+          reject(
+            new StoppedError(
+              `waitUntil for reactiveVar ${label} is stopped due to reactive var stop`
+            )
+          );
+        });
       });
 
       return toWait;
+    },
+    stop() {
+      if (this.isStopped)
+        throw new Error(`reactiveVar ${label} is already stopped!`);
+
+      this.__state.subscriptions = [];
+
+      for (const unsub of this.__state.onStop) {
+        unsub();
+      }
+
+      this.__state.isStopped = true;
     },
   };
 };

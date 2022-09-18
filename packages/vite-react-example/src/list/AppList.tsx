@@ -34,10 +34,10 @@ const buildConfig = (config: IBackendConfig): IInitDbClientConfig => {
             vfs: config.vfs,
           }),
     plugins: [
+      reactiveQueriesPlugin(),
       migrationsPlugin({
         migrations: [createNotesTableMigration],
       }),
-      reactiveQueriesPlugin(),
     ],
   };
 };
@@ -48,8 +48,9 @@ export type IBackendConfig =
 
 function parseQuery(queryString: string) {
   const query: Record<string, string> = {};
-  const pairs = (
-    queryString[0] === "?" ? queryString.substr(1) : queryString
+  const pairs = (queryString[0] === "?"
+    ? queryString.substr(1)
+    : queryString
   ).split("&");
 
   for (let i = 0; i < pairs.length; i++) {
@@ -70,10 +71,10 @@ export const backendOptions = {
 
 export const AppList = () => {
   const backendName = (parseQuery(useLocation().search || "")["backend"] ||
-    "waMinimal") as keyof typeof backendOptions;
+    "absurd") as keyof typeof backendOptions;
 
   const config = useMemo(() => {
-    return buildConfig(backendOptions[backendName || "waMinimal"]);
+    return buildConfig(backendOptions[backendName || "absurd"]);
   }, [backendName]);
 
   return (

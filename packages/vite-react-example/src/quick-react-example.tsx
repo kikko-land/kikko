@@ -44,8 +44,8 @@ const config: IInitDbClientConfig = {
     wasmUrl: sqlWasmUrl,
   }),
   plugins: [
-    migrationsPlugin({ migrations: [createNotesTable] }),
     reactiveQueriesPlugin(),
+    migrationsPlugin({ migrations: [createNotesTable] }),
   ],
 };
 

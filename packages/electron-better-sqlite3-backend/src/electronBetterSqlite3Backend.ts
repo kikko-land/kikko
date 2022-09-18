@@ -19,21 +19,19 @@ declare global {
 export type ValueType<T> = T extends Promise<infer U> ? U : T;
 export const electronBetterSqlite3Backend = (
   path: (dbName: string) => string
-): IDbBackend => ({ dbName, stopped$ }) => {
+): IDbBackend => ({ dbName }) => {
+  let isStopped = true;
   let db: ValueType<ReturnType<typeof window.sqliteDb>> | undefined = undefined;
 
   return {
     async initialize() {
+      if (isStopped) throw new Error("Failed to start DB cause it is stopped");
+
       db = await window.sqliteDb(path(dbName));
 
-      stopped$.subscribe(() => {
-        if (!db) {
-          console.error("Failed to stop DB‚Äö it is not initialized");
-
-          return;
-        }
+      if (isStopped) {
         db.close();
-      });
+      }
     },
     async execQueries(
       queries: IQuery[],
@@ -76,6 +74,13 @@ export const electronBetterSqlite3Backend = (
       }
 
       return result;
+    },
+    async stop() {
+      isStopped = true;
+
+      if (db) {
+        db.close();
+      }
     },
   };
 };

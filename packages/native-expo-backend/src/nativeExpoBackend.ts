@@ -1,15 +1,11 @@
 import { IDbBackend, IQuery, IQueryResult } from "@kikko-land/kikko";
 import { openDatabase, ResultSet, ResultSetError } from "expo-sqlite";
 
-export const nativeExpoBackend = (): IDbBackend => ({ dbName, stopped$ }) => {
+export const nativeExpoBackend = (): IDbBackend => ({ dbName }) => {
   const db = openDatabase(dbName + ".db");
 
   return {
-    async initialize() {
-      stopped$.subscribe(() => {
-        void db.closeAsync();
-      });
-    },
+    async initialize() {},
     async execQueries(
       queries: IQuery[],
       opts: {
@@ -62,6 +58,11 @@ export const nativeExpoBackend = (): IDbBackend => ({ dbName, stopped$ }) => {
           }
         );
       });
+    },
+    async stop() {
+      if (db) {
+        db.closeAsync();
+      }
     },
   };
 };

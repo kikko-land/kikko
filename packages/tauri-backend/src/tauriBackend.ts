@@ -3,23 +3,15 @@ import SQLite from "tauri-plugin-sqlite-api";
 
 export const tauriBackend = (path: (dbName: string) => string): IDbBackend => ({
   dbName,
-  stopped$,
 }) => {
+  let isStopped = true;
   let db: SQLite | undefined = undefined;
 
   return {
     async initialize() {
+      if (isStopped) throw new Error("Failed to start DB cause it is stopped");
+
       db = await SQLite.open(path(dbName));
-
-      stopped$.subscribe(() => {
-        if (!db) {
-          console.error("Failed to stop DB‚ it is not initialized");
-
-          return;
-        }
-
-        // TODO: how to close db?
-      });
     },
     async execQueries(
       queries: IQuery[],
@@ -62,6 +54,10 @@ export const tauriBackend = (path: (dbName: string) => string): IDbBackend => ({
       }
 
       return result;
+    },
+    async stop() {
+      isStopped = true;
+      // TODO: how to close db?
     },
   };
 };

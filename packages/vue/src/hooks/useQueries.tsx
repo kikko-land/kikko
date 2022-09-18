@@ -122,15 +122,13 @@ export const useQueries = <D extends Record<string, unknown>>(
 
     resultTypeRef.value = "loading";
 
-    const subscription = listenQueries<D>(db, queriesRef.value).subscribe(
-      (res) => {
-        dataRef.value = res;
-        resultTypeRef.value = "loaded";
-      }
-    );
+    const unsub = listenQueries<D>(db, queriesRef.value, (res) => {
+      dataRef.value = res;
+      resultTypeRef.value = "loaded";
+    });
 
     onCleanup(() => {
-      subscription.unsubscribe();
+      unsub();
     });
   });
 

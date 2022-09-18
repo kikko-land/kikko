@@ -35,8 +35,7 @@
     "@kikko-land/kikko": "^0.2.0",
     "@kikko-land/sql": "^0.1.1",
     "@kikko-land/query-builder": "^0.1.1",
-    "broadcast-channel": "^4.13.0",
-    "rxjs": "^7.5.5"
+    "broadcast-channel": "^4.13.0"
   },
   "devDependencies": {
     "@kikko-land/common-scripts": "^0.1.1"

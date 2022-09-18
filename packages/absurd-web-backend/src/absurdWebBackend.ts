@@ -1,5 +1,10 @@
 import { initBackend } from "@kikko-land/better-absurd-sql/dist/indexeddb-main-thread";
-import { IDbBackend, IQuery, reactiveVar } from "@kikko-land/kikko";
+import {
+  IDbBackend,
+  IQuery,
+  reactiveVar,
+  StoppedError,
+} from "@kikko-land/kikko";
 
 import { buildRunQueriesCommand } from "./commands";
 import { runWorkerCommand } from "./runWorkerCommand";
@@ -21,10 +26,16 @@ export const absurdWebBackend = ({
   pageSize?: number;
   cacheSize?: number;
 }): IDbBackend => ({ dbName }: { dbName: string }) => {
-  const outcomingMessagesQueue = reactiveVar<IInputWorkerMessage[]>([]);
-  const incomingMessagesQueue = reactiveVar<IOutputWorkerMessage[]>([]);
+  const outcomingMessagesQueue = reactiveVar<IInputWorkerMessage[]>(
+    [],
+    "outcomingMessagesQueue"
+  );
+  const incomingMessagesQueue = reactiveVar<IOutputWorkerMessage[]>(
+    [],
+    "incomingMessagesQueue"
+  );
   const initializedWorker = new DbWorker();
-  const isTerminated = reactiveVar(false);
+  const isTerminated = reactiveVar(false, "isTerminated");
 
   const unsubscribeOutcoming = outcomingMessagesQueue.subscribe((newVals) => {
     if (newVals.length === 0) return;
@@ -81,7 +92,15 @@ export const absurdWebBackend = ({
         },
       ];
 
-      await initPromise;
+      try {
+        await initPromise;
+      } catch (e) {
+        if (e instanceof StoppedError) {
+          return;
+        }
+
+        throw e;
+      }
     },
     async execQueries(queries: IQuery[], opts) {
       return await runWorkerCommand(
@@ -94,6 +113,10 @@ export const absurdWebBackend = ({
 
       unsubscribeOutcoming();
       unsubscribeIncoming();
+
+      outcomingMessagesQueue.stop();
+      incomingMessagesQueue.stop();
+
       initializedWorker.terminate();
     },
   };
