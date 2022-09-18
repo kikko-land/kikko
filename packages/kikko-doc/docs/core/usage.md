@@ -104,14 +104,12 @@ You must use `react-queries-plugin` to be able to listen queries.
 Here is how you can listen changes in tables:
 
 ```typescript
-const subscription = listenQueries(db, [select().from("notes")]).subscribe(
-  (res) => {
-    console.log("Queries result: ", res);
-  }
-);
+const unsubscribe = listenQueries(db, [select().from("notes")], (res) => {
+  console.log("Queries result: ", res);
+});
 
 // You can also unsubscribe
 setTimeout(() => {
-  subscription.unsubscribe();
+  unsubscribe();
 }, 1000);
 ```
