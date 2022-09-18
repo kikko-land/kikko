@@ -1,5 +1,11 @@
 # kikko-doc
 
+## 0.2.0
+
+### Minor Changes
+
+- a52a3cb: Upgrade packages
+
 ## 0.1.0
 
 ### Minor Changes

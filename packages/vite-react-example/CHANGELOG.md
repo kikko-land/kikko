@@ -1,5 +1,18 @@
 # @kikko-land/vite-react-example
 
+## 0.2.0
+
+### Minor Changes
+
+- a52a3cb: Upgrade packages
+
+### Patch Changes
+
+- Updated dependencies [a52a3cb]
+  - @kikko-land/absurd-web-backend@0.4.0
+  - @kikko-land/query-builder@0.2.0
+  - @kikko-land/react@0.3.0
+
 ## 0.1.0
 
 ### Minor Changes

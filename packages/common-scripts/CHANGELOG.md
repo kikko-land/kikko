@@ -1,5 +1,11 @@
 # @kikko-land/common-scripts
 
+## 0.3.0
+
+### Minor Changes
+
+- a52a3cb: Upgrade packages
+
 ## 0.2.0
 
 ### Minor Changes
