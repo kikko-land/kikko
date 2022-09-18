@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import {
   deleteFrom,
   desc,
@@ -40,20 +43,19 @@ export const List = () => {
   );
 
   const [createNote, createNoteState] = useRunQuery(
-    (db) =>
-      async ({ title, content }: { title: string; content: string }) => {
-        const time = new Date().getTime();
-        await runQuery(
-          db,
-          insert({
-            id: makeId(),
-            title,
-            content,
-            updatedAt: time,
-            createdAt: time,
-          }).into(notesTable)
-        );
-      }
+    (db) => async ({ title, content }: { title: string; content: string }) => {
+      const time = new Date().getTime();
+      await runQuery(
+        db,
+        insert({
+          id: makeId(),
+          title,
+          content,
+          updatedAt: time,
+          createdAt: time,
+        }).into(notesTable)
+      );
+    }
   );
 
   const [deleteAll, deleteAllState] = useRunQuery((db) => async () => {
@@ -67,7 +69,6 @@ export const List = () => {
   return (
     <>
       <form
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onSubmit={(e: any) => {
           e.preventDefault();
           const title = e.target.title.value;
@@ -107,7 +108,7 @@ export const List = () => {
           deleteAllState.type === "running" ||
           deleteAllState.type === "waitingDb"
         }
-        onClick={deleteAll}
+        onClick={() => void deleteAll()}
       >
         {deleteAllState.type === "running" ? "Loading..." : "Delete all"}
       </button>

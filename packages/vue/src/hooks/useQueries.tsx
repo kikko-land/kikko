@@ -45,28 +45,30 @@ export const useInitDb = (
   let isStopped = false;
   let cleanup = () => {};
 
-  const stopWatch = watchEffect(async () => {
-    if (ref.value.type !== "notInitialized") return;
+  const stopWatch = watchEffect(() => {
+    void (async () => {
+      if (ref.value.type !== "notInitialized") return;
 
-    ref.value = { type: "initializing" };
-    const db = await initDbClient(config);
+      ref.value = { type: "initializing" };
+      const db = await initDbClient(config);
 
-    if (isStopped) {
-      void stopDb(db);
+      if (isStopped) {
+        void stopDb(db);
 
-      return;
-    }
+        return;
+      }
 
-    ref.value = {
-      type: "initialized",
-      db,
-    };
+      ref.value = {
+        type: "initialized",
+        db,
+      };
 
-    cleanup = () => {
-      void stopDb(db);
+      cleanup = () => {
+        void stopDb(db);
 
-      cleanup = () => {};
-    };
+        cleanup = () => {};
+      };
+    })();
   });
 
   const stop = () => {

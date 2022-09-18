@@ -1,15 +1,12 @@
 // Adopted from https://github.com/ai/nanoevents/blob/main/index.js
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type EventsMap<K extends keyof any> = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [P in K]: (...args: any[]) => Promise<void> | void;
-};
-
 // Adopted from https://github.com/ai/nanoevents
 // I didn't use original due to lack of cjs support
 
-export function createNanoEvents<Events extends EventsMap<keyof Events>>() {
+export type EventsMap = {
+  [eventName: string]: (...args: any[]) => Promise<void> | void;
+};
+export function createNanoEvents<Events extends EventsMap>() {
   const events: Partial<{ [E in keyof Events]: Events[E][] }> = {};
 
   return {
@@ -17,8 +14,7 @@ export function createNanoEvents<Events extends EventsMap<keyof Events>>() {
       event: K,
       ...args: Parameters<Events[K]>
     ) {
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-      const all = (events[event] || []) as Events[K][];
+      const all: Array<Events[K]> = events[event] || [];
       for (const toCall of all) {
         await toCall(...args);
       }
@@ -27,16 +23,13 @@ export function createNanoEvents<Events extends EventsMap<keyof Events>>() {
       ((events[event] = events[event] || []) as Events[K][]).push(cb);
 
       return () => {
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-        events[event] = ((events[event] || []) as Events[K][]).filter(
-          (i: unknown) => i !== cb
-        ) as Events[K][];
+        const eventsArray: Events[K][] = events[event] || [];
+
+        events[event] = eventsArray.filter((i: unknown) => i !== cb);
       };
     },
   };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export type INanoEmitter<T extends EventsMap<keyof T>> = ReturnType<
-  typeof createNanoEvents
->;
+export type INanoEmitter<E extends EventsMap> = ReturnType<typeof createNanoEvents<E>>;

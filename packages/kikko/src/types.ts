@@ -6,7 +6,7 @@ import { INanoEmitter } from "./createNanoEvents";
 import { IJobsState } from "./job";
 import { ReactiveVar } from "./reactiveVar";
 
-export interface IKikkoEvents {
+export type IKikkoEvents = {
   initialized: (db: IDbState) => Promise<void> | void;
   transactionWillStart: (
     db: IDbState,
@@ -32,7 +32,7 @@ export interface IKikkoEvents {
     db: IDbState,
     transaction: ITransaction
   ) => Promise<void> | void;
-}
+};
 
 export interface ITransaction {
   id: string;
