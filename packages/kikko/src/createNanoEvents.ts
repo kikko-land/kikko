@@ -6,7 +6,19 @@
 export type EventsMap = {
   [eventName: string]: (...args: any[]) => Promise<void> | void;
 };
-export function createNanoEvents<Events extends EventsMap>() {
+
+export interface INanoEmitter<Events extends EventsMap> {
+  emit<K extends keyof Events>(
+    event: K,
+    ...args: Parameters<Events[K]>
+  ): Promise<void>;
+
+  on<K extends keyof Events>(event: K, cb: Events[K]): () => void;
+}
+
+export function createNanoEvents<Events extends EventsMap>(): INanoEmitter<
+  Events
+> {
   const events: Partial<{ [E in keyof Events]: Events[E][] }> = {};
 
   return {
@@ -30,8 +42,3 @@ export function createNanoEvents<Events extends EventsMap>() {
     },
   };
 }
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export type INanoEmitter<E extends EventsMap> = ReturnType<
-  typeof createNanoEvents
->;
