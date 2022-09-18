@@ -1,5 +1,11 @@
 # @kikko-land/common-scripts
 
+## 0.2.0
+
+### Minor Changes
+
+- dd36c9e: Remove rxjs
+
 ## 0.1.1
 
 ### Patch Changes
