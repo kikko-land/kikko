@@ -4,13 +4,13 @@ module.exports = {
     es2021: true,
   },
   extends: [
-    "react-app",
     "prettier",
     // "airbnb",
     // "airbnb-typescript",
     "plugin:jsx-a11y/recommended",
     "plugin:promise/recommended",
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:react-hooks/recommended"
   ],
   parser: "@typescript-eslint/parser",
   plugins: ["jsx-a11y", "simple-import-sort", "promise"],
