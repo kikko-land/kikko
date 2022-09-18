@@ -4,7 +4,7 @@
   "version": "0.2.0",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "echo \"\"",
     "preview": "vite preview",
     "lint": "echo \"\"",
     "check-typing": "echo \"\""
