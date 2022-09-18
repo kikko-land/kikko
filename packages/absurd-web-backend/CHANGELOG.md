@@ -1,5 +1,16 @@
 # @kikko-land/absurd-web-backend
 
+## 0.3.0
+
+### Minor Changes
+
+- dd36c9e: Remove rxjs
+
+### Patch Changes
+
+- Updated dependencies [dd36c9e]
+  - @kikko-land/kikko@0.3.0
+
 ## 0.2.0
 
 ### Minor Changes

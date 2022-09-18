@@ -1,6 +1,6 @@
 {
   "name": "@kikko-land/absurd-web-backend",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": "Sergey Popov",
   "license": "MIT",
   "main": "./src/index.ts",
@@ -33,12 +33,12 @@
   },
   "dependencies": {
     "@kikko-land/better-absurd-sql": "^0.0.56",
-    "@kikko-land/kikko": "^0.2.1",
+    "@kikko-land/kikko": "^0.3.0",
     "@kikko-land/sql": "^0.1.1",
     "@kikko-land/sql.js": "^1.6.8"
   },
   "devDependencies": {
-    "@kikko-land/common-scripts": "^0.1.1",
+    "@kikko-land/common-scripts": "^0.2.0",
     "@types/emscripten": "^1.39.6",
     "ts-essentials": "^9.3.0"
   }

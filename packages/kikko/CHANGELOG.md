@@ -1,5 +1,11 @@
 # @kikko-land/core
 
+## 0.3.0
+
+### Minor Changes
+
+- dd36c9e: Remove rxjs
+
 ## 0.2.1
 
 ### Patch Changes

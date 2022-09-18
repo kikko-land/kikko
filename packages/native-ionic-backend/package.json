@@ -1,6 +1,6 @@
 {
   "name": "@kikko-land/native-ionic-backend",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": "Sergey Popov",
   "license": "MIT",
   "main": "./src/index.ts",
@@ -32,13 +32,13 @@
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
-    "@kikko-land/kikko": "^0.2.1",
+    "@kikko-land/kikko": "^0.3.0",
     "@kikko-land/sql": "^0.1.1",
     "@awesome-cordova-plugins/core": "^5.45.0",
     "@awesome-cordova-plugins/sqlite": "^5.45.0",
     "cordova-sqlite-storage": "^6.0.0"
   },
   "devDependencies": {
-    "@kikko-land/common-scripts": "^0.1.1"
+    "@kikko-land/common-scripts": "^0.2.0"
   }
 }
