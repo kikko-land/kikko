@@ -47,7 +47,9 @@ export const reactNativeBackend = (initOpts: {
       for (const q of queries) {
         const startTime = new Date().getTime();
 
-        result.push((await db.executeSql(q.text, q.values))[0].rows.raw());
+        result.push(
+          (await db.executeSql(q.text, q.values))[0].rows.raw() as IQueryResult
+        );
 
         const end = new Date().getTime();
 

@@ -7,10 +7,7 @@ import {
 import { getBroadcastCh } from "./getBroadcastCh";
 import { getReactiveState } from "./utils";
 
-const notifyTablesContentChanged = async (
-  state: IDbState,
-  tables: string[]
-) => {
+const notifyTablesContentChanged = (state: IDbState, tables: string[]) => {
   if (tables.length === 0) return;
 
   const reactiveState = getReactiveState(state);
@@ -60,7 +57,7 @@ export const reactiveQueriesPlugin: (opts?: {
         }
       } else {
         // dont await so notification happens after function return
-        void notifyTablesContentChanged(state.dbState, writeTables);
+        notifyTablesContentChanged(state.dbState, writeTables);
       }
     }
 

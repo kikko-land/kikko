@@ -11,7 +11,7 @@ declare global {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         params: any
       ) => // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      any[];
+      unknown[];
     }>;
   }
 }
@@ -33,7 +33,7 @@ export const electronBetterSqlite3Backend = (
         db.close();
       }
     },
-    async execQueries(
+    execQueries(
       queries: IQuery[],
       opts: {
         log: {
@@ -55,7 +55,7 @@ export const electronBetterSqlite3Backend = (
       for (const q of queries) {
         const startTime = performance.now();
 
-        result.push(db.all(q.text, q.values));
+        result.push(db.all(q.text, q.values) as IQueryResult);
 
         const end = performance.now();
 
@@ -73,14 +73,16 @@ export const electronBetterSqlite3Backend = (
         }
       }
 
-      return result;
+      return Promise.resolve(result);
     },
-    async stop() {
+    stop() {
       isStopped = true;
 
       if (db) {
         db.close();
       }
+
+      return Promise.resolve();
     },
   };
 };

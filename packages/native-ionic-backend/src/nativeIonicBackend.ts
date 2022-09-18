@@ -42,11 +42,15 @@ export const ionicBackend = (path: (dbName: string) => string): IDbBackend => {
 
         for (const q of queries) {
           const startTime = performance.now();
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           const execResult = await db.executeSql(q.text, q.values);
 
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
           const rows: IQueryResult = new Array(execResult.rows.length);
 
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           for (let i = 0; i < execResult.rows.length; i++) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
             rows[i] = execResult.rows.item(i);
           }
 

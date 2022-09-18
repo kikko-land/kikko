@@ -63,6 +63,8 @@ export const nativeExpoBackend = (): IDbBackend => ({ dbName }) => {
       if (db) {
         db.closeAsync();
       }
+
+      return Promise.resolve();
     },
   };
 };
