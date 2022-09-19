@@ -3000,10 +3000,32 @@
   dependencies:
     safari-14-idb-fix "^1.0.4"
 
+"@kikko-land/kikko@^0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@kikko-land/kikko/-/kikko-0.2.1.tgz#c903c9b56bdf1efc5de7159f5b561ced8c1faa01"
+  integrity sha512-41MDwe49WmFtT/UDx4D8mQDNkCvArbQwu9Kw4bFRsqvcbSH+ivcQfOGWh8ZANeUGU95n2xVK9HctR4RpmZJj8w==
+  dependencies:
+    "@kikko-land/query-builder" "^0.1.1"
+    "@kikko-land/sql" "^0.1.1"
+    rxjs "^7.5.5"
+    ts-essentials "^9.1.2"
+
+"@kikko-land/query-builder@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@kikko-land/query-builder/-/query-builder-0.1.1.tgz#a8c192ea07a4fdf1461f43bbaec837fa6b5d4db0"
+  integrity sha512-RvGbv3oG7xmSg/WgsHJuoywAeXzD/SPNTBLppdzW9NFWV9cr8yIWBH2B7zruey97BRKpS8PfIpWIIy23b28UYQ==
+  dependencies:
+    "@kikko-land/sql" "^0.1.1"
+
 "@kikko-land/sql.js@^1.6.8":
   version "1.6.8"
   resolved "https://registry.yarnpkg.com/@kikko-land/sql.js/-/sql.js-1.6.8.tgz#e388e11b7ec5b6c534e7e1474860e31f39ba3d58"
   integrity sha512-2/8V69uMsqjjWCZlgT2lF9I9ImVzQjwd0MfWXNcswvYV6OPW4xQC2SMCfFzqAhHuLx0LW67ir9C7IIid/g/krA==
+
+"@kikko-land/sql@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@kikko-land/sql/-/sql-0.1.1.tgz#087a77d82c08874f629c6869f5913a0870abc1e2"
+  integrity sha512-5aQs8cNmsupJ6UXBfwWKuOBdjRYy6ZLppucSMbg8DeYUku43tRtKwEC4TJw1UqBQ5gv7Zu6MIwaABapSVCNLmA==
 
 "@kikko-land/wa-sqlite-web-backend@^0.2.0":
   version "0.2.0"
@@ -7918,10 +7940,10 @@ inline-style-prefixer@^6.0.0:
   dependencies:
     css-in-js-utils "^2.0.0"
 
-inquirer@^9.1.1:
-  version "9.1.1"
-  resolved "https://registry.yarnpkg.com/inquirer/-/inquirer-9.1.1.tgz#e15a12723f4f607d1b4489b56a0ecc7a6965e17d"
-  integrity sha512-hfS9EJ1pVkGNbYKqzdGwMj0Dqosd36Qvxd5pFy4657QT23gmtFTSqoYBisZR75DReeSMWPNa8J0Lf6TQCz8PvA==
+inquirer@^9.1.2:
+  version "9.1.2"
+  resolved "https://registry.yarnpkg.com/inquirer/-/inquirer-9.1.2.tgz#37f5486f3de0e38820aad83a1f75c52c747e2f9a"
+  integrity sha512-Hj2Ml1WpxKJU2npP2Rj0OURGkHV+GtNW2CwFdHDiXlqUBAUrWTcZHxCkFywX/XHzOS7wrG/kExgJFbUkVgyHzg==
   dependencies:
     ansi-escapes "^5.0.0"
     chalk "^5.0.1"
@@ -10903,14 +10925,7 @@ run-parallel@^1.1.9:
   dependencies:
     queue-microtask "^1.2.2"
 
-rxjs@^7.2.0, rxjs@^7.5.4, rxjs@^7.5.5:
-  version "7.5.5"
-  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-7.5.5.tgz#2ebad89af0f560f460ad5cc4213219e1f7dd4e9f"
-  integrity "sha1-LrrYmvD1YPRgrVzEITIZ4ffdTp8= sha512-sy+H0pQofO95VDmFLzyaw9xNJU4KTRSwQIGM6+iG3SypAtCiLDzpeG8sJrNCWn2Up9km+KhkvTdbkrdy+yzZdw=="
-  dependencies:
-    tslib "^2.1.0"
-
-rxjs@^7.5.6:
+rxjs@^7.2.0, rxjs@^7.5.4, rxjs@^7.5.5, rxjs@^7.5.6:
   version "7.5.6"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-7.5.6.tgz#0446577557862afd6903517ce7cae79ecb9662bc"
   integrity sha512-dnyv2/YsXhnm461G+R/Pe5bWP41Nm6LBXEYWI6eiFP4fiwx6WRI/CD0zbdVAudd9xwLEF2IDcKXLHit0FYjUzw==
@@ -11892,7 +11907,7 @@ ts-easing@^0.2.0:
   resolved "https://registry.yarnpkg.com/ts-easing/-/ts-easing-0.2.0.tgz#c8a8a35025105566588d87dbda05dd7fbfa5a4ec"
   integrity "sha1-yKijUCUQVWZYjYfb2gXdf7+lpOw= sha512-Z86EW+fFFh/IFB1fqQ3/+7Zpf9t2ebOAxNI/V6Wo7r5gqiqtxmgTlQ1qbqQcjLKYeSHPTsEmvlJUDg/EuL0uHQ=="
 
-ts-essentials@^9.3.0:
+ts-essentials@^9.1.2, ts-essentials@^9.3.0:
   version "9.3.0"
   resolved "https://registry.yarnpkg.com/ts-essentials/-/ts-essentials-9.3.0.tgz#7e639c1a76b1805c3c60d6e1b5178da2e70aea02"
   integrity sha512-XeiCboEyBG8UqXZtXl59bWEi4ZgOqRsogFDI6WDGIF1LmzbYiAkIwjkXN6zZWWl4re/lsOqMlYfe8KA0XiiEPw==
