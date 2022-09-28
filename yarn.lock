@@ -3000,40 +3000,18 @@
   dependencies:
     safari-14-idb-fix "^1.0.4"
 
-"@kikko-land/kikko@^0.2.1":
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/@kikko-land/kikko/-/kikko-0.2.1.tgz#c903c9b56bdf1efc5de7159f5b561ced8c1faa01"
-  integrity sha512-41MDwe49WmFtT/UDx4D8mQDNkCvArbQwu9Kw4bFRsqvcbSH+ivcQfOGWh8ZANeUGU95n2xVK9HctR4RpmZJj8w==
-  dependencies:
-    "@kikko-land/query-builder" "^0.1.1"
-    "@kikko-land/sql" "^0.1.1"
-    rxjs "^7.5.5"
-    ts-essentials "^9.1.2"
-
-"@kikko-land/query-builder@^0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@kikko-land/query-builder/-/query-builder-0.1.1.tgz#a8c192ea07a4fdf1461f43bbaec837fa6b5d4db0"
-  integrity sha512-RvGbv3oG7xmSg/WgsHJuoywAeXzD/SPNTBLppdzW9NFWV9cr8yIWBH2B7zruey97BRKpS8PfIpWIIy23b28UYQ==
-  dependencies:
-    "@kikko-land/sql" "^0.1.1"
-
 "@kikko-land/sql.js@^1.6.8":
   version "1.6.8"
   resolved "https://registry.yarnpkg.com/@kikko-land/sql.js/-/sql.js-1.6.8.tgz#e388e11b7ec5b6c534e7e1474860e31f39ba3d58"
   integrity sha512-2/8V69uMsqjjWCZlgT2lF9I9ImVzQjwd0MfWXNcswvYV6OPW4xQC2SMCfFzqAhHuLx0LW67ir9C7IIid/g/krA==
 
-"@kikko-land/sql@^0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@kikko-land/sql/-/sql-0.1.1.tgz#087a77d82c08874f629c6869f5913a0870abc1e2"
-  integrity sha512-5aQs8cNmsupJ6UXBfwWKuOBdjRYy6ZLppucSMbg8DeYUku43tRtKwEC4TJw1UqBQ5gv7Zu6MIwaABapSVCNLmA==
-
-"@kikko-land/wa-sqlite-web-backend@^0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@kikko-land/wa-sqlite-web-backend/-/wa-sqlite-web-backend-0.2.0.tgz#108b195d6d323ad81d0b54b0abfd8a92a5a307e2"
-  integrity sha512-gfy+IAkeegFRxHMcdaiw6lBO+FPexpOJM3DQ1tTxKqte99UvJBoP4av97O3G5/f+yr6SMVljLBMsilbUKewZdw==
+"@kikko-land/wa-sqlite-web-backend@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@kikko-land/wa-sqlite-web-backend/-/wa-sqlite-web-backend-0.3.0.tgz#f7a43ab0c10d7c5c4db0ac67e249b34fee3ee332"
+  integrity sha512-UAX5GuFdXYHyDUyocDPgXTffCnzogs153GpNXBG7YFZWiHxd/KmdB8Sbuen2bUKYQ4X12BeH2fQGVL5DKjFtHQ==
   dependencies:
-    "@kikko-land/kikko" "^0.2.1"
-    "@kikko-land/sql" "^0.1.1"
+    "@kikko-land/kikko" "^0.4.0"
+    "@kikko-land/sql" "^0.2.0"
     "@kikko-land/sql.js" "^1.6.8"
     patch-package "^6.4.7"
     postinstall-postinstall "^2.1.0"
@@ -3571,6 +3549,13 @@
   version "4.17.6"
   resolved "https://registry.yarnpkg.com/@types/lodash-es/-/lodash-es-4.17.6.tgz#c2ed4c8320ffa6f11b43eb89e9eaeec65966a0a0"
   integrity "sha1-wu1MgyD/pvEbQ+uJ6eruxllmoKA= sha512-R+zTeVUKDdfoRxpAryaQNRKk3105Rrgx2CFRClIgRGaqDTdjsm8h6IYA8ir584W3ePzkZfst5xIgDwYrlh9HLg=="
+  dependencies:
+    "@types/lodash" "*"
+
+"@types/lodash.isequal@^4.5.6":
+  version "4.5.6"
+  resolved "https://registry.yarnpkg.com/@types/lodash.isequal/-/lodash.isequal-4.5.6.tgz#ff42a1b8e20caa59a97e446a77dc57db923bc02b"
+  integrity sha512-Ww4UGSe3DmtvLLJm2F16hDwEQSv7U0Rr8SujLUA2wHI2D2dm8kPu6Et+/y303LfjTIwSBKXB/YTUcAKpem/XEg==
   dependencies:
     "@types/lodash" "*"
 
@@ -8621,7 +8606,7 @@ lodash.get@^4.4.2:
 lodash.isequal@^4.5.0:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/lodash.isequal/-/lodash.isequal-4.5.0.tgz#415c4478f2bcc30120c22ce10ed3226f7d3e18e0"
-  integrity "sha1-QVxEePK8wwEgwizhDtMib30+GOA= sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ=="
+  integrity sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==
 
 lodash.memoize@^4.1.2:
   version "4.1.2"
@@ -11914,7 +11899,7 @@ ts-easing@^0.2.0:
   resolved "https://registry.yarnpkg.com/ts-easing/-/ts-easing-0.2.0.tgz#c8a8a35025105566588d87dbda05dd7fbfa5a4ec"
   integrity "sha1-yKijUCUQVWZYjYfb2gXdf7+lpOw= sha512-Z86EW+fFFh/IFB1fqQ3/+7Zpf9t2ebOAxNI/V6Wo7r5gqiqtxmgTlQ1qbqQcjLKYeSHPTsEmvlJUDg/EuL0uHQ=="
 
-ts-essentials@^9.1.2, ts-essentials@^9.3.0:
+ts-essentials@^9.3.0:
   version "9.3.0"
   resolved "https://registry.yarnpkg.com/ts-essentials/-/ts-essentials-9.3.0.tgz#7e639c1a76b1805c3c60d6e1b5178da2e70aea02"
   integrity sha512-XeiCboEyBG8UqXZtXl59bWEi4ZgOqRsogFDI6WDGIF1LmzbYiAkIwjkXN6zZWWl4re/lsOqMlYfe8KA0XiiEPw==

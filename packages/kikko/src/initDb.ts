@@ -26,7 +26,7 @@ export const initDbClient = async ({
 }: IInitDbClientConfig): Promise<IDbState> => {
   const runningState = reactiveVar<"running" | "stopping" | "stopped">(
     "running",
-    "runningState"
+    { label: "runningState" }
   );
   const dbBackendCalled = (await dbBackend)({
     dbName,
@@ -37,7 +37,7 @@ export const initDbClient = async ({
       queue: [],
       current: undefined,
     } as IJobsState,
-    "jobsState"
+    { label: "jobsState" }
   );
 
   const state: IDbState = {

@@ -68,10 +68,9 @@ export const getBroadcastCh = (
   webMultiTabSupport: boolean,
   rDbState: ReactiveVar<"running" | "stopping" | "stopped">
 ) => {
-  const rCh = reactiveVar<INotifyChannel | undefined>(
-    undefined,
-    "notifyChannel"
-  );
+  const rCh = reactiveVar<INotifyChannel | undefined>(undefined, {
+    label: "notifyChannel",
+  });
 
   let isClosed = false;
   let currentChannel: INotifyChannel | undefined;

@@ -1,3 +1,5 @@
+import isEqual from "lodash.isequal";
+
 export interface ReactiveVar<T> {
   __state: {
     subscriptions: ((val: T) => void)[];
@@ -6,10 +8,7 @@ export interface ReactiveVar<T> {
     onStop: (() => void)[];
   };
   value: T;
-  subscribe(
-    sub: (val: T) => void | (() => void),
-    emitValueOnSubscribe?: boolean
-  ): () => void;
+  subscribe(sub: (val: T) => void, emitValueOnSubscribe?: boolean): () => void;
   waitTill(
     filter: (val: T) => boolean,
     opts?: {
@@ -25,7 +24,13 @@ export interface ReactiveVar<T> {
 export class TimeoutError extends Error {}
 export class StoppedError extends Error {}
 
-export const reactiveVar = <T>(val: T, label: string): ReactiveVar<T> => {
+export const reactiveVar = <T>(
+  val: T,
+  rOpts: { label: string; deduplicate?: boolean }
+): ReactiveVar<T> => {
+  const shouldDeduplicate =
+    rOpts.deduplicate === undefined ? true : rOpts.deduplicate;
+
   return {
     __state: {
       subscriptions: [],
@@ -37,7 +42,12 @@ export const reactiveVar = <T>(val: T, label: string): ReactiveVar<T> => {
       return this.__state.isStopped;
     },
     set value(val: T) {
-      if (this.isStopped) throw new Error(`reactiveVar ${label} is stopped!`);
+      if (this.isStopped)
+        throw new Error(`reactiveVar ${rOpts.label} is stopped!`);
+
+      if (shouldDeduplicate && isEqual(this.__state.value, val)) {
+        return;
+      }
 
       this.__state.value = val;
 
@@ -46,25 +56,36 @@ export const reactiveVar = <T>(val: T, label: string): ReactiveVar<T> => {
       }
     },
     get value() {
-      if (this.isStopped) throw new Error(`reactiveVar ${label} is stopped!`);
+      if (this.isStopped)
+        throw new Error(`reactiveVar ${rOpts.label} is stopped!`);
 
       return this.__state.value;
     },
     subscribe(
-      sub: (val: T) => void | (() => void),
-      emitValueOnSubscribe: boolean = true
+      func: (val: T) => void | (() => void),
+      emitValueOnSubscribe = true
     ) {
-      if (this.isStopped) throw new Error(`reactiveVar ${label} is stopped!`);
+      if (this.isStopped)
+        throw new Error(`reactiveVar ${rOpts.label} is stopped!`);
 
-      this.__state.subscriptions.push(sub);
+      let currentUnsubscribe: undefined | void | (() => void);
+
+      const subscriber = (val: T) => {
+        if (currentUnsubscribe) {
+          currentUnsubscribe();
+        }
+        currentUnsubscribe = func(val);
+      };
+
+      this.__state.subscriptions.push(subscriber);
 
       if (emitValueOnSubscribe) {
-        sub(this.__state.value);
+        subscriber(this.__state.value);
       }
 
       return () => {
         this.__state.subscriptions = this.__state.subscriptions.filter((s) => {
-          return s !== sub;
+          return s !== subscriber;
         });
       };
     },
@@ -75,7 +96,18 @@ export const reactiveVar = <T>(val: T, label: string): ReactiveVar<T> => {
         timeout?: number | "infinite";
       }
     ) {
-      if (this.isStopped) throw new Error(`reactiveVar ${label} is stopped!`);
+      const stopError = new StoppedError(
+        `waitUntil for reactiveVar ${rOpts.label} is stopped due to stop signal`
+      );
+      const timeoutError = new TimeoutError(
+        `waitUntil for reactiveVar ${rOpts.label} is timed out`
+      );
+      const stoppedError = new StoppedError(
+        `waitUntil for reactiveVar ${rOpts.label} is stopped due to reactive var stop`
+      );
+
+      if (this.isStopped)
+        throw new Error(`reactiveVar ${rOpts.label} is stopped!`);
 
       const toWait = new Promise<void>((resolve, reject) => {
         const unsubscriptions: (() => void)[] = [];
@@ -92,12 +124,11 @@ export const reactiveVar = <T>(val: T, label: string): ReactiveVar<T> => {
 
             unsubAll();
 
-            reject(
-              new StoppedError(
-                `waitUntil for reactiveVar ${label} is stopped due to stop signal`
-              )
-            );
-          }, true) || (() => {})
+            reject(stopError);
+          }, true) ||
+            (() => {
+              return undefined;
+            })
         );
 
         unsubscriptions.push(
@@ -110,18 +141,14 @@ export const reactiveVar = <T>(val: T, label: string): ReactiveVar<T> => {
           }, true)
         );
 
-        if (opts?.timeout === undefined || opts?.timeout !== "infinite") {
+        if (opts?.timeout === undefined || typeof opts?.timeout === "number") {
           const id = setTimeout(
             () => {
               unsubAll();
 
-              reject(
-                new TimeoutError(
-                  `waitUntil for reactiveVar ${label} is timed out`
-                )
-              );
+              reject(timeoutError);
             },
-            opts?.timeout === undefined ? 5000 : opts.timeout
+            opts?.timeout === undefined ? 60_000 : opts.timeout
           );
 
           unsubscriptions.push(() => {
@@ -132,11 +159,7 @@ export const reactiveVar = <T>(val: T, label: string): ReactiveVar<T> => {
         this.__state.onStop.push(() => {
           unsubAll();
 
-          reject(
-            new StoppedError(
-              `waitUntil for reactiveVar ${label} is stopped due to reactive var stop`
-            )
-          );
+          reject(stoppedError);
         });
       });
 
@@ -144,7 +167,7 @@ export const reactiveVar = <T>(val: T, label: string): ReactiveVar<T> => {
     },
     stop() {
       if (this.isStopped)
-        throw new Error(`reactiveVar ${label} is already stopped!`);
+        throw new Error(`reactiveVar ${rOpts.label} is already stopped!`);
 
       this.__state.subscriptions = [];
 
