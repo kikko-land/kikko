@@ -1,5 +1,11 @@
 # @kikko-land/absurd-web-backend
 
+## 0.5.0
+
+### Minor Changes
+
+- b4c685e: Bump better-absurd-sql version
+
 ## 0.4.0
 
 ### Minor Changes
