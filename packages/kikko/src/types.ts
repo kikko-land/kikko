@@ -7,29 +7,29 @@ import { IJobsState } from "./job";
 import { ReactiveVar } from "./reactiveVar";
 
 export type IKikkoEvents = {
-  initialized: (db: IDbState) => Promise<void> | void;
+  initialized: (db: IDb) => Promise<void> | void;
   transactionWillStart: (
-    db: IDbState,
+    db: IDb,
     transaction: ITransaction
   ) => Promise<void> | void;
   transactionStarted: (
-    db: IDbState,
+    db: IDb,
     transaction: ITransaction
   ) => Promise<void> | void;
   transactionWillCommit: (
-    db: IDbState,
+    db: IDb,
     transaction: ITransaction
   ) => Promise<void> | void;
   transactionCommitted: (
-    db: IDbState,
+    db: IDb,
     transaction: ITransaction
   ) => Promise<void> | void;
   transactionWillRollback: (
-    db: IDbState,
+    db: IDb,
     transaction: ITransaction
   ) => Promise<void> | void;
   transactionRollbacked: (
-    db: IDbState,
+    db: IDb,
     transaction: ITransaction
   ) => Promise<void> | void;
 };
@@ -39,7 +39,7 @@ export interface ITransaction {
 }
 
 export type IQueriesMiddlewareState = {
-  dbState: IDbState;
+  db: IDb;
   result: IQueryResult[];
   queries: (IBaseToken | ISqlAdapter)[];
 };
@@ -54,11 +54,38 @@ export type IQueriesMiddleware = (
   }
 ) => Promise<IQueriesMiddlewareState>;
 
-export interface IDbState {
-  // mutable object
-  sharedState: ISharedDbState;
-  // immutable object
-  localState: DeepReadonly<ILocalDbState>;
+export interface IAtomicTransaction {
+  __state: {
+    queries: ISqlAdapter[];
+  };
+  addQuery(q: ISqlAdapter): void;
+}
+
+export interface IDb {
+  __state: {
+    // mutable object
+    sharedState: ISharedDbState;
+    // immutable object
+    localState: DeepReadonly<ILocalDbState>;
+  };
+
+  transaction<T>(
+    func: (state: IDb) => Promise<T>,
+    opts?: { label?: string; type?: "deferred" | "immediate" | "exclusive" }
+  ): Promise<T>;
+  atomicTransaction(
+    func: (scope: IAtomicTransaction) => void,
+    opts?: { label?: string; type?: "deferred" | "immediate" | "exclusive" }
+  ): void;
+
+  runQueries<D extends Record<string, unknown>>(
+    state: IDb,
+    queries: ISqlAdapter[]
+  ): Promise<D[][]>;
+  runQuery<D extends Record<string, unknown>>(
+    state: IDb,
+    query: ISqlAdapter
+  ): Promise<D[]>;
 }
 
 export type IQueryValue = number | string | Uint8Array | null;
@@ -71,6 +98,7 @@ type IDbInstance = {
     queries: IQuery[],
     opts: { log: { suppress: boolean; transactionId?: string } }
   ): Promise<IQueryResult[]>;
+  execAtomicTransaction(tr: IAtomicTransaction): Promise<void>;
   stop(): Promise<void>;
 };
 export type IDbBackend = (db: { dbName: string }) => IDbInstance;

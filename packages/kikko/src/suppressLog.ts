@@ -1,15 +1,24 @@
-import { IDbState } from "./types";
+import { IDb } from "./types";
 
-export const suppressLog = <T>(
-  state: IDbState,
-  func: (state: IDbState) => T
-): T => {
+export const suppressLog = <T>(db: IDb, func: (state: IDb) => T): T => {
   return func({
-    ...state,
-    localState: { ...state.localState, suppressLog: true },
+    ...db,
+    __state: {
+      ...db.__state,
+      localState: {
+        ...db.__state.localState,
+        suppressLog: true,
+      },
+    },
   });
 };
 
-export const withSuppressedLog = (state: IDbState): IDbState => {
-  return { ...state, localState: { ...state.localState, suppressLog: true } };
+export const withSuppressedLog = (db: IDb): IDb => {
+  return {
+    ...db,
+    __state: {
+      ...db.__state,
+      localState: { ...db.__state.localState, suppressLog: true },
+    },
+  };
 };

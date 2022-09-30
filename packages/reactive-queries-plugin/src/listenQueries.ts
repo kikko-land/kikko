@@ -1,11 +1,11 @@
-import { IDbState, runQueries } from "@kikko-land/kikko";
+import { IDb, runQueries } from "@kikko-land/kikko";
 import { ISqlAdapter } from "@kikko-land/sql";
 
 import { IMessage } from "./getBroadcastCh";
 import { getReactiveState } from "./utils";
 
 export const listenQueries = <D extends Record<string, unknown>>(
-  db: IDbState,
+  db: IDb,
   queries: ISqlAdapter[],
   subscriber: (evs: D[][]) => void
 ): (() => void) => {
@@ -44,13 +44,15 @@ export const listenQueries = <D extends Record<string, unknown>>(
   // Emit first value
   void runAndEmitQuery();
 
-  const unsubRunningState = db.sharedState.runningState.subscribe((v) => {
-    queueMicrotask(() => {
-      if (v === "stopping" || v === "stopped") {
-        unsubAll();
-      }
-    });
-  });
+  const unsubRunningState = db.__state.sharedState.runningState.subscribe(
+    (v) => {
+      queueMicrotask(() => {
+        if (v === "stopping" || v === "stopped") {
+          unsubAll();
+        }
+      });
+    }
+  );
 
   const unsubAll = () => {
     unsubRunningState();

@@ -1,5 +1,5 @@
 import { runInTransaction, withSuppressedLog } from "@kikko-land/kikko";
-import { IDbState } from "@kikko-land/kikko";
+import { IDb } from "@kikko-land/kikko";
 import { listenQueries } from "@kikko-land/reactive-queries-plugin";
 import { ISqlAdapter } from "@kikko-land/sql";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -143,7 +143,7 @@ function useIsMounted() {
 
 export function useRunQuery<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  D extends (db: IDbState) => (...args: any[]) => Promise<R>,
+  D extends (db: IDb) => (...args: any[]) => Promise<R>,
   R
 >(
   cb: D,
@@ -200,9 +200,8 @@ export function useRunQuery<
   );
 
   // Simulation of useEvent
-  const toCallRef = useRef<(...args: Parameters<ReturnType<D>>) => Promise<R>>(
-    toCall
-  );
+  const toCallRef =
+    useRef<(...args: Parameters<ReturnType<D>>) => Promise<R>>(toCall);
   useEffect(() => {
     toCallRef.current = toCall;
   }, [toCall]);

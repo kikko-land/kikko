@@ -1,16 +1,12 @@
-import {
-  IDbClientPlugin,
-  IDbState,
-  IQueriesMiddleware,
-} from "@kikko-land/kikko";
+import { IDb, IDbClientPlugin, IQueriesMiddleware } from "@kikko-land/kikko";
 
 import { getBroadcastCh } from "./getBroadcastCh";
 import { getReactiveState } from "./utils";
 
-const notifyTablesContentChanged = (state: IDbState, tables: string[]) => {
+const notifyTablesContentChanged = (db: IDb, tables: string[]) => {
   if (tables.length === 0) return;
 
-  const reactiveState = getReactiveState(state);
+  const reactiveState = getReactiveState(db);
 
   const unsubscribe = reactiveState.rEventsCh.subscribe((ch) => {
     void (async () => {
@@ -27,13 +23,13 @@ export const reactiveQueriesPlugin: (opts?: {
   webMultiTabSupport?: boolean;
 }) => IDbClientPlugin = (opts) => (db) => {
   const transactionTables: Record<string, { writeTables: Set<string> }> = {};
-  const { dbName, eventsEmitter, runningState } = db.sharedState;
+  const { dbName, eventsEmitter, runningState } = db.__state.sharedState;
 
   const webMultiTabSupport =
     opts?.webMultiTabSupport !== undefined ? opts.webMultiTabSupport : true;
 
   const reactiveQueriesMiddleware: IQueriesMiddleware = (state) => {
-    const transaction = state.dbState.localState.transactionsState.current;
+    const transaction = state.db.__state.localState.transactionsState.current;
 
     const writeTables = state.queries
       .map((q) => q.toSql())
@@ -57,7 +53,7 @@ export const reactiveQueriesPlugin: (opts?: {
         }
       } else {
         // dont await so notification happens after function return
-        notifyTablesContentChanged(state.dbState, writeTables);
+        notifyTablesContentChanged(state.db, writeTables);
       }
     }
 
@@ -86,7 +82,7 @@ export const reactiveQueriesPlugin: (opts?: {
     delete transactionTables[transaction.id];
   });
 
-  db.sharedState.reactiveQueriesState = {
+  db.__state.sharedState.reactiveQueriesState = {
     rEventsCh: getBroadcastCh(
       dbName + "-reactiveQueriesPlugin",
       webMultiTabSupport,
@@ -96,12 +92,15 @@ export const reactiveQueriesPlugin: (opts?: {
 
   return {
     ...db,
-    localState: {
-      ...db.localState,
-      queriesMiddlewares: [
-        ...db.localState.queriesMiddlewares,
-        reactiveQueriesMiddleware,
-      ],
+    __state: {
+      ...db.__state,
+      localState: {
+        ...db.__state.localState,
+        queriesMiddlewares: [
+          ...db.__state.localState.queriesMiddlewares,
+          reactiveQueriesMiddleware,
+        ],
+      },
     },
   };
 };

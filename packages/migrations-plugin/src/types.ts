@@ -1,7 +1,7 @@
-import { IDbState } from "@kikko-land/kikko";
+import { IDb } from "@kikko-land/kikko";
 
 export type IMigration = {
-  up: (state: IDbState) => Promise<void>;
+  up: (state: IDb) => Promise<void>;
   id: number;
   name: string;
 };

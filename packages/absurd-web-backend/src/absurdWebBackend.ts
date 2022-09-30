@@ -1,5 +1,6 @@
 import { initBackend } from "@kikko-land/better-absurd-sql/dist/indexeddb-main-thread";
 import {
+  IAtomicTransaction,
   IDbBackend,
   IQuery,
   reactiveVar,
@@ -109,6 +110,7 @@ export const absurdWebBackend =
           buildRunQueriesCommand(queries, opts)
         );
       },
+      async execAtomicTransaction(_tr: IAtomicTransaction) {},
       async stop() {
         isTerminated.value = true;
 
