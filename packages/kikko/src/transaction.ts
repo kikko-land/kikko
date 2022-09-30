@@ -1,13 +1,13 @@
 import { sql } from "@kikko-land/sql";
 
 import { acquireJob, releaseJob } from "./job";
-import { IDbState, ITransaction } from "./types";
+import { IDb, ITransaction } from "./types";
 import { assureDbIsRunning, makeId, unwrapQueries } from "./utils";
 
 const runInTransactionFunc = async <T>(
-  state: IDbState,
+  db: IDb,
   transactionType: "DEFERRED" | "IMMEDIATE" | "EXCLUSIVE",
-  func: (state: IDbState) => Promise<T>,
+  func: (state: IDb) => Promise<T>,
   opts?: { label?: string }
 ) => {
   const {
@@ -17,7 +17,7 @@ const runInTransactionFunc = async <T>(
       eventsEmitter,
       dbBackend,
     },
-  } = state;
+  } = db.__state;
 
   // It's indeed that function in same transaction don't need to check db is running
   // Cause all transaction will await to execute on DB before stop
@@ -32,24 +32,27 @@ const runInTransactionFunc = async <T>(
     }
 
     // we already in same transaction
-    return await func(state);
+    return await func(db);
   }
 
-  assureDbIsRunning(state, () => "transaction");
+  assureDbIsRunning(db, () => "transaction");
 
   const transaction: ITransaction = {
     id: makeId(),
   };
 
-  state = {
-    ...state,
-    localState: {
-      ...state.localState,
-      transactionsState: { current: transaction },
+  db = {
+    ...db,
+    __state: {
+      ...db.__state,
+      localState: {
+        ...db.__state.localState,
+        transactionsState: { current: transaction },
+      },
     },
   };
 
-  const job = await acquireJob(state.sharedState.jobsState, {
+  const job = await acquireJob(db.__state.sharedState.jobsState, {
     type: "runTransaction",
     transaction,
     label: opts?.label,
@@ -57,7 +60,7 @@ const runInTransactionFunc = async <T>(
 
   const execOpts = {
     log: {
-      suppress: Boolean(state.localState.suppressLog),
+      suppress: Boolean(db.__state.localState.suppressLog),
       transactionId: transaction.id,
     },
   };
@@ -65,60 +68,60 @@ const runInTransactionFunc = async <T>(
   try {
     transactionsSharedState.current = transaction;
 
-    await eventsEmitter.emit("transactionWillStart", state, transaction);
+    await eventsEmitter.emit("transactionWillStart", db, transaction);
 
     await dbBackend.execQueries(
       unwrapQueries([sql`BEGIN ${sql.raw(transactionType)} TRANSACTION;`]),
       execOpts
     );
 
-    await eventsEmitter.emit("transactionStarted", state, transaction);
+    await eventsEmitter.emit("transactionStarted", db, transaction);
 
     try {
-      const res = await func(state);
+      const res = await func(db);
 
-      await eventsEmitter.emit("transactionWillCommit", state, transaction);
+      await eventsEmitter.emit("transactionWillCommit", db, transaction);
 
       await dbBackend.execQueries(unwrapQueries([sql`COMMIT`]), execOpts);
 
-      await eventsEmitter.emit("transactionCommitted", state, transaction);
+      await eventsEmitter.emit("transactionCommitted", db, transaction);
 
       return res;
     } catch (e) {
       console.error("Rollback transaction", e);
 
-      await eventsEmitter.emit("transactionWillRollback", state, transaction);
+      await eventsEmitter.emit("transactionWillRollback", db, transaction);
 
       await dbBackend.execQueries(unwrapQueries([sql`ROLLBACK`]), execOpts);
 
-      await eventsEmitter.emit("transactionRollbacked", state, transaction);
+      await eventsEmitter.emit("transactionRollbacked", db, transaction);
 
       throw e;
     }
   } finally {
-    releaseJob(state.sharedState.jobsState, job);
+    releaseJob(db.__state.sharedState.jobsState, job);
   }
 };
 
 // By default it is deferred
 export const runInDeferredTransaction = <T>(
-  state: IDbState,
-  func: (state: IDbState) => Promise<T>,
+  state: IDb,
+  func: (state: IDb) => Promise<T>,
   opts?: { label?: string }
 ) => runInTransactionFunc(state, "DEFERRED", func, opts);
 export const runInImmediateTransaction = <T>(
-  state: IDbState,
-  func: (state: IDbState) => Promise<T>,
+  state: IDb,
+  func: (state: IDb) => Promise<T>,
   opts?: { label?: string }
 ) => runInTransactionFunc(state, "IMMEDIATE", func, opts);
 export const runInExclusiveTransaction = <T>(
-  state: IDbState,
-  func: (state: IDbState) => Promise<T>,
+  state: IDb,
+  func: (state: IDb) => Promise<T>,
   opts?: { label?: string }
 ) => runInTransactionFunc(state, "EXCLUSIVE", func, opts);
 
 export const runInTransaction = <T>(
-  state: IDbState,
-  func: (state: IDbState) => Promise<T>,
+  state: IDb,
+  func: (state: IDb) => Promise<T>,
   opts?: { label?: string }
 ) => runInDeferredTransaction(state, func, opts);

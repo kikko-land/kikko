@@ -1,7 +1,7 @@
-import { IDbState } from "@kikko-land/kikko";
+import { IDb } from "@kikko-land/kikko";
 
-export const getReactiveState = (state: IDbState) => {
-  const reactiveState = state.sharedState.reactiveQueriesState;
+export const getReactiveState = (db: IDb) => {
+  const reactiveState = db.__state.sharedState.reactiveQueriesState;
 
   if (!reactiveState) {
     throw new Error(

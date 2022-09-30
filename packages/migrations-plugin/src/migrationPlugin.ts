@@ -1,6 +1,6 @@
 import {
+  IDb,
   IDbClientPlugin,
-  IDbState,
   runInTransaction,
   runQuery,
 } from "@kikko-land/kikko";
@@ -10,11 +10,11 @@ import { IMigration } from "./types";
 
 const migrationsTable = "migrations";
 
-const runMigrations = (state: IDbState, migrations: IMigration[]) => {
+const runMigrations = (db: IDb, migrations: IMigration[]) => {
   if (migrations.length === 0) return;
 
   return runInTransaction(
-    state,
+    db,
     async (state) => {
       await runQuery(
         state,
@@ -55,14 +55,12 @@ const runMigrations = (state: IDbState, migrations: IMigration[]) => {
   );
 };
 
-export const migrationsPlugin = ({
-  migrations,
-}: {
-  migrations: IMigration[];
-}): IDbClientPlugin => (state: IDbState) => {
-  state.sharedState.eventsEmitter.on("initialized", async () => {
-    await runMigrations(state, migrations);
-  });
+export const migrationsPlugin =
+  ({ migrations }: { migrations: IMigration[] }): IDbClientPlugin =>
+  (db: IDb) => {
+    db.__state.sharedState.eventsEmitter.on("initialized", async () => {
+      await runMigrations(db, migrations);
+    });
 
-  return state;
-};
+    return db;
+  };

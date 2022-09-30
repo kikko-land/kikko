@@ -1,5 +1,5 @@
 import {
-  IDbState,
+  IDb,
   IInitDbClientConfig,
   initDbClient,
   stopDb,
@@ -7,7 +7,7 @@ import {
 import React, { ReactElement, useContext, useEffect, useState } from "react";
 
 export type IDbInitState =
-  | { type: "initialized"; db: IDbState; config: IInitDbClientConfig }
+  | { type: "initialized"; db: IDb; config: IInitDbClientConfig }
   | { type: "notInitialized" }
   | { type: "initializing"; config: IInitDbClientConfig };
 
@@ -25,7 +25,7 @@ export const DbProvider: React.FC<{
 
   useEffect(() => {
     let shouldBeStopped = false;
-    let initializedDb: IDbState | undefined = undefined;
+    let initializedDb: IDb | undefined = undefined;
 
     const cb = async () => {
       setCurrentState({ type: "initializing", config });

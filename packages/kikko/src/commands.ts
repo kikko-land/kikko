@@ -1,6 +1,6 @@
 import { IPrimitiveValue, ISql } from "@kikko-land/sql";
 
-import { IDbState } from "./types";
+import { IDb } from "./types";
 import { makeId } from "./utils";
 
 type IBaseCommand = {
@@ -39,7 +39,7 @@ export type ICommand =
   | ICommitTransactionCommand;
 
 export const buildRunQueriesCommand = (
-  state: IDbState,
+  state: IDb,
   queries: ISql[]
 ): IExecQueriesCommand => {
   return {

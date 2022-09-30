@@ -1,15 +1,10 @@
 import { createNanoEvents } from "./createNanoEvents";
 import { acquireJob, IJobsState, releaseJob, whenAllJobsDone } from "./job";
 import { reactiveVar } from "./reactiveVar";
-import {
-  IDbBackend,
-  IDbState,
-  IKikkoEvents,
-  IQueriesMiddleware,
-} from "./types";
+import { IDb, IDbBackend, IKikkoEvents, IQueriesMiddleware } from "./types";
 import { makeId } from "./utils";
 
-export type IDbClientPlugin = (state: IDbState) => IDbState;
+export type IDbClientPlugin = (state: IDb) => IDb;
 
 export type IInitDbClientConfig = {
   dbName: string;
@@ -23,7 +18,7 @@ export const initDbClient = async ({
   plugins,
   queriesMiddlewares,
   dbBackend,
-}: IInitDbClientConfig): Promise<IDbState> => {
+}: IInitDbClientConfig): Promise<IDb> => {
   const runningState = reactiveVar<"running" | "stopping" | "stopped">(
     "running",
     { label: "runningState" }
@@ -40,40 +35,42 @@ export const initDbClient = async ({
     { label: "jobsState" }
   );
 
-  const state: IDbState = {
-    sharedState: {
-      clientId: makeId(),
-      dbBackend: dbBackendCalled,
-      dbName,
+  const db: IDb = {
+    __state: {
+      sharedState: {
+        clientId: makeId(),
+        dbBackend: dbBackendCalled,
+        dbName,
 
-      runningState: runningState,
+        runningState: runningState,
 
-      eventsEmitter: createNanoEvents<IKikkoEvents>(),
+        eventsEmitter: createNanoEvents<IKikkoEvents>(),
 
-      jobsState: jobsState,
-      transactionsState: {},
-    },
-    localState: {
-      queriesMiddlewares: queriesMiddlewares || [],
-      transactionsState: {},
+        jobsState: jobsState,
+        transactionsState: {},
+      },
+      localState: {
+        queriesMiddlewares: queriesMiddlewares || [],
+        transactionsState: {},
+      },
     },
   };
 
-  const job = await acquireJob(state.sharedState.jobsState, {
+  const job = await acquireJob(db.__state.sharedState.jobsState, {
     type: "initDb",
     name: dbName,
   });
 
-  let currentState = state;
+  let currentState = db;
 
   try {
-    const getRunningState = () => state.sharedState.runningState.value;
+    const getRunningState = () => db.__state.sharedState.runningState.value;
 
-    if (getRunningState() !== "running") return state;
+    if (getRunningState() !== "running") return db;
 
     await dbBackendCalled.initialize();
 
-    if (getRunningState() !== "running") return state;
+    if (getRunningState() !== "running") return db;
 
     for (const plugin of plugins || []) {
       currentState = plugin(currentState);
@@ -82,21 +79,21 @@ export const initDbClient = async ({
     releaseJob(jobsState, job);
   }
 
-  await state.sharedState.eventsEmitter.emit("initialized", state);
+  await db.__state.sharedState.eventsEmitter.emit("initialized", db);
 
   return currentState;
 };
 
-export const stopDb = async (state: IDbState) => {
-  state.sharedState.runningState.value = "stopping";
+export const stopDb = async (state: IDb) => {
+  state.__state.sharedState.runningState.value = "stopping";
 
-  await whenAllJobsDone(state.sharedState.jobsState);
-  await state.sharedState.dbBackend.stop();
+  await whenAllJobsDone(state.__state.sharedState.jobsState);
+  await state.__state.sharedState.dbBackend.stop();
 
-  state.sharedState.runningState.value = "stopped";
+  state.__state.sharedState.runningState.value = "stopped";
 
   queueMicrotask(() => {
-    state.sharedState.runningState.stop();
-    state.sharedState.jobsState.stop();
+    state.__state.sharedState.runningState.stop();
+    state.__state.sharedState.jobsState.stop();
   });
 };

@@ -1,5 +1,5 @@
 import {
-  IDbState,
+  IDb,
   IInitDbClientConfig,
   initDbClient,
   runInTransaction,
@@ -34,7 +34,7 @@ export type ISingleQueryHookResult<D> =
 export type Falsy = false | 0 | "" | null | undefined;
 
 export type IDbInitState =
-  | { type: "initialized"; db: IDbState }
+  | { type: "initialized"; db: IDb }
   | { type: "notInitialized" }
   | { type: "initializing" };
 
@@ -197,7 +197,7 @@ export type IRunQueryHookResult<D> =
 
 export function useRunQuery<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  D extends (db: IDbState) => (...args: any[]) => Promise<R>,
+  D extends (db: IDb) => (...args: any[]) => Promise<R>,
   R
 >(
   dbStateRef: Ref<IDbInitState>,

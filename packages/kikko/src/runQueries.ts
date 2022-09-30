@@ -2,17 +2,14 @@ import { ISqlAdapter } from "@kikko-land/sql";
 
 import { acquireJob, IJob, releaseJob } from "./job";
 import {
-  IDbState,
+  IDb,
   INextQueriesMiddleware,
   IQueriesMiddleware,
   IQueriesMiddlewareState,
 } from "./types";
 import { assureDbIsRunning, unwrapQueries } from "./utils";
 
-const runQueriesMiddleware: IQueriesMiddleware = async ({
-  dbState,
-  queries,
-}) => {
+const runQueriesMiddleware: IQueriesMiddleware = async ({ db, queries }) => {
   const {
     localState: { transactionsState: transactionsLocalState, suppressLog },
     sharedState: {
@@ -20,10 +17,10 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
       jobsState,
       dbBackend,
     },
-  } = dbState;
+  } = db.__state;
 
   if (!transactionsLocalState.current) {
-    assureDbIsRunning(dbState, () => JSON.stringify(queries));
+    assureDbIsRunning(db, () => JSON.stringify(queries));
   }
 
   if (transactionsLocalState.current && transactionsSharedState.current) {
@@ -59,7 +56,7 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
       execOpts
     );
 
-    return { dbState, result, queries };
+    return { db: db, result, queries };
   } finally {
     if (job) {
       releaseJob(jobsState, job);
@@ -68,11 +65,11 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
 };
 
 export const runQueries = async <D extends Record<string, unknown>>(
-  state: IDbState,
+  db: IDb,
   queries: ISqlAdapter[]
 ): Promise<D[][]> => {
   const middlewares: IQueriesMiddleware[] = [
-    ...state.localState.queriesMiddlewares,
+    ...db.__state.localState.queriesMiddlewares,
     runQueriesMiddleware,
   ].reverse();
 
@@ -87,7 +84,7 @@ export const runQueries = async <D extends Record<string, unknown>>(
 
   return (
     await toCall({
-      dbState: state,
+      db: db,
       result: [],
       queries: queries.map((q) => q.toSql()),
     })
@@ -95,7 +92,7 @@ export const runQueries = async <D extends Record<string, unknown>>(
 };
 
 export const runQuery = async <D extends Record<string, unknown>>(
-  state: IDbState,
+  state: IDb,
   query: ISqlAdapter
 ) => {
   return (await runQueries<D>(state, [query]))[0] || [];

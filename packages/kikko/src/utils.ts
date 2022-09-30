@@ -1,10 +1,12 @@
 import { ISql } from "@kikko-land/sql";
 
-import { IDbState, IQuery } from "./types";
+import { IDb, IQuery } from "./types";
 
-export const assureDbIsRunning = (state: IDbState, toStart: () => string) => {
+export const assureDbIsRunning = (state: IDb, toStart: () => string) => {
   const {
-    sharedState: { runningState, dbName },
+    __state: {
+      sharedState: { runningState, dbName },
+    },
   } = state;
 
   if (runningState.value !== "running") {
