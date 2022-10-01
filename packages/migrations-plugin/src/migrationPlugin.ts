@@ -1,9 +1,4 @@
-import {
-  IDb,
-  IDbClientPlugin,
-  runInTransaction,
-  runQuery,
-} from "@kikko-land/kikko";
+import { IDb, IDbClientPlugin } from "@kikko-land/kikko";
 import { generateInsert, sql } from "@kikko-land/sql";
 
 import { IMigration } from "./types";
@@ -13,11 +8,9 @@ const migrationsTable = "migrations";
 const runMigrations = (db: IDb, migrations: IMigration[]) => {
   if (migrations.length === 0) return;
 
-  return runInTransaction(
-    db,
-    async (state) => {
-      await runQuery(
-        state,
+  return db.transaction(
+    async (db) => {
+      await db.runQuery(
         sql`
         CREATE TABLE IF NOT EXISTS ${sql.raw(migrationsTable)} (
           id INTEGER PRIMARY KEY,
@@ -27,8 +20,7 @@ const runMigrations = (db: IDb, migrations: IMigration[]) => {
       `
       );
 
-      const migratedMigrations = await runQuery<{ id: number }>(
-        state,
+      const migratedMigrations = await db.runQuery<{ id: number }>(
         sql`SELECT id FROM ${sql.raw(migrationsTable)}`
       );
 
@@ -37,10 +29,9 @@ const runMigrations = (db: IDb, migrations: IMigration[]) => {
       for (const migration of migrations.sort((a, b) => a.id - b.id)) {
         if (migratedIds.has(migration.id)) return;
 
-        await migration.up(state);
+        await migration.up(db);
 
-        await runQuery(
-          state,
+        await db.runQuery(
           generateInsert(migrationsTable, [
             {
               id: migration.id,

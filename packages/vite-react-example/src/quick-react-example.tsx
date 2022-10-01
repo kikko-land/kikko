@@ -6,7 +6,6 @@ import {
   IMigration,
   migrationsPlugin,
   reactiveQueriesPlugin,
-  runQuery,
   sql,
 } from "@kikko-land/react";
 // For Vite:
@@ -16,8 +15,7 @@ import { List } from "./list/List";
 
 const createNotesTable: IMigration = {
   up: async (db) => {
-    await runQuery(
-      db,
+    await db.runQuery(
       sql`
       CREATE TABLE IF NOT EXISTS notes (
         id varchar(20) PRIMARY KEY,
@@ -27,8 +25,7 @@ const createNotesTable: IMigration = {
     `
     );
 
-    await runQuery(
-      db,
+    await db.runQuery(
       sql`
       CREATE INDEX IF NOT EXISTS idx_note_title ON notes(title);
     `

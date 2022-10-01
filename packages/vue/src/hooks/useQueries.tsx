@@ -2,7 +2,6 @@ import {
   IDb,
   IInitDbClientConfig,
   initDbClient,
-  runInTransaction,
   stopDb,
   withSuppressedLog,
 } from "@kikko-land/kikko";
@@ -256,7 +255,7 @@ export function useRunQuery<
 
       try {
         const res = await (inTransaction
-          ? runInTransaction(db, (db) => cb(db)(...args))
+          ? db.transaction((db) => cb(db)(...args))
           : cb(db)(...args));
 
         data.value = res;

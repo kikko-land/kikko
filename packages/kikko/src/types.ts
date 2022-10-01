@@ -76,16 +76,12 @@ export interface IDb {
   atomicTransaction(
     func: (scope: IAtomicTransaction) => void,
     opts?: { label?: string; type?: "deferred" | "immediate" | "exclusive" }
-  ): void;
+  ): Promise<void>;
 
   runQueries<D extends Record<string, unknown>>(
-    state: IDb,
     queries: ISqlAdapter[]
   ): Promise<D[][]>;
-  runQuery<D extends Record<string, unknown>>(
-    state: IDb,
-    query: ISqlAdapter
-  ): Promise<D[]>;
+  runQuery<D extends Record<string, unknown>>(query: ISqlAdapter): Promise<D[]>;
 }
 
 export type IQueryValue = number | string | Uint8Array | null;

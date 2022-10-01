@@ -7,8 +7,6 @@ import {
 } from "@kikko-land/query-builder";
 import {
   makeId,
-  runQueries,
-  runQuery,
   sql,
   useCacheQuery,
   useQuery,
@@ -51,12 +49,11 @@ const Row = ({
   textToSearch: string;
 }) => {
   const [deleteRecord, deleteRecordState] = useRunQuery((db) => async () => {
-    await runQuery(db, deleteFrom(notesTable).where({ id: row.id }));
+    await db.runQuery(deleteFrom(notesTable).where({ id: row.id }));
   });
 
   const [updateRecord, updateRecordState] = useRunQuery((db) => async () => {
-    await runQuery(
-      db,
+    await db.runQuery(
       update(notesTable)
         .set({
           title: row.title + " updated!",
@@ -107,7 +104,7 @@ export const List = () => {
   const [textToSearch, setTextToSearch] = useState<string>("");
 
   useRunQuery((db) => async () => {
-    await runQueries(db, [
+    await db.runQueries([
       sql`
     CREATE TABLE IF NOT EXISTS test(field1);
         `,
@@ -152,8 +149,7 @@ export const List = () => {
   const [createNotes, createNotesState] = useRunQuery(
     (db) => async (count: number) => {
       for (const ch of chunk(Array.from(Array(count).keys()), 3000)) {
-        await runQuery(
-          db,
+        await db.runQuery(
           insert(
             ch.map((i) => ({
               id: makeId(),
@@ -169,7 +165,7 @@ export const List = () => {
   );
 
   const [deleteAll, deleteAllState] = useRunQuery((db) => async () => {
-    await runQuery(db, deleteFrom(notesTable));
+    await db.runQuery(deleteFrom(notesTable));
   });
 
   return (

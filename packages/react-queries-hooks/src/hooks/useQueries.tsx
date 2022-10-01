@@ -1,4 +1,4 @@
-import { runInTransaction, withSuppressedLog } from "@kikko-land/kikko";
+import { withSuppressedLog } from "@kikko-land/kikko";
 import { IDb } from "@kikko-land/kikko";
 import { listenQueries } from "@kikko-land/reactive-queries-plugin";
 import { ISqlAdapter } from "@kikko-land/sql";
@@ -186,7 +186,7 @@ export function useRunQuery<
 
       const db = suppressLog ? withSuppressedLog(dbState.db) : dbState.db;
       const res = await (inTransaction
-        ? runInTransaction(db, (db) => cb(db)(...args))
+        ? db.transaction((db) => cb(db)(...args))
         : cb(db)(...args));
 
       if (isMounted()) {
