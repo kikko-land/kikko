@@ -1,4 +1,4 @@
-import { IDb, runQueries } from "@kikko-land/kikko";
+import { IDb } from "@kikko-land/kikko";
 import { ISqlAdapter } from "@kikko-land/sql";
 
 import { IMessage } from "./getBroadcastCh";
@@ -21,7 +21,7 @@ export const listenQueries = <D extends Record<string, unknown>>(
   let currentChannelUnsub: (() => void) | undefined;
 
   const runAndEmitQuery = async () => {
-    subscriber(await runQueries<D>(db, queries));
+    subscriber(await db.runQueries<D>(queries));
   };
 
   const chChangeUnsub = rEventsCh.subscribe((ch) => {

@@ -1,7 +1,17 @@
+import { ISqlAdapter } from "@kikko-land/sql";
+
 import { createNanoEvents } from "./createNanoEvents";
 import { acquireJob, IJobsState, releaseJob, whenAllJobsDone } from "./job";
 import { reactiveVar } from "./reactiveVar";
-import { IDb, IDbBackend, IKikkoEvents, IQueriesMiddleware } from "./types";
+import { runQueries, runQuery } from "./runQueries";
+import { runInTransactionFunc } from "./transaction";
+import {
+  IAtomicTransaction,
+  IDb,
+  IDbBackend,
+  IKikkoEvents,
+  IQueriesMiddleware,
+} from "./types";
 import { makeId } from "./utils";
 
 export type IDbClientPlugin = (state: IDb) => IDb;
@@ -53,6 +63,30 @@ export const initDbClient = async ({
         queriesMiddlewares: queriesMiddlewares || [],
         transactionsState: {},
       },
+    },
+    transaction<T>(
+      func: (state: IDb) => Promise<T>,
+      opts?: { label?: string; type?: "deferred" | "immediate" | "exclusive" }
+    ): Promise<T> {
+      return runInTransactionFunc<T>(this, opts?.type || "deferred", func, {
+        label: opts?.label,
+      });
+    },
+    atomicTransaction(
+      func: (scope: IAtomicTransaction) => void,
+      opts?: { label?: string; type?: "deferred" | "immediate" | "exclusive" }
+    ): Promise<void> {
+      return Promise.resolve();
+    },
+    runQueries<D extends Record<string, unknown>>(
+      queries: ISqlAdapter[]
+    ): Promise<D[][]> {
+      return runQueries<D>(this, queries);
+    },
+    runQuery<D extends Record<string, unknown>>(
+      query: ISqlAdapter
+    ): Promise<D[]> {
+      return runQuery<D>(this, query);
     },
   };
 

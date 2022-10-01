@@ -11,7 +11,6 @@ import {
 import {
   makeId,
   runAfterTransactionCommitted,
-  runQuery,
   sql,
   useQuery,
   useQueryFirstRow,
@@ -43,23 +42,23 @@ export const List = () => {
   );
 
   const [createNote, createNoteState] = useRunQuery(
-    (db) => async ({ title, content }: { title: string; content: string }) => {
-      const time = new Date().getTime();
-      await runQuery(
-        db,
-        insert({
-          id: makeId(),
-          title,
-          content,
-          updatedAt: time,
-          createdAt: time,
-        }).into(notesTable)
-      );
-    }
+    (db) =>
+      async ({ title, content }: { title: string; content: string }) => {
+        const time = new Date().getTime();
+        await db.runQuery(
+          insert({
+            id: makeId(),
+            title,
+            content,
+            updatedAt: time,
+            createdAt: time,
+          }).into(notesTable)
+        );
+      }
   );
 
   const [deleteAll, deleteAllState] = useRunQuery((db) => async () => {
-    await runQuery(db, deleteFrom(notesTable));
+    await db.runQuery(deleteFrom(notesTable));
 
     runAfterTransactionCommitted(db, () => {
       console.log("It runs after transaction committed!");

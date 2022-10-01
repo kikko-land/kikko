@@ -1,9 +1,8 @@
-import { IMigration, runQuery, sql } from "@kikko-land/react";
+import { IMigration, sql } from "@kikko-land/react";
 
 export const createKVMigration: IMigration = {
   up: async (db) => {
-    await runQuery(
-      db,
+    await db.runQuery(
       sql`
       CREATE TABLE kv (key TEXT, value TEXT);
       `

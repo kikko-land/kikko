@@ -2,9 +2,6 @@ import { sql } from "@kikko-land/query-builder";
 import {
   makeId,
   runAfterTransactionCommitted,
-  runInTransaction,
-  runQueries,
-  runQuery,
   suppressLog,
   useDbStrict,
   useRunQuery,
@@ -20,54 +17,59 @@ export const Benchmark = () => {
   const backendName = (useSearchParam("backend") ||
     "waMinimal") as keyof typeof backendOptions;
 
-  const [runBenchmark, benchmarkState] = useRunQuery((db) => () =>
-    suppressLog(db, async (db) =>
-      runInTransaction(db, async () => {
-        const time = new Date().getTime();
-        setLogs((l) => [...l, "Start inserting..."]);
+  const [runBenchmark, benchmarkState] = useRunQuery(
+    (db) => () =>
+      suppressLog(db, async (db) =>
+        db.transaction(async (db) => {
+          const time = new Date().getTime();
+          setLogs((l) => [...l, "Start inserting..."]);
 
-        for (let i = 0; i < 100; i++) {
-          await runQuery(
-            db,
-            sql`INSERT INTO kv (key, value) VALUES ${sql.join(
-              [...Array<number>(10_000)].map(
-                () =>
-                  sql`(${makeId()}, ${((Math.random() * 100) | 0).toString()})`
-              )
-            )}`
-          );
-        }
+          for (let i = 0; i < 100; i++) {
+            await db.runQuery(
+              sql`INSERT INTO kv (key, value) VALUES ${sql.join(
+                [...Array<number>(10_000)].map(
+                  () =>
+                    sql`(${makeId()}, ${(
+                      (Math.random() * 100) |
+                      0
+                    ).toString()})`
+                )
+              )}`
+            );
+          }
 
-        runAfterTransactionCommitted(db, () => {
-          void (async () => {
-            setLogs((l) => [
-              ...l,
-              `Done inserting in ${(new Date().getTime() - time) / 1000}s`,
-            ]);
+          runAfterTransactionCommitted(db, () => {
+            void (async () => {
+              setLogs((l) => [
+                ...l,
+                `Done inserting in ${(new Date().getTime() - time) / 1000}s`,
+              ]);
 
-            const summingTime = new Date().getTime();
+              const summingTime = new Date().getTime();
 
-            setLogs((l) => [...l, `Summing...`]);
-            await runQuery(db, sql`SELECT SUM(value) FROM kv`);
-            setLogs((l) => [
-              ...l,
-              `Done summing in ${(new Date().getTime() - summingTime) / 1000}s`,
-            ]);
-          })();
-        });
-      })
-    )
+              setLogs((l) => [...l, `Summing...`]);
+              await db.runQuery(sql`SELECT SUM(value) FROM kv`);
+              setLogs((l) => [
+                ...l,
+                `Done summing in ${
+                  (new Date().getTime() - summingTime) / 1000
+                }s`,
+              ]);
+            })();
+          });
+        })
+      )
   );
 
   const db = useDbStrict();
   const clearAndRun = useCallback(async () => {
     setLogs((l) => [...l, "Clearing data first..."]);
-    await runQuery(db, sql`DELETE FROM kv;`);
+    await db.runQuery(sql`DELETE FROM kv;`);
     setLogs((l) => [...l, "Clearing done!"]);
 
     setLogs((l) => [...l, "Reading pragma..."]);
     const pragma = JSON.stringify(
-      await runQueries(db, [
+      await db.runQueries([
         sql`SELECT * FROM pragma_cache_size`,
         sql`SELECT * FROM pragma_journal_mode`,
         sql`SELECT * FROM pragma_page_size`,
