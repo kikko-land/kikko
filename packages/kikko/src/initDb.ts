@@ -87,7 +87,10 @@ export const initDbClient = async ({
       });
     },
     async atomicTransaction(
-      func: (scope: IAtomicTransactionScope) => Promise<void> | void,
+      func:
+        | ((scope: IAtomicTransactionScope) => Promise<void> | void)
+        | ISqlAdapter[],
+
       opts?: { label?: string; type?: "deferred" | "immediate" | "exclusive" }
     ): Promise<void> {
       return await execAtomicTransaction(

@@ -153,7 +153,9 @@ const initAtomicTransaction = (): IAtomicTransactionScope => {
 export const execAtomicTransaction = async (
   db: IDb,
   transactionType: "deferred" | "immediate" | "exclusive",
-  func: (scope: IAtomicTransactionScope) => Promise<void> | void,
+  funcOrQueries:
+    | ((scope: IAtomicTransactionScope) => Promise<void> | void)
+    | ISqlAdapter[],
   opts?: { label?: string }
 ): Promise<void> => {
   const {
@@ -166,9 +168,16 @@ export const execAtomicTransaction = async (
       "You are running atomic transaction inside of a transaction. Consider moving atomic transaction call to runAfterTransaction callback."
     );
   }
-  const atomicTransaction = initAtomicTransaction();
 
-  await func(atomicTransaction);
+  const inputQueries = await (async () => {
+    if (Array.isArray(funcOrQueries)) {
+      return funcOrQueries;
+    } else {
+      const atomicTransaction = initAtomicTransaction();
+      await funcOrQueries(atomicTransaction);
+      return atomicTransaction.__state.queries;
+    }
+  })();
 
   const transaction: ITransaction = {
     id: makeId(),
@@ -209,7 +218,7 @@ export const execAtomicTransaction = async (
 
   const queries = [
     sql`BEGIN ${sql.raw(transactionType.toUpperCase())} TRANSACTION`,
-    ...atomicTransaction.__state.queries,
+    ...inputQueries,
     sql`COMMIT`,
   ];
 
