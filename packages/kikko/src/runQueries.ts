@@ -40,9 +40,7 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({ db, queries }) => {
 
   let job: IJob | undefined;
 
-  const startedUnwrapAt = performance.now();
   const unwrappedQueries = unwrapQueries(queries.map((q) => q.toSql()));
-  const endedUnwrapAt = performance.now();
 
   if (!transactionsLocalState.current) {
     job = await acquireJob(jobsState, {
@@ -90,8 +88,6 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({ db, queries }) => {
       } ${queriesTimings} sendTime=${(qPerformance.sendTime / 1000).toFixed(
         4
       )} receiveTime=${(qPerformance.receiveTime / 1000).toFixed(
-        4
-      )} queriesUnwrapTime=${((endedUnwrapAt - startedUnwrapAt) / 1000).toFixed(
         4
       )} totalTime=${((endedAt - startedAt) / 1000).toFixed(4)}`,
       `color: ${

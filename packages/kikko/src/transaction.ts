@@ -7,7 +7,7 @@ import {
   ITransaction,
   ITransactionPerformance,
 } from "./types";
-import { assureDbIsRunning, makeId, unwrapQueries } from "./utils";
+import { assureDbIsRunning, makeId } from "./utils";
 
 const logTimeIfNeeded = (
   db: IDb,
@@ -24,10 +24,11 @@ const logTimeIfNeeded = (
   ].join(" ");
 
   console.log(
-    `[${db.__state.sharedState.dbName}][tr_id=${transactionId.slice(
+    `%c[${db.__state.sharedState.dbName}][tr_id=${transactionId.slice(
       0,
       6
-    )}] Transaction finished with ${data}`
+    )}] Transaction finished with ${data}`,
+    `color: #fff; background-color: #1da1f2; padding: 2px 4px; border-radius: 2px`
   );
 };
 
@@ -39,11 +40,7 @@ export const runInTransactionFunc = async <T>(
 ) => {
   const {
     localState: { transactionsState: transactionsLocalState },
-    sharedState: {
-      transactionsState: transactionsSharedState,
-      eventsEmitter,
-      dbBackend,
-    },
+    sharedState: { transactionsState: transactionsSharedState, eventsEmitter },
     sharedState,
   } = db.__state;
 
@@ -87,13 +84,6 @@ export const runInTransactionFunc = async <T>(
     label: opts?.label,
   });
 
-  const execOpts = {
-    log: {
-      suppress: Boolean(db.__state.localState.suppressLog),
-      transactionId: transaction.id,
-    },
-  };
-
   const startTime = performance.now();
   const transactionState = {
     current: transaction,
@@ -111,10 +101,8 @@ export const runInTransactionFunc = async <T>(
   try {
     await eventsEmitter.emit("transactionWillStart", db, transaction);
 
-    await dbBackend.execQueries(
-      unwrapQueries([
-        sql`BEGIN ${sql.raw(transactionType.toUpperCase())} TRANSACTION;`,
-      ])
+    await db.runQuery(
+      sql`BEGIN ${sql.raw(transactionType.toUpperCase())} TRANSACTION;`
     );
 
     await eventsEmitter.emit("transactionStarted", db, transaction);
@@ -124,7 +112,7 @@ export const runInTransactionFunc = async <T>(
 
       await eventsEmitter.emit("transactionWillCommit", db, transaction);
 
-      await dbBackend.execQueries(unwrapQueries([sql`COMMIT`]));
+      await db.runQuery(sql`COMMIT`);
 
       await eventsEmitter.emit("transactionCommitted", db, transaction);
 
@@ -134,7 +122,7 @@ export const runInTransactionFunc = async <T>(
 
       await eventsEmitter.emit("transactionWillRollback", db, transaction);
 
-      await dbBackend.execQueries(unwrapQueries([sql`ROLLBACK`]));
+      await db.runQuery(sql`ROLLBACK`);
 
       await eventsEmitter.emit("transactionRollbacked", db, transaction);
 
