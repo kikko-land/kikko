@@ -2,7 +2,7 @@ import { DbBackend } from "./DbBackend";
 import { IInputWorkerMessage, IOutputWorkerMessage, IResponse } from "./types";
 
 // eslint-disable-next-line no-restricted-globals
-const ctx: Worker = (self as unknown) as Worker;
+const ctx: Worker = self as unknown as Worker;
 let db: DbBackend | undefined;
 
 ctx.addEventListener("message", (event) => {
@@ -43,21 +43,28 @@ ctx.addEventListener("message", (event) => {
 
         return;
       }
+      const sendTime = new Date().getTime() - data.sentAt;
 
       const currentDb = db;
 
       try {
         const queriesResult = data.data.queries.map((q) => {
-          return currentDb.sqlExec(q.text, q.values, data.data.logOpts);
+          return currentDb.sqlExec(q.text, q.values);
         });
+
+        const response: IResponse = {
+          commandId: data.data.commandId,
+          status: "success",
+          result: queriesResult,
+          performance: {
+            sendTime,
+          },
+          sentAt: new Date().getTime(),
+        };
 
         postMessage({
           type: "response",
-          data: {
-            commandId: data.data.commandId,
-            status: "success",
-            result: queriesResult,
-          } as IResponse,
+          data: response,
         });
       } catch (e) {
         postMessage({

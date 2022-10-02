@@ -36,11 +36,24 @@ export type IKikkoEvents = {
 
 export interface ITransaction {
   id: string;
+  type: "atomic" | "async";
 }
 
 export type IQueriesMiddlewareState = {
   db: IDb;
-  result: IQueryResult[];
+  result: {
+    rows: IQueryResult;
+    performance: {
+      prepareTime: number;
+      execTime: number;
+      freeTime: number;
+    };
+  }[];
+  performance: {
+    sendTime: number;
+    receiveTime: number;
+    totalTime: number;
+  };
   queries: (IBaseToken | ISqlAdapter)[];
 };
 
@@ -54,7 +67,7 @@ export type IQueriesMiddleware = (
   }
 ) => Promise<IQueriesMiddlewareState>;
 
-export interface IAtomicTransaction {
+export interface IAtomicTransactionScope {
   __state: {
     queries: ISqlAdapter[];
   };
@@ -74,7 +87,7 @@ export interface IDb {
     opts?: { label?: string; type?: "deferred" | "immediate" | "exclusive" }
   ): Promise<T>;
   atomicTransaction(
-    func: (scope: IAtomicTransaction) => void,
+    func: (scope: IAtomicTransactionScope) => Promise<void> | void,
     opts?: { label?: string; type?: "deferred" | "immediate" | "exclusive" }
   ): Promise<void>;
 
@@ -90,14 +103,44 @@ export type IQueryResult = Record<string, IQueryValue>[];
 
 type IDbInstance = {
   initialize(): Promise<void>;
-  execQueries(
-    queries: IQuery[],
-    opts: { log: { suppress: boolean; transactionId?: string } }
-  ): Promise<IQueryResult[]>;
-  execAtomicTransaction(tr: IAtomicTransaction): Promise<void>;
+  execQueries(queries: IQuery[]): Promise<{
+    result: {
+      rows: IQueryResult;
+      performance: {
+        prepareTime: number;
+        execTime: number;
+        freeTime: number;
+      };
+    }[];
+    performance: {
+      sendTime: number;
+      receiveTime: number;
+      totalTime: number;
+    };
+  }>;
+  execAtomicTransaction(
+    tr: IAtomicTransactionScope,
+    type: "deferred" | "immediate" | "exclusive"
+  ): Promise<{
+    prepareTime: number;
+    execTime: number;
+    freeTime: number;
+    sendTime: number;
+    receiveTime: number;
+    totalTime: number;
+  }>;
   stop(): Promise<void>;
 };
 export type IDbBackend = (db: { dbName: string }) => IDbInstance;
+
+export type ITransactionPerformance = {
+  prepareTime: number;
+  execTime: number;
+  freeTime: number;
+  sendTime: number;
+  receiveTime: number;
+  totalTime: number;
+};
 
 export interface ISharedDbState {
   dbName: string;
@@ -112,8 +155,9 @@ export interface ISharedDbState {
 
   jobsState: ReactiveVar<IJobsState>;
 
-  transactionsState: {
-    current?: ITransaction;
+  transactionsState?: {
+    current: ITransaction;
+    performance: ITransactionPerformance;
   };
 }
 

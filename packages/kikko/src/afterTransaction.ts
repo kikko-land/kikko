@@ -8,15 +8,18 @@ const runAfterTransaction = (
     transaction: ITransaction
   ) => void
 ) => {
-  if (!db.__state.localState.transactionsState) {
+  if (!db.__state.localState.transactionsState.current) {
     throw new Error("Not in transaction.");
   }
+  const transaction = db.__state.localState.transactionsState.current;
 
   const unsubscribes: (() => void)[] = [];
 
   const listener =
     (event: "committed" | "rollbacked") =>
-    (db: IDb, transaction: ITransaction) => {
+    (db: IDb, evTransaction: ITransaction) => {
+      if (transaction.id !== evTransaction.id) return;
+
       func(event, db, transaction);
 
       for (const unsubscribe of unsubscribes) {

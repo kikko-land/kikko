@@ -9,9 +9,13 @@ import {
 } from "./types";
 import { assureDbIsRunning, unwrapQueries } from "./utils";
 
+const colors = ["yellow", "cyan", "magenta"];
+let currentTransactionI = 0;
+let currentTransactionId: string | undefined;
+
 const runQueriesMiddleware: IQueriesMiddleware = async ({ db, queries }) => {
   const {
-    localState: { transactionsState: transactionsLocalState, suppressLog },
+    localState: { transactionsState: transactionsLocalState },
     sharedState: {
       transactionsState: transactionsSharedState,
       jobsState,
@@ -23,7 +27,7 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({ db, queries }) => {
     assureDbIsRunning(db, () => JSON.stringify(queries));
   }
 
-  if (transactionsLocalState.current && transactionsSharedState.current) {
+  if (transactionsLocalState.current && transactionsSharedState?.current) {
     if (
       transactionsLocalState.current.id !== transactionsSharedState.current.id
     ) {
@@ -36,6 +40,10 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({ db, queries }) => {
 
   let job: IJob | undefined;
 
+  const startedUnwrapAt = performance.now();
+  const unwrappedQueries = unwrapQueries(queries.map((q) => q.toSql()));
+  const endedUnwrapAt = performance.now();
+
   if (!transactionsLocalState.current) {
     job = await acquireJob(jobsState, {
       type: "runQueries",
@@ -43,20 +51,80 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({ db, queries }) => {
     });
   }
 
-  const execOpts = {
-    log: {
-      suppress: Boolean(suppressLog),
-      transactionId: transactionsLocalState.current?.id,
-    },
-  };
-
   try {
-    const result = await dbBackend.execQueries(
-      unwrapQueries(queries.map((q) => q.toSql())),
-      execOpts
+    const startedAt = performance.now();
+    const { result, performance: qPerformance } = await dbBackend.execQueries(
+      unwrappedQueries
+    );
+    const endedAt = performance.now();
+
+    if (
+      transactionsLocalState.current &&
+      transactionsLocalState.current.id !== currentTransactionId
+    ) {
+      currentTransactionId = transactionsLocalState.current.id;
+      currentTransactionI++;
+    }
+
+    if (!transactionsLocalState?.current?.id) {
+      currentTransactionId = undefined;
+    }
+
+    const queriesTimings = result
+      .map(({ performance }, i) => {
+        const times = [
+          `prepareTime=${(performance.prepareTime / 1000).toFixed(4)}`,
+          `execTime=${(performance.execTime / 1000).toFixed(4)}`,
+          `freeTime=${(performance.freeTime / 1000).toFixed(4)}`,
+        ].join(" ");
+
+        return `{${unwrappedQueries[i].text.slice(0, 1000)} ${times}}`;
+      })
+      .join(", ");
+
+    console.log(
+      `%c[${db.__state.sharedState.dbName}]${
+        transactionsLocalState.current?.id
+          ? `[tr_id=${transactionsLocalState.current?.id.substring(0, 6)}]`
+          : ""
+      } ${queriesTimings} sendTime=${(qPerformance.sendTime / 1000).toFixed(
+        4
+      )} receiveTime=${(qPerformance.receiveTime / 1000).toFixed(
+        4
+      )} queriesUnwrapTime=${((endedUnwrapAt - startedUnwrapAt) / 1000).toFixed(
+        4
+      )} totalTime=${((endedAt - startedAt) / 1000).toFixed(4)}`,
+      `color: ${
+        currentTransactionId
+          ? colors[currentTransactionI % colors.length]
+          : "white"
+      }`
     );
 
-    return { db: db, result, queries };
+    if (transactionsLocalState.current && transactionsSharedState?.current) {
+      if (
+        transactionsLocalState.current.id === transactionsSharedState.current.id
+      ) {
+        const perfData = transactionsSharedState.performance;
+
+        perfData.execTime += result.reduce(
+          (partialSum, a) => partialSum + a.performance.execTime,
+          0
+        );
+        perfData.freeTime += result.reduce(
+          (partialSum, a) => partialSum + a.performance.freeTime,
+          0
+        );
+        perfData.prepareTime += result.reduce(
+          (partialSum, a) => partialSum + a.performance.prepareTime,
+          0
+        );
+        perfData.sendTime += qPerformance.sendTime;
+        perfData.receiveTime += qPerformance.receiveTime;
+      }
+    }
+
+    return { db: db, result, performance: qPerformance, queries };
   } finally {
     if (job) {
       releaseJob(jobsState, job);
@@ -64,10 +132,7 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({ db, queries }) => {
   }
 };
 
-export const runQueries = async <D extends Record<string, unknown>>(
-  db: IDb,
-  queries: ISqlAdapter[]
-): Promise<D[][]> => {
+export const runQueries = async (db: IDb, queries: ISqlAdapter[]) => {
   const middlewares: IQueriesMiddleware[] = [
     ...db.__state.localState.queriesMiddlewares,
     runQueriesMiddleware,
@@ -82,18 +147,14 @@ export const runQueries = async <D extends Record<string, unknown>>(
       middleware({ ...args, next: currentCall });
   }
 
-  return (
-    await toCall({
-      db: db,
-      result: [],
-      queries: queries.map((q) => q.toSql()),
-    })
-  ).result as D[][];
-};
-
-export const runQuery = async <D extends Record<string, unknown>>(
-  state: IDb,
-  query: ISqlAdapter
-) => {
-  return (await runQueries<D>(state, [query]))[0] || [];
+  return await toCall({
+    db: db,
+    result: [],
+    performance: {
+      sendTime: 0,
+      receiveTime: 0,
+      totalTime: 0,
+    },
+    queries: queries.map((q) => q.toSql()),
+  });
 };

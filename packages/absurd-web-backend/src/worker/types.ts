@@ -5,7 +5,18 @@ export type IResponse = {
 } & (
   | {
       status: "success";
-      result: Record<string, number | string | Uint8Array | null>[][];
+      result: {
+        rows: Record<string, number | string | Uint8Array | null>[];
+        performance: {
+          prepareTime: number;
+          execTime: number;
+          freeTime: number;
+        };
+      }[];
+      performance: {
+        sendTime: number;
+      };
+      sentAt: number;
     }
   | {
       status: "error";
@@ -25,4 +36,4 @@ export type IInputWorkerMessage =
       pageSize: number;
       cacheSize: number;
     }
-  | { type: "command"; data: ICommand };
+  | { type: "command"; data: ICommand; sentAt: number };
