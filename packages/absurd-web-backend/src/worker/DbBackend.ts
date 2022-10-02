@@ -2,8 +2,6 @@ import { SQLiteFS } from "@kikko-land/better-absurd-sql";
 import IndexedDBBackend from "@kikko-land/better-absurd-sql/dist/indexeddb-backend";
 import initSqlJs, { BindParams, Database } from "@kikko-land/sql.js";
 
-const colors = ["yellow", "cyan", "magenta"];
-
 export class DbBackend {
   private sqlDb!: Database;
 
@@ -47,71 +45,40 @@ export class DbBackend {
     `);
   }
 
-  private currentTransactionI = 0;
-  private currentTransactionId: string | undefined;
   sqlExec(
     sql: string,
-    params?: BindParams,
-    logOpts?: {
-      transactionId?: string;
-      suppress: boolean;
+    params?: BindParams
+  ): {
+    rows: Record<string, number | string | Uint8Array | null>[];
+    performance: {
+      prepareTime: number;
+      execTime: number;
+      freeTime: number;
+    };
+  } {
+    const rows = [];
+
+    const startPrepareTime = performance.now();
+    const stmt = this.sqlDb.prepare(sql, params);
+    const finishPrepareTime = performance.now();
+
+    const startExecTime = performance.now();
+    while (stmt.step()) {
+      rows.push(stmt.getAsObject());
     }
-  ): Record<string, number | string | Uint8Array | null>[] {
-    try {
-      const rows = [];
-      const startTime = performance.now();
+    const finishExecTime = performance.now();
 
-      const stmt = this.sqlDb.prepare(sql, params);
+    const startFreeTime = performance.now();
+    stmt.free();
+    const finishFreeTime = performance.now();
 
-      while (stmt.step()) {
-        rows.push(stmt.getAsObject());
-      }
-
-      stmt.free();
-
-      const end = performance.now();
-
-      if (
-        logOpts?.transactionId &&
-        logOpts.transactionId !== this.currentTransactionId &&
-        !logOpts.suppress
-      ) {
-        this.currentTransactionId = logOpts.transactionId;
-        this.currentTransactionI++;
-      }
-      if (!logOpts?.transactionId) {
-        this.currentTransactionId = undefined;
-      }
-
-      if (!logOpts?.suppress) {
-        console.log(
-          `%c[${this.dbName}]${
-            logOpts?.transactionId
-              ? `[tr_id=${logOpts.transactionId.substring(0, 6)}]`
-              : ""
-          } ${sql} ${JSON.stringify(params)} Time: ${(
-            (end - startTime) /
-            1000
-          ).toFixed(4)}`,
-          `color: ${
-            this.currentTransactionId
-              ? colors[this.currentTransactionI % colors.length]
-              : "white"
-          }`
-        );
-      }
-
-      return rows;
-    } catch (e) {
-      console.error(
-        `[${this.dbName}] Failed execute`,
-        e,
-        sql,
-        params,
-        logOpts,
-        this.currentTransactionId
-      );
-      throw e;
-    }
+    return {
+      rows,
+      performance: {
+        prepareTime: finishPrepareTime - startPrepareTime,
+        execTime: finishExecTime - startExecTime,
+        freeTime: finishFreeTime - startFreeTime,
+      },
+    };
   }
 }

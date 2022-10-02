@@ -69,19 +69,25 @@ export const runWorkerCommand = async (
     }
 
     if (result.type === "response" && result.data.status === "success") {
-      return result.data.result;
+      return {
+        result: result.data.result,
+        performance: result.data.performance,
+        sentAt: result.data.sentAt,
+      };
     } else {
       throw new Error(
         `Unknown data format while handle command ${JSON.stringify(command)}`
       );
     }
   })();
+  const sentAt = new Date().getTime();
 
   outcomingMessagesQueue.value = [
     ...outcomingMessagesQueue.value,
     {
       type: "command",
       data: command,
+      sentAt,
     },
   ];
 

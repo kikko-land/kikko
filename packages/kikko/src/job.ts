@@ -12,7 +12,7 @@ export type DistributiveOmit<
 
 export type IJob =
   | {
-      type: "runTransaction";
+      type: "runTransaction" | "runAtomicTransaction";
       id: string;
       transaction: ITransaction;
       label?: string;

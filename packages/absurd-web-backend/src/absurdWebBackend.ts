@@ -1,6 +1,6 @@
 import { initBackend } from "@kikko-land/better-absurd-sql/dist/indexeddb-main-thread";
 import {
-  IAtomicTransaction,
+  IAtomicTransactionScope,
   IDbBackend,
   IQuery,
   reactiveVar,
@@ -104,13 +104,33 @@ export const absurdWebBackend =
           throw e;
         }
       },
-      async execQueries(queries: IQuery[], opts) {
-        return await runWorkerCommand(
+      async execQueries(queries: IQuery[]) {
+        const startedAt = performance.now();
+        const res = await runWorkerCommand(
           state,
-          buildRunQueriesCommand(queries, opts)
+          buildRunQueriesCommand(queries)
         );
+        const endAt = performance.now();
+
+        return {
+          result: res.result,
+          performance: {
+            ...res.performance,
+            receiveTime: new Date().getTime() - res.sentAt,
+            totalTime: endAt - startedAt,
+          },
+        };
       },
-      async execAtomicTransaction(_tr: IAtomicTransaction) {},
+      async execAtomicTransaction(_tr: IAtomicTransactionScope) {
+        return Promise.resolve({
+          prepareTime: 0,
+          execTime: 0,
+          freeTime: 0,
+          sendTime: 0,
+          receiveTime: 0,
+          totalTime: 0,
+        });
+      },
       async stop() {
         isTerminated.value = true;
 

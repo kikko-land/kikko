@@ -3,10 +3,10 @@ import { ISqlAdapter } from "@kikko-land/sql";
 import { createNanoEvents } from "./createNanoEvents";
 import { acquireJob, IJobsState, releaseJob, whenAllJobsDone } from "./job";
 import { reactiveVar } from "./reactiveVar";
-import { runQueries, runQuery } from "./runQueries";
-import { runInTransactionFunc } from "./transaction";
+import { runQueries } from "./runQueries";
+import { execAtomicTransaction, runInTransactionFunc } from "./transaction";
 import {
-  IAtomicTransaction,
+  IAtomicTransactionScope,
   IDb,
   IDbBackend,
   IKikkoEvents,
@@ -21,6 +21,17 @@ export type IInitDbClientConfig = {
   dbBackend: Promise<IDbBackend> | IDbBackend;
   plugins?: IDbClientPlugin[];
   queriesMiddlewares?: IQueriesMiddleware[];
+};
+
+const initAtomicTransaction = (): IAtomicTransactionScope => {
+  return {
+    __state: {
+      queries: [],
+    },
+    addQuery(q: ISqlAdapter): void {
+      this.__state.queries.push(q);
+    },
+  };
 };
 
 export const initDbClient = async ({
@@ -57,7 +68,6 @@ export const initDbClient = async ({
         eventsEmitter: createNanoEvents<IKikkoEvents>(),
 
         jobsState: jobsState,
-        transactionsState: {},
       },
       localState: {
         queriesMiddlewares: queriesMiddlewares || [],
@@ -72,21 +82,22 @@ export const initDbClient = async ({
         label: opts?.label,
       });
     },
-    atomicTransaction(
-      func: (scope: IAtomicTransaction) => void,
+    async atomicTransaction(
+      func: (scope: IAtomicTransactionScope) => Promise<void> | void,
       opts?: { label?: string; type?: "deferred" | "immediate" | "exclusive" }
     ): Promise<void> {
-      return Promise.resolve();
+      return await execAtomicTransaction(this, func, opts);
     },
-    runQueries<D extends Record<string, unknown>>(
+    async runQueries<D extends Record<string, unknown>>(
       queries: ISqlAdapter[]
     ): Promise<D[][]> {
-      return runQueries<D>(this, queries);
+      const res = await runQueries(this, queries);
+      return res.result.map(({ rows }) => rows) as D[][];
     },
-    runQuery<D extends Record<string, unknown>>(
+    async runQuery<D extends Record<string, unknown>>(
       query: ISqlAdapter
     ): Promise<D[]> {
-      return runQuery<D>(this, query);
+      return (await this.runQueries<D>([query]))[0];
     },
   };
 

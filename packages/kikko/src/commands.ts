@@ -50,6 +50,5 @@ export const buildRunQueriesCommand = (
     })),
     spawnTransaction: false,
     commandId: makeId(),
-    suppressLog: state.localState.suppressLog,
   };
 };
