@@ -10,9 +10,7 @@ if (!el) {
 }
 
 ReactDOM.createRoot(el).render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <AppRoutes />
-    </BrowserRouter>
-  </React.StrictMode>
+  <BrowserRouter>
+    <AppRoutes />
+  </BrowserRouter>
 );

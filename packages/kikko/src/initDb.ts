@@ -68,6 +68,10 @@ export const initDbClient = async ({
         eventsEmitter: createNanoEvents<IKikkoEvents>(),
 
         jobsState: jobsState,
+        transactionLoggingState: {
+          id: undefined,
+          i: 0,
+        },
       },
       localState: {
         queriesMiddlewares: queriesMiddlewares || [],
@@ -86,7 +90,12 @@ export const initDbClient = async ({
       func: (scope: IAtomicTransactionScope) => Promise<void> | void,
       opts?: { label?: string; type?: "deferred" | "immediate" | "exclusive" }
     ): Promise<void> {
-      return await execAtomicTransaction(this, func, opts);
+      return await execAtomicTransaction(
+        this,
+        opts?.type || "deferred",
+        func,
+        opts
+      );
     },
     async runQueries<D extends Record<string, unknown>>(
       queries: ISqlAdapter[]

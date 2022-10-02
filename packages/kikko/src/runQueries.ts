@@ -10,8 +10,6 @@ import {
 import { assureDbIsRunning, unwrapQueries } from "./utils";
 
 const colors = ["yellow", "cyan", "magenta"];
-let currentTransactionI = 0;
-let currentTransactionId: string | undefined;
 
 const runQueriesMiddleware: IQueriesMiddleware = async ({ db, queries }) => {
   const {
@@ -21,6 +19,7 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({ db, queries }) => {
       jobsState,
       dbBackend,
     },
+    sharedState,
   } = db.__state;
 
   if (!transactionsLocalState.current) {
@@ -56,46 +55,50 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({ db, queries }) => {
     );
     const endedAt = performance.now();
 
-    if (
-      transactionsLocalState.current &&
-      transactionsLocalState.current.id !== currentTransactionId
-    ) {
-      currentTransactionId = transactionsLocalState.current.id;
-      currentTransactionI++;
+    if (!db.__state.localState.suppressLog) {
+      if (
+        transactionsLocalState.current &&
+        transactionsLocalState.current.id !==
+          sharedState.transactionLoggingState.id
+      ) {
+        sharedState.transactionLoggingState.id =
+          transactionsLocalState.current.id;
+        sharedState.transactionLoggingState.i++;
+      }
+
+      if (!transactionsLocalState?.current?.id) {
+        sharedState.transactionLoggingState.id = undefined;
+      }
+
+      const queriesTimings = result
+        .map(({ performance }, i) => {
+          const times = [
+            `prepareTime=${(performance.prepareTime / 1000).toFixed(4)}`,
+            `execTime=${(performance.execTime / 1000).toFixed(4)}`,
+            `freeTime=${(performance.freeTime / 1000).toFixed(4)}`,
+          ].join(" ");
+
+          return `{${unwrappedQueries[i].text.slice(0, 1000)} ${times}}`;
+        })
+        .join("\n");
+
+      console.log(
+        `%c[${db.__state.sharedState.dbName}]${
+          transactionsLocalState.current?.id
+            ? `[tr_id=${transactionsLocalState.current?.id.substring(0, 6)}]`
+            : ""
+        } ${queriesTimings} sendTime=${(qPerformance.sendTime / 1000).toFixed(
+          4
+        )} receiveTime=${(qPerformance.receiveTime / 1000).toFixed(
+          4
+        )} totalTime=${((endedAt - startedAt) / 1000).toFixed(4)}`,
+        `color: ${
+          sharedState.transactionLoggingState.id
+            ? colors[sharedState.transactionLoggingState.i % colors.length]
+            : "white"
+        }`
+      );
     }
-
-    if (!transactionsLocalState?.current?.id) {
-      currentTransactionId = undefined;
-    }
-
-    const queriesTimings = result
-      .map(({ performance }, i) => {
-        const times = [
-          `prepareTime=${(performance.prepareTime / 1000).toFixed(4)}`,
-          `execTime=${(performance.execTime / 1000).toFixed(4)}`,
-          `freeTime=${(performance.freeTime / 1000).toFixed(4)}`,
-        ].join(" ");
-
-        return `{${unwrappedQueries[i].text.slice(0, 1000)} ${times}}`;
-      })
-      .join(", ");
-
-    console.log(
-      `%c[${db.__state.sharedState.dbName}]${
-        transactionsLocalState.current?.id
-          ? `[tr_id=${transactionsLocalState.current?.id.substring(0, 6)}]`
-          : ""
-      } ${queriesTimings} sendTime=${(qPerformance.sendTime / 1000).toFixed(
-        4
-      )} receiveTime=${(qPerformance.receiveTime / 1000).toFixed(
-        4
-      )} totalTime=${((endedAt - startedAt) / 1000).toFixed(4)}`,
-      `color: ${
-        currentTransactionId
-          ? colors[currentTransactionI % colors.length]
-          : "white"
-      }`
-    );
 
     if (transactionsLocalState.current && transactionsSharedState?.current) {
       if (

@@ -49,12 +49,6 @@ export const absurdWebBackend =
     });
 
     const sub = (ev: MessageEvent<IOutputWorkerMessage>) => {
-      // console.log(
-      //   `[DB][${
-      //     ev.data.type === 'response' && ev.data.data.commandId
-      //   }] new message from worker`,
-      //   ev.data,
-      // );
       incomingMessagesQueue.value = [...incomingMessagesQueue.value, ev.data];
     };
     initializedWorker.addEventListener("message", sub);
@@ -120,16 +114,6 @@ export const absurdWebBackend =
             totalTime: endAt - startedAt,
           },
         };
-      },
-      async execAtomicTransaction(_tr: IAtomicTransactionScope) {
-        return Promise.resolve({
-          prepareTime: 0,
-          execTime: 0,
-          freeTime: 0,
-          sendTime: 0,
-          receiveTime: 0,
-          totalTime: 0,
-        });
       },
       async stop() {
         isTerminated.value = true;

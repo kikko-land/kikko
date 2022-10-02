@@ -147,19 +147,30 @@ export const List = () => {
   const rowsResult = useQuery<INoteRow>(paginatedQuery);
 
   const [createNotes, createNotesState] = useRunQuery(
-    (db) => async (count: number) => {
-      for (const ch of chunk(Array.from(Array(count).keys()), 3000)) {
-        await db.runQuery(
-          insert(
-            ch.map((i) => ({
-              id: makeId(),
-              title: lorem.generateWords(4),
-              content: lorem.generateParagraphs(1),
-              createdAt: new Date().getTime(),
-              updatedAt: new Date().getTime(),
-            }))
-          ).into(notesTable)
-        );
+    (db) => async (count: number, useAtomic: boolean) => {
+      const queries = chunk(Array.from(Array(count).keys()), 3000).map((ch) =>
+        insert(
+          ch.map((i) => ({
+            id: makeId(),
+            title: lorem.generateWords(4),
+            content: lorem.generateParagraphs(1),
+            createdAt: new Date().getTime(),
+            updatedAt: new Date().getTime(),
+          }))
+        ).into(notesTable)
+      );
+      if (useAtomic) {
+        await db.atomicTransaction((scope) => {
+          for (const q of queries) {
+            scope.addQuery(q);
+          }
+        });
+      } else {
+        await db.transaction(async (db) => {
+          for (const q of queries) {
+            await db.runQuery(q);
+          }
+        });
       }
     }
   );
@@ -192,19 +203,33 @@ export const List = () => {
       <br />
       <br />
 
-      {[100, 1000, 10_000].map((count) => (
-        <button
-          key={count}
-          onClick={() => void createNotes(count)}
-          disabled={
-            createNotesState.type === "running" ||
-            createNotesState.type === "waitingDb"
-          }
-        >
-          {createNotesState.type === "running"
-            ? "Loading..."
-            : `Add  ${count} records!`}
-        </button>
+      {[100, 1000, 10_000, 30_000].map((count) => (
+        <div style={{ padding: "5px 0" }} key={count}>
+          <button
+            onClick={() => void createNotes(count, false)}
+            disabled={
+              createNotesState.type === "running" ||
+              createNotesState.type === "waitingDb"
+            }
+          >
+            {createNotesState.type === "running"
+              ? "Loading..."
+              : `Add ${count} records(atomic=false)!`}
+          </button>
+
+          <button
+            onClick={() => void createNotes(count, true)}
+            disabled={
+              createNotesState.type === "running" ||
+              createNotesState.type === "waitingDb"
+            }
+            style={{ marginLeft: 10 }}
+          >
+            {createNotesState.type === "running"
+              ? "Loading..."
+              : `Add ${count} records(atomic=true)!`}
+          </button>
+        </div>
       ))}
 
       <button

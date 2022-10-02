@@ -14,6 +14,8 @@ const logTimeIfNeeded = (
   transactionId: string,
   performance: ITransactionPerformance
 ) => {
+  if (db.__state.localState.suppressLog) return;
+
   const data = [
     `prepareTime=${(performance.prepareTime / 1000).toFixed(4)}`,
     `execTime=${(performance.execTime / 1000).toFixed(4)}`,
@@ -150,11 +152,13 @@ const initAtomicTransaction = (): IAtomicTransactionScope => {
 
 export const execAtomicTransaction = async (
   db: IDb,
+  transactionType: "deferred" | "immediate" | "exclusive",
   func: (scope: IAtomicTransactionScope) => Promise<void> | void,
-  opts?: { label?: string; type?: "deferred" | "immediate" | "exclusive" }
+  opts?: { label?: string }
 ): Promise<void> => {
   const {
     localState: { transactionsState: transactionsLocalState },
+    sharedState: { eventsEmitter },
     sharedState,
   } = db.__state;
   if (transactionsLocalState.current) {
@@ -190,12 +194,41 @@ export const execAtomicTransaction = async (
   };
   sharedState.transactionsState = transactionState;
 
+  db = {
+    ...db,
+    __state: {
+      ...db.__state,
+      localState: {
+        ...db.__state.localState,
+        transactionsState: { current: transaction },
+      },
+    },
+  };
+
   const startTime = performance.now();
+
+  const queries = [
+    sql`BEGIN ${sql.raw(transactionType.toUpperCase())} TRANSACTION`,
+    ...atomicTransaction.__state.queries,
+    sql`COMMIT`,
+  ];
+
   try {
-    await db.__state.sharedState.dbBackend.execAtomicTransaction(
-      atomicTransaction,
-      opts?.type || "deferred"
-    );
+    await eventsEmitter.emit("transactionWillStart", db, transaction);
+
+    await db.runQueries(queries);
+
+    await eventsEmitter.emit("transactionCommitted", db, transaction);
+  } catch (e) {
+    console.error("Rollback transaction", e);
+
+    await eventsEmitter.emit("transactionWillRollback", db, transaction);
+
+    await db.runQuery(sql`ROLLBACK`);
+
+    await eventsEmitter.emit("transactionRollbacked", db, transaction);
+
+    throw e;
   } finally {
     transactionState.performance.totalTime = performance.now() - startTime;
 

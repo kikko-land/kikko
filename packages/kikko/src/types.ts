@@ -118,17 +118,6 @@ type IDbInstance = {
       totalTime: number;
     };
   }>;
-  execAtomicTransaction(
-    tr: IAtomicTransactionScope,
-    type: "deferred" | "immediate" | "exclusive"
-  ): Promise<{
-    prepareTime: number;
-    execTime: number;
-    freeTime: number;
-    sendTime: number;
-    receiveTime: number;
-    totalTime: number;
-  }>;
   stop(): Promise<void>;
 };
 export type IDbBackend = (db: { dbName: string }) => IDbInstance;
@@ -158,6 +147,10 @@ export interface ISharedDbState {
   transactionsState?: {
     current: ITransaction;
     performance: ITransactionPerformance;
+  };
+  transactionLoggingState: {
+    i: number;
+    id: string | undefined;
   };
 }
 
