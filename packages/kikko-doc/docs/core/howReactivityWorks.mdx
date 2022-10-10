@@ -5,7 +5,7 @@ slug: /how-reactivity-works
 
 # How reactivity works
 
-Kikko gather infomration about what table are sued when you build raw queries or with query-builder.
+Kikko gathers infomration about which tables are used when you build raw queries or with query-builder.
 
 Like:
 
@@ -28,7 +28,7 @@ console.log(
 // => ["notes"]
 ```
 
-For raw queries you need to use `sql.table('table_name')` helper:
+For raw queries, you need to use `sql.table('table_name')` helper:
 
 ```typescript
 const notesTable = sql.table("notes");
