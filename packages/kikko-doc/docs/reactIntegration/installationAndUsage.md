@@ -87,7 +87,7 @@ export const Notes = () => {
     select({ count: sql`COUNT(*)` }).from("notes")
   );
 
-  const addNote = useRunQuery(currentDb, (db) => async () => {
+  const addNote = useRunQuery((db) => async () => {
     const id = makeId();
 
     await runQuery(
