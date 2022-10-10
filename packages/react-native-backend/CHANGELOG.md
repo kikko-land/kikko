@@ -1,5 +1,48 @@
 # @kikko-land/react-native-backend
 
+## 0.4.0
+
+### Minor Changes
+
+- a52a3cb: Upgrade packages
+
+### Patch Changes
+
+- Updated dependencies [a52a3cb]
+  - @kikko-land/kikko@0.4.0
+  - @kikko-land/sql@0.2.0
+
+## 0.3.0
+
+### Minor Changes
+
+- dd36c9e: Remove rxjs
+
+### Patch Changes
+
+- Updated dependencies [dd36c9e]
+  - @kikko-land/kikko@0.3.0
+
+## 0.2.0
+
+### Minor Changes
+
+- 174767c: Rename kikko to core
+
+### Patch Changes
+
+- Updated dependencies [174767c]
+  - @kikko-land/kikko@0.2.0
+
+## 0.1.1
+
+### Patch Changes
+
+- 81605a8: Trong renamed to kikko
+- Updated dependencies [81605a8]
+  - @kikko-land/core@0.1.1
+  - @kikko-land/sql@0.1.1
+
 ## 1.3.1
 
 ### Patch Changes

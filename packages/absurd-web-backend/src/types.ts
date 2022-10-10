@@ -1,10 +1,10 @@
-import { Observable, Subject } from "rxjs";
+import { ReactiveVar } from "@kikko-land/kikko";
 
 import { IInputWorkerMessage, IOutputWorkerMessage } from "./worker/types";
 
 export interface IBackendState {
-  messagesToWorker$: Subject<IInputWorkerMessage>;
-  messagesFromWorker$: Observable<IOutputWorkerMessage>;
-  stop$: Observable<void>;
+  outcomingMessagesQueue: ReactiveVar<IInputWorkerMessage[]>;
+  incomingMessagesQueue: ReactiveVar<IOutputWorkerMessage[]>;
   queryTimeout: number;
+  isTerminated: ReactiveVar<boolean>;
 }

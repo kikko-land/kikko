@@ -3,7 +3,7 @@ import {
   IInitDbClientConfig,
   initDbClient,
   stopDb,
-} from "@kikko-land/core";
+} from "@kikko-land/kikko";
 import React, { ReactElement, useContext, useEffect, useState } from "react";
 
 export type IDbInitState =
@@ -48,9 +48,17 @@ export const DbProvider: React.FC<{
       shouldBeStopped = true;
 
       if (initializedDb) {
+        console.log("state set to notInitialized!");
         setCurrentState({ type: "notInitialized" });
 
-        void stopDb(initializedDb);
+        // Start stopping db in next tick to
+        // allow all react component to get state
+        // that DB is in not initialized state
+        queueMicrotask(() => {
+          if (initializedDb) {
+            void stopDb(initializedDb);
+          }
+        });
       }
     };
   }, [config]);

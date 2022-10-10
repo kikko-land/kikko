@@ -1,26 +1,24 @@
 import { SQLite, SQLiteObject } from "@awesome-cordova-plugins/sqlite";
-import { IDbBackend, IQuery, IQueryResult } from "@kikko-land/core";
+import { IDbBackend, IQuery, IQueryResult } from "@kikko-land/kikko";
 
 export const ionicBackend = (path: (dbName: string) => string): IDbBackend => {
-  return ({ dbName, stopped$ }) => {
+  return ({ dbName }) => {
+    let isStopped = true;
     let db: SQLiteObject | undefined = undefined;
 
     return {
       async initialize() {
+        if (isStopped)
+          throw new Error("Failed to start DB cause it is stopped");
+
         db = await SQLite.create({
           name: path(dbName),
           location: "default",
         });
 
-        stopped$.subscribe(() => {
-          if (!db) {
-            console.error("Failed to stop DB‚ it is not initialized");
-
-            return;
-          }
-
-          void db.close();
-        });
+        if (isStopped) {
+          await db.close();
+        }
       },
 
       async execQueries(
@@ -44,11 +42,15 @@ export const ionicBackend = (path: (dbName: string) => string): IDbBackend => {
 
         for (const q of queries) {
           const startTime = performance.now();
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           const execResult = await db.executeSql(q.text, q.values);
 
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
           const rows: IQueryResult = new Array(execResult.rows.length);
 
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
           for (let i = 0; i < execResult.rows.length; i++) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
             rows[i] = execResult.rows.item(i);
           }
 
@@ -71,6 +73,13 @@ export const ionicBackend = (path: (dbName: string) => string): IDbBackend => {
         }
 
         return res;
+      },
+      async stop() {
+        isStopped = true;
+
+        if (db) {
+          await db.close();
+        }
       },
     };
   };

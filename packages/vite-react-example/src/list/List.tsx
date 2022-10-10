@@ -80,13 +80,13 @@ const Row = ({
       <td>{new Date(row.updatedAt).toLocaleString()}</td>
       <td>
         <button
-          onClick={() => deleteRecord()}
+          onClick={() => void deleteRecord()}
           disabled={deleteRecordState.type !== "idle"}
         >
           Delete
         </button>
         <button
-          onClick={() => updateRecord()}
+          onClick={() => void updateRecord()}
           disabled={
             updateRecordState.type !== "running" &&
             updateRecordState.type !== "idle" &&
@@ -199,7 +199,7 @@ export const List = () => {
       {[100, 1000, 10_000].map((count) => (
         <button
           key={count}
-          onClick={() => createNotes(count)}
+          onClick={() => void createNotes(count)}
           disabled={
             createNotesState.type === "running" ||
             createNotesState.type === "waitingDb"
@@ -212,7 +212,7 @@ export const List = () => {
       ))}
 
       <button
-        onClick={deleteAll}
+        onClick={() => void deleteAll()}
         disabled={
           deleteAllState.type === "running" ||
           deleteAllState.type === "waitingDb"

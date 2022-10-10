@@ -1,11 +1,11 @@
-import { Observable } from "rxjs";
+import { ReactiveVar } from "@kikko-land/kikko";
 
 import { INotifyChannel } from "./getBroadcastCh";
 
-declare module "@kikko-land/core" {
+declare module "@kikko-land/kikko" {
   export interface ISharedDbState {
     reactiveQueriesState?: {
-      eventsCh$: Observable<INotifyChannel>;
+      rEventsCh: ReactiveVar<INotifyChannel | undefined>;
     };
   }
 }

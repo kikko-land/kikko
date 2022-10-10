@@ -1,6 +1,6 @@
-const rootDir = process.cwd().includes("packages/core")
+const rootDir = process.cwd().includes("packages/kikko")
   ? "./"
-  : "./packages/core";
+  : "./packages/kikko";
 
 module.exports = {
   extends: ["../common-scripts/eslintrc.cjs"],

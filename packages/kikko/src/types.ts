@@ -1,12 +1,12 @@
 import { IBaseToken } from "@kikko-land/query-builder/src/types";
 import { ISqlAdapter } from "@kikko-land/sql";
-import { BehaviorSubject, Observable } from "rxjs";
 import { DeepReadonly } from "ts-essentials";
 
 import { INanoEmitter } from "./createNanoEvents";
 import { IJobsState } from "./job";
+import { ReactiveVar } from "./reactiveVar";
 
-export interface IKikkoEvents {
+export type IKikkoEvents = {
   initialized: (db: IDbState) => Promise<void> | void;
   transactionWillStart: (
     db: IDbState,
@@ -32,7 +32,7 @@ export interface IKikkoEvents {
     db: IDbState,
     transaction: ITransaction
   ) => Promise<void> | void;
-}
+};
 
 export interface ITransaction {
   id: string;
@@ -71,25 +71,22 @@ type IDbInstance = {
     queries: IQuery[],
     opts: { log: { suppress: boolean; transactionId?: string } }
   ): Promise<IQueryResult[]>;
+  stop(): Promise<void>;
 };
-export type IDbBackend = (db: {
-  dbName: string;
-  stopped$: Observable<void>;
-}) => IDbInstance;
+export type IDbBackend = (db: { dbName: string }) => IDbInstance;
 
 export interface ISharedDbState {
   dbName: string;
   dbBackend: ReturnType<IDbBackend>;
 
-  runningState$: BehaviorSubject<"running" | "stopping" | "stopped">;
-  stopStarted$: Observable<void>;
+  runningState: ReactiveVar<"running" | "stopping" | "stopped">;
 
   eventsEmitter: INanoEmitter<IKikkoEvents>;
 
   // Used to detect current tab id. Uniq for each tab
   clientId: string;
 
-  jobsState$: BehaviorSubject<IJobsState>;
+  jobsState: ReactiveVar<IJobsState>;
 
   transactionsState: {
     current?: ITransaction;

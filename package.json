@@ -17,8 +17,8 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "@changesets/cli": "^2.24.2",
-    "turbo": "^1.4.3"
+    "@changesets/cli": "^2.24.4",
+    "turbo": "^1.4.7"
   },
   "publishConfig": {
     "access": "public"

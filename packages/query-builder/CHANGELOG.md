@@ -1,5 +1,24 @@
 # @kikko-land/query-builder
 
+## 0.2.0
+
+### Minor Changes
+
+- a52a3cb: Upgrade packages
+
+### Patch Changes
+
+- Updated dependencies [a52a3cb]
+  - @kikko-land/sql@0.2.0
+
+## 0.1.1
+
+### Patch Changes
+
+- 81605a8: Trong renamed to kikko
+- Updated dependencies [81605a8]
+  - @kikko-land/sql@0.1.1
+
 ## 1.3.1
 
 ### Patch Changes

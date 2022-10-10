@@ -38,14 +38,14 @@ Install Kikko packages:
   <TabItem value="yarn" label="yarn" default>
 
 ```bash
-yarn add @kikko-land/react @kikko-land/query-builder @kikko-land/sql.js @kikko-land/tauri-backend
+yarn add @kikko-land/query-builder @kikko-land/sql.js @kikko-land/tauri-backend
 ```
 
   </TabItem>
   <TabItem value="npm" label="npm">
 
 ```bash
-npm i -S @kikko-land/react @kikko-land/query-builder @kikko-land/sql.js @kikko-land/tauri-backend
+npm i -S @kikko-land/query-builder @kikko-land/tauri-backend
 ```
 
   </TabItem>
@@ -60,16 +60,6 @@ const config: IInitDbClientConfig = {
   dbName: "helloWorld",
   dbBackend: tauriBackend((dbName) => `${dbName}.db`),
   plugins: [migrationsPlugin({ migrations: [] }), reactiveQueriesPlugin()],
-};
-
-export const App = () => {
-  return (
-    <DbProvider config={config}>
-      <EnsureDbLoaded fallback={<div>Loading db...</div>}>
-        <List />
-      </EnsureDbLoaded>
-    </DbProvider>
-  );
 };
 ```
 

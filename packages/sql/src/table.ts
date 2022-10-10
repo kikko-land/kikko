@@ -34,10 +34,10 @@ export const table = (
   };
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function isTable(x: any): x is IContainsTable {
+export function isTable(x: unknown): x is IContainsTable {
   if (x === null) return false;
+  if (x === undefined) return false;
   if (typeof x !== "object") return false;
 
-  return Boolean(x[tableSymbol]);
+  return x.hasOwnProperty(tableSymbol);
 }

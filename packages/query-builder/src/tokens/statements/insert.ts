@@ -169,7 +169,7 @@ export const insert = (insertArg: IInsertArg): IInsertStatement => {
             ? this._toInsertValue
             : sql`VALUES ${sql.join(
                 this._toInsertValue.map((toInsertColumns) => {
-                  const toInsert: (IPrimitiveValue | IBaseToken)[] = Array(
+                  const toInsert = Array<IPrimitiveValue | IBaseToken>(
                     toInsertColumns.length
                   );
 
@@ -178,7 +178,9 @@ export const insert = (insertArg: IInsertArg): IInsertStatement => {
 
                     if (index === -1) {
                       throw new Error(
-                        `Column ${columnName} is not present at columns set: ${columns}. Make sure that you set all columns with setColumnNames() or each insert objects have the same keys present. Tried to insert: ${JSON.stringify(
+                        `Column ${columnName} is not present at columns set: ${columns.join(
+                          ", "
+                        )}. Make sure that you set all columns with setColumnNames() or each insert objects have the same keys present. Tried to insert: ${JSON.stringify(
                           toInsertColumns
                         )}`
                       );

@@ -7,156 +7,12 @@ slug: /react-integration/hooks
 
 ## useQuery / useQueryFirstRow
 
-Type declarations:
-
-```tsx
-declare type IQueryHookResult<D> =
-  | {
-      type: "loading";
-      data: D[];
-    }
-  | {
-      type: "waitingDb";
-      data: D[];
-    }
-  | {
-      type: "loaded";
-      data: D[];
-    }
-  | {
-      type: "noSqlPresent";
-      data: D[];
-    };
-
-declare function useQuery<D extends Record<string, unknown>>(
-  query: ISqlAdapter | Falsy,
-  _opts?:
-    | {
-        suppressLog?: boolean;
-        mapToObject?: boolean;
-      }
-    | undefined
-): IQueryHookResult<D>;
-
-declare type ISingleQueryHookResult<D> =
-  | {
-      type: "loading";
-      data?: D;
-    }
-  | {
-      type: "waitingDb";
-      data?: D;
-    }
-  | {
-      type: "loaded";
-      data: D;
-    }
-  | {
-      type: "noSqlPresent";
-      data?: D;
-    };
-
-declare function useQueryFirstRow<D extends Record<string, unknown>>(
-  query: ISqlAdapter | Falsy,
-  _opts?:
-    | {
-        suppressLog?: boolean;
-        mapToObject?: boolean;
-      }
-    | undefined
-): ISingleQueryHookResult<D>;
-```
-
 Usage example:
 
-```tsx
-import { select, sql } from "@kikko-land/query-builder";
-import { useQuery, useQueryFirstRow } from "@kikko-land/react";
-
-type IRow = {
-  id: string;
-  title: string;
-};
-
-type IComment = {
-  id: string;
-  message: string;
-};
-
-const notesTable = sql.table("notes");
-const commentsTable = sql.table("comments");
-
-const List = () => {
-  const result = useQuery<IRow>(select().from(notesTable));
-
-  return result.type === "loaded"
-    ? result.data.map((row) => <div key={row.id}>Title: {row.title}</div>)
-    : "Loading...";
-};
-
-const Note = ({ id }: { id: string }) => {
-  // It will returns only first row from the set
-  const result = useQueryFirstRow<IRow>(
-    select().from(notesTable).where({ id: id })
-  );
-
-  // It also support falsy values, so you can wait when further data will appear:
-  const commentsResult = useQuery<IComment>(
-    result.data &&
-      select().from(commentsTable).where({ noteId: result.data.id })
-  );
-
-  return result.type === "loaded" ? (
-    <div>
-      Title: {result.data.title}
-      <br />
-      Comments:
-      <br />
-      {commentsResult.data.map((com) => (
-        <div id={com.id}>{com.message}</div>
-      ))}
-    </div>
-  ) : (
-    "Loading..."
-  );
-};
-```
 
 About how to build complex queries please refer to [query builder doc](/building-sql/query-builder).
 
 ## useRunQuery
-
-Type declarations:
-
-```typescript
-export type IRunQueryHookResult<D> =
-  | {
-      type: "running";
-      data?: D;
-    }
-  | {
-      type: "waitingDb";
-      data?: D;
-    }
-  | { type: "done"; data: D }
-  | { type: "idle"; data?: D };
-
-export declare function useRunQuery<
-  D extends (db: IDbState) => (...args: any[]) => Promise<R>,
-  R
->(
-  cb: D,
-  _opts?:
-    | {
-        suppressLog?: boolean;
-        inTransaction?: boolean;
-      }
-    | undefined
-): readonly [
-  (...args: Parameters<ReturnType<D>>) => Promise<R>,
-  IRunQueryHookResult<R>
-];
-```
 
 Usage example:
 
@@ -179,9 +35,6 @@ const RunComponent = () => {
     }
   );
 
-  const [deleteRow, _deleteState] = useRunQuery((db) => async (id: string) => {
-    await runQuery(db, deleteFrom(notesTable).where({ id }));
-  });
 
   const run = useCallback(async () => {
     const row = { id: "123", title: "HEY!" };

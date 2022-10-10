@@ -7,7 +7,8 @@ import { assureDbIsRunning, makeId, unwrapQueries } from "./utils";
 const runInTransactionFunc = async <T>(
   state: IDbState,
   transactionType: "DEFERRED" | "IMMEDIATE" | "EXCLUSIVE",
-  func: (state: IDbState) => Promise<T>
+  func: (state: IDbState) => Promise<T>,
+  opts?: { label?: string }
 ) => {
   const {
     localState: { transactionsState: transactionsLocalState },
@@ -48,9 +49,10 @@ const runInTransactionFunc = async <T>(
     },
   };
 
-  const job = await acquireJob(state.sharedState.jobsState$, {
+  const job = await acquireJob(state.sharedState.jobsState, {
     type: "runTransaction",
     transaction,
+    label: opts?.label,
   });
 
   const execOpts = {
@@ -94,25 +96,29 @@ const runInTransactionFunc = async <T>(
       throw e;
     }
   } finally {
-    releaseJob(state.sharedState.jobsState$, job);
+    releaseJob(state.sharedState.jobsState, job);
   }
 };
 
 // By default it is deferred
 export const runInDeferredTransaction = <T>(
   state: IDbState,
-  func: (state: IDbState) => Promise<T>
-) => runInTransactionFunc(state, "DEFERRED", func);
+  func: (state: IDbState) => Promise<T>,
+  opts?: { label?: string }
+) => runInTransactionFunc(state, "DEFERRED", func, opts);
 export const runInImmediateTransaction = <T>(
   state: IDbState,
-  func: (state: IDbState) => Promise<T>
-) => runInTransactionFunc(state, "IMMEDIATE", func);
+  func: (state: IDbState) => Promise<T>,
+  opts?: { label?: string }
+) => runInTransactionFunc(state, "IMMEDIATE", func, opts);
 export const runInExclusiveTransaction = <T>(
   state: IDbState,
-  func: (state: IDbState) => Promise<T>
-) => runInTransactionFunc(state, "EXCLUSIVE", func);
+  func: (state: IDbState) => Promise<T>,
+  opts?: { label?: string }
+) => runInTransactionFunc(state, "EXCLUSIVE", func, opts);
 
 export const runInTransaction = <T>(
   state: IDbState,
-  func: (state: IDbState) => Promise<T>
-) => runInDeferredTransaction(state, func);
+  func: (state: IDbState) => Promise<T>,
+  opts?: { label?: string }
+) => runInDeferredTransaction(state, func, opts);

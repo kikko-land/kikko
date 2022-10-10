@@ -2,34 +2,32 @@ import {
   IDbClientPlugin,
   IDbState,
   IQueriesMiddleware,
-} from "@kikko-land/core";
-import { firstValueFrom, switchMap } from "rxjs";
+} from "@kikko-land/kikko";
 
 import { getBroadcastCh } from "./getBroadcastCh";
 import { getReactiveState } from "./utils";
 
-const notifyTablesContentChanged = async (
-  state: IDbState,
-  tables: string[]
-) => {
+const notifyTablesContentChanged = (state: IDbState, tables: string[]) => {
   if (tables.length === 0) return;
 
   const reactiveState = getReactiveState(state);
 
-  return firstValueFrom(
-    reactiveState.eventsCh$.pipe(
-      switchMap(async (ch) => {
-        await ch.postMessage({ changesInTables: tables });
-      })
-    )
-  );
+  const unsubscribe = reactiveState.rEventsCh.subscribe((ch) => {
+    void (async () => {
+      if (!ch) return;
+
+      await ch.postMessage({ changesInTables: tables });
+
+      unsubscribe();
+    })();
+  });
 };
 
 export const reactiveQueriesPlugin: (opts?: {
   webMultiTabSupport?: boolean;
 }) => IDbClientPlugin = (opts) => (db) => {
   const transactionTables: Record<string, { writeTables: Set<string> }> = {};
-  const { dbName, eventsEmitter, stopStarted$ } = db.sharedState;
+  const { dbName, eventsEmitter, runningState } = db.sharedState;
 
   const webMultiTabSupport =
     opts?.webMultiTabSupport !== undefined ? opts.webMultiTabSupport : true;
@@ -59,7 +57,7 @@ export const reactiveQueriesPlugin: (opts?: {
         }
       } else {
         // dont await so notification happens after function return
-        void notifyTablesContentChanged(state.dbState, writeTables);
+        notifyTablesContentChanged(state.dbState, writeTables);
       }
     }
 
@@ -89,10 +87,10 @@ export const reactiveQueriesPlugin: (opts?: {
   });
 
   db.sharedState.reactiveQueriesState = {
-    eventsCh$: getBroadcastCh(
+    rEventsCh: getBroadcastCh(
       dbName + "-reactiveQueriesPlugin",
       webMultiTabSupport,
-      stopStarted$
+      runningState
     ),
   };
 

@@ -20,29 +20,26 @@ export const Benchmark = () => {
   const backendName = (useSearchParam("backend") ||
     "waMinimal") as keyof typeof backendOptions;
 
-  const [runBenchmark, benchmarkState] = useRunQuery(
-    (db) => () =>
-      suppressLog(db, async (db) =>
-        runInTransaction(db, async () => {
-          const time = new Date().getTime();
-          setLogs((l) => [...l, "Start inserting..."]);
+  const [runBenchmark, benchmarkState] = useRunQuery((db) => () =>
+    suppressLog(db, async (db) =>
+      runInTransaction(db, async () => {
+        const time = new Date().getTime();
+        setLogs((l) => [...l, "Start inserting..."]);
 
-          for (let i = 0; i < 100; i++) {
-            await runQuery(
-              db,
-              sql`INSERT INTO kv (key, value) VALUES ${sql.join(
-                [...Array(10_000)].map(
-                  () =>
-                    sql`(${makeId()}, ${(
-                      (Math.random() * 100) |
-                      0
-                    ).toString()})`
-                )
-              )}`
-            );
-          }
+        for (let i = 0; i < 100; i++) {
+          await runQuery(
+            db,
+            sql`INSERT INTO kv (key, value) VALUES ${sql.join(
+              [...Array<number>(10_000)].map(
+                () =>
+                  sql`(${makeId()}, ${((Math.random() * 100) | 0).toString()})`
+              )
+            )}`
+          );
+        }
 
-          runAfterTransactionCommitted(db, async () => {
+        runAfterTransactionCommitted(db, () => {
+          void (async () => {
             setLogs((l) => [
               ...l,
               `Done inserting in ${(new Date().getTime() - time) / 1000}s`,
@@ -56,9 +53,10 @@ export const Benchmark = () => {
               ...l,
               `Done summing in ${(new Date().getTime() - summingTime) / 1000}s`,
             ]);
-          });
-        })
-      )
+          })();
+        });
+      })
+    )
   );
 
   const db = useDbStrict();
@@ -104,7 +102,7 @@ export const Benchmark = () => {
       </select>
 
       <button
-        onClick={clearAndRun}
+        onClick={() => void clearAndRun()}
         disabled={benchmarkState.type === "running"}
       >
         {benchmarkState.type === "running" ? "Running..." : "Run benchmark"}
