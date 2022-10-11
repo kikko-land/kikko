@@ -30,6 +30,10 @@ export const table = (
     get [tableSymbol]() {
       return this;
     },
+
+
+
+
     __discriminator: "ITableDef",
   };
 };

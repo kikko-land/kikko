@@ -1,6 +1,8 @@
 import { IDb, IDbClientPlugin, IQueriesMiddleware } from "@kikko-land/kikko";
+import { ISqlAdapter } from "@kikko-land/sql";
 
 import { getBroadcastCh } from "./getBroadcastCh";
+import { listenQueries } from "./listenQueries";
 import { getReactiveState } from "./utils";
 
 const notifyTablesContentChanged = (db: IDb, tables: string[]) => {
@@ -102,5 +104,11 @@ export const reactiveQueriesPlugin: (opts?: {
         ],
       },
     },
+    listenQueries<D extends Record<string, unknown>>(
+      queries: ISqlAdapter[],
+      subscriber: (evs: D[][]) => void
+    ) {
+      return listenQueries(this, queries, subscriber);
+    }
   };
 };

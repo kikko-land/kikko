@@ -56,8 +56,7 @@ And in the root component initialize the db:
 
   const createNotesTableMigration: IMigration = {
     up: async (db) => {
-      await runQuery(
-        db,
+      await db.runQuery(
         sql`CREATE TABLE notes (id varchar(20) PRIMARY KEY, title TEXT NOT NULL);`
       );
     },
@@ -101,8 +100,7 @@ And use it:
   const addNote = useRunQuery(currentDb, (db) => async () => {
     const id = makeId();
 
-    await runQuery(
-      db,
+    await db.runQuery(
       insert({
         id,
         title: `Note#${id}`,

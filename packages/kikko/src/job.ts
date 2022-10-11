@@ -12,11 +12,13 @@ export type DistributiveOmit<
 
 export type IJob =
   | {
-      type: "runTransaction" | "runAtomicTransaction";
-      id: string;
-      transaction: ITransaction;
-      label?: string;
-    }
+    type: "runTransaction" | "runAtomicTransaction";
+    id: string;
+    transaction: ITransaction;
+    label?: string;
+
+
+  }
   | { type: "runQueries"; queries: ISql[]; id: string }
   | { type: "initDb"; name: string; id: string };
 
@@ -58,8 +60,7 @@ export const acquireJob = async (
     } catch (e) {
       if (e instanceof TimeoutError) {
         throw new TimeoutError(
-          `Timeout error while job acquire: '${
-            e.message
+          `Timeout error while job acquire: '${e.message
           }'. Is it a dead lock? ${stateToDebugString(
             jobsState.value
           )}, jobToAcquire: ${JSON.stringify(job, null, 2)}`

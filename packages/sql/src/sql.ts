@@ -84,8 +84,7 @@ function internalSql(
     }
 
     throw new TypeError(
-      `Expected ${_rawStrings.length} strings to have ${
-        _rawStrings.length - 1
+      `Expected ${_rawStrings.length} strings to have ${_rawStrings.length - 1
       } values`
     );
   }
