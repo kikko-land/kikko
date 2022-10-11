@@ -254,7 +254,7 @@ export function useRunQuery<
 
       try {
         const res = await (inTransaction
-          ? db.transaction((db) => cb(db)(...args))
+          ? db.runTransaction((db) => cb(db)(...args))
           : cb(db)(...args));
 
         data.value = res;

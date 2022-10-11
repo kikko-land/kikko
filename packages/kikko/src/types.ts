@@ -82,11 +82,11 @@ export interface IDb {
     localState: DeepReadonly<ILocalDbState>;
   };
 
-  transaction<T>(
+  runInTransaction<T>(
     func: (state: IDb) => Promise<T>,
     opts?: { label?: string; type?: "deferred" | "immediate" | "exclusive" }
   ): Promise<T>;
-  atomicTransaction(
+  runAtomicTransaction(
     func:
       | ((scope: IAtomicTransactionScope) => Promise<void> | void)
       | ISqlAdapter[],
