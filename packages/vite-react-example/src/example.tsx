@@ -10,7 +10,6 @@ import {
 } from "@kikko-land/query-builder";
 import {
   makeId,
-  runAfterTransactionCommitted,
   sql,
   useQuery,
   useQueryFirstRow,
@@ -60,7 +59,7 @@ export const List = () => {
   const [deleteAll, deleteAllState] = useRunQuery((db) => async () => {
     await db.runQuery(deleteFrom(notesTable));
 
-    runAfterTransactionCommitted(db, () => {
+    db.runAfterTransactionCommitted(() => {
       console.log("It runs after transaction committed!");
     });
   });

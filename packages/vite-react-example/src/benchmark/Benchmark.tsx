@@ -1,7 +1,6 @@
 import { sql } from "@kikko-land/query-builder";
 import {
   makeId,
-  runAfterTransactionCommitted,
   suppressLog,
   useDbStrict,
   useRunQuery,
@@ -38,7 +37,7 @@ export const Benchmark = () => {
             );
           }
 
-          runAfterTransactionCommitted(db, () => {
+          db.runAfterTransactionCommitted(() => {
             void (async () => {
               setLogs((l) => [
                 ...l,
@@ -51,8 +50,7 @@ export const Benchmark = () => {
               await db.runQuery(sql`SELECT SUM(value) FROM kv`);
               setLogs((l) => [
                 ...l,
-                `Done summing in ${
-                  (new Date().getTime() - summingTime) / 1000
+                `Done summing in ${(new Date().getTime() - summingTime) / 1000
                 }s`,
               ]);
             })();
