@@ -1,5 +1,6 @@
 import { ISqlAdapter } from "@kikko-land/sql";
 
+import { runAfterTransaction } from './afterTransaction';
 import { createNanoEvents } from "./createNanoEvents";
 import { acquireJob, IJobsState, releaseJob, whenAllJobsDone } from "./job";
 import { reactiveVar } from "./reactiveVar";
@@ -11,6 +12,7 @@ import {
   IDbBackend,
   IKikkoEvents,
   IQueriesMiddleware,
+  ITransaction,
 } from "./types";
 import { makeId } from "./utils";
 
@@ -100,7 +102,26 @@ export const initDbClient = async ({
     ): Promise<D[]> {
       return (await this.runQueries<D>([query]))[0];
     },
-  };
+    runAfterTransactionCommitted(
+      func: (db: IDb, transaction: ITransaction) => void
+    ) {
+      return runAfterTransaction(this, (ev, db, transaction) => {
+        if (ev === "committed") {
+          func(db, transaction);
+        }
+      });
+    },
+    runAfterTransactionRollbacked(
+      func: (db: IDb, transaction: ITransaction) => void
+    ) {
+      runAfterTransaction(db, (ev, db, transaction) => {
+        if (ev === "rollbacked") {
+          func(db, transaction);
+        }
+      });
+    }
+
+  }
 
   const job = await acquireJob(db.__state.sharedState.jobsState, {
     type: "initDb",

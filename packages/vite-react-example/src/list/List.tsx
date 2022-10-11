@@ -170,6 +170,10 @@ export const List = () => {
           for (const q of queries) {
             await db.runQuery(q);
           }
+
+          db.runAfterTransactionCommitted(() => {
+            console.log('Transaction commited!')
+          })
         });
       }
     }

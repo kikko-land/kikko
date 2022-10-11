@@ -46,11 +46,11 @@ You could also register callback that will run once transaction will be finished
 await db.transaction(async (db) => {
   await db.runQuery(deleteFrom("comments"));
 
-  runAfterTransactionCommitted(db, () => {
+  db.runAfterTransactionCommitted(() => {
     console.log("All comments are deleted!");
   });
 
-  runAfterTransactionRollbacked(db, () => {
+  db.runAfterTransactionRollbacked(() => {
     console.log("Failed to delete comments");
   });
 });

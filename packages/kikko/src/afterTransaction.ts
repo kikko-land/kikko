@@ -1,6 +1,6 @@
 import { IDb, ITransaction } from "./types";
 
-const runAfterTransaction = (
+export const runAfterTransaction = (
   db: IDb,
   func: (
     event: "committed" | "rollbacked",
@@ -17,15 +17,15 @@ const runAfterTransaction = (
 
   const listener =
     (event: "committed" | "rollbacked") =>
-    (db: IDb, evTransaction: ITransaction) => {
-      if (transaction.id !== evTransaction.id) return;
+      (db: IDb, evTransaction: ITransaction) => {
+        if (transaction.id !== evTransaction.id) return;
 
-      func(event, db, transaction);
+        func(event, db, transaction);
 
-      for (const unsubscribe of unsubscribes) {
-        unsubscribe();
-      }
-    };
+        for (const unsubscribe of unsubscribes) {
+          unsubscribe();
+        }
+      };
 
   unsubscribes.push(
     db.__state.sharedState.eventsEmitter.on(
@@ -40,26 +40,4 @@ const runAfterTransaction = (
       listener("rollbacked")
     )
   );
-};
-
-export const runAfterTransactionCommitted = (
-  db: IDb,
-  func: (db: IDb, transaction: ITransaction) => void
-) => {
-  runAfterTransaction(db, (ev, db, transaction) => {
-    if (ev === "committed") {
-      func(db, transaction);
-    }
-  });
-};
-
-export const runAfterTransactionRollbacked = (
-  db: IDb,
-  func: (db: IDb, transaction: ITransaction) => void
-) => {
-  runAfterTransaction(db, (ev, db, transaction) => {
-    if (ev === "rollbacked") {
-      func(db, transaction);
-    }
-  });
 };

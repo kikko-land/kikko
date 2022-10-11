@@ -90,7 +90,7 @@ await withSuppressedLog(db).transaction(async (db) => {
     }).into("notes"),
   ]);
 
-  runAfterTransactionCommitted(db, () => {
+  db.runAfterTransactionCommitted(() => {
     console.log("Notes created!");
   });
 });

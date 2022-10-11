@@ -97,6 +97,13 @@ export interface IDb {
     queries: ISqlAdapter[]
   ): Promise<D[][]>;
   runQuery<D extends Record<string, unknown>>(query: ISqlAdapter): Promise<D[]>;
+
+  runAfterTransactionCommitted(
+    func: (db: IDb, transaction: ITransaction) => void
+  ): void;
+  runAfterTransactionRollbacked(
+    func: (db: IDb, transaction: ITransaction) => void
+  ): void;
 }
 
 export type IQueryValue = number | string | Uint8Array | null;
