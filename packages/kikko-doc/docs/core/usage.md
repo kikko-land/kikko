@@ -43,8 +43,7 @@ const db = await initDbClient({
 ```typescript
 // One query
 
-await runQuery(
-  db,
+await db.runQuery(
   insert({
     title: "title",
     content: "content",
@@ -53,7 +52,7 @@ await runQuery(
 
 // Multiple queries
 
-await runQueries(db, [
+await db.runQueries([
   insert({
     title: "title",
     content: "content",
@@ -66,7 +65,7 @@ await runQueries(db, [
 
 // You can also suppress log
 
-await runQueries(withSuppressedLog(db), [
+await withSuppressedLog(db).runQueries([
   insert({
     title: "title",
     content: "content",
@@ -79,8 +78,8 @@ await runQueries(withSuppressedLog(db), [
 
 // Even with transaction
 
-await runInTransaction(withSuppressedLog(db), async (db) => {
-  await runQueries(db, [
+await withSuppressedLog(db).transaction(async (db) => {
+  await db.runQueries([
     insert({
       title: "title",
       content: "content",
@@ -104,7 +103,7 @@ You must use `react-queries-plugin` to be able to listen queries.
 Here is how you can listen changes in tables:
 
 ```typescript
-const unsubscribe = listenQueries(db, [select().from("notes")], (res) => {
+const unsubscribe = db.listenQueries([select().from("notes")], (res) => {
   console.log("Queries result: ", res);
 });
 

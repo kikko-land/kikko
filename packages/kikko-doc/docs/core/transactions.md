@@ -14,9 +14,9 @@ to run all time-consuming work before transaction start.
 ## Running in transaction
 
 ```typescript
-await runInTransaction(db, async (db) => {
-  await runQuery(db, deleteFrom("comments"));
-  await runQuery(db, deleteFrom("notes"));
+await db.transaction(async (db) => {
+  await db.runQuery(deleteFrom("comments"));
+  await db.runQuery(deleteFrom("notes"));
 });
 ```
 
@@ -27,10 +27,10 @@ Transaction will rollback if any error will be thrown during.
 It also supports nesting:
 
 ```typescript
-await runInTransaction(db, async (db) => {
-  await runQuery(db, deleteFrom("comments"));
-  await runInTransaction(db, async (db) => {
-    await runQuery(db, deleteFrom("notes"));
+await transaction(async (db) => {
+  await db.runQuery(deleteFrom("comments"));
+  await db.transaction(async (db) => {
+    await db.runQuery(deleteFrom("notes"));
   });
 });
 ```
@@ -43,8 +43,8 @@ for `SAVEPOINT` and `RELEASE` commands, so nested transaction will run isolated.
 You could also register callback that will run once transaction will be finished or rollbacked:
 
 ```typescript
-await runInTransaction(db, async (db) => {
-  await runQuery(db, deleteFrom("comments"));
+await db.transaction(async (db) => {
+  await db.runQuery(deleteFrom("comments"));
 
   runAfterTransactionCommitted(db, () => {
     console.log("All comments are deleted!");
@@ -65,13 +65,13 @@ By default transaction will run in DEFERRED mode. If you need other modes use:
 
 ```typescript
 // DEFERRED
-runInDeferredTransaction();
+db.transaction((db) => {}, {type: "deffered"});
 
 // IMMEDIATE
-runInImmediateTransaction();
+db.transaction((db) => {}, {type: "immediate"});
 
 // EXCLUSIVE
-runInExclusiveTransaction();
+db.transaction((db) => {}, {type: "exclusive"});
 ```
 
 For more information read https://www.sqlite.org/lang_transaction.html#deferred_immediate_and_exclusive_transactions

@@ -5,7 +5,6 @@ import {
   stopDb,
   withSuppressedLog,
 } from "@kikko-land/kikko";
-import { listenQueries } from "@kikko-land/reactive-queries-plugin";
 import { ISqlAdapter } from "@kikko-land/sql";
 import {
   computed,
@@ -20,13 +19,13 @@ import {
 
 export type ISingleQueryHookResult<D> =
   | {
-      type: "loading";
-      data?: D;
-    }
+    type: "loading";
+    data?: D;
+  }
   | {
-      type: "waitingDb";
-      data?: D;
-    }
+    type: "waitingDb";
+    data?: D;
+  }
   | { type: "loaded"; data: D }
   | { type: "noSqlPresent"; data?: D };
 
@@ -85,13 +84,13 @@ export const useInitDb = (
 
 export type IUseQueryResult<D> =
   | {
-      type: "loading";
-      data: D[];
-    }
+    type: "loading";
+    data: D[];
+  }
   | {
-      type: "waitingDb";
-      data: D[];
-    }
+    type: "waitingDb";
+    data: D[];
+  }
   | { type: "loaded"; data: D[] }
   | { type: "noSqlPresent"; data: D[] };
 
@@ -123,7 +122,7 @@ export const useQueries = <D extends Record<string, unknown>>(
 
     resultTypeRef.value = "loading";
 
-    const unsub = listenQueries<D>(db, queriesRef.value, (res) => {
+    const unsub = db.listenQueries<D>(queriesRef.value, (res) => {
       dataRef.value = res;
       resultTypeRef.value = "loaded";
     });
@@ -145,7 +144,7 @@ export const useQueries = <D extends Record<string, unknown>>(
     queries &&
     queriesRef.value &&
     queries.map((q) => q.toSql().hash).join() !==
-      queriesRef.value.map((q) => q.toSql().hash).join()
+    queriesRef.value.map((q) => q.toSql().hash).join()
   ) {
     queriesRef.value = queries;
   }
@@ -184,13 +183,13 @@ export const useQueryFirstRow = <D extends Record<string, unknown>>(
 
 export type IRunQueryHookResult<D> =
   | {
-      type: "running";
-      data?: D;
-    }
+    type: "running";
+    data?: D;
+  }
   | {
-      type: "waitingDb";
-      data?: D;
-    }
+    type: "waitingDb";
+    data?: D;
+  }
   | { type: "done"; data: D }
   | { type: "idle"; data?: D };
 

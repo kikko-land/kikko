@@ -23,17 +23,6 @@ export type IInitDbClientConfig = {
   queriesMiddlewares?: IQueriesMiddleware[];
 };
 
-const initAtomicTransaction = (): IAtomicTransactionScope => {
-  return {
-    __state: {
-      queries: [],
-    },
-    addQuery(q: ISqlAdapter): void {
-      this.__state.queries.push(q);
-    },
-  };
-};
-
 export const initDbClient = async ({
   dbName,
   plugins,
