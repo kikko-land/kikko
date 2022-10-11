@@ -160,13 +160,13 @@ export const List = () => {
         ).into(notesTable)
       );
       if (useAtomic) {
-        await db.atomicTransaction((scope) => {
+        await db.runAtomicTransaction((scope) => {
           for (const q of queries) {
             scope.addQuery(q);
           }
         });
       } else {
-        await db.transaction(async (db) => {
+        await db.runInTransaction(async (db) => {
           for (const q of queries) {
             await db.runQuery(q);
           }

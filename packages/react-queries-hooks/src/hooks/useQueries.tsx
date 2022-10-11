@@ -187,7 +187,7 @@ export function useRunQuery<
 
       const db = suppressLog ? withSuppressedLog(dbState.db) : dbState.db;
       const res = await (inTransaction
-        ? db.transaction((db) => cb(db)(...args))
+        ? db.runInTransaction((db) => cb(db)(...args))
         : cb(db)(...args));
 
       if (isMounted()) {

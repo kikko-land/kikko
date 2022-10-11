@@ -8,7 +8,7 @@ const migrationsTable = "migrations";
 const runMigrations = (db: IDb, migrations: IMigration[]) => {
   if (migrations.length === 0) return;
 
-  return db.transaction(
+  return db.runInTransaction(
     async (db) => {
       await db.runQuery(
         sql`
@@ -48,10 +48,10 @@ const runMigrations = (db: IDb, migrations: IMigration[]) => {
 
 export const migrationsPlugin =
   ({ migrations }: { migrations: IMigration[] }): IDbClientPlugin =>
-  (db: IDb) => {
-    db.__state.sharedState.eventsEmitter.on("initialized", async () => {
-      await runMigrations(db, migrations);
-    });
+    (db: IDb) => {
+      db.__state.sharedState.eventsEmitter.on("initialized", async () => {
+        await runMigrations(db, migrations);
+      });
 
-    return db;
-  };
+      return db;
+    };

@@ -69,7 +69,7 @@ export const initDbClient = async ({
         transactionsState: {},
       },
     },
-    transaction<T>(
+    runInTransaction<T>(
       func: (state: IDb) => Promise<T>,
       opts?: { label?: string; type?: "deferred" | "immediate" | "exclusive" }
     ): Promise<T> {
@@ -77,7 +77,7 @@ export const initDbClient = async ({
         label: opts?.label,
       });
     },
-    async atomicTransaction(
+    async runAtomicTransaction(
       func:
         | ((scope: IAtomicTransactionScope) => Promise<void> | void)
         | ISqlAdapter[],

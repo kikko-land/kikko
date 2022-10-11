@@ -19,7 +19,7 @@ export const Benchmark = () => {
   const [runBenchmark, benchmarkState] = useRunQuery(
     (db) => () =>
       suppressLog(db, async (db) =>
-        db.transaction(async (db) => {
+        db.runInTransaction(async (db) => {
           const time = new Date().getTime();
           setLogs((l) => [...l, "Start inserting..."]);
 
