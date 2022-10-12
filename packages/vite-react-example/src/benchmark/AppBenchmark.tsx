@@ -21,16 +21,16 @@ const buildConfig = (config: IBackendConfig): IInitDbClientConfig => {
     dbBackend:
       config.type === "absurd"
         ? absurdWebBackend({
-            wasmUrl: absurdSqlWasmUrl,
-            pageSize: 8 * 1024,
-            cacheSize: -100,
-          })
+          wasmUrl: absurdSqlWasmUrl,
+          pageSize: 8 * 1024,
+          cacheSize: -100,
+        })
         : waSqliteWebBackend({
-            wasmUrl: sqlWasmUrl,
-            pageSize: 8 * 1024,
-            cacheSize: -100,
-            vfs: "minimal",
-          }),
+          wasmUrl: sqlWasmUrl,
+          pageSize: 8 * 1024,
+          cacheSize: -100,
+          vfs: "minimal",
+        }),
     plugins: [
       migrationsPlugin({
         migrations: [createKVMigration],
