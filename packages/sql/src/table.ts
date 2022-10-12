@@ -31,9 +31,6 @@ export const table = (
       return this;
     },
 
-
-
-
     __discriminator: "ITableDef",
   };
 };

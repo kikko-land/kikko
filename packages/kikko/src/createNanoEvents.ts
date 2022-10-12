@@ -16,9 +16,9 @@ export interface INanoEmitter<Events extends EventsMap> {
   on<K extends keyof Events>(event: K, cb: Events[K]): () => void;
 }
 
-export function createNanoEvents<Events extends EventsMap>(): INanoEmitter<
-  Events
-> {
+export function createNanoEvents<
+  Events extends EventsMap
+>(): INanoEmitter<Events> {
   const events: Partial<{ [E in keyof Events]: Events[E][] }> = {};
 
   return {

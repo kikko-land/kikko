@@ -14,6 +14,6 @@ declare module "@kikko-land/kikko" {
     listenQueries<D extends Record<string, unknown>>(
       queries: ISqlAdapter[],
       subscriber: (evs: D[][]) => void
-    ): (() => void);
+    ): () => void;
   }
 }

@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "@types/inquirer": "^9.0.1",
+    "prettier": "^2.7.1",
     "type-fest": "^2.19.0",
     "vite-plugin-dts": "^1.5.0"
   }

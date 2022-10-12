@@ -109,6 +109,6 @@ export const reactiveQueriesPlugin: (opts?: {
       subscriber: (evs: D[][]) => void
     ) {
       return listenQueries(this, queries, subscriber);
-    }
+    },
   };
 };

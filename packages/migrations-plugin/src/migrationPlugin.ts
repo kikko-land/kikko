@@ -48,10 +48,10 @@ const runMigrations = (db: IDb, migrations: IMigration[]) => {
 
 export const migrationsPlugin =
   ({ migrations }: { migrations: IMigration[] }): IDbClientPlugin =>
-    (db: IDb) => {
-      db.__state.sharedState.eventsEmitter.on("initialized", async () => {
-        await runMigrations(db, migrations);
-      });
+  (db: IDb) => {
+    db.__state.sharedState.eventsEmitter.on("initialized", async () => {
+      await runMigrations(db, migrations);
+    });
 
-      return db;
-    };
+    return db;
+  };

@@ -9,7 +9,7 @@ export const initSqliteBridge = () => {
       close: () => {
         db.close();
       },
-      all: function(sql: string, params: (null | number | string | Buffer)[]) {
+      all: function (sql: string, params: (null | number | string | Buffer)[]) {
         const stmt = db.prepare(sql);
 
         if (stmt.reader) {
