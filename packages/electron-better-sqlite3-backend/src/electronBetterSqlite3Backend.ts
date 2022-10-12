@@ -1,4 +1,9 @@
-import { IDbBackend, IQuery, IQueryResult } from "@kikko-land/kikko";
+import {
+  IDbBackend,
+  IExecQueriesResult,
+  IQuery,
+  IQueryResult,
+} from "@kikko-land/kikko";
 
 declare global {
   interface Window {
@@ -33,15 +38,7 @@ export const electronBetterSqlite3Backend =
           db.close();
         }
       },
-      execQueries(
-        queries: IQuery[],
-        opts: {
-          log: {
-            suppress: boolean;
-            transactionId?: string;
-          };
-        }
-      ) {
+      execQueries(queries: IQuery[]): Promise<IExecQueriesResult> {
         if (!db) {
           throw new Error(
             `Failed to run queries: ${queries
@@ -49,31 +46,33 @@ export const electronBetterSqlite3Backend =
               .join(" ")}, db not initialized`
           );
         }
+        const totalStartedAt = performance.now();
 
-        const result: IQueryResult[] = [];
+        const result: IExecQueriesResult["result"] = [];
 
         for (const q of queries) {
           const startTime = performance.now();
 
-          result.push(db.all(q.text, q.values) as IQueryResult);
+          const rows = db.all(q.text, q.values) as IQueryResult;
 
-          const end = performance.now();
+          const endTime = performance.now();
 
-          if (!opts.log.suppress) {
-            console.info(
-              `[${dbName}]${
-                opts.log.transactionId
-                  ? `[tr_id=${opts.log.transactionId.slice(0, 6)}]`
-                  : ""
-              } ` +
-                queries.map((q) => q.text).join(" ") +
-                " Time: " +
-                ((end - startTime) / 1000).toFixed(4)
-            );
-          }
+          result.push({
+            rows,
+            performance: {
+              execTime: endTime - startTime,
+            },
+          });
         }
 
-        return Promise.resolve(result);
+        const totalFinishedAt = performance.now();
+
+        return Promise.resolve({
+          result,
+          performance: {
+            totalTime: totalFinishedAt - totalStartedAt,
+          },
+        });
       },
       stop() {
         isStopped = true;

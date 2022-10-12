@@ -1,4 +1,4 @@
-import { IDbBackend, IQuery, IQueryResult } from "@kikko-land/kikko";
+import { IDbBackend, IExecQueriesResult, IQuery } from "@kikko-land/kikko";
 import { openDatabase, ResultSet, ResultSetError } from "expo-sqlite";
 
 export const nativeExpoBackend =
@@ -8,39 +8,21 @@ export const nativeExpoBackend =
 
     return {
       async initialize() {},
-      async execQueries(
-        queries: IQuery[],
-        opts: {
-          log: {
-            suppress: boolean;
-            transactionId?: string;
-          };
-        }
-      ): Promise<IQueryResult[]> {
+      async execQueries(queries: IQuery[]) {
         const startTime = performance.now();
 
-        return new Promise<IQueryResult[]>((resolve, reject) => {
+        return new Promise<IExecQueriesResult>((resolve, reject) => {
           db.exec(
             queries.map((q) => ({ sql: q.text, args: q.values })),
             false,
             (_, results) => {
               const end = performance.now();
 
-              if (!opts.log.suppress) {
-                console.info(
-                  `[${dbName}]${
-                    opts.log.transactionId
-                      ? `[tr_id=${opts.log.transactionId.slice(0, 6)}]`
-                      : ""
-                  } ` +
-                    queries.map((q) => q.text).join(" ") +
-                    " Time: " +
-                    ((end - startTime) / 1000).toFixed(4)
-                );
-              }
-
               if (!results) {
-                resolve([]);
+                resolve({
+                  result: [],
+                  performance: { totalTime: end - startTime },
+                });
 
                 return;
               }
@@ -56,7 +38,13 @@ export const nativeExpoBackend =
 
               const goodResults = results as ResultSet[];
 
-              resolve(goodResults.map(({ rows }) => rows));
+              resolve({
+                result: goodResults.map(({ rows }) => ({
+                  rows,
+                  performance: {},
+                })),
+                performance: { totalTime: end - startTime },
+              });
             }
           );
         });

@@ -1,5 +1,10 @@
 import { SQLite, SQLiteObject } from "@awesome-cordova-plugins/sqlite";
-import { IDbBackend, IQuery, IQueryResult } from "@kikko-land/kikko";
+import {
+  IDbBackend,
+  IExecQueriesResult,
+  IQuery,
+  IQueryResult,
+} from "@kikko-land/kikko";
 
 export const ionicBackend = (path: (dbName: string) => string): IDbBackend => {
   return ({ dbName }) => {
@@ -21,15 +26,7 @@ export const ionicBackend = (path: (dbName: string) => string): IDbBackend => {
         }
       },
 
-      async execQueries(
-        queries: IQuery[],
-        opts: {
-          log: {
-            suppress: boolean;
-            transactionId?: string;
-          };
-        }
-      ) {
+      async execQueries(queries: IQuery[]) {
         if (!db) {
           throw new Error(
             `Failed to run queries: ${queries
@@ -38,7 +35,9 @@ export const ionicBackend = (path: (dbName: string) => string): IDbBackend => {
           );
         }
 
-        const res: IQueryResult[] = [];
+        const totalStartedAt = performance.now();
+
+        const res: IExecQueriesResult["result"] = [];
 
         for (const q of queries) {
           const startTime = performance.now();
@@ -56,23 +55,21 @@ export const ionicBackend = (path: (dbName: string) => string): IDbBackend => {
 
           const end = performance.now();
 
-          if (!opts.log.suppress) {
-            console.info(
-              `[${dbName}]${
-                opts.log.transactionId
-                  ? `[tr_id=${opts.log.transactionId.slice(0, 6)}]`
-                  : ""
-              } ` +
-                queries.map((q) => q.text).join(" ") +
-                " Time: " +
-                ((end - startTime) / 1000).toFixed(4)
-            );
-          }
-
-          res.push(rows);
+          res.push({
+            rows: rows,
+            performance: {
+              execTime: end - startTime,
+            },
+          });
         }
 
-        return res;
+        const totalFinishedAt = performance.now();
+        return {
+          result: res,
+          performance: {
+            totalTime: totalFinishedAt - totalStartedAt,
+          },
+        };
       },
       async stop() {
         isStopped = true;

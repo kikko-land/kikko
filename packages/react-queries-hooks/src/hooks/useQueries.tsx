@@ -1,7 +1,6 @@
-import "@kikko-land/reactive-queries-plugin";
-
 import { withSuppressedLog } from "@kikko-land/kikko";
 import { IDb } from "@kikko-land/kikko";
+import { listenQueries } from "@kikko-land/reactive-queries-plugin";
 import { ISqlAdapter } from "@kikko-land/sql";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -76,7 +75,7 @@ export function useQueries<D extends Record<string, unknown>>(
 
     const db = suppressLog ? withSuppressedLog(dbState.db) : dbState.db;
 
-    const unsub = db.listenQueries<D>(currentQueries, (result) => {
+    const unsub = listenQueries<D>(db, currentQueries, (result) => {
       setData(result);
       setResponse({ type: "loaded" });
     });

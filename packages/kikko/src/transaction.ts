@@ -17,13 +17,25 @@ const logTimeIfNeeded = (
   if (db.__state.localState.suppressLog) return;
 
   const data = [
-    `prepareTime=${(performance.prepareTime / 1000).toFixed(4)}`,
-    `execTime=${(performance.execTime / 1000).toFixed(4)}`,
-    `freeTime=${(performance.freeTime / 1000).toFixed(4)}`,
-    `sendTime=${(performance.sendTime / 1000).toFixed(4)}`,
-    `receiveTime=${(performance.receiveTime / 1000).toFixed(4)}`,
+    performance.prepareTime === undefined
+      ? ""
+      : `prepareTime=${(performance.prepareTime / 1000).toFixed(4)}`,
+    performance.execTime === undefined
+      ? ""
+      : `execTime=${(performance.execTime / 1000).toFixed(4)}`,
+    performance.freeTime === undefined
+      ? ""
+      : `freeTime=${(performance.freeTime / 1000).toFixed(4)}`,
+    performance.sendTime === undefined
+      ? ""
+      : `sendTime=${(performance.sendTime / 1000).toFixed(4)}`,
+    performance.receiveTime === undefined
+      ? ""
+      : `receiveTime=${(performance.receiveTime / 1000).toFixed(4)}`,
     `totalTime=${(performance.totalTime / 1000).toFixed(4)}`,
-  ].join(" ");
+  ]
+    .filter((v) => v.length !== 0)
+    .join(" ");
 
   console.log(
     `%c[${db.__state.sharedState.dbName}][tr_id=${transactionId.slice(

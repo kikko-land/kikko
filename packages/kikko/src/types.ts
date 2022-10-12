@@ -44,14 +44,14 @@ export type IQueriesMiddlewareState = {
   result: {
     rows: IQueryResult;
     performance: {
-      prepareTime: number;
-      execTime: number;
-      freeTime: number;
+      execTime?: number;
+      prepareTime?: number;
+      freeTime?: number;
     };
   }[];
   performance: {
-    sendTime: number;
-    receiveTime: number;
+    sendTime?: number;
+    receiveTime?: number;
     totalTime: number;
   };
   queries: (IBaseToken | ISqlAdapter)[];
@@ -109,34 +109,35 @@ export interface IDb {
 export type IQueryValue = number | string | Uint8Array | null;
 export type IQuery = { values: IQueryValue[]; text: string };
 export type IQueryResult = Record<string, IQueryValue>[];
+export type IExecQueriesResult = {
+  result: {
+    rows: IQueryResult;
+    performance: {
+      prepareTime?: number;
+      freeTime?: number;
+      execTime?: number;
+    };
+  }[];
+  performance: {
+    sendTime?: number;
+    receiveTime?: number;
+    totalTime: number;
+  };
+};
 
 type IDbInstance = {
   initialize(): Promise<void>;
-  execQueries(queries: IQuery[]): Promise<{
-    result: {
-      rows: IQueryResult;
-      performance: {
-        prepareTime: number;
-        execTime: number;
-        freeTime: number;
-      };
-    }[];
-    performance: {
-      sendTime: number;
-      receiveTime: number;
-      totalTime: number;
-    };
-  }>;
+  execQueries(queries: IQuery[]): Promise<IExecQueriesResult>;
   stop(): Promise<void>;
 };
 export type IDbBackend = (db: { dbName: string }) => IDbInstance;
 
 export type ITransactionPerformance = {
-  prepareTime: number;
-  execTime: number;
-  freeTime: number;
-  sendTime: number;
-  receiveTime: number;
+  freeTime?: number;
+  sendTime?: number;
+  receiveTime?: number;
+  prepareTime?: number;
+  execTime?: number;
   totalTime: number;
 };
 
