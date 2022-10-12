@@ -97,7 +97,7 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({ db, queries }) => {
         .join("\n");
 
       const totalTiming =
-        `%c[${db.__state.sharedState.dbName}]` +
+        `%c[${db.__state.sharedState.dbName}] ` +
         [
           transactionsLocalState.current?.id
             ? `[tr_id=${transactionsLocalState.current?.id.substring(0, 6)}]`
@@ -111,7 +111,7 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({ db, queries }) => {
             : "",
           `totalTime=${((endedAt - startedAt) / 1000).toFixed(4)}`,
         ]
-          .filter((t) => t.length === 0)
+          .filter((t) => t.length !== 0)
           .join(" ");
 
       console.log(
