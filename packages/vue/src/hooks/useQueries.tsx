@@ -19,13 +19,13 @@ import {
 
 export type ISingleQueryHookResult<D> =
   | {
-      type: "loading";
-      data?: D;
-    }
+    type: "loading";
+    data?: D;
+  }
   | {
-      type: "waitingDb";
-      data?: D;
-    }
+    type: "waitingDb";
+    data?: D;
+  }
   | { type: "loaded"; data: D }
   | { type: "noSqlPresent"; data?: D };
 
@@ -84,13 +84,13 @@ export const useInitDb = (
 
 export type IUseQueryResult<D> =
   | {
-      type: "loading";
-      data: D[];
-    }
+    type: "loading";
+    data: D[];
+  }
   | {
-      type: "waitingDb";
-      data: D[];
-    }
+    type: "waitingDb";
+    data: D[];
+  }
   | { type: "loaded"; data: D[] }
   | { type: "noSqlPresent"; data: D[] };
 
@@ -144,7 +144,7 @@ export const useQueries = <D extends Record<string, unknown>>(
     queries &&
     queriesRef.value &&
     queries.map((q) => q.toSql().hash).join() !==
-      queriesRef.value.map((q) => q.toSql().hash).join()
+    queriesRef.value.map((q) => q.toSql().hash).join()
   ) {
     queriesRef.value = queries;
   }
@@ -183,13 +183,13 @@ export const useQueryFirstRow = <D extends Record<string, unknown>>(
 
 export type IRunQueryHookResult<D> =
   | {
-      type: "running";
-      data?: D;
-    }
+    type: "running";
+    data?: D;
+  }
   | {
-      type: "waitingDb";
-      data?: D;
-    }
+    type: "waitingDb";
+    data?: D;
+  }
   | { type: "done"; data: D }
   | { type: "idle"; data?: D };
 
@@ -254,7 +254,7 @@ export function useRunQuery<
 
       try {
         const res = await (inTransaction
-          ? db.runTransaction((db) => cb(db)(...args))
+          ? db.runInTransaction((db) => cb(db)(...args))
           : cb(db)(...args));
 
         data.value = res;
