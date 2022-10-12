@@ -17,15 +17,15 @@ export const runAfterTransaction = (
 
   const listener =
     (event: "committed" | "rollbacked") =>
-      (db: IDb, evTransaction: ITransaction) => {
-        if (transaction.id !== evTransaction.id) return;
+    (db: IDb, evTransaction: ITransaction) => {
+      if (transaction.id !== evTransaction.id) return;
 
-        func(event, db, transaction);
+      func(event, db, transaction);
 
-        for (const unsubscribe of unsubscribes) {
-          unsubscribe();
-        }
-      };
+      for (const unsubscribe of unsubscribes) {
+        unsubscribe();
+      }
+    };
 
   unsubscribes.push(
     db.__state.sharedState.eventsEmitter.on(

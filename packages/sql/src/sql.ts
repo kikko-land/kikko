@@ -74,17 +74,15 @@ export interface ISql extends ISqlAdapter {
 function internalSql(
   _rawStrings: ReadonlyArray<string>,
   _rawValues: IRawValue[]
-
 ): ISql {
-
-
   if (_rawStrings.length - 1 !== _rawValues.length) {
     if (_rawStrings.length === 0) {
       throw new TypeError("Expected at least 1 string");
     }
 
     throw new TypeError(
-      `Expected ${_rawStrings.length} strings to have ${_rawStrings.length - 1
+      `Expected ${_rawStrings.length} strings to have ${
+        _rawStrings.length - 1
       } values`
     );
   }
@@ -182,9 +180,12 @@ function internalSql(
           .slice(1)
           .map(
             (val, i) =>
-              `${(typeof this._values[i] === "string"
-                ? `'${this._values[i] as string}'`
-                : this._values[i])?.toString() || 'NULL'}${val}`
+              `${
+                (typeof this._values[i] === "string"
+                  ? `'${this._values[i] as string}'`
+                  : this._values[i]
+                )?.toString() || "NULL"
+              }${val}`
           )
           .join("")
       );
@@ -230,7 +231,7 @@ export function sql(
   rawStrings: ReadonlyArray<string>,
   ...rawValues: IRawValue[]
 ): ISql {
-  return internalSql(rawStrings, rawValues)
+  return internalSql(rawStrings, rawValues);
 }
 
 sql.raw = (value: string) => {

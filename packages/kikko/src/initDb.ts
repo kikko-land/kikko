@@ -1,6 +1,6 @@
 import { ISqlAdapter } from "@kikko-land/sql";
 
-import { runAfterTransaction } from './afterTransaction';
+import { runAfterTransaction } from "./afterTransaction";
 import { createNanoEvents } from "./createNanoEvents";
 import { acquireJob, IJobsState, releaseJob, whenAllJobsDone } from "./job";
 import { reactiveVar } from "./reactiveVar";
@@ -119,9 +119,8 @@ export const initDbClient = async ({
           func(db, transaction);
         }
       });
-    }
-
-  }
+    },
+  };
 
   const job = await acquireJob(db.__state.sharedState.jobsState, {
     type: "initDb",

@@ -15,8 +15,7 @@ describe("sql", () => {
 
     expect(query.preparedQuery).toEqual({
       values: [1, null, 1, 2, 3],
-      text:
-        'SELECT * FROM "users" WHERE "num"=? AND nullColl=? AND ids IN (?, ?, ?)',
+      text: 'SELECT * FROM "users" WHERE "num"=? AND nullColl=? AND ids IN (?, ?, ?)',
     });
   });
 
