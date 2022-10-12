@@ -24,16 +24,16 @@ const buildConfig = (config: IBackendConfig): IInitDbClientConfig => {
     dbBackend:
       config.type === "absurd"
         ? absurdWebBackend({
-          wasmUrl: absurdSqlWasmUrl,
-          pageSize: 32 * 1024,
-          cacheSize: -5000,
-        })
+            wasmUrl: absurdSqlWasmUrl,
+            pageSize: 32 * 1024,
+            cacheSize: -5000,
+          })
         : waSqliteWebBackend({
-          wasmUrl: sqlWasmUrl,
-          pageSize: 32 * 1024,
-          cacheSize: -5000,
-          vfs: config.vfs,
-        }),
+            wasmUrl: sqlWasmUrl,
+            pageSize: 32 * 1024,
+            cacheSize: -5000,
+            vfs: config.vfs,
+          }),
     plugins: [
       reactiveQueriesPlugin(),
       migrationsPlugin({
@@ -44,14 +44,17 @@ const buildConfig = (config: IBackendConfig): IInitDbClientConfig => {
 };
 
 export type IBackendConfig =
-  | { type: "absurd", dbName: string }
-  | { type: "wa-sqlite"; vfs: "atomic" | "batch-atomic" | "minimal", dbName: string };
+  | { type: "absurd"; dbName: string }
+  | {
+      type: "wa-sqlite";
+      vfs: "atomic" | "batch-atomic" | "minimal";
+      dbName: string;
+    };
 
 function parseQuery(queryString: string) {
   const query: Record<string, string> = {};
-  const pairs = (queryString[0] === "?"
-    ? queryString.substr(1)
-    : queryString
+  const pairs = (
+    queryString[0] === "?" ? queryString.substr(1) : queryString
   ).split("&");
 
   for (let i = 0; i < pairs.length; i++) {
@@ -63,11 +66,11 @@ function parseQuery(queryString: string) {
 }
 
 export const backendOptions = {
-  absurd: { type: "absurd", dbName: 'absurd' },
+  absurd: { type: "absurd", dbName: "absurd" },
   waMinimal: {
     type: "wa-sqlite",
     vfs: "minimal",
-    dbName: 'wa-sqlite'
+    dbName: "wa-sqlite",
   },
 } as const;
 
@@ -80,11 +83,14 @@ export const AppList = () => {
   }, [backendName]);
 
   const secondConfig = useMemo(() => {
-    return buildConfig({ ...backendOptions[backendName || "absurd"], dbName: `${backendName || "absurd"}-second` });
+    return buildConfig({
+      ...backendOptions[backendName || "absurd"],
+      dbName: `${backendName || "absurd"}-second`,
+    });
   }, [backendName]);
 
   return (
-    <DbsHolder defaultDb={config}>
+    <DbsHolder defaultDbConfig={config}>
       <DbProvider config={secondConfig}>
         <EnsureDbLoaded fallback={<div>Loading db...</div>}>
           <List />
