@@ -6,7 +6,8 @@ import {
 } from "@kikko-land/kikko";
 import React, {
   ReactElement,
-  Ref,
+  RefObject,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -25,7 +26,8 @@ type IHolderState = {
 export type IDbsHolderContextValue = Readonly<
   [
     state: IHolderState,
-    setState: (st: IHolderState | ((st: IHolderState) => IHolderState)) => void
+    setState: (st: IHolderState | ((st: IHolderState) => IHolderState)) => void,
+    refState: RefObject<IHolderState>
   ]
 >;
 
@@ -43,15 +45,27 @@ export const DbsHolder: React.FC<{
   defaultDbConfig?: IInitDbClientConfig;
 }> = ({ children, defaultDbConfig }) => {
   const [state, setState] = useState<IHolderState>({});
+  const currentStateRef = useRef<IHolderState>(state);
 
+  const setRefState = useCallback(
+    (st: IHolderState | ((st: IHolderState) => IHolderState)) => {
+      currentStateRef.current =
+        st instanceof Function ? st(currentStateRef.current) : st;
+
+      setState(st);
+    },
+    []
+  );
   const value = useMemo(() => {
-    return [state, setState] as const;
-  }, [state]);
+    return [state, setRefState, currentStateRef] as const;
+  }, [setRefState, state]);
 
   return (
     <DbsHolderContext.Provider value={value}>
       {defaultDbConfig ? (
-        <DbProvider config={defaultDbConfig}>{children}</DbProvider>
+        <DbProvider config={defaultDbConfig} dbKey="default">
+          {children}
+        </DbProvider>
       ) : (
         children
       )}
@@ -64,32 +78,23 @@ export const DbProvider: React.FC<{
   config: IInitDbClientConfig;
   dbKey?: string;
 }> = ({ children, config, dbKey }) => {
-  const [state, setState] = useContext(DbsHolderContext);
-
-  const stateRef = useRef(state);
-  useEffect(() => {
-    stateRef.current = state;
-  }, [state]);
+  const [, setState, refState] = useContext(DbsHolderContext);
 
   const finalDbKey = dbKey || "default";
-
-  const wasStoppingRef = useRef(false);
 
   useEffect(() => {
     let shouldBeStopped = false;
     let initializedDb: IDb | undefined = undefined;
 
     if (
-      stateRef.current[finalDbKey] &&
-      stateRef.current[finalDbKey]?.type !== "stopped" &&
-      !wasStoppingRef.current
+      refState.current?.[finalDbKey] &&
+      refState.current[finalDbKey]?.type !== "stopped"
     ) {
+      console.log(refState.current);
       throw new Error(
         `Db with '${finalDbKey}' is already provided. Did you call DbProvider twice for the same dbKey?`
       );
     }
-
-    wasStoppingRef.current = false;
 
     const cb = async () => {
       setState((st) => ({
@@ -115,7 +120,6 @@ export const DbProvider: React.FC<{
     void cb();
 
     return () => {
-      wasStoppingRef.current = true;
       shouldBeStopped = true;
 
       setState((st) => ({ ...st, [finalDbKey]: { type: "stopped" } }));
@@ -131,7 +135,7 @@ export const DbProvider: React.FC<{
         });
       }
     };
-  }, [config, finalDbKey, setState]);
+  }, [config, finalDbKey, refState, setState]);
 
   return <>{children}</>;
 };
