@@ -14,11 +14,36 @@ import {
   ISingleQueryHookResult,
 } from "./types";
 
+type IOpts = { suppressLog?: boolean; mapToObject?: boolean };
+
 export function useQueries<D extends Record<string, unknown>>(
-  _queries: ISqlAdapter[] | Falsy,
-  _opts?: { suppressLog?: boolean; mapToObject?: boolean } | undefined
+  ...args: [
+    dbKey: string,
+    _queries: ISqlAdapter[] | Falsy,
+    _opts?: IOpts | undefined
+  ] | [
+    _queries: ISqlAdapter[] | Falsy,
+    _opts?: IOpts | undefined
+  ]
 ): IQueryHookResult<D[]> {
-  const dbState = useDbState();
+
+  const { dbKey, _queries, _opts } = (() => {
+    if (typeof args[0] === 'string') {
+      return {
+        dbKey: args[0],
+        _queries: args[1] as ISqlAdapter[] | Falsy,
+        _opts: args[2]
+      }
+    } else {
+      return {
+        dbKey: 'default',
+        _queries: args[0] as ISqlAdapter[] | Falsy,
+        _opts: args[1] as IOpts | undefined
+      }
+    }
+  })()
+
+  const dbState = useDbState(dbKey);
 
   const { suppressLog } = {
     suppressLog: _opts?.suppressLog !== undefined ? _opts.suppressLog : false,
@@ -45,7 +70,7 @@ export function useQueries<D extends Record<string, unknown>>(
       return;
     }
 
-    if (dbState.type !== "initialized") {
+    if (dbState?.type !== "initialized") {
       setResponse({ type: "waitingDb" });
 
       return;
@@ -61,7 +86,7 @@ export function useQueries<D extends Record<string, unknown>>(
     return () => {
       unsub();
     };
-  }, [dbState, currentQueries, suppressLog]);
+  }, [dbState, currentQueries, suppressLog, dbKey]);
 
   useEffect(() => {
     if (
@@ -88,12 +113,34 @@ export function useQueries<D extends Record<string, unknown>>(
 }
 
 export function useQuery<D extends Record<string, unknown>>(
-  query: ISqlAdapter | Falsy,
-  _opts?: { suppressLog?: boolean; mapToObject?: boolean } | undefined
+  ...args: [
+    dbKey: string,
+    query: ISqlAdapter | Falsy,
+    _opts?: IOpts | undefined
+  ] | [
+    query: ISqlAdapter | Falsy,
+    _opts?: IOpts | undefined
+  ]
 ): IQueryHookResult<D> {
-  const queries = useMemo(() => (query ? [query] : []), [query]);
+  const { dbKey, _query, _opts } = (() => {
+    if (typeof args[0] === 'string') {
+      return {
+        dbKey: args[0],
+        _query: args[1] as ISqlAdapter | Falsy,
+        _opts: args[2]
+      }
+    } else {
+      return {
+        dbKey: 'default',
+        _query: args[0] as ISqlAdapter | Falsy,
+        _opts: args[1] as IOpts | undefined
+      }
+    }
+  })()
 
-  const result = useQueries<D>(queries, _opts);
+  const queries = useMemo(() => (_query ? [_query] : []), [_query]);
+
+  const result = useQueries<D>(dbKey, queries, _opts);
 
   return useMemo(() => {
     if (result.type === "loaded") {
@@ -114,10 +161,16 @@ export function useQuery<D extends Record<string, unknown>>(
 }
 
 export function useQueryFirstRow<D extends Record<string, unknown>>(
-  query: ISqlAdapter | Falsy,
-  _opts?: { suppressLog?: boolean; mapToObject?: boolean } | undefined
+  ...args: [
+    dbKey: string,
+    query: ISqlAdapter | Falsy,
+    _opts?: IOpts | undefined
+  ] | [
+    query: ISqlAdapter | Falsy,
+    _opts?: IOpts | undefined
+  ]
 ): ISingleQueryHookResult<D> {
-  const res = useQuery<D>(query, _opts);
+  const res = useQuery<D>(...args);
 
   return useMemo(() => {
     if (res.type === "loaded") {
@@ -142,24 +195,50 @@ function useIsMounted() {
   return useCallback(() => isMounted.current, []);
 }
 
+type IRunOpts = { suppressLog?: boolean; inTransaction?: boolean };
 export function useRunQuery<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   D extends (db: IDb) => (...args: any[]) => Promise<R>,
   R
 >(
-  cb: D,
-  _opts?: { suppressLog?: boolean; inTransaction?: boolean } | undefined
+  ...args:
+    [
+      dbKey: string,
+      cb: D,
+      _opts?: IRunOpts | undefined
+    ] |
+    [
+      cb: D,
+      _opts?: IRunOpts | undefined
+    ]
 ): readonly [
   (...args: Parameters<ReturnType<D>>) => Promise<R>,
   IRunQueryHookResult<R>
 ] {
+
+  const { dbKey, cb, _opts } = (() => {
+    if (typeof args[0] === 'string') {
+      return {
+        dbKey: args[0],
+        cb: args[1] as D,
+        _opts: args[2]
+      }
+    } else {
+      return {
+        dbKey: 'default',
+        cb: args[0],
+        _opts: args[1] as IRunOpts | undefined
+      }
+    }
+  })()
+
   const { suppressLog, inTransaction } = {
     suppressLog: _opts?.suppressLog !== undefined ? _opts.suppressLog : false,
     inTransaction:
       _opts?.inTransaction !== undefined ? _opts.inTransaction : false,
   };
 
-  const dbState = useDbState();
+  const dbState = useDbState(dbKey);
   const isMounted = useIsMounted();
 
   const [data, setData] = useState<R>();

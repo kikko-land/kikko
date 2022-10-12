@@ -3,6 +3,7 @@ import "../builder-examples";
 import { absurdWebBackend } from "@kikko-land/absurd-web-backend";
 import {
   DbProvider,
+  DbsHolder,
   EnsureDbLoaded,
   IInitDbClientConfig,
   migrationsPlugin,
@@ -19,20 +20,20 @@ import { List } from "./List";
 
 const buildConfig = (config: IBackendConfig): IInitDbClientConfig => {
   return {
-    dbName: `helloWorld-${config.type}`,
+    dbName: `helloWorld-${config.dbName}`,
     dbBackend:
       config.type === "absurd"
         ? absurdWebBackend({
-            wasmUrl: absurdSqlWasmUrl,
-            pageSize: 32 * 1024,
-            cacheSize: -5000,
-          })
+          wasmUrl: absurdSqlWasmUrl,
+          pageSize: 32 * 1024,
+          cacheSize: -5000,
+        })
         : waSqliteWebBackend({
-            wasmUrl: sqlWasmUrl,
-            pageSize: 32 * 1024,
-            cacheSize: -5000,
-            vfs: config.vfs,
-          }),
+          wasmUrl: sqlWasmUrl,
+          pageSize: 32 * 1024,
+          cacheSize: -5000,
+          vfs: config.vfs,
+        }),
     plugins: [
       reactiveQueriesPlugin(),
       migrationsPlugin({
@@ -43,8 +44,8 @@ const buildConfig = (config: IBackendConfig): IInitDbClientConfig => {
 };
 
 export type IBackendConfig =
-  | { type: "absurd" }
-  | { type: "wa-sqlite"; vfs: "atomic" | "batch-atomic" | "minimal" };
+  | { type: "absurd", dbName: string }
+  | { type: "wa-sqlite"; vfs: "atomic" | "batch-atomic" | "minimal", dbName: string };
 
 function parseQuery(queryString: string) {
   const query: Record<string, string> = {};
@@ -62,10 +63,11 @@ function parseQuery(queryString: string) {
 }
 
 export const backendOptions = {
-  absurd: { type: "absurd" },
+  absurd: { type: "absurd", dbName: 'absurd' },
   waMinimal: {
     type: "wa-sqlite",
     vfs: "minimal",
+    dbName: 'wa-sqlite'
   },
 } as const;
 
@@ -77,11 +79,17 @@ export const AppList = () => {
     return buildConfig(backendOptions[backendName || "absurd"]);
   }, [backendName]);
 
+  const secondConfig = useMemo(() => {
+    return buildConfig({ ...backendOptions[backendName || "absurd"], dbName: `${backendName || "absurd"}-second` });
+  }, [backendName]);
+
   return (
-    <DbProvider config={config}>
-      <EnsureDbLoaded fallback={<div>Loading db...</div>}>
-        <List />
-      </EnsureDbLoaded>
-    </DbProvider>
+    <DbsHolder defaultDb={config}>
+      <DbProvider config={secondConfig}>
+        <EnsureDbLoaded fallback={<div>Loading db...</div>}>
+          <List />
+        </EnsureDbLoaded>
+      </DbProvider>
+    </DbsHolder>
   );
 };
