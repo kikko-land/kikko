@@ -13,7 +13,7 @@ export default defineConfig({
   },
   plugins: [
     react(),
-    checker({ typescript: true }),
+    checker({ typescript: true, enableBuild: false }),
     visualizer({ open: true, filename: "dist/stats.html" }),
   ],
 });
