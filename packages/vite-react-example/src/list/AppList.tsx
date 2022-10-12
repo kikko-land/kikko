@@ -12,6 +12,7 @@ import {
 import absurdSqlWasmUrl from "@kikko-land/sql.js/dist/sql-wasm.wasm?url";
 import { waSqliteWebBackend } from "@kikko-land/wa-sqlite-web-backend";
 import { useMemo } from "react";
+import React from "react";
 import { useLocation } from "react-use";
 import sqlWasmUrl from "wa-sqlite/dist/wa-sqlite-async.wasm?url";
 
@@ -90,12 +91,14 @@ export const AppList = () => {
   }, [backendName]);
 
   return (
-    <DbsHolder defaultDbConfig={config}>
-      <DbProvider config={secondConfig}>
-        <EnsureDbLoaded fallback={<div>Loading db...</div>}>
-          <List />
-        </EnsureDbLoaded>
-      </DbProvider>
-    </DbsHolder>
+    <React.StrictMode>
+      <DbsHolder defaultDbConfig={config}>
+        <DbProvider config={secondConfig} dbKey="second-db">
+          <EnsureDbLoaded fallback={<div>Loading db...</div>}>
+            <List />
+          </EnsureDbLoaded>
+        </DbProvider>
+      </DbsHolder>
+    </React.StrictMode>
   );
 };
