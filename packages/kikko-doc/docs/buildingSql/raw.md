@@ -10,7 +10,7 @@ The idea is taken from [sql-template-tag](https://github.com/blakeembrey/sql-tem
 When you using raw queries, you need to follow one rule to keep your queries reactive:
 
 :::info
-Always use `sql.table('tableName')` when you reference to the table in the query. It allows too keep your queries reactive.
+Always use `sql.table('tableName')` when you reference to the table in the query. It allows to keep your queries reactive.
 
 ```typescript
 import { sql } from "@kikko-land/sql";
