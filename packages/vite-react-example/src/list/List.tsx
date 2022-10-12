@@ -172,8 +172,8 @@ export const List = () => {
           }
 
           db.runAfterTransactionCommitted(() => {
-            console.log('Transaction commited!')
-          })
+            console.log("Transaction commited!");
+          });
         });
       }
     }

@@ -40,8 +40,8 @@ const DbsHolderContext = React.createContext<IDbsHolderContextValue>([
 
 export const DbsHolder: React.FC<{
   children?: React.ReactNode;
-  defaultDb?: IInitDbClientConfig;
-}> = ({ children, defaultDb }) => {
+  defaultDbConfig?: IInitDbClientConfig;
+}> = ({ children, defaultDbConfig }) => {
   const [state, setState] = useState<IHolderState>({});
 
   const value = useMemo(() => {
@@ -50,8 +50,8 @@ export const DbsHolder: React.FC<{
 
   return (
     <DbsHolderContext.Provider value={value}>
-      {defaultDb ? (
-        <DbProvider config={defaultDb}>{children}</DbProvider>
+      {defaultDbConfig ? (
+        <DbProvider config={defaultDbConfig}>{children}</DbProvider>
       ) : (
         children
       )}

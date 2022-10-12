@@ -58,11 +58,11 @@ const config: IInitDbClientConfig = {
 };
 
 export const App = () => (
-  <DbProvider config={config}>
-    <EnsureDbLoaded fallback={<Text>Loading db...</Text>}>
+  <DbsHolder defaultDbConfig={config}>
+    <EnsureDbLoaded fallback={<div>Loading db...</div>}>
       <Notes />
     </EnsureDbLoaded>
-  </DbProvider>
+  </DbsHolder>
 );
 ```
 
