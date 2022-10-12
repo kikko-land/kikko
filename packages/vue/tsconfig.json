@@ -3,5 +3,8 @@
   "compilerOptions": {
     "skipLibCheck": true
   },
-  "include": ["src", "types"]
+  "include": [
+    "src",
+    "types"
+  ]
 }

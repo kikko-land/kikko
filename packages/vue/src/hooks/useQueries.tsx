@@ -5,6 +5,7 @@ import {
   stopDb,
   withSuppressedLog,
 } from "@kikko-land/kikko";
+import { listenQueries } from "@kikko-land/reactive-queries-plugin";
 import { ISqlAdapter } from "@kikko-land/sql";
 import {
   computed,
@@ -122,7 +123,7 @@ export const useQueries = <D extends Record<string, unknown>>(
 
     resultTypeRef.value = "loading";
 
-    const unsub = db.listenQueries<D>(queriesRef.value, (res) => {
+    const unsub = listenQueries<D>(db, queriesRef.value, (res) => {
       dataRef.value = res;
       resultTypeRef.value = "loaded";
     });

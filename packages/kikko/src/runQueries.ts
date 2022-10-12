@@ -73,25 +73,49 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({ db, queries }) => {
       const queriesTimings = result
         .map(({ performance }, i) => {
           const times = [
-            `prepareTime=${(performance.prepareTime / 1000).toFixed(4)}`,
-            `execTime=${(performance.execTime / 1000).toFixed(4)}`,
-            `freeTime=${(performance.freeTime / 1000).toFixed(4)}`,
-          ].join(" ");
+            performance.prepareTime !== undefined
+              ? `prepareTime=${(performance.prepareTime / 1000).toFixed(4)}`
+              : "",
+            performance.execTime !== undefined
+              ? `execTime=${(performance.execTime / 1000).toFixed(4)}`
+              : "",
+            performance.freeTime !== undefined
+              ? `freeTime=${(performance.freeTime / 1000).toFixed(4)}`
+              : "",
+          ]
+            .filter((t) => t.length !== 0)
+            .join(" ");
 
-          return `{${unwrappedQueries[i].text.slice(0, 1000)} ${times}}`;
+          return (
+            "{" +
+            [unwrappedQueries[i].text.slice(0, 1000), times]
+              .filter((v) => v.length !== 0)
+              .join(" ") +
+            "}"
+          );
         })
         .join("\n");
 
-      console.log(
-        `%c[${db.__state.sharedState.dbName}]${
+      const totalTiming =
+        `%c[${db.__state.sharedState.dbName}]` +
+        [
           transactionsLocalState.current?.id
             ? `[tr_id=${transactionsLocalState.current?.id.substring(0, 6)}]`
-            : ""
-        } ${queriesTimings} sendTime=${(qPerformance.sendTime / 1000).toFixed(
-          4
-        )} receiveTime=${(qPerformance.receiveTime / 1000).toFixed(
-          4
-        )} totalTime=${((endedAt - startedAt) / 1000).toFixed(4)}`,
+            : "",
+          queriesTimings,
+          qPerformance?.sendTime !== undefined
+            ? `sendTime=${(qPerformance.sendTime / 1000).toFixed(4)}`
+            : "",
+          qPerformance?.receiveTime !== undefined
+            ? `receiveTime=${(qPerformance.receiveTime / 1000).toFixed(4)}`
+            : "",
+          `totalTime=${((endedAt - startedAt) / 1000).toFixed(4)}`,
+        ]
+          .filter((t) => t.length === 0)
+          .join(" ");
+
+      console.log(
+        totalTiming,
         `color: ${
           sharedState.transactionLoggingState.id
             ? colors[sharedState.transactionLoggingState.i % colors.length]
@@ -106,20 +130,54 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({ db, queries }) => {
       ) {
         const perfData = transactionsSharedState.performance;
 
-        perfData.execTime += result.reduce(
-          (partialSum, a) => partialSum + a.performance.execTime,
-          0
-        );
-        perfData.freeTime += result.reduce(
-          (partialSum, a) => partialSum + a.performance.freeTime,
-          0
-        );
-        perfData.prepareTime += result.reduce(
-          (partialSum, a) => partialSum + a.performance.prepareTime,
-          0
-        );
-        perfData.sendTime += qPerformance.sendTime;
-        perfData.receiveTime += qPerformance.receiveTime;
+        if (result.some((d) => d.performance.execTime !== undefined)) {
+          if (perfData.execTime === undefined) {
+            perfData.execTime = 0;
+          }
+
+          perfData.execTime += result.reduce(
+            (partialSum, a) => partialSum + (a.performance.execTime ?? 0),
+            0
+          );
+        }
+
+        if (result.some((d) => d.performance.freeTime !== undefined)) {
+          if (perfData.freeTime === undefined) {
+            perfData.freeTime = 0;
+          }
+
+          perfData.freeTime += result.reduce(
+            (partialSum, a) => partialSum + (a.performance.freeTime ?? 0),
+            0
+          );
+        }
+
+        if (result.some((d) => d.performance.prepareTime !== undefined)) {
+          if (perfData.prepareTime === undefined) {
+            perfData.prepareTime = 0;
+          }
+
+          perfData.prepareTime += result.reduce(
+            (partialSum, a) => partialSum + (a.performance.prepareTime ?? 0),
+            0
+          );
+        }
+
+        if (qPerformance.sendTime) {
+          if (!perfData.sendTime) {
+            perfData.sendTime = 0;
+          }
+
+          perfData.sendTime += qPerformance.sendTime;
+        }
+
+        if (qPerformance.receiveTime) {
+          if (!perfData.receiveTime) {
+            perfData.receiveTime = 0;
+          }
+
+          perfData.receiveTime += qPerformance.receiveTime;
+        }
       }
     }
 
@@ -150,8 +208,8 @@ export const runQueries = async (db: IDb, queries: ISqlAdapter[]) => {
     db: db,
     result: [],
     performance: {
-      sendTime: 0,
-      receiveTime: 0,
+      sendTime: undefined,
+      receiveTime: undefined,
       totalTime: 0,
     },
     queries: queries.map((q) => q.toSql()),
