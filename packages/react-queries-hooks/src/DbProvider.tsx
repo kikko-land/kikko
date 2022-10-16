@@ -38,6 +38,7 @@ const DbsHolderContext = React.createContext<IDbsHolderContextValue>([
       "Failed to use DbsHolderContext. Did you forget to put <DbsHolder />?"
     );
   },
+  { current: {} },
 ]);
 
 export const DbsHolder: React.FC<{
