@@ -18,14 +18,14 @@ Install Kikko packages:
   <TabItem value="yarn" label="yarn" default>
 
 ```bash
-yarn add @kikko-land/query-builder @kikko-land/sql.js @kikko-land/native-ionic-backend @kikko-land/absurd-web-backend cordova-sqlite-storage
+yarn add @kikko-land/sql.js @kikko-land/native-ionic-backend @kikko-land/absurd-web-backend cordova-sqlite-storage
 ```
 
   </TabItem>
   <TabItem value="npm" label="npm">
 
 ```bash
-npm i -S @kikko-land/query-builder @kikko-land/sql.js @kikko-land/native-ionic-backend @kikko-land/absurd-web-backend cordova-sqlite-storage
+npm i -S @kikko-land/sql.js @kikko-land/native-ionic-backend @kikko-land/absurd-web-backend cordova-sqlite-storage
 ```
 
   </TabItem>

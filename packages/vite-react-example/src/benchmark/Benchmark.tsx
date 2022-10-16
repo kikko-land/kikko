@@ -1,4 +1,4 @@
-import { sql } from "@kikko-land/query-builder";
+import { sql } from "@kikko-land/boono-sql";
 import {
   makeId,
   suppressLog,
@@ -50,7 +50,8 @@ export const Benchmark = () => {
               await db.runQuery(sql`SELECT SUM(value) FROM kv`);
               setLogs((l) => [
                 ...l,
-                `Done summing in ${(new Date().getTime() - summingTime) / 1000
+                `Done summing in ${
+                  (new Date().getTime() - summingTime) / 1000
                 }s`,
               ]);
             })();

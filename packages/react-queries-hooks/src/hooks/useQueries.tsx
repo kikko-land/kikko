@@ -1,7 +1,7 @@
 import { withSuppressedLog } from "@kikko-land/kikko";
 import { IDb } from "@kikko-land/kikko";
 import { listenQueries } from "@kikko-land/reactive-queries-plugin";
-import { ISqlAdapter } from "@kikko-land/sql";
+import { ISqlAdapter } from "@kikko-land/boono-sql";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useDbState } from "../DbProvider";

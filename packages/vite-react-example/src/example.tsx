@@ -1,13 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import {
-  deleteFrom,
-  desc,
-  insert,
-  like$,
-  select,
-} from "@kikko-land/query-builder";
+import { deleteFrom, desc, insert, like$, select } from "@kikko-land/boono";
 import {
   makeId,
   sql,

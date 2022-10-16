@@ -18,13 +18,13 @@ For now, it still misses some functionality like create table/create trigger. We
 ## Installation
 
 ```bash
-npm install @kikko-land/query-builder --save
+npm install @kikko-land/boono --save
 ```
 
 Or
 
 ```bash
-yarn add @kikko-land/query-builder
+yarn add @kikko-land/boono
 ```
 
 ## Select statements usage examples

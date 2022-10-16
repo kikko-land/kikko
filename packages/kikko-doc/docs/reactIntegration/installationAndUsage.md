@@ -14,14 +14,14 @@ Install core packages:
   <TabItem value="yarn" label="yarn" default>
 
 ```bash
-yarn add @kikko-land/react @kikko-land/query-builder
+yarn add @kikko-land/react
 ```
 
   </TabItem>
   <TabItem value="npm" label="npm">
 
 ```bash
-npm i -S @kikko-land/react @kikko-land/query-builder
+npm i -S @kikko-land/react
 ```
 
   </TabItem>
@@ -75,25 +75,23 @@ import {
   useRunQuery,
   makeId,
   runQuery,
+  sql
 } from "@kikko-land/react";
-import { insert, select, sql } from "@kikko-land/query-builder";
 
 type Note = { id: string; title: string };
+const notesTable = sql.table`notes`;
 
 export const Notes = () => {
-  const notes = useQuery<Note>(select().from("notes"));
+  const notes = useQuery<Note>(sql`SELECT * FROM ${notesTable}`);
   const notesCount = useQueryFirstRow<{ count: number }>(
-    select({ count: sql`COUNT(*)` }).from("notes")
+    sql`SELECT COUNT(*) FROM ${notesTable}`
   );
 
   const addNote = useRunQuery((db) => async () => {
     const id = makeId();
 
     await db.runQuery(
-      insert({
-        id,
-        title: `Note#${id}`,
-      }).into("notes")
+      sql`INSERT INTO ${notesTable}(id, title) VALUES(${id}, ${`Note#${id}`})`
     );
   });
 

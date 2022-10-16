@@ -1,5 +1,5 @@
 import { IDb } from "@kikko-land/kikko";
-import { ISqlAdapter } from "@kikko-land/sql";
+import { ISqlAdapter } from "@kikko-land/boono-sql";
 
 import { IMessage } from "./getBroadcastCh";
 import { getReactiveState } from "./utils";

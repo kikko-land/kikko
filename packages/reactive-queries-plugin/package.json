@@ -33,9 +33,8 @@
   },
   "dependencies": {
     "@kikko-land/kikko": "^0.4.0",
-    "@kikko-land/sql": "^0.2.0",
-    "@kikko-land/query-builder": "^0.2.0",
-    "broadcast-channel": "^4.17.0"
+    "@kikko-land/boono-sql": "^0.3.0",
+    "broadcast-channel": "^4.18.0"
   },
   "devDependencies": {
     "@kikko-land/common-scripts": "^0.3.0"

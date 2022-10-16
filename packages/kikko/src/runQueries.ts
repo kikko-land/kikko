@@ -1,4 +1,4 @@
-import { ISqlAdapter } from "@kikko-land/sql";
+import { ISqlAdapter } from "@kikko-land/boono-sql";
 
 import { acquireJob, IJob, releaseJob } from "./job";
 import {

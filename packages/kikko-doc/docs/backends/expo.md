@@ -24,14 +24,14 @@ Install Kikko packages:
   <TabItem value="yarn" label="yarn" default>
 
 ```bash
-yarn add @kikko-land/react @kikko-land/query-builder @kikko-land/sql.js @kikko-land/absurd-web-backend @kikko-land/native-expo-backend
+yarn add @kikko-land/react @kikko-land/sql.js @kikko-land/absurd-web-backend @kikko-land/native-expo-backend
 ```
 
   </TabItem>
   <TabItem value="npm" label="npm">
 
 ```bash
-npm i -S @kikko-land/react @kikko-land/query-builder @kikko-land/sql.js @kikko-land/absurd-web-backend @kikko-land/native-expo-backend
+npm i -S @kikko-land/react @kikko-land/sql.js @kikko-land/absurd-web-backend @kikko-land/native-expo-backend
 ```
 
   </TabItem>
