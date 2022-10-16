@@ -6,9 +6,9 @@ slug: /core/transactions
 # Transactions
 
 :::info
-During transaction all other queries that run not in transaction will be queued. So to avoid
-timeout of those queries make sure that your transactions run as fast as possible. So we recommend
-to run all time-consuming work before transaction start.
+During transaction all other queries that are not in transaction will be queued. To avoid
+timeout for those queries make sure that your transactions run as fast as possible. We recommend running 
+all time-consuming work before transaction start.
 :::
 
 ## Running in transaction
@@ -20,7 +20,7 @@ await runInTransaction(db, async (db) => {
 });
 ```
 
-Transaction will rollback if any error will be thrown during.
+A Transaction will rollback if any error is thrown by the code that is running in the scope of the transaction.
 
 ## Nesting
 
@@ -35,12 +35,12 @@ await runInTransaction(db, async (db) => {
 });
 ```
 
-Nested transaction will be merged to the parent transaction. It is also planned to add support
-for `SAVEPOINT` and `RELEASE` commands, so nested transaction will run isolated.
+Nested transaction will be merged into the parent transaction. We plan to add support
+for `SAVEPOINT` and `RELEASE` commands, so nested transaction will run in isolation.
 
 ## After transaction callbacks
 
-You could also register callback that will run once transaction will be finished or rollbacked:
+You could also register a callback that will run once the transaction is finished or rolled back:
 
 ```typescript
 await runInTransaction(db, async (db) => {
