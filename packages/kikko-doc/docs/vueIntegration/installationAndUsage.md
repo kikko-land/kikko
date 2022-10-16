@@ -14,14 +14,14 @@ Install core packages:
   <TabItem value="yarn" label="yarn" default>
 
 ```bash
-yarn add @kikko-land/vue @kikko-land/query-builder
+yarn add @kikko-land/vue
 ```
 
   </TabItem>
   <TabItem value="npm" label="npm">
 
 ```bash
-npm i -S @kikko-land/vue @kikko-land/query-builder
+npm i -S @kikko-land/vue
 ```
 
   </TabItem>
@@ -86,25 +86,23 @@ And use it:
     makeId,
     runQuery,
   } from "@kikko-land/vue";
-  import { insert, select, sql } from "@kikko-land/query-builder";
   import { currentDb } from "./currentDb";
 
   type Note = { id: string; title: string };
 
-  const notes = useQuery<Note>(currentDb, select().from("notes"));
+  const notesTable = sql.table`notes`;
+  const notes = useQuery<Note>(currentDb, sql`SELECT * FROM ${notesTable}`);
+
   const notesCount = useQueryFirstRow<{ count: number }>(
     currentDb,
-    select({ count: sql`COUNT(*)` }).from("notes")
+    sql`SELECT COUNT(*) FROM ${notesTable}`
   );
 
   const addNote = useRunQuery(currentDb, (db) => async () => {
     const id = makeId();
 
     await db.runQuery(
-      insert({
-        id,
-        title: `Note#${id}`,
-      }).into("notes")
+      sql`INSERT INTO ${notesTable}(id, title) VALUES(${id}, ${`Note#${id}`})`
     );
   });
 </script>

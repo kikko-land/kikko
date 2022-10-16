@@ -1,5 +1,4 @@
-import { IBaseToken } from "@kikko-land/query-builder/src/types";
-import { ISqlAdapter } from "@kikko-land/sql";
+import { ISqlAdapter } from "@kikko-land/boono-sql";
 import { DeepReadonly } from "ts-essentials";
 
 import { INanoEmitter } from "./createNanoEvents";
@@ -54,7 +53,7 @@ export type IQueriesMiddlewareState = {
     receiveTime?: number;
     totalTime: number;
   };
-  queries: (IBaseToken | ISqlAdapter)[];
+  queries: ISqlAdapter[];
 };
 
 export type INextQueriesMiddleware = (

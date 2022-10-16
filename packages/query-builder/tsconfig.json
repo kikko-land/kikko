@@ -1,4 +1,0 @@
-{
-  "extends": "@kikko-land/common-scripts/tsconfig.base.json",
-  "include": ["src", "types"]
-}

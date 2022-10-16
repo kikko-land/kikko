@@ -17,7 +17,7 @@ import {
   update,
   values,
 } from "@kikko-land/query-builder";
-import { sql } from "@kikko-land/sql";
+import { sql } from "@kikko-land/boono-sql";
 
 // Queries below has correct syntax, but the logic of selecting is
 // absurd. The code just shows the use cases.

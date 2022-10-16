@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@kikko-land/kikko": "^0.4.0",
-    "@kikko-land/sql": "^0.2.0",
+    "@kikko-land/boono-sql": "^0.3.0",
     "@kikko-land/sql.js": "^1.6.8",
     "expo-sqlite": ">=10.3.0"
   },

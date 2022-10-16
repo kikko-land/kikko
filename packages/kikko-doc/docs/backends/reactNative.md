@@ -18,14 +18,14 @@ Install Kikko packages and react-native-sqlite-storage:
   <TabItem value="yarn" label="yarn" default>
 
 ```bash
-yarn add @kikko-land/react @kikko-land/query-builder @kikko-land/react-native-backend react-native-sqlite-storage
+yarn add @kikko-land/react @kikko-land/react-native-backend react-native-sqlite-storage
 ```
 
   </TabItem>
   <TabItem value="npm" label="npm">
 
 ```bash
-npm i -S @kikko-land/react @kikko-land/query-builder @kikko-land/react-native-backend react-native-sqlite-storage
+npm i -S @kikko-land/react @kikko-land/react-native-backend react-native-sqlite-storage
 ```
 
   </TabItem>

@@ -1,5 +1,5 @@
 import { IDb, IDbClientPlugin } from "@kikko-land/kikko";
-import { generateInsert, sql } from "@kikko-land/sql";
+import { generateInsert, sql } from "@kikko-land/boono-sql";
 
 import { IMigration } from "./types";
 

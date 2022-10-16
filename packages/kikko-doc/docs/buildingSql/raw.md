@@ -13,7 +13,7 @@ When you using raw queries, you need to follow one rule to keep your queries rea
 Always use `sql.table('tableName')` when you reference to the table in the query. It allows to keep your queries reactive.
 
 ```typescript
-import { sql } from "@kikko-land/sql";
+import { sql } from "@kikko-land/boono-sql";
 
 const booksTables = sql.table("books");
 sql`SELECT * FROM ${booksTables}`;
