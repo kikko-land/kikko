@@ -1,4 +1,4 @@
-import { ISql } from "@kikko-land/sql";
+import { ISql } from "@kikko-land/boono-sql";
 import { DeepReadonly } from "ts-essentials";
 
 import { ReactiveVar, TimeoutError } from "./reactiveVar";

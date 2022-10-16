@@ -1,4 +1,4 @@
-import { ISql } from "@kikko-land/sql";
+import { ISql } from "@kikko-land/boono-sql";
 
 import { IDb, IQuery } from "./types";
 

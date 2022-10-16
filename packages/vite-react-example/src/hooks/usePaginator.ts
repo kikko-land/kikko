@@ -1,4 +1,4 @@
-import { ISelectStatement, select } from "@kikko-land/query-builder";
+import { ISelectStatement, select } from "@kikko-land/boono";
 import { sql, useQueryFirstRow } from "@kikko-land/react";
 import { useCallback, useEffect, useState } from "react";
 

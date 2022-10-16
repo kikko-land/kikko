@@ -14,14 +14,14 @@ This backend uses [better-absurd-sql](https://github.com/kikko-land/better-absur
   <TabItem value="yarn" label="yarn" default>
 
 ```bash
-yarn add @kikko-land/query-builder @kikko-land/sql.js @kikko-land/absurd-web-backend
+yarn add @kikko-land/sql.js @kikko-land/absurd-web-backend
 ```
 
   </TabItem>
   <TabItem value="npm" label="npm">
 
 ```bash
-npm i -S @kikko-land/query-builder @kikko-land/sql.js @kikko-land/absurd-web-backend
+npm i -S @kikko-land/sql.js @kikko-land/absurd-web-backend
 ```
 
   </TabItem>

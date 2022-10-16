@@ -20,14 +20,14 @@ Install Kikko packages :
   <TabItem value="yarn" label="yarn" default>
 
 ```bash
-yarn add @kikko-land/query-builder @kikko-land/sql.js @kikko-land/electron-better-sqlite3-backend
+yarn add @kikko-land/sql.js @kikko-land/electron-better-sqlite3-backend
 ```
 
   </TabItem>
   <TabItem value="npm" label="npm">
 
 ```bash
-npm i -S @kikko-land/query-builder @kikko-land/sql.js @kikko-land/electron-better-sqlite3-backend
+npm i -S @kikko-land/sql.js @kikko-land/electron-better-sqlite3-backend
 ```
 
   </TabItem>

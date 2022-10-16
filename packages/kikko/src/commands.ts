@@ -1,4 +1,4 @@
-import { IPrimitiveValue, ISql } from "@kikko-land/sql";
+import { IPrimitiveValue, ISql } from "@kikko-land/boono-sql";
 
 import { IDb } from "./types";
 import { makeId } from "./utils";
