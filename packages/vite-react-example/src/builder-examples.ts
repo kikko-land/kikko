@@ -16,7 +16,7 @@ import {
   select,
   update,
   values,
-} from "@kikko-land/query-builder";
+} from "@kikko-land/boono";
 import { sql } from "@kikko-land/boono-sql";
 
 // Queries below has correct syntax, but the logic of selecting is
