@@ -1,10 +1,4 @@
-import {
-  deleteFrom,
-  insert,
-  like$,
-  select,
-  update,
-} from "@kikko-land/query-builder";
+import { deleteFrom, insert, like$, select, update } from "@kikko-land/boono";
 import {
   makeId,
   sql,
