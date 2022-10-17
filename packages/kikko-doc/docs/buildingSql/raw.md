@@ -5,12 +5,12 @@ slug: /building-sql/raw
 
 # Raw
 
-The idea is taken from [sql-template-tag](https://github.com/blakeembrey/sql-template-tag), big thanks to the author! It uses the power of ES2015 tagged template string for preparing SQL statements. Actually the whole query builder build on top of the `@kikko-land/sql`.
+The idea taken from [sql-template-tag](https://github.com/blakeembrey/sql-template-tag), big thanks to the author! It uses the power of ES2015 tagged template string for preparing SQL statements. Actually the whole query builder build on top of the `@kikko-land/sql`.
 
 When you using raw queries, you need to follow one rule to keep your queries reactive:
 
 :::info
-Always use `sql.table('tableName')` when you reference to the table in the query. It allows to keep your queries reactive.
+Always use `sql.table('tableName')` or ``` sql.table`tableName` ``` when you reference to the table in the query. It allows to keep your queries reactive.
 
 ```typescript
 import { sql } from "@kikko-land/boono-sql";
