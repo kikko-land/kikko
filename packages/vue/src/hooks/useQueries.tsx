@@ -1,3 +1,4 @@
+import { ISqlAdapter } from "@kikko-land/boono-sql";
 import {
   IDb,
   IInitDbClientConfig,
@@ -6,7 +7,6 @@ import {
   withSuppressedLog,
 } from "@kikko-land/kikko";
 import { listenQueries } from "@kikko-land/reactive-queries-plugin";
-import { ISqlAdapter } from "@kikko-land/boono-sql";
 import {
   computed,
   ComputedRef,
