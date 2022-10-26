@@ -6,7 +6,7 @@ import {
   makeId,
   sql,
   useDbQuery,
-  useDbQueryFirstRow,
+  useFirstRowDbQuery,
   useRunDbQuery,
 } from "@kikko-land/react";
 import { useState } from "react";
@@ -30,7 +30,7 @@ export const List = () => {
     createdAt: number;
   }>(baseSql);
 
-  const countResult = useDbQueryFirstRow<{ count: number }>(
+  const countResult = useFirstRowDbQuery<{ count: number }>(
     select({ count: sql`COUNT(*)` }).from(baseSql)
   );
 

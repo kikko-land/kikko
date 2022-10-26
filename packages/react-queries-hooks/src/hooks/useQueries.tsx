@@ -152,7 +152,7 @@ export function useDbQuery<D extends Record<string, unknown>>(
   }, [result]);
 }
 
-export function useDbQueryFirstRow<D extends Record<string, unknown>>(
+export function useFirstRowDbQuery<D extends Record<string, unknown>>(
   ...args:
     | [dbKey: string, query: ISqlAdapter | Falsy, _opts?: IOpts | undefined]
     | [query: ISqlAdapter | Falsy, _opts?: IOpts | undefined]
