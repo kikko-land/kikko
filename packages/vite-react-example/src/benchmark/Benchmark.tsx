@@ -3,7 +3,7 @@ import {
   makeId,
   suppressLog,
   useDbStrict,
-  useRunQuery,
+  useRunDbQuery,
 } from "@kikko-land/react";
 import { useCallback, useState } from "react";
 import { useSearchParam } from "react-use";
@@ -16,7 +16,7 @@ export const Benchmark = () => {
   const backendName = (useSearchParam("backend") ||
     "waMinimal") as keyof typeof backendOptions;
 
-  const [runBenchmark, benchmarkState] = useRunQuery(
+  const [runBenchmark, benchmarkState] = useRunDbQuery(
     (db) => () =>
       suppressLog(db, async (db) =>
         db.runInTransaction(async (db) => {

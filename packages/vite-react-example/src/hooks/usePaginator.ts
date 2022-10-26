@@ -1,5 +1,5 @@
 import { ISelectStatement, select } from "@kikko-land/boono";
-import { sql, useQueryFirstRow } from "@kikko-land/react";
+import { sql, useDbQueryFirstRow } from "@kikko-land/react";
 import { useCallback, useEffect, useState } from "react";
 
 export const usePaginator = ({
@@ -11,7 +11,7 @@ export const usePaginator = ({
 }) => {
   const [currentPage, setPage] = useState(1);
 
-  const countResult = useQueryFirstRow<{ count: number }>(
+  const countResult = useDbQueryFirstRow<{ count: number }>(
     select({ count: sql`COUNT(*)` }).from(baseQuery)
   );
 
