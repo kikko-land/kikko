@@ -1,5 +1,17 @@
 # @kikko-land/vue-use
 
+## 0.4.0
+
+### Minor Changes
+
+- 056a744: Add new fluent api
+
+### Patch Changes
+
+- Updated dependencies [056a744]
+  - @kikko-land/kikko@0.5.0
+  - @kikko-land/reactive-queries-plugin@0.5.0
+
 ## 0.3.0
 
 ### Minor Changes
