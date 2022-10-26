@@ -17,20 +17,20 @@ import { Benchmark } from "./Benchmark";
 
 const buildConfig = (config: IBackendConfig): IInitDbClientConfig => {
   return {
-    dbName: `benchmark-${config.type}-${makeId().substr(0, 5)}`,
+    dbName: `benchmark-${config.type}-${makeId().slice(0, 5)}`,
     dbBackend:
       config.type === "absurd"
         ? absurdWebBackend({
-          wasmUrl: absurdSqlWasmUrl,
-          pageSize: 8 * 1024,
-          cacheSize: -100,
-        })
+            wasmUrl: absurdSqlWasmUrl,
+            pageSize: 8 * 1024,
+            cacheSize: -100,
+          })
         : waSqliteWebBackend({
-          wasmUrl: sqlWasmUrl,
-          pageSize: 8 * 1024,
-          cacheSize: -100,
-          vfs: "minimal",
-        }),
+            wasmUrl: sqlWasmUrl,
+            pageSize: 8 * 1024,
+            cacheSize: -100,
+            vfs: "minimal",
+          }),
     plugins: [
       migrationsPlugin({
         migrations: [createKVMigration],

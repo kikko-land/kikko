@@ -5,9 +5,9 @@ import { deleteFrom, desc, insert, like$, select } from "@kikko-land/boono";
 import {
   makeId,
   sql,
-  useQuery,
-  useQueryFirstRow,
-  useRunQuery,
+  useDbQuery,
+  useDbQueryFirstRow,
+  useRunDbQuery,
 } from "@kikko-land/react";
 import { useState } from "react";
 
@@ -23,18 +23,18 @@ export const List = () => {
     )
     .orderBy(desc("createdAt"));
 
-  const { data: recordsData } = useQuery<{
+  const { data: recordsData } = useDbQuery<{
     id: string;
     title: string;
     content: string;
     createdAt: number;
   }>(baseSql);
 
-  const countResult = useQueryFirstRow<{ count: number }>(
+  const countResult = useDbQueryFirstRow<{ count: number }>(
     select({ count: sql`COUNT(*)` }).from(baseSql)
   );
 
-  const [createNote, createNoteState] = useRunQuery(
+  const [createNote, createNoteState] = useRunDbQuery(
     (db) =>
       async ({ title, content }: { title: string; content: string }) => {
         const time = new Date().getTime();
@@ -50,7 +50,7 @@ export const List = () => {
       }
   );
 
-  const [deleteAll, deleteAllState] = useRunQuery((db) => async () => {
+  const [deleteAll, deleteAllState] = useRunDbQuery((db) => async () => {
     await db.runQuery(deleteFrom(notesTable));
 
     db.runAfterTransactionCommitted(() => {

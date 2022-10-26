@@ -2,9 +2,9 @@ import { deleteFrom, insert, like$, select, update } from "@kikko-land/boono";
 import {
   makeId,
   sql,
-  useCacheQuery,
-  useQuery,
-  useRunQuery,
+  useCacheDbQuery,
+  useDbQuery,
+  useRunDbQuery,
 } from "@kikko-land/react";
 import { chunk } from "lodash-es";
 import { LoremIpsum } from "lorem-ipsum";
@@ -42,11 +42,11 @@ const Row = ({
   row: INoteRow;
   textToSearch: string;
 }) => {
-  const [deleteRecord, deleteRecordState] = useRunQuery((db) => async () => {
+  const [deleteRecord, deleteRecordState] = useRunDbQuery((db) => async () => {
     await db.runQuery(deleteFrom(notesTable).where({ id: row.id }));
   });
 
-  const [updateRecord, updateRecordState] = useRunQuery((db) => async () => {
+  const [updateRecord, updateRecordState] = useRunDbQuery((db) => async () => {
     await db.runQuery(
       update(notesTable)
         .set({
@@ -97,7 +97,7 @@ export const List = () => {
 
   const [textToSearch, setTextToSearch] = useState<string>("");
 
-  useRunQuery((db) => async () => {
+  useRunDbQuery((db) => async () => {
     await db.runQueries([
       sql`
     CREATE TABLE IF NOT EXISTS test(field1);
@@ -117,7 +117,7 @@ export const List = () => {
     ]);
   });
 
-  const baseSql = useCacheQuery(
+  const baseSql = useCacheDbQuery(
     select()
       .from(notesTable)
       .where(
@@ -138,9 +138,9 @@ export const List = () => {
     perPage: 50,
     baseQuery: baseSql,
   });
-  const rowsResult = useQuery<INoteRow>(paginatedQuery);
+  const rowsResult = useDbQuery<INoteRow>(paginatedQuery);
 
-  const [createNotes, createNotesState] = useRunQuery(
+  const [createNotes, createNotesState] = useRunDbQuery(
     (db) => async (count: number, useAtomic: boolean) => {
       const queries = chunk(Array.from(Array(count).keys()), 3000).map((ch) =>
         insert(
@@ -173,7 +173,7 @@ export const List = () => {
     }
   );
 
-  const [deleteAll, deleteAllState] = useRunQuery((db) => async () => {
+  const [deleteAll, deleteAllState] = useRunDbQuery((db) => async () => {
     await db.runQuery(deleteFrom(notesTable));
   });
 

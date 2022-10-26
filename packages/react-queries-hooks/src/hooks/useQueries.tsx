@@ -15,7 +15,7 @@ import {
 
 type IOpts = { suppressLog?: boolean; mapToObject?: boolean };
 
-export function useQueries<D extends Record<string, unknown>>(
+export function useDbQueries<D extends Record<string, unknown>>(
   ...args:
     | [
         dbKey: string,
@@ -109,7 +109,7 @@ export function useQueries<D extends Record<string, unknown>>(
   }, [data, response]);
 }
 
-export function useQuery<D extends Record<string, unknown>>(
+export function useDbQuery<D extends Record<string, unknown>>(
   ...args:
     | [dbKey: string, query: ISqlAdapter | Falsy, _opts?: IOpts | undefined]
     | [query: ISqlAdapter | Falsy, _opts?: IOpts | undefined]
@@ -132,7 +132,7 @@ export function useQuery<D extends Record<string, unknown>>(
 
   const queries = useMemo(() => (_query ? [_query] : []), [_query]);
 
-  const result = useQueries<D>(dbKey, queries, _opts);
+  const result = useDbQueries<D>(dbKey, queries, _opts);
 
   return useMemo(() => {
     if (result.type === "loaded") {
@@ -152,12 +152,12 @@ export function useQuery<D extends Record<string, unknown>>(
   }, [result]);
 }
 
-export function useQueryFirstRow<D extends Record<string, unknown>>(
+export function useDbQueryFirstRow<D extends Record<string, unknown>>(
   ...args:
     | [dbKey: string, query: ISqlAdapter | Falsy, _opts?: IOpts | undefined]
     | [query: ISqlAdapter | Falsy, _opts?: IOpts | undefined]
 ): ISingleQueryHookResult<D> {
-  const res = useQuery<D>(...args);
+  const res = useDbQuery<D>(...args);
 
   return useMemo(() => {
     if (res.type === "loaded") {
@@ -183,7 +183,7 @@ function useIsMounted() {
 }
 
 type IRunOpts = { suppressLog?: boolean; inTransaction?: boolean };
-export function useRunQuery<
+export function useRunDbQuery<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   D extends (db: IDb) => (...args: any[]) => Promise<R>,
   R
@@ -277,7 +277,7 @@ export function useRunQuery<
   return [run, result];
 }
 
-export function useCacheQuery<T extends ISqlAdapter>(_query: T): T {
+export function useCacheDbQuery<T extends ISqlAdapter>(_query: T): T {
   const [query, setQuery] = useState(_query);
 
   useEffect(() => {
