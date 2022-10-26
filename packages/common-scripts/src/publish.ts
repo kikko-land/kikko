@@ -88,7 +88,7 @@ const run = async () => {
             return {
               ...json,
               ...json["publishConfig"],
-            };
+            } as PackageJson;
           },
           true
         );
