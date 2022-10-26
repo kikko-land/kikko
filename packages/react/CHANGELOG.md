@@ -1,5 +1,16 @@
 # @kikko-land/react
 
+## 0.6.0
+
+### Minor Changes
+
+- 153570c: Add boono-sql reexport to react package
+
+### Patch Changes
+
+- Updated dependencies [e4a3b3c]
+  - @kikko-land/react-queries-hooks@0.7.0
+
 ## 0.5.0
 
 ### Minor Changes
