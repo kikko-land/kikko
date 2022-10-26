@@ -1,5 +1,16 @@
 # @kikko-land/absurd-web-backend
 
+## 0.6.0
+
+### Minor Changes
+
+- 056a744: Add new fluent api
+
+### Patch Changes
+
+- Updated dependencies [056a744]
+  - @kikko-land/kikko@0.5.0
+
 ## 0.5.0
 
 ### Minor Changes

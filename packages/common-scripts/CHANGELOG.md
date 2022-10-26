@@ -1,5 +1,11 @@
 # @kikko-land/common-scripts
 
+## 0.4.0
+
+### Minor Changes
+
+- 056a744: Add new fluent api
+
 ## 0.3.0
 
 ### Minor Changes
