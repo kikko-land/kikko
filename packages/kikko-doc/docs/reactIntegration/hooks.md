@@ -5,14 +5,15 @@ slug: /react-integration/hooks
 
 # Hooks
 
-## useQuery / useQueryFirstRow
+## useDbQuery / useFirstRowDbQuery
 
 Usage example:
 
+<<TODO>>
 
 About how to build complex queries please refer to [query builder doc](/building-sql/query-builder).
 
-## useRunQuery
+## useRunDbQuery
 
 Usage example:
 
@@ -25,31 +26,29 @@ type IRow = {
 const notesTable = sql.table("notes");
 
 const RunComponent = () => {
-  const [createRow, _createState] = useRunQuery((db) => async (data: IRow) => {
+  const [createRow, _createState] = useRunDbQuery((db) => async (data: IRow) => {
     await runQuery(db, insert(data).into(notesTable));
   });
 
-  const [updateRow, _updateState] = useRunQuery(
+  const [updateRow, _updateState] = useRunDbQuery(
     (db) => async (data: Partial<IRow> & { id: string }) => {
       await runQuery(db, update(notesTable).set(data).where({ id: data.id }));
     }
   );
-
 
   const run = useCallback(async () => {
     const row = { id: "123", title: "HEY!" };
 
     await createRow(row);
     await updateRow({ ...row, title: "updated" });
-    await deleteRow(row.id);
-  }, [createRow, deleteRow, updateRow]);
+  }, [createRow, updateRow]);
 
   return <button onClick={run}>Run</button>;
 };
 ```
 
 :::info
-By default all queries in `useRunQuery` will run in transaction. You can disable it in the second argument.
+By default all queries in `useRunDbQuery` will run in transaction. You can disable it in the second argument with `{ inTransaction?: boolean }`.
 :::
 
 ## useDb / useDbStrict
@@ -62,10 +61,10 @@ const Component = () => {
   const exec = async () => {
     if (!db) return;
 
-    await runQuery(db, select().from("notes"));
+    await db.runQuery(select().from("notes"));
   };
 };
 ```
 
-This hook is used internally, but you still can access db state
-if you need. Usually you need `useQuery`/`useRunQuery` to run queries.
+This hook is used internally, but you still can access db
+if you need. Usually you need `useDbQuery`/`useRunDbQuery` to run queries.
