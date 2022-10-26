@@ -1,5 +1,11 @@
 # @kikko-land/react-queries-hooks
 
+## 0.5.0
+
+### Minor Changes
+
+- 4366316: Rename react hook
+
 ## 0.4.0
 
 ### Minor Changes
