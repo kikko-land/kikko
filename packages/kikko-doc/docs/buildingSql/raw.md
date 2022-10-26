@@ -15,7 +15,7 @@ Always use `sql.table('tableName')` or ``` sql.table`tableName` ``` when you ref
 ```typescript
 import { sql } from "@kikko-land/boono-sql";
 
-const booksTables = sql.table("books");
+const booksTables = sql.table`books`;
 sql`SELECT * FROM ${booksTables}`;
 sql`INSERT INTO ${booksTables} VALUES (1, 2, 3)`;
 ```
@@ -25,13 +25,13 @@ sql`INSERT INTO ${booksTables} VALUES (1, 2, 3)`;
 ## Installation
 
 ```bash
-npm install @kikko-land/sql --save
+npm install @kikko-land/boono-sql --save
 ```
 
 Or
 
 ```bash
-yarn add @kikko-land/sql
+yarn add @kikko-land/boono-sql
 ```
 
 ## Usage examples
