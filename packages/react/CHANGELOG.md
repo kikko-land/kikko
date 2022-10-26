@@ -1,5 +1,16 @@
 # @kikko-land/react
 
+## 0.4.0
+
+### Minor Changes
+
+- c8f34ca: Bump meta package
+
+### Patch Changes
+
+- Updated dependencies [4366316]
+  - @kikko-land/react-queries-hooks@0.5.0
+
 ## 0.3.0
 
 ### Minor Changes
