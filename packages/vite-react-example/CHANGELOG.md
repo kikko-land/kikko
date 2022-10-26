@@ -1,5 +1,16 @@
 # @kikko-land/vite-react-example
 
+## 0.4.0
+
+### Minor Changes
+
+- e4a3b3c: Fix first row naming hook
+
+### Patch Changes
+
+- Updated dependencies [153570c]
+  - @kikko-land/react@0.6.0
+
 ## 0.3.0
 
 ### Minor Changes

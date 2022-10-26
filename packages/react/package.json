@@ -1,6 +1,6 @@
 {
   "name": "@kikko-land/react",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "author": "Sergey Popov",
   "license": "MIT",
   "main": "./src/index.ts",
@@ -35,7 +35,7 @@
   "dependencies": {
     "@kikko-land/kikko": "^0.5.0",
     "@kikko-land/migrations-plugin": "^0.5.0",
-    "@kikko-land/react-queries-hooks": "^0.6.0",
+    "@kikko-land/react-queries-hooks": "^0.7.0",
     "@kikko-land/reactive-queries-plugin": "^0.5.0",
     "@kikko-land/boono-sql": "^0.3.0"
   },

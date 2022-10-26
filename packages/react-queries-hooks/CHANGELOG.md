@@ -1,5 +1,11 @@
 # @kikko-land/react-queries-hooks
 
+## 0.7.0
+
+### Minor Changes
+
+- e4a3b3c: Fix first row naming hook
+
 ## 0.6.0
 
 ### Minor Changes
