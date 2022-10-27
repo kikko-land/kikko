@@ -1,6 +1,6 @@
 {
   "name": "@kikko-land/native-expo-backend",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "author": "Sergey Popov",
   "license": "MIT",
   "main": "./src/index.ts",
@@ -32,7 +32,7 @@
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
-    "@kikko-land/kikko": "^0.5.0",
+    "@kikko-land/kikko": "^0.6.0",
     "@kikko-land/boono-sql": "^0.3.0",
     "@kikko-land/sql.js": "^1.6.8",
     "expo-sqlite": ">=10.3.0"

@@ -1,5 +1,11 @@
 # @kikko-land/core
 
+## 0.6.0
+
+### Minor Changes
+
+- 087ab15: Fix types for @kikko-land/kikko
+
 ## 0.5.0
 
 ### Minor Changes
