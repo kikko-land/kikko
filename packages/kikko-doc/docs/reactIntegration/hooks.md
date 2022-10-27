@@ -9,7 +9,7 @@ slug: /react-integration/hooks
 
 Usage example:
 
-<<TODO>>
+TODO
 
 About how to build complex queries please refer to [query builder doc](/building-sql/query-builder).
 
