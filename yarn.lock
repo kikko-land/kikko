@@ -2988,15 +2988,6 @@
   dependencies:
     "@kikko-land/boono-sql" "^0.3.0"
 
-"@kikko-land/kikko@^0.6.1":
-  version "0.6.1"
-  resolved "https://registry.yarnpkg.com/@kikko-land/kikko/-/kikko-0.6.1.tgz#f8355d98ff8c61607e25b5858bbeb01992841ada"
-  integrity sha512-hLxvUF8rl9WJ/4RXLH+u07P73iXaklcuiEbmKbqnRQQi0j0s6f6LV1xgYtETUAZdYIEBv4+XIVm04gk3eN50oA==
-  dependencies:
-    "@kikko-land/boono-sql" "^0.3.0"
-    lodash.isequal "^4.5.0"
-    ts-essentials "^9.3.0"
-
 "@kikko-land/sql.js@^1.6.8":
   version "1.6.8"
   resolved "https://registry.yarnpkg.com/@kikko-land/sql.js/-/sql.js-1.6.8.tgz#e388e11b7ec5b6c534e7e1474860e31f39ba3d58"
@@ -5994,10 +5985,10 @@ electron-to-chromium@^1.4.251:
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.254.tgz#c6203583890abf88dfc0be046cd72d3b48f8beb6"
   integrity sha512-Sh/7YsHqQYkA6ZHuHMy24e6TE4eX6KZVsZb9E/DvU1nQRIrH4BflO/4k+83tfdYvDl+MObvlqHPRICzEdC9c6Q==
 
-electron@^21.1.1:
-  version "21.1.1"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-21.1.1.tgz#3ee427e31cccafbce45bebd32f2a8eba9e3399ca"
-  integrity sha512-EM2hvRJtiS3n54yx25Z0Qv54t3LGG+WjUHf1AOl+PKjQj+fmXnjIgVeIF9pM21kP1BTcyjrgvN6Sff0A45OB6A==
+electron@^21.2.0:
+  version "21.2.0"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-21.2.0.tgz#8eb65d69b36aa8dac0ee7330eab70181df211c8b"
+  integrity sha512-oKV4fo8l6jlOZ1cYZ4RpZz02ZxLuBo3SO7DH+FrJ8uDyCirP+eVJ/qlzu23odtNe0P7S/mYAZbC6abZHWoqtLg==
   dependencies:
     "@electron/get" "^1.14.1"
     "@types/node" "^16.11.26"
