@@ -1,5 +1,11 @@
 # @kikko-land/core
 
+## 0.6.1
+
+### Patch Changes
+
+- 2705e32: Fix typings in package.json
+
 ## 0.6.0
 
 ### Minor Changes
