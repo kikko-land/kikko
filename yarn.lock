@@ -2988,29 +2988,32 @@
   dependencies:
     "@kikko-land/boono-sql" "^0.3.0"
 
+"@kikko-land/kikko@^0.6.1":
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/@kikko-land/kikko/-/kikko-0.6.1.tgz#f8355d98ff8c61607e25b5858bbeb01992841ada"
+  integrity sha512-hLxvUF8rl9WJ/4RXLH+u07P73iXaklcuiEbmKbqnRQQi0j0s6f6LV1xgYtETUAZdYIEBv4+XIVm04gk3eN50oA==
+  dependencies:
+    "@kikko-land/boono-sql" "^0.3.0"
+    lodash.isequal "^4.5.0"
+    ts-essentials "^9.3.0"
+
 "@kikko-land/sql.js@^1.6.8":
   version "1.6.8"
   resolved "https://registry.yarnpkg.com/@kikko-land/sql.js/-/sql.js-1.6.8.tgz#e388e11b7ec5b6c534e7e1474860e31f39ba3d58"
   integrity sha512-2/8V69uMsqjjWCZlgT2lF9I9ImVzQjwd0MfWXNcswvYV6OPW4xQC2SMCfFzqAhHuLx0LW67ir9C7IIid/g/krA==
 
-"@kikko-land/sql@^0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@kikko-land/sql/-/sql-0.2.0.tgz#0dc8831916a005fd11a4ae748207fb8e7ffc0dee"
-  integrity sha512-cDFFxGsSXU8QlioNKo+r0zprtWWqKpUWqmPbFF+F/Jskmt85Y9LK1GRYPJUL/vcouX/JGQ6xWMTRSvbldFw+Wg==
-
-"@kikko-land/wa-sqlite-web-backend@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@kikko-land/wa-sqlite-web-backend/-/wa-sqlite-web-backend-0.3.0.tgz#f7a43ab0c10d7c5c4db0ac67e249b34fee3ee332"
-  integrity sha512-UAX5GuFdXYHyDUyocDPgXTffCnzogs153GpNXBG7YFZWiHxd/KmdB8Sbuen2bUKYQ4X12BeH2fQGVL5DKjFtHQ==
+"@kikko-land/wa-sqlite-web-backend@^0.5.1":
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/@kikko-land/wa-sqlite-web-backend/-/wa-sqlite-web-backend-0.5.1.tgz#30abda453a729ce71152c6a5c1453cdb09223511"
+  integrity sha512-kQDg6Um3mjgI3oCfvI/o5hcqOhwz0Af07W8SHXit6vBEH5fL7RZ8OHt1L36VCKMJWG0qhkJAAtTw0m6bL9VpsQ==
   dependencies:
-    "@kikko-land/kikko" "^0.4.0"
-    "@kikko-land/sql" "^0.2.0"
+    "@kikko-land/boono-sql" "^0.3.0"
+    "@kikko-land/kikko" "^0.6.1"
     "@kikko-land/sql.js" "^1.6.8"
-    patch-package "^6.4.7"
+    patch-package "^6.5.0"
     postinstall-postinstall "^2.1.0"
     react "^18.2.0"
     react-dom "^18.2.0"
-    rxjs "^7.5.5"
     wa-sqlite rhashimoto/wa-sqlite#buildless
 
 "@leichtgewicht/ip-codec@^2.0.1":
@@ -4962,7 +4965,7 @@ ccount@^1.0.0:
   resolved "https://registry.yarnpkg.com/ccount/-/ccount-1.1.0.tgz#246687debb6014735131be8abab2d93898f8d043"
   integrity "sha1-JGaH3rtgFHNRMb6KurLZOJj40EM= sha512-vlNK021QdI7PNeiUh/lKkC/mNHHfV0m/Ad5JoI0TYtlBnJAslM/JIkm/tGC88bkLIwO6OQ5uV6ztS6kVAtCDlg=="
 
-chalk@^2.0.0, chalk@^2.1.0, chalk@^2.4.1, chalk@^2.4.2:
+chalk@^2.0.0, chalk@^2.1.0, chalk@^2.4.1:
   version "2.4.2"
   resolved "https://registry.yarnpkg.com/chalk/-/chalk-2.4.2.tgz#cd42541677a54333cf541a49108c1432b44c9424"
   integrity "sha1-zUJUFnelQzPPVBpJEIwUMrRMlCQ= sha512-Mti+f9lpJNcwF4tWV8/OrTTtF1gZi+f8FqlyAdouralcFWFQWF2+NgCHShjkCb+IFBLq9buZwE1xckQU4peSuQ=="
@@ -9354,24 +9357,25 @@ pascal-case@^3.1.2:
     no-case "^3.0.4"
     tslib "^2.0.3"
 
-patch-package@^6.4.7:
-  version "6.4.7"
-  resolved "https://registry.yarnpkg.com/patch-package/-/patch-package-6.4.7.tgz#2282d53c397909a0d9ef92dae3fdeb558382b148"
-  integrity sha512-S0vh/ZEafZ17hbhgqdnpunKDfzHQibQizx9g8yEf5dcVk3KOflOfdufRXQX8CSEkyOQwuM/bNz1GwKvFj54kaQ==
+patch-package@^6.5.0:
+  version "6.5.0"
+  resolved "https://registry.yarnpkg.com/patch-package/-/patch-package-6.5.0.tgz#feb058db56f0005da59cfa316488321de585e88a"
+  integrity sha512-tC3EqJmo74yKqfsMzELaFwxOAu6FH6t+FzFOsnWAuARm7/n2xB5AOeOueE221eM9gtMuIKMKpF9tBy/X2mNP0Q==
   dependencies:
     "@yarnpkg/lockfile" "^1.1.0"
-    chalk "^2.4.2"
+    chalk "^4.1.2"
     cross-spawn "^6.0.5"
     find-yarn-workspace-root "^2.0.0"
     fs-extra "^7.0.1"
     is-ci "^2.0.0"
     klaw-sync "^6.0.0"
-    minimist "^1.2.0"
+    minimist "^1.2.6"
     open "^7.4.2"
     rimraf "^2.6.3"
     semver "^5.6.0"
     slash "^2.0.0"
     tmp "^0.0.33"
+    yaml "^1.10.2"
 
 path-browserify@^1.0.1:
   version "1.0.1"
@@ -10709,7 +10713,7 @@ run-parallel@^1.1.9:
   dependencies:
     queue-microtask "^1.2.2"
 
-rxjs@^7.2.0, rxjs@^7.5.4, rxjs@^7.5.5:
+rxjs@^7.2.0, rxjs@^7.5.4:
   version "7.5.5"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-7.5.5.tgz#2ebad89af0f560f460ad5cc4213219e1f7dd4e9f"
   integrity "sha1-LrrYmvD1YPRgrVzEITIZ4ffdTp8= sha512-sy+H0pQofO95VDmFLzyaw9xNJU4KTRSwQIGM6+iG3SypAtCiLDzpeG8sJrNCWn2Up9km+KhkvTdbkrdy+yzZdw=="
