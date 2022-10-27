@@ -1,6 +1,6 @@
 {
   "name": "@kikko-land/kikko",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "author": "Sergey Popov",
   "license": "MIT",
   "main": "./src/index.ts",
