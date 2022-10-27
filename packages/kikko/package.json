@@ -15,7 +15,7 @@
   "publishConfig": {
     "exports": {
       ".": {
-        "types": "./dist/kikko/src/index.d.ts",
+        "types": "./dist/index.d.ts",
         "es2015": "./dist/index.es.js",
         "require": "./dist/index.umd.js",
         "import": "./dist/index.es.js",
