@@ -2,8 +2,20 @@ import { ISqlAdapter } from "@kikko-land/boono-sql";
 import { DeepReadonly } from "ts-essentials";
 
 import { INanoEmitter } from "./createNanoEvents";
-import { IJobsState } from "./job";
 import { ReactiveVar } from "./reactiveVar";
+
+export type ICmdPerformance = {
+  blockTime?: number;
+  sendTime?: number;
+  receiveTime?: number;
+  totalTime: number;
+};
+
+export type IStatementPerformance = {
+  execTime?: number;
+  prepareTime?: number;
+  freeTime?: number;
+};
 
 export type IKikkoEvents = {
   initialized: (db: IDb) => Promise<void> | void;
@@ -42,18 +54,17 @@ export type IQueriesMiddlewareState = {
   db: IDb;
   result: {
     rows: IQueryResult;
-    performance: {
-      execTime?: number;
-      prepareTime?: number;
-      freeTime?: number;
-    };
+    performance: IStatementPerformance;
   }[];
-  performance: {
-    sendTime?: number;
-    receiveTime?: number;
-    totalTime: number;
-  };
+  performance: ICmdPerformance & { unwrapQueriesTime?: number };
   queries: ISqlAdapter[];
+  transactionOpts?: {
+    transactionId: string;
+    containsTransactionStart: boolean;
+    containsTransactionFinish: boolean;
+    containsTransactionRollback: boolean;
+    rollbackOnFail: boolean;
+  };
 };
 
 export type INextQueriesMiddleware = (
@@ -111,22 +122,23 @@ export type IQueryResult = Record<string, IQueryValue>[];
 export type IExecQueriesResult = {
   result: {
     rows: IQueryResult;
-    performance: {
-      prepareTime?: number;
-      freeTime?: number;
-      execTime?: number;
-    };
+    performance: IStatementPerformance;
   }[];
-  performance: {
-    sendTime?: number;
-    receiveTime?: number;
-    totalTime: number;
-  };
+  performance: ICmdPerformance;
 };
 
 type IDbInstance = {
   initialize(): Promise<void>;
-  execQueries(queries: IQuery[]): Promise<IExecQueriesResult>;
+  execQueries(
+    queries: IQuery[],
+    transactionOpts?: {
+      transactionId: string;
+      containsTransactionStart: boolean;
+      containsTransactionFinish: boolean;
+      containsTransactionRollback: boolean;
+      rollbackOnFail: boolean;
+    }
+  ): Promise<IExecQueriesResult>;
   stop(): Promise<void>;
 };
 export type IDbBackend = (db: { dbName: string }) => IDbInstance;
@@ -138,6 +150,7 @@ export type ITransactionPerformance = {
   prepareTime?: number;
   execTime?: number;
   totalTime: number;
+  blockTime: number;
 };
 
 export interface ISharedDbState {
@@ -151,20 +164,19 @@ export interface ISharedDbState {
   // Used to detect current tab id. Uniq for each tab
   clientId: string;
 
-  jobsState: ReactiveVar<IJobsState>;
-
-  transactionsState?: {
-    current: ITransaction;
-    performance: ITransactionPerformance;
-  };
-  transactionLoggingState: {
-    i: number;
-    id: string | undefined;
+  transactionsStates: {
+    byId: {
+      [transactionId: string]: {
+        i: number;
+        current: ITransaction;
+        performance: ITransactionPerformance;
+      };
+    };
   };
 }
 
 export interface ILocalDbState {
-  transactionsState: {
+  transactionState: {
     current?: ITransaction;
   };
   suppressLog?: boolean;

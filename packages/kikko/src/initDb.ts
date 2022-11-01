@@ -2,7 +2,6 @@ import { ISqlAdapter } from "@kikko-land/boono-sql";
 
 import { runAfterTransaction } from "./afterTransaction";
 import { createNanoEvents } from "./createNanoEvents";
-import { acquireJob, IJobsState, releaseJob, whenAllJobsDone } from "./job";
 import { reactiveVar } from "./reactiveVar";
 import { runQueries } from "./runQueries";
 import { execAtomicTransaction, runInTransactionFunc } from "./transaction";
@@ -39,43 +38,27 @@ export const initDbClient = async ({
     dbName,
   });
 
-  const jobsState = reactiveVar(
-    {
-      queue: [],
-      current: undefined,
-    } as IJobsState,
-    { label: "jobsState" }
-  );
-
   const db: IDb = {
     __state: {
       sharedState: {
         clientId: makeId(),
         dbBackend: dbBackendCalled,
         dbName,
-
         runningState: runningState,
-
         eventsEmitter: createNanoEvents<IKikkoEvents>(),
 
-        jobsState: jobsState,
-        transactionLoggingState: {
-          id: undefined,
-          i: 0,
-        },
+        transactionsStates: { byId: {} },
       },
       localState: {
         queriesMiddlewares: queriesMiddlewares || [],
-        transactionsState: {},
+        transactionState: {},
       },
     },
     runInTransaction<T>(
       func: (state: IDb) => Promise<T>,
-      opts?: { label?: string; type?: "deferred" | "immediate" | "exclusive" }
+      opts?: { type?: "deferred" | "immediate" | "exclusive" }
     ): Promise<T> {
-      return runInTransactionFunc<T>(this, opts?.type || "deferred", func, {
-        label: opts?.label,
-      });
+      return runInTransactionFunc<T>(this, opts?.type || "deferred", func);
     },
     async runAtomicTransaction(
       func:
@@ -84,12 +67,7 @@ export const initDbClient = async ({
 
       opts?: { label?: string; type?: "deferred" | "immediate" | "exclusive" }
     ): Promise<void> {
-      return await execAtomicTransaction(
-        this,
-        opts?.type || "deferred",
-        func,
-        opts
-      );
+      return await execAtomicTransaction(this, opts?.type || "deferred", func);
     },
     async runQueries<D extends Record<string, unknown>>(
       queries: ISqlAdapter[]
@@ -122,27 +100,17 @@ export const initDbClient = async ({
     },
   };
 
-  const job = await acquireJob(db.__state.sharedState.jobsState, {
-    type: "initDb",
-    name: dbName,
-  });
-
   let currentState = db;
+  const getRunningState = () => db.__state.sharedState.runningState.value;
 
-  try {
-    const getRunningState = () => db.__state.sharedState.runningState.value;
+  if (getRunningState() !== "running") return db;
 
-    if (getRunningState() !== "running") return db;
+  await dbBackendCalled.initialize();
 
-    await dbBackendCalled.initialize();
+  if (getRunningState() !== "running") return db;
 
-    if (getRunningState() !== "running") return db;
-
-    for (const plugin of plugins || []) {
-      currentState = plugin(currentState);
-    }
-  } finally {
-    releaseJob(jobsState, job);
+  for (const plugin of plugins || []) {
+    currentState = plugin(currentState);
   }
 
   await db.__state.sharedState.eventsEmitter.emit("initialized", db);
@@ -153,13 +121,11 @@ export const initDbClient = async ({
 export const stopDb = async (state: IDb) => {
   state.__state.sharedState.runningState.value = "stopping";
 
-  await whenAllJobsDone(state.__state.sharedState.jobsState);
   await state.__state.sharedState.dbBackend.stop();
 
   state.__state.sharedState.runningState.value = "stopped";
 
   queueMicrotask(() => {
     state.__state.sharedState.runningState.stop();
-    state.__state.sharedState.jobsState.stop();
   });
 };

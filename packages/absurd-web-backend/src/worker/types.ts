@@ -15,6 +15,7 @@ export type IResponse = {
       }[];
       performance: {
         sendTime: number;
+        blockTime: number;
       };
       sentAt: number;
     }
@@ -26,7 +27,8 @@ export type IResponse = {
 
 export type IOutputWorkerMessage =
   | { type: "initialized" }
-  | { type: "response"; data: IResponse };
+  | { type: "response"; data: IResponse }
+  | { type: "stopped" };
 
 export type IInputWorkerMessage =
   | {
@@ -36,4 +38,5 @@ export type IInputWorkerMessage =
       pageSize: number;
       cacheSize: number;
     }
-  | { type: "command"; data: ICommand; sentAt: number };
+  | { type: "command"; data: ICommand; sentAt: number }
+  | { type: "stop" };

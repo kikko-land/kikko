@@ -1,81 +1,142 @@
-import { DbBackend } from "./DbBackend";
-import { IInputWorkerMessage, IOutputWorkerMessage, IResponse } from "./types";
+import {
+  acquireJob,
+  IJob,
+  IJobsState,
+  IQuery,
+  reactiveVar,
+  releaseJob,
+  whenAllJobsDone,
+} from "@kikko-land/kikko";
+import * as Comlink from "comlink";
 
-// eslint-disable-next-line no-restricted-globals
-const ctx: Worker = self as unknown as Worker;
+import { DbBackend } from "./DbBackend";
+
 let db: DbBackend | undefined;
 
-ctx.addEventListener("message", (event) => {
-  void (async () => {
-    const postMessage = (m: IOutputWorkerMessage) => ctx.postMessage(m);
+const jobsState = reactiveVar(
+  {
+    queue: [],
+    current: undefined,
+  } as IJobsState,
+  { label: "jobsState" }
+);
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const data: IInputWorkerMessage = event.data;
+let isStopped = false;
 
-    if (data.type === "initialize") {
-      if (db) {
-        // TODO: send error response
-        throw new Error("DB already initialized!");
-      }
+const initialize = async (
+  dbName: string,
+  wasmUrl: string,
+  pageSize: number,
+  cacheSize: number
+) => {
+  if (db) {
+    // TODO: send error response
+    throw new Error("DB already initialized!");
+  }
 
-      db = new DbBackend(
-        data.dbName,
-        data.wasmUrl,
-        data.pageSize,
-        data.cacheSize
-      );
+  db = new DbBackend(dbName, wasmUrl, pageSize, cacheSize);
 
-      await db.init();
+  await db.init();
+};
 
-      postMessage({ type: "initialized" });
-    } else {
-      if (!db) {
-        postMessage({
-          type: "response",
-          data: {
-            commandId: data.data.commandId,
-            status: "error",
-            message: "DB not initialized!",
-          },
-        });
+const execQueries = async (
+  queries: IQuery[],
+  sentAt: number,
+  transactionOpts?: {
+    transactionId: string;
+    containsTransactionStart: boolean;
+    containsTransactionFinish: boolean;
+    containsTransactionRollback: boolean;
+    rollbackOnFail: boolean;
+  }
+) => {
+  if (isStopped) {
+    throw new Error("DB is stopped!");
+  }
 
-        console.error("DB is not initialized");
+  if (!db) {
+    throw new Error("DB not initialized!");
+  }
 
-        return;
-      }
-      const sendTime = new Date().getTime() - data.sentAt;
+  const sendTime = new Date().getTime() - sentAt;
 
-      const currentDb = db;
+  const currentDb = db;
 
+  const startBlockAt = performance.now();
+  let job: IJob | undefined;
+
+  if (!transactionOpts || transactionOpts?.containsTransactionStart) {
+    job = await acquireJob(jobsState, transactionOpts?.transactionId);
+  }
+
+  if (transactionOpts && !transactionOpts.containsTransactionStart) {
+    await jobsState.waitTill(
+      (state) => state.current?.id === transactionOpts.transactionId
+    );
+  }
+
+  const endBlockAt = performance.now();
+  const blockTime = endBlockAt - startBlockAt;
+
+  try {
+    const queriesResult = queries.map((q) => {
       try {
-        const queriesResult = data.data.queries.map((q) => {
-          return currentDb.sqlExec(q.text, q.values);
-        });
-
-        const response: IResponse = {
-          commandId: data.data.commandId,
-          status: "success",
-          result: queriesResult,
-          performance: {
-            sendTime,
-          },
-          sentAt: new Date().getTime(),
-        };
-
-        postMessage({
-          type: "response",
-          data: response,
-        });
+        return currentDb.sqlExec(q.text, q.values);
       } catch (e) {
-        postMessage({
-          type: "response",
-          data: {
-            commandId: data.data.commandId,
-            status: "error",
-            message: e instanceof Error ? e.message : JSON.stringify(e),
-          } as IResponse,
-        });
+        if (e instanceof Error) {
+          e.message = `Error while executing query: ${q.text} - ${e.message}`;
+        }
+        throw e;
+      }
+    });
+
+    return {
+      result: queriesResult,
+      performance: {
+        sendTime,
+        blockTime,
+      },
+      sentAt: new Date().getTime(),
+    };
+  } catch (e) {
+    if (transactionOpts?.rollbackOnFail) {
+      try {
+        currentDb.sqlExec("ROLLBACK");
+      } catch (rollbackError) {
+        console.error(`Failed to rollback`, e, rollbackError);
       }
     }
-  })();
-});
+
+    throw e;
+  } finally {
+    if (
+      job &&
+      (!transactionOpts ||
+        transactionOpts?.containsTransactionFinish ||
+        transactionOpts?.containsTransactionRollback)
+    ) {
+      releaseJob(jobsState, job);
+    }
+
+    if (
+      !job &&
+      transactionOpts &&
+      (transactionOpts?.containsTransactionRollback ||
+        transactionOpts?.containsTransactionFinish)
+    ) {
+      releaseJob(jobsState, { id: transactionOpts.transactionId });
+    }
+  }
+};
+
+const stop = async () => {
+  isStopped = true;
+
+  await whenAllJobsDone(jobsState);
+};
+
+const DbWorker = { execQueries, initialize, stop };
+
+Comlink.expose(DbWorker);
+
+export type DbWorker = typeof DbWorker;

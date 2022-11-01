@@ -1,8 +1,6 @@
-import { ISql } from "@kikko-land/boono-sql";
 import { DeepReadonly } from "ts-essentials";
 
 import { ReactiveVar, TimeoutError } from "./reactiveVar";
-import { ITransaction } from "./types";
 import { makeId } from "./utils";
 
 export type DistributiveOmit<
@@ -10,15 +8,7 @@ export type DistributiveOmit<
   K extends keyof Record<string, unknown>
 > = T extends unknown ? Omit<T, K> : never;
 
-export type IJob =
-  | {
-      type: "runTransaction" | "runAtomicTransaction";
-      id: string;
-      transaction: ITransaction;
-      label?: string;
-    }
-  | { type: "runQueries"; queries: ISql[]; id: string }
-  | { type: "initDb"; name: string; id: string };
+export type IJob = { id: string };
 
 export type IJobsState = DeepReadonly<{
   queue: IJob[];
@@ -38,10 +28,10 @@ const stateToDebugString = (state: IJobsState) => {
 // Actually it works like locking mechanism
 export const acquireJob = async (
   jobsState: ReactiveVar<IJobsState>,
-  _job: DistributiveOmit<IJob, "id">
+  optionalId?: string
 ): Promise<IJob> => {
-  const id = makeId();
-  const job = { ..._job, id };
+  const id = optionalId ?? makeId();
+  const job = { id };
 
   const { current, queue } = jobsState.value;
 
