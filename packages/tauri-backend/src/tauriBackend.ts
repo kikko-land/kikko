@@ -1,8 +1,12 @@
 import {
+  acquireWithTrJobOrWait,
   IDbBackend,
   IExecQueriesResult,
+  initJobsState,
   IQuery,
   IQueryResult,
+  ITransactionOpts,
+  releaseTrJobIfPossible,
 } from "@kikko-land/kikko";
 import SQLite from "tauri-plugin-sqlite-api";
 
@@ -11,6 +15,7 @@ export const tauriBackend =
   ({ dbName }) => {
     let isStopped = true;
     let db: SQLite | undefined = undefined;
+    const jobsState = initJobsState();
 
     return {
       async initialize() {
@@ -19,7 +24,10 @@ export const tauriBackend =
 
         db = await SQLite.open(path(dbName));
       },
-      async execQueries(queries: IQuery[]): Promise<IExecQueriesResult> {
+      async execQueries(
+        queries: IQuery[],
+        transactionOpts?: ITransactionOpts
+      ): Promise<IExecQueriesResult> {
         if (!db) {
           throw new Error(
             `Failed to run queries: ${queries
@@ -29,21 +37,40 @@ export const tauriBackend =
         }
         const totalStartedAt = performance.now();
 
+        const startBlockAt = performance.now();
+        const job = await acquireWithTrJobOrWait(jobsState, transactionOpts);
+        const endBlockAt = performance.now();
+        const blockTime = endBlockAt - startBlockAt;
+
         const result: IExecQueriesResult["result"] = [];
 
-        for (const q of queries) {
-          const startTime = performance.now();
+        try {
+          for (const q of queries) {
+            const startTime = performance.now();
 
-          const rows = await db.select<IQueryResult>(q.text, q.values);
+            const rows = await db.select<IQueryResult>(q.text, q.values);
 
-          const endTime = performance.now();
+            const endTime = performance.now();
 
-          result.push({
-            rows,
-            performance: {
-              execTime: endTime - startTime,
-            },
-          });
+            result.push({
+              rows,
+              performance: {
+                execTime: endTime - startTime,
+              },
+            });
+          }
+        } catch (e) {
+          if (transactionOpts?.rollbackOnFail) {
+            try {
+              await db.execute("ROLLBACK", []);
+            } catch (rollbackError) {
+              console.error(`Failed to rollback`, e, rollbackError);
+            }
+          }
+
+          throw e;
+        } finally {
+          releaseTrJobIfPossible(jobsState, job, transactionOpts);
         }
 
         const totalFinishedAt = performance.now();
@@ -52,6 +79,7 @@ export const tauriBackend =
           result,
           performance: {
             totalTime: totalFinishedAt - totalStartedAt,
+            blockTime,
           },
         };
       },
