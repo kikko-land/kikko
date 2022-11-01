@@ -1,5 +1,17 @@
 # @kikko-land/vite-react-example
 
+## 0.5.0
+
+### Minor Changes
+
+- 9a1e9fc: Add new backend API
+
+### Patch Changes
+
+- Updated dependencies [9a1e9fc]
+  - @kikko-land/absurd-web-backend@0.7.0
+  - @kikko-land/react@0.6.2
+
 ## 0.4.0
 
 ### Minor Changes

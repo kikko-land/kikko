@@ -1,5 +1,11 @@
 # @kikko-land/core
 
+## 0.7.0
+
+### Minor Changes
+
+- 9a1e9fc: Add new backend API
+
 ## 0.6.1
 
 ### Patch Changes
