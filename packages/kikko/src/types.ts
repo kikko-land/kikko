@@ -58,13 +58,7 @@ export type IQueriesMiddlewareState = {
   }[];
   performance: ICmdPerformance & { unwrapQueriesTime?: number };
   queries: ISqlAdapter[];
-  transactionOpts?: {
-    transactionId: string;
-    containsTransactionStart: boolean;
-    containsTransactionFinish: boolean;
-    containsTransactionRollback: boolean;
-    rollbackOnFail: boolean;
-  };
+  transactionOpts?: ITransactionOpts;
 };
 
 export type INextQueriesMiddleware = (
@@ -94,13 +88,13 @@ export interface IDb {
 
   runInTransaction<T>(
     func: (state: IDb) => Promise<T>,
-    opts?: { label?: string; type?: "deferred" | "immediate" | "exclusive" }
+    opts?: { type?: "deferred" | "immediate" | "exclusive" }
   ): Promise<T>;
   runAtomicTransaction(
     func:
       | ((scope: IAtomicTransactionScope) => Promise<void> | void)
       | ISqlAdapter[],
-    opts?: { label?: string; type?: "deferred" | "immediate" | "exclusive" }
+    opts?: { type?: "deferred" | "immediate" | "exclusive" }
   ): Promise<void>;
 
   runQueries<D extends Record<string, unknown>>(
@@ -131,13 +125,7 @@ type IDbInstance = {
   initialize(): Promise<void>;
   execQueries(
     queries: IQuery[],
-    transactionOpts?: {
-      transactionId: string;
-      containsTransactionStart: boolean;
-      containsTransactionFinish: boolean;
-      containsTransactionRollback: boolean;
-      rollbackOnFail: boolean;
-    }
+    transactionOpts?: ITransactionOpts
   ): Promise<IExecQueriesResult>;
   stop(): Promise<void>;
 };
@@ -181,4 +169,12 @@ export interface ILocalDbState {
   };
   suppressLog?: boolean;
   queriesMiddlewares: IQueriesMiddleware[];
+}
+
+export interface ITransactionOpts {
+  transactionId: string;
+  containsTransactionStart: boolean;
+  containsTransactionFinish: boolean;
+  containsTransactionRollback: boolean;
+  rollbackOnFail: boolean;
 }

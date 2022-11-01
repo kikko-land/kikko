@@ -1,15 +1,20 @@
 import { SQLite, SQLiteObject } from "@awesome-cordova-plugins/sqlite";
 import {
+  acquireWithTrJobOrWait,
   IDbBackend,
   IExecQueriesResult,
+  initJobsState,
   IQuery,
   IQueryResult,
+  ITransactionOpts,
+  releaseTrJobIfPossible,
 } from "@kikko-land/kikko";
 
 export const ionicBackend = (path: (dbName: string) => string): IDbBackend => {
   return ({ dbName }) => {
     let isStopped = true;
     let db: SQLiteObject | undefined = undefined;
+    const jobsState = initJobsState();
 
     return {
       async initialize() {
@@ -26,7 +31,7 @@ export const ionicBackend = (path: (dbName: string) => string): IDbBackend => {
         }
       },
 
-      async execQueries(queries: IQuery[]) {
+      async execQueries(queries: IQuery[], transactionOpts?: ITransactionOpts) {
         if (!db) {
           throw new Error(
             `Failed to run queries: ${queries
@@ -37,30 +42,59 @@ export const ionicBackend = (path: (dbName: string) => string): IDbBackend => {
 
         const totalStartedAt = performance.now();
 
+        const startBlockAt = performance.now();
+        const job = await acquireWithTrJobOrWait(jobsState, transactionOpts);
+        const endBlockAt = performance.now();
+        const blockTime = endBlockAt - startBlockAt;
+
         const res: IExecQueriesResult["result"] = [];
 
-        for (const q of queries) {
-          const startTime = performance.now();
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          const execResult = await db.executeSql(q.text, q.values);
+        try {
+          for (const q of queries) {
+            const startTime = performance.now();
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const execResult = await (async () => {
+              try {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                return await db.executeSql(q.text, q.values);
+              } catch (e) {
+                if (e instanceof Error) {
+                  e.message = `Error while executing query: ${q.text} - ${e.message}`;
+                }
+                throw e;
+              }
+            })();
 
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-          const rows: IQueryResult = new Array(execResult.rows.length);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+            const rows: IQueryResult = new Array(execResult.rows.length);
 
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          for (let i = 0; i < execResult.rows.length; i++) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-            rows[i] = execResult.rows.item(i);
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+            for (let i = 0; i < execResult.rows.length; i++) {
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+              rows[i] = execResult.rows.item(i);
+            }
+
+            const end = performance.now();
+
+            res.push({
+              rows: rows,
+              performance: {
+                execTime: end - startTime,
+              },
+            });
+          }
+        } catch (e) {
+          if (transactionOpts?.rollbackOnFail) {
+            try {
+              await db.executeSql("ROLLBACK", []);
+            } catch (rollbackError) {
+              console.error(`Failed to rollback`, e, rollbackError);
+            }
           }
 
-          const end = performance.now();
-
-          res.push({
-            rows: rows,
-            performance: {
-              execTime: end - startTime,
-            },
-          });
+          throw e;
+        } finally {
+          releaseTrJobIfPossible(jobsState, job, transactionOpts);
         }
 
         const totalFinishedAt = performance.now();
@@ -68,6 +102,7 @@ export const ionicBackend = (path: (dbName: string) => string): IDbBackend => {
           result: res,
           performance: {
             totalTime: totalFinishedAt - totalStartedAt,
+            blockTime,
           },
         };
       },

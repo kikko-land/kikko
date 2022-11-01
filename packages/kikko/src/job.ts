@@ -1,6 +1,6 @@
 import { DeepReadonly } from "ts-essentials";
 
-import { ReactiveVar, TimeoutError } from "./reactiveVar";
+import { ReactiveVar, reactiveVar, TimeoutError } from "./reactiveVar";
 import { makeId } from "./utils";
 
 export type DistributiveOmit<
@@ -24,6 +24,15 @@ const stateToDebugString = (state: IJobsState) => {
     2
   )}, queue: ${JSON.stringify(queue, null, 2)}`;
 };
+
+export const initJobsState = (): ReactiveVar<IJobsState> =>
+  reactiveVar(
+    {
+      queue: [],
+      current: undefined,
+    } as IJobsState,
+    { label: "jobsState" }
+  );
 
 // Actually it works like locking mechanism
 export const acquireJob = async (

@@ -1,8 +1,12 @@
 import {
+  acquireWithTrJobOrWait,
   IDbBackend,
   IExecQueriesResult,
+  initJobsState,
   IQuery,
   IQueryResult,
+  ITransactionOpts,
+  releaseTrJobIfPossible,
 } from "@kikko-land/kikko";
 
 declare global {
@@ -23,6 +27,8 @@ export type ValueType<T> = T extends Promise<infer U> ? U : T;
 export const electronBetterSqlite3Backend =
   (path: (dbName: string) => string): IDbBackend =>
   ({ dbName }) => {
+    const jobsState = initJobsState();
+
     let isStopped = true;
     let db: ValueType<ReturnType<typeof window.sqliteDb>> | undefined =
       undefined;
@@ -38,7 +44,10 @@ export const electronBetterSqlite3Backend =
           db.close();
         }
       },
-      execQueries(queries: IQuery[]): Promise<IExecQueriesResult> {
+      async execQueries(
+        queries: IQuery[],
+        trOpts: ITransactionOpts
+      ): Promise<IExecQueriesResult> {
         if (!db) {
           throw new Error(
             `Failed to run queries: ${queries
@@ -48,21 +57,49 @@ export const electronBetterSqlite3Backend =
         }
         const totalStartedAt = performance.now();
 
+        const startBlockAt = performance.now();
+        const job = await acquireWithTrJobOrWait(jobsState, trOpts);
+        const endBlockAt = performance.now();
+        const blockTime = endBlockAt - startBlockAt;
+
         const result: IExecQueriesResult["result"] = [];
 
-        for (const q of queries) {
-          const startTime = performance.now();
+        try {
+          for (const q of queries) {
+            const startTime = performance.now();
 
-          const rows = db.all(q.text, q.values) as IQueryResult;
+            const rows = (() => {
+              try {
+                return db.all(q.text, q.values) as IQueryResult;
+              } catch (e) {
+                if (e instanceof Error) {
+                  e.message = `Error while executing query: ${q.text} - ${e.message}`;
+                }
+                throw e;
+              }
+            })();
 
-          const endTime = performance.now();
+            const endTime = performance.now();
 
-          result.push({
-            rows,
-            performance: {
-              execTime: endTime - startTime,
-            },
-          });
+            result.push({
+              rows,
+              performance: {
+                execTime: endTime - startTime,
+              },
+            });
+          }
+        } catch (e) {
+          if (trOpts?.rollbackOnFail) {
+            try {
+              db.all("ROLLBACK", []);
+            } catch (rollbackError) {
+              console.error(`Failed to rollback`, e, rollbackError);
+            }
+          }
+
+          throw e;
+        } finally {
+          releaseTrJobIfPossible(jobsState, job, trOpts);
         }
 
         const totalFinishedAt = performance.now();
@@ -71,6 +108,7 @@ export const electronBetterSqlite3Backend =
           result,
           performance: {
             totalTime: totalFinishedAt - totalStartedAt,
+            blockTime,
           },
         });
       },

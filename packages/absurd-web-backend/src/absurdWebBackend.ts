@@ -1,5 +1,10 @@
 import { initBackend } from "@kikko-land/better-absurd-sql/dist/indexeddb-main-thread";
-import { IDbBackend, IQuery, reactiveVar } from "@kikko-land/kikko";
+import {
+  IDbBackend,
+  IQuery,
+  ITransactionOpts,
+  reactiveVar,
+} from "@kikko-land/kikko";
 import * as Comlink from "comlink";
 
 import type { DbWorker } from "./worker/DB.worker";
@@ -42,16 +47,7 @@ export const absurdWebBackend =
           cacheSize !== undefined ? cacheSize : -5000
         );
       },
-      async execQueries(
-        queries: IQuery[],
-        transactionOpts?: {
-          transactionId: string;
-          containsTransactionStart: boolean;
-          containsTransactionFinish: boolean;
-          containsTransactionRollback: boolean;
-          rollbackOnFail: boolean;
-        }
-      ) {
+      async execQueries(queries: IQuery[], transactionOpts?: ITransactionOpts) {
         const startedAt = performance.now();
         const res = await dbWorker.execQueries(
           queries,

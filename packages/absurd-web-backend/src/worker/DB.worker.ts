@@ -1,10 +1,9 @@
 import {
-  acquireJob,
-  IJob,
-  IJobsState,
+  acquireWithTrJobOrWait,
+  initJobsState,
   IQuery,
-  reactiveVar,
-  releaseJob,
+  ITransactionOpts,
+  releaseTrJobIfPossible,
   whenAllJobsDone,
 } from "@kikko-land/kikko";
 import * as Comlink from "comlink";
@@ -13,13 +12,7 @@ import { DbBackend } from "./DbBackend";
 
 let db: DbBackend | undefined;
 
-const jobsState = reactiveVar(
-  {
-    queue: [],
-    current: undefined,
-  } as IJobsState,
-  { label: "jobsState" }
-);
+const jobsState = initJobsState();
 
 let isStopped = false;
 
@@ -42,13 +35,7 @@ const initialize = async (
 const execQueries = async (
   queries: IQuery[],
   sentAt: number,
-  transactionOpts?: {
-    transactionId: string;
-    containsTransactionStart: boolean;
-    containsTransactionFinish: boolean;
-    containsTransactionRollback: boolean;
-    rollbackOnFail: boolean;
-  }
+  transactionOpts?: ITransactionOpts
 ) => {
   if (isStopped) {
     throw new Error("DB is stopped!");
@@ -63,18 +50,7 @@ const execQueries = async (
   const currentDb = db;
 
   const startBlockAt = performance.now();
-  let job: IJob | undefined;
-
-  if (!transactionOpts || transactionOpts?.containsTransactionStart) {
-    job = await acquireJob(jobsState, transactionOpts?.transactionId);
-  }
-
-  if (transactionOpts && !transactionOpts.containsTransactionStart) {
-    await jobsState.waitTill(
-      (state) => state.current?.id === transactionOpts.transactionId
-    );
-  }
-
+  const job = await acquireWithTrJobOrWait(jobsState, transactionOpts);
   const endBlockAt = performance.now();
   const blockTime = endBlockAt - startBlockAt;
 
@@ -109,23 +85,7 @@ const execQueries = async (
 
     throw e;
   } finally {
-    if (
-      job &&
-      (!transactionOpts ||
-        transactionOpts?.containsTransactionFinish ||
-        transactionOpts?.containsTransactionRollback)
-    ) {
-      releaseJob(jobsState, job);
-    }
-
-    if (
-      !job &&
-      transactionOpts &&
-      (transactionOpts?.containsTransactionRollback ||
-        transactionOpts?.containsTransactionFinish)
-    ) {
-      releaseJob(jobsState, { id: transactionOpts.transactionId });
-    }
+    releaseTrJobIfPossible(jobsState, job, transactionOpts);
   }
 };
 

@@ -1,4 +1,12 @@
-import { IDbBackend, IQuery, IQueryResult } from "@kikko-land/kikko";
+import {
+  acquireWithTrJobOrWait,
+  IDbBackend,
+  initJobsState,
+  IQuery,
+  IQueryResult,
+  ITransactionOpts,
+  releaseTrJobIfPossible,
+} from "@kikko-land/kikko";
 import {
   Location,
   openDatabase,
@@ -13,6 +21,7 @@ export const reactNativeBackend =
   ({ dbName }) => {
     let isStopped = true;
     let db: SQLiteDatabase | undefined;
+    const jobsState = initJobsState();
 
     return {
       async initialize() {
@@ -28,7 +37,7 @@ export const reactNativeBackend =
           await db.close();
         }
       },
-      async execQueries(queries: IQuery[]) {
+      async execQueries(queries: IQuery[], transactionOpts?: ITransactionOpts) {
         if (!db) {
           throw new Error(
             `Failed to run queries: ${queries
@@ -39,6 +48,11 @@ export const reactNativeBackend =
 
         const totalStartedAt = performance.now();
 
+        const startBlockAt = performance.now();
+        const job = await acquireWithTrJobOrWait(jobsState, transactionOpts);
+        const endBlockAt = performance.now();
+        const blockTime = endBlockAt - startBlockAt;
+
         const result: {
           rows: IQueryResult;
           performance: {
@@ -46,21 +60,35 @@ export const reactNativeBackend =
           };
         }[] = [];
 
-        for (const q of queries) {
-          const startTime = performance.now();
+        try {
+          for (const q of queries) {
+            const startTime = performance.now();
 
-          const rows = (
-            await db.executeSql(q.text, q.values)
-          )[0].rows.raw() as IQueryResult;
+            const rows = (
+              await db.executeSql(q.text, q.values)
+            )[0].rows.raw() as IQueryResult;
 
-          const endTime = performance.now();
+            const endTime = performance.now();
 
-          result.push({
-            rows,
-            performance: {
-              execTime: endTime - startTime,
-            },
-          });
+            result.push({
+              rows,
+              performance: {
+                execTime: endTime - startTime,
+              },
+            });
+          }
+        } catch (e) {
+          if (transactionOpts?.rollbackOnFail) {
+            try {
+              await db.executeSql("ROLLBACK", []);
+            } catch (rollbackError) {
+              console.error(`Failed to rollback`, e, rollbackError);
+            }
+          }
+
+          throw e;
+        } finally {
+          releaseTrJobIfPossible(jobsState, job, transactionOpts);
         }
 
         const totalFinishedAt = performance.now();
@@ -69,6 +97,7 @@ export const reactNativeBackend =
           result,
           performance: {
             totalTime: totalFinishedAt - totalStartedAt,
+            blockTime,
           },
         };
       },
