@@ -1,13 +1,19 @@
 import { ISqlAdapter, sql } from "@kikko-land/boono-sql";
 
-import { acquireJob, releaseJob } from "./job";
+import { acquireJob, IJob, IJobsState, releaseJob } from "./job";
+import { ReactiveVar } from "./reactiveVar";
+import { runQueries } from "./runQueries";
 import {
   IAtomicTransactionScope,
   IDb,
   ITransaction,
+  ITransactionOpts,
   ITransactionPerformance,
 } from "./types";
 import { assureDbIsRunning, makeId } from "./utils";
+
+// Let' make it global for all DBs to avoid transaction colors duplication
+let transactionsCounter = 0;
 
 const logTimeIfNeeded = (
   db: IDb,
@@ -32,6 +38,9 @@ const logTimeIfNeeded = (
     performance.receiveTime === undefined
       ? ""
       : `receiveTime=${(performance.receiveTime / 1000).toFixed(4)}`,
+    performance.blockTime === undefined
+      ? ""
+      : `blockTime=${(performance.blockTime / 1000).toFixed(4)}`,
     `totalTime=${(performance.totalTime / 1000).toFixed(4)}`,
   ]
     .filter((v) => v.length !== 0)
@@ -49,27 +58,17 @@ const logTimeIfNeeded = (
 export const runInTransactionFunc = async <T>(
   db: IDb,
   transactionType: "deferred" | "immediate" | "exclusive",
-  func: (state: IDb) => Promise<T>,
-  opts?: { label?: string }
+  func: (state: IDb) => Promise<T>
 ) => {
   const {
-    localState: { transactionsState: transactionsLocalState },
-    sharedState: { transactionsState: transactionsSharedState, eventsEmitter },
+    localState: { transactionState: transactionsLocalState },
+    sharedState: { eventsEmitter, transactionsStates },
     sharedState,
   } = db.__state;
 
   // It's indeed that function in same transaction don't need to check db is running
   // Cause all transaction will await to execute on DB before stop
-  if (transactionsLocalState.current && transactionsSharedState?.current) {
-    if (
-      transactionsLocalState.current.id !== transactionsSharedState?.current.id
-    ) {
-      // Is it possible?
-      throw new Error(
-        "Internal error: local running transaction is not the same as shared state transaction"
-      );
-    }
-
+  if (transactionsLocalState.current) {
     // we already in same transaction
     return await func(db);
   }
@@ -87,19 +86,15 @@ export const runInTransactionFunc = async <T>(
       ...db.__state,
       localState: {
         ...db.__state.localState,
-        transactionsState: { current: transaction },
+        transactionState: { current: transaction },
       },
     },
   };
 
-  const job = await acquireJob(db.__state.sharedState.jobsState, {
-    type: "runTransaction",
-    transaction,
-    label: opts?.label,
-  });
-
   const startTime = performance.now();
+
   const transactionState = {
+    i: transactionsCounter++,
     current: transaction,
     performance: {
       prepareTime: 0,
@@ -108,15 +103,25 @@ export const runInTransactionFunc = async <T>(
       sendTime: 0,
       receiveTime: 0,
       totalTime: 0,
+      blockTime: 0,
     },
   };
-  sharedState.transactionsState = transactionState;
+
+  transactionsStates.byId[transaction.id] = transactionState;
 
   try {
     await eventsEmitter.emit("transactionWillStart", db, transaction);
 
-    await db.runQuery(
-      sql`BEGIN ${sql.raw(transactionType.toUpperCase())} TRANSACTION;`
+    await runQueries(
+      db,
+      [sql`BEGIN ${sql.raw(transactionType.toLocaleUpperCase())} TRANSACTION`],
+      {
+        transactionId: transaction.id,
+        containsTransactionStart: true,
+        containsTransactionFinish: false,
+        containsTransactionRollback: false,
+        rollbackOnFail: false,
+      }
     );
 
     await eventsEmitter.emit("transactionStarted", db, transaction);
@@ -126,7 +131,13 @@ export const runInTransactionFunc = async <T>(
 
       await eventsEmitter.emit("transactionWillCommit", db, transaction);
 
-      await db.runQuery(sql`COMMIT`);
+      await runQueries(db, [sql`COMMIT`], {
+        transactionId: transaction.id,
+        containsTransactionStart: false,
+        containsTransactionFinish: true,
+        containsTransactionRollback: false,
+        rollbackOnFail: false,
+      });
 
       await eventsEmitter.emit("transactionCommitted", db, transaction);
 
@@ -136,7 +147,17 @@ export const runInTransactionFunc = async <T>(
 
       await eventsEmitter.emit("transactionWillRollback", db, transaction);
 
-      await db.runQuery(sql`ROLLBACK`);
+      try {
+        await runQueries(db, [sql`ROLLBACK`], {
+          transactionId: transaction.id,
+          containsTransactionStart: false,
+          containsTransactionFinish: false,
+          containsTransactionRollback: true,
+          rollbackOnFail: false,
+        });
+      } catch (e) {
+        console.warn("Rollback transaction failed", e);
+      }
 
       await eventsEmitter.emit("transactionRollbacked", db, transaction);
 
@@ -147,7 +168,7 @@ export const runInTransactionFunc = async <T>(
 
     logTimeIfNeeded(db, transaction.id, transactionState.performance);
 
-    releaseJob(db.__state.sharedState.jobsState, job);
+    delete transactionsStates.byId[transaction.id];
   }
 };
 
@@ -167,12 +188,11 @@ export const execAtomicTransaction = async (
   transactionType: "deferred" | "immediate" | "exclusive",
   funcOrQueries:
     | ((scope: IAtomicTransactionScope) => Promise<void> | void)
-    | ISqlAdapter[],
-  opts?: { label?: string }
+    | ISqlAdapter[]
 ): Promise<void> => {
   const {
-    localState: { transactionsState: transactionsLocalState },
-    sharedState: { eventsEmitter },
+    localState: { transactionState: transactionsLocalState },
+    sharedState: { eventsEmitter, transactionsStates },
     sharedState,
   } = db.__state;
   if (transactionsLocalState.current) {
@@ -196,13 +216,8 @@ export const execAtomicTransaction = async (
     type: "atomic",
   };
 
-  const job = await acquireJob(db.__state.sharedState.jobsState, {
-    type: "runAtomicTransaction",
-    transaction,
-    label: opts?.label,
-  });
-
   const transactionState = {
+    i: transactionsCounter++,
     current: transaction,
     performance: {
       prepareTime: 0,
@@ -211,9 +226,9 @@ export const execAtomicTransaction = async (
       sendTime: 0,
       receiveTime: 0,
       totalTime: 0,
+      blockTime: 0,
     },
   };
-  sharedState.transactionsState = transactionState;
 
   db = {
     ...db,
@@ -221,32 +236,41 @@ export const execAtomicTransaction = async (
       ...db.__state,
       localState: {
         ...db.__state.localState,
-        transactionsState: { current: transaction },
+        transactionState: { current: transaction },
       },
     },
   };
 
-  const startTime = performance.now();
+  transactionsStates.byId[transaction.id] = transactionState;
 
-  const queries = [
-    sql`BEGIN ${sql.raw(transactionType.toUpperCase())} TRANSACTION`,
-    ...inputQueries,
-    sql`COMMIT`,
-  ];
+  const startTime = performance.now();
 
   try {
     await eventsEmitter.emit("transactionWillStart", db, transaction);
+    await eventsEmitter.emit("transactionStarted", db, transaction);
 
-    await db.runQueries(queries);
+    await runQueries(
+      db,
+      [
+        sql`BEGIN ${sql.raw(transactionType.toUpperCase())} TRANSACTION`,
+        ...inputQueries,
+        sql`COMMIT`,
+      ],
+      {
+        transactionId: transaction.id,
+        containsTransactionStart: true,
+        containsTransactionFinish: true,
+        containsTransactionRollback: false,
+        rollbackOnFail: true,
+      }
+    );
 
+    await eventsEmitter.emit("transactionWillCommit", db, transaction);
     await eventsEmitter.emit("transactionCommitted", db, transaction);
   } catch (e) {
     console.error("Rollback transaction", e);
 
     await eventsEmitter.emit("transactionWillRollback", db, transaction);
-
-    await db.runQuery(sql`ROLLBACK`);
-
     await eventsEmitter.emit("transactionRollbacked", db, transaction);
 
     throw e;
@@ -255,6 +279,6 @@ export const execAtomicTransaction = async (
 
     logTimeIfNeeded(db, transaction.id, transactionState.performance);
 
-    releaseJob(db.__state.sharedState.jobsState, job);
+    delete transactionsStates.byId[transaction.id];
   }
 };

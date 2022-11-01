@@ -1,19 +1,16 @@
 import { initBackend } from "@kikko-land/better-absurd-sql/dist/indexeddb-main-thread";
 import {
-  IAtomicTransactionScope,
   IDbBackend,
   IQuery,
+  ITransactionOpts,
   reactiveVar,
-  StoppedError,
 } from "@kikko-land/kikko";
+import * as Comlink from "comlink";
 
-import { buildRunQueriesCommand } from "./commands";
-import { runWorkerCommand } from "./runWorkerCommand";
-import { IBackendState } from "./types";
+import type { DbWorker } from "./worker/DB.worker";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import DbWorker from "./worker/DB.worker?worker&inline";
-import { IInputWorkerMessage, IOutputWorkerMessage } from "./worker/types";
+import RawWorker from "./worker/DB.worker?worker&inline";
 
 export const absurdWebBackend =
   ({
@@ -29,80 +26,33 @@ export const absurdWebBackend =
     cacheSize?: number;
   }): IDbBackend =>
   ({ dbName }: { dbName: string }) => {
-    const outcomingMessagesQueue = reactiveVar<IInputWorkerMessage[]>([], {
-      label: "outcomingMessagesQueue",
-    });
-    const incomingMessagesQueue = reactiveVar<IOutputWorkerMessage[]>([], {
-      label: "incomingMessagesQueue",
-    });
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-    const initializedWorker: Worker = new DbWorker() as Worker;
+    const rawWorker: Worker = new RawWorker() as Worker;
     const isTerminated = reactiveVar(false, { label: "isTerminated" });
 
-    const unsubscribeOutcoming = outcomingMessagesQueue.subscribe((newVals) => {
-      if (newVals.length === 0) return;
-      outcomingMessagesQueue.value = [];
-
-      for (const val of newVals) {
-        initializedWorker.postMessage(val);
-      }
-    });
-
-    const sub = (ev: MessageEvent<IOutputWorkerMessage>) => {
-      incomingMessagesQueue.value = [...incomingMessagesQueue.value, ev.data];
-    };
-    initializedWorker.addEventListener("message", sub);
-
-    const unsubscribeIncoming = () => {
-      initializedWorker.removeEventListener("message", sub);
-    };
-
-    const state: IBackendState = {
-      outcomingMessagesQueue,
-      incomingMessagesQueue,
-      queryTimeout: queryTimeout || 30_000,
-      isTerminated: isTerminated,
-    };
+    const dbWorker = Comlink.wrap<DbWorker>(rawWorker);
 
     return {
       async initialize() {
         if (isTerminated.value) throw new Error("Db backend is terminated");
 
-        initBackend(initializedWorker);
-
-        const initPromise = incomingMessagesQueue.waitTill(
-          (evs) => evs.some((ev) => ev.type === "initialized"),
-          { stopIf: isTerminated }
-        );
+        initBackend(rawWorker);
 
         const url = typeof wasmUrl === "string" ? wasmUrl : await wasmUrl();
 
-        outcomingMessagesQueue.value = [
-          ...outcomingMessagesQueue.value,
-          {
-            type: "initialize",
-            dbName: dbName,
-            wasmUrl: new URL(url, document.baseURI).toString(),
-            pageSize: pageSize !== undefined ? pageSize : 32 * 1024,
-            cacheSize: cacheSize !== undefined ? cacheSize : -5000,
-          },
-        ];
-
-        try {
-          await initPromise;
-        } catch (e) {
-          if (e instanceof StoppedError) {
-            return;
-          }
-
-          throw e;
-        }
+        await dbWorker.initialize(
+          dbName,
+          new URL(url, document.baseURI).toString(),
+          pageSize !== undefined ? pageSize : 32 * 1024,
+          cacheSize !== undefined ? cacheSize : -5000
+        );
       },
-      async execQueries(queries: IQuery[]) {
+      async execQueries(queries: IQuery[], transactionOpts?: ITransactionOpts) {
         const startedAt = performance.now();
-        const res = await runWorkerCommand(
-          state,
-          buildRunQueriesCommand(queries)
+        const res = await dbWorker.execQueries(
+          queries,
+          new Date().getTime(),
+          transactionOpts
         );
         const endAt = performance.now();
 
@@ -118,15 +68,8 @@ export const absurdWebBackend =
       async stop() {
         isTerminated.value = true;
 
-        unsubscribeOutcoming();
-        unsubscribeIncoming();
-
-        outcomingMessagesQueue.stop();
-        incomingMessagesQueue.stop();
-
-        initializedWorker.terminate();
-
-        return Promise.resolve();
+        await dbWorker.stop();
+        rawWorker.terminate();
       },
     };
   };

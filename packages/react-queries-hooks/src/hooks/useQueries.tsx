@@ -6,12 +6,16 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useDbState } from "../DbProvider";
 import {
-  DistributiveOmit,
   Falsy,
   IQueryHookResult,
   IRunQueryHookResult,
   ISingleQueryHookResult,
 } from "./types";
+
+type DistributiveOmit<
+  T,
+  K extends keyof Record<string, unknown>
+> = T extends unknown ? Omit<T, K> : never;
 
 type IOpts = { suppressLog?: boolean; mapToObject?: boolean };
 

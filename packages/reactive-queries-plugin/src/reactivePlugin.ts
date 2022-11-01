@@ -29,7 +29,7 @@ export const reactiveQueriesPlugin: (opts?: {
     opts?.webMultiTabSupport !== undefined ? opts.webMultiTabSupport : true;
 
   const reactiveQueriesMiddleware: IQueriesMiddleware = (state) => {
-    const transaction = state.db.__state.localState.transactionsState.current;
+    const transaction = state.db.__state.localState.transactionState.current;
 
     const writeTables = state.queries
       .map((q) => q.toSql())

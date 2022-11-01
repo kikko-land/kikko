@@ -1,8 +1,3 @@
-export type DistributiveOmit<
-  T,
-  K extends keyof Record<string, unknown>
-> = T extends unknown ? Omit<T, K> : never;
-
 export type ISingleQueryHookResult<D> =
   | {
       type: "loading";

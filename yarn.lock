@@ -2988,15 +2988,6 @@
   dependencies:
     "@kikko-land/boono-sql" "^0.3.0"
 
-"@kikko-land/kikko@^0.6.1":
-  version "0.6.1"
-  resolved "https://registry.yarnpkg.com/@kikko-land/kikko/-/kikko-0.6.1.tgz#f8355d98ff8c61607e25b5858bbeb01992841ada"
-  integrity sha512-hLxvUF8rl9WJ/4RXLH+u07P73iXaklcuiEbmKbqnRQQi0j0s6f6LV1xgYtETUAZdYIEBv4+XIVm04gk3eN50oA==
-  dependencies:
-    "@kikko-land/boono-sql" "^0.3.0"
-    lodash.isequal "^4.5.0"
-    ts-essentials "^9.3.0"
-
 "@kikko-land/sql.js@^1.6.8":
   version "1.6.8"
   resolved "https://registry.yarnpkg.com/@kikko-land/sql.js/-/sql.js-1.6.8.tgz#e388e11b7ec5b6c534e7e1474860e31f39ba3d58"
@@ -5217,6 +5208,11 @@ combine-promises@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/combine-promises/-/combine-promises-1.1.0.tgz#72db90743c0ca7aab7d0d8d2052fd7b0f674de71"
   integrity "sha1-ctuQdDwMp6q30NjSBS/XsPZ03nE= sha512-ZI9jvcLDxqwaXEixOhArm3r7ReIivsXkpbyEWyeOhzz1QS0iSgBPnWvEqvIQtYyamGCYA88gFhmUrs9hrrQ0pg=="
+
+comlink@^4.3.1:
+  version "4.3.1"
+  resolved "https://registry.yarnpkg.com/comlink/-/comlink-4.3.1.tgz#0c6b9d69bcd293715c907c33fe8fc45aecad13c5"
+  integrity sha512-+YbhUdNrpBZggBAHWcgQMLPLH1KDF3wJpeqrCKieWQ8RL7atmgsgTQko1XEBK6PsecfopWNntopJ+ByYG1lRaA==
 
 comma-separated-tokens@^1.0.0:
   version "1.0.8"

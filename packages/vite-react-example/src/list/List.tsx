@@ -203,13 +203,7 @@ export const List = () => {
 
       {[100, 1000, 10_000, 30_000].map((count) => (
         <div style={{ padding: "5px 0" }} key={count}>
-          <button
-            onClick={() => void createNotes(count, false)}
-            disabled={
-              createNotesState.type === "running" ||
-              createNotesState.type === "waitingDb"
-            }
-          >
+          <button onClick={() => void createNotes(count, false)}>
             {createNotesState.type === "running"
               ? "Loading..."
               : `Add ${count} records(atomic=false)!`}

@@ -8,10 +8,10 @@ export const runAfterTransaction = (
     transaction: ITransaction
   ) => void
 ) => {
-  if (!db.__state.localState.transactionsState.current) {
+  if (!db.__state.localState.transactionState.current) {
     throw new Error("Not in transaction.");
   }
-  const transaction = db.__state.localState.transactionsState.current;
+  const transaction = db.__state.localState.transactionState.current;
 
   const unsubscribes: (() => void)[] = [];
 
