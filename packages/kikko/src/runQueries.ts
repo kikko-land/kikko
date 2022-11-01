@@ -5,6 +5,7 @@ import {
   INextQueriesMiddleware,
   IQueriesMiddleware,
   IQueriesMiddlewareState,
+  ITransactionOpts,
 } from "./types";
 import { assureDbIsRunning, unwrapQueries } from "./utils";
 
@@ -182,13 +183,7 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
 export const runQueries = async (
   db: IDb,
   queries: ISqlAdapter[],
-  transactionOpts?: {
-    transactionId: string;
-    containsTransactionStart: boolean;
-    containsTransactionFinish: boolean;
-    containsTransactionRollback: boolean;
-    rollbackOnFail: boolean;
-  }
+  transactionOpts?: ITransactionOpts
 ) => {
   const middlewares: IQueriesMiddleware[] = [
     ...db.__state.localState.queriesMiddlewares,
