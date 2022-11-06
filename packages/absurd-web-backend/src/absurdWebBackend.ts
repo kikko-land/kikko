@@ -47,7 +47,7 @@ export const absurdWebBackend =
           cacheSize !== undefined ? cacheSize : -5000
         );
       },
-      async execQueries(queries: IQuery[], transactionOpts?: ITransactionOpts) {
+      async execQueries(queries: IQuery[], transactionOpts: ITransactionOpts) {
         const startedAt = performance.now();
         const res = await dbWorker.execQueries(
           queries,

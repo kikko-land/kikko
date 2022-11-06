@@ -44,15 +44,13 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
     unwrappedQueries,
     transactionOpts
       ? transactionOpts
-      : transactionsLocalState.current
-      ? {
-          transactionId: transactionsLocalState.current.id,
+      : {
+          transactionId: transactionsLocalState?.current?.id,
           containsTransactionStart: false,
           containsTransactionFinish: false,
           containsTransactionRollback: false,
           rollbackOnFail: false,
         }
-      : undefined
   );
   const endedAt = performance.now();
 

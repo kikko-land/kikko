@@ -26,7 +26,7 @@ export const tauriBackend =
       },
       async execQueries(
         queries: IQuery[],
-        transactionOpts?: ITransactionOpts
+        transactionOpts: ITransactionOpts
       ): Promise<IExecQueriesResult> {
         if (!db) {
           throw new Error(
@@ -60,7 +60,7 @@ export const tauriBackend =
             });
           }
         } catch (e) {
-          if (transactionOpts?.rollbackOnFail) {
+          if (transactionOpts.rollbackOnFail) {
             try {
               await db.execute("ROLLBACK", []);
             } catch (rollbackError) {

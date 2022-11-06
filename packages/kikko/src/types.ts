@@ -125,7 +125,7 @@ type IDbInstance = {
   initialize(): Promise<void>;
   execQueries(
     queries: IQuery[],
-    transactionOpts?: ITransactionOpts
+    transactionOpts: ITransactionOpts
   ): Promise<IExecQueriesResult>;
   stop(): Promise<void>;
 };
@@ -172,7 +172,7 @@ export interface ILocalDbState {
 }
 
 export interface ITransactionOpts {
-  transactionId: string;
+  transactionId: string | undefined;
   containsTransactionStart: boolean;
   containsTransactionFinish: boolean;
   containsTransactionRollback: boolean;

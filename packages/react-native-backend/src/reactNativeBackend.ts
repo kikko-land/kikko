@@ -37,7 +37,7 @@ export const reactNativeBackend =
           await db.close();
         }
       },
-      async execQueries(queries: IQuery[], transactionOpts?: ITransactionOpts) {
+      async execQueries(queries: IQuery[], transactionOpts: ITransactionOpts) {
         if (!db) {
           throw new Error(
             `Failed to run queries: ${queries
@@ -78,7 +78,7 @@ export const reactNativeBackend =
             });
           }
         } catch (e) {
-          if (transactionOpts?.rollbackOnFail) {
+          if (transactionOpts.rollbackOnFail) {
             try {
               await db.executeSql("ROLLBACK", []);
             } catch (rollbackError) {

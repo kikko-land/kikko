@@ -4,15 +4,21 @@ import { ITransactionOpts } from "./types";
 
 export const acquireWithTrJobOrWait = async (
   jobsState: ReactiveVar<IJobsState>,
-  transactionOpts?: ITransactionOpts
+  transactionOpts: ITransactionOpts
 ) => {
   let job: IJob | undefined;
 
-  if (!transactionOpts || transactionOpts?.containsTransactionStart) {
+  if (
+    !transactionOpts.transactionId ||
+    transactionOpts.containsTransactionStart
+  ) {
     job = await acquireJob(jobsState, transactionOpts?.transactionId);
   }
 
-  if (transactionOpts && !transactionOpts.containsTransactionStart) {
+  if (
+    transactionOpts.transactionId &&
+    !transactionOpts.containsTransactionStart
+  ) {
     await jobsState.waitTill(
       (state) => state.current?.id === transactionOpts.transactionId
     );
@@ -24,22 +30,22 @@ export const acquireWithTrJobOrWait = async (
 export const releaseTrJobIfPossible = (
   jobsState: ReactiveVar<IJobsState>,
   job: IJob | undefined,
-  transactionOpts?: ITransactionOpts
+  transactionOpts: ITransactionOpts
 ) => {
   if (
     job &&
-    (!transactionOpts ||
-      transactionOpts?.containsTransactionFinish ||
-      transactionOpts?.containsTransactionRollback)
+    (!transactionOpts.transactionId ||
+      transactionOpts.containsTransactionFinish ||
+      transactionOpts.containsTransactionRollback)
   ) {
     releaseJob(jobsState, job);
   }
 
   if (
     !job &&
-    transactionOpts &&
-    (transactionOpts?.containsTransactionRollback ||
-      transactionOpts?.containsTransactionFinish)
+    transactionOpts.transactionId &&
+    (transactionOpts.containsTransactionRollback ||
+      transactionOpts.containsTransactionFinish)
   ) {
     releaseJob(jobsState, { id: transactionOpts.transactionId });
   }

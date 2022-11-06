@@ -89,7 +89,7 @@ export const electronBetterSqlite3Backend =
             });
           }
         } catch (e) {
-          if (trOpts?.rollbackOnFail) {
+          if (trOpts.rollbackOnFail) {
             try {
               db.all("ROLLBACK", []);
             } catch (rollbackError) {

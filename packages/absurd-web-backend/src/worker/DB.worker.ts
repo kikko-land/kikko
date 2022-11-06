@@ -35,7 +35,7 @@ const initialize = async (
 const execQueries = async (
   queries: IQuery[],
   sentAt: number,
-  transactionOpts?: ITransactionOpts
+  transactionOpts: ITransactionOpts
 ) => {
   if (isStopped) {
     throw new Error("DB is stopped!");
@@ -75,7 +75,7 @@ const execQueries = async (
       sentAt: new Date().getTime(),
     };
   } catch (e) {
-    if (transactionOpts?.rollbackOnFail) {
+    if (transactionOpts.rollbackOnFail) {
       try {
         currentDb.sqlExec("ROLLBACK");
       } catch (rollbackError) {
