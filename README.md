@@ -51,8 +51,6 @@ export const Notes = () => {
     await db.runQuery(
       sql`INSERT INTO ${notesTable}(id, title) VALUES(${id}, ${`Note#${id}`})`
     );
-
-    return "ok";
   });
 
   return (
