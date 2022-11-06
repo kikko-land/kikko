@@ -33,12 +33,11 @@
   },
   "dependencies": {
     "@kikko-land/boono-sql": "^0.3.0",
-    "lodash.isequal": "^4.5.0",
+    "fast-equals": "^4.0.3",
     "ts-essentials": "^9.3.0"
   },
   "devDependencies": {
     "@kikko-land/common-scripts": "^0.4.0",
-    "@types/emscripten": "^1.39.6",
-    "@types/lodash.isequal": "^4.5.6"
+    "@types/emscripten": "^1.39.6"
   }
 }

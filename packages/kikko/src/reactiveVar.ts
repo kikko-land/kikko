@@ -1,4 +1,4 @@
-import isEqual from "lodash.isequal";
+import { deepEqual } from "fast-equals";
 
 export interface ReactiveVar<T> {
   __state: {
@@ -45,7 +45,7 @@ export const reactiveVar = <T>(
       if (this.isStopped)
         throw new Error(`reactiveVar ${rOpts.label} is stopped!`);
 
-      if (shouldDeduplicate && isEqual(this.__state.value, val)) {
+      if (shouldDeduplicate && deepEqual(this.__state.value, val)) {
         return;
       }
 

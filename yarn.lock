@@ -2988,6 +2988,15 @@
   dependencies:
     "@kikko-land/boono-sql" "^0.3.0"
 
+"@kikko-land/kikko@^0.6.1":
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/@kikko-land/kikko/-/kikko-0.6.1.tgz#f8355d98ff8c61607e25b5858bbeb01992841ada"
+  integrity sha512-hLxvUF8rl9WJ/4RXLH+u07P73iXaklcuiEbmKbqnRQQi0j0s6f6LV1xgYtETUAZdYIEBv4+XIVm04gk3eN50oA==
+  dependencies:
+    "@kikko-land/boono-sql" "^0.3.0"
+    lodash.isequal "^4.5.0"
+    ts-essentials "^9.3.0"
+
 "@kikko-land/sql.js@^1.6.8":
   version "1.6.8"
   resolved "https://registry.yarnpkg.com/@kikko-land/sql.js/-/sql.js-1.6.8.tgz#e388e11b7ec5b6c534e7e1474860e31f39ba3d58"
@@ -3513,13 +3522,6 @@
   version "4.17.6"
   resolved "https://registry.yarnpkg.com/@types/lodash-es/-/lodash-es-4.17.6.tgz#c2ed4c8320ffa6f11b43eb89e9eaeec65966a0a0"
   integrity "sha1-wu1MgyD/pvEbQ+uJ6eruxllmoKA= sha512-R+zTeVUKDdfoRxpAryaQNRKk3105Rrgx2CFRClIgRGaqDTdjsm8h6IYA8ir584W3ePzkZfst5xIgDwYrlh9HLg=="
-  dependencies:
-    "@types/lodash" "*"
-
-"@types/lodash.isequal@^4.5.6":
-  version "4.5.6"
-  resolved "https://registry.yarnpkg.com/@types/lodash.isequal/-/lodash.isequal-4.5.6.tgz#ff42a1b8e20caa59a97e446a77dc57db923bc02b"
-  integrity sha512-Ww4UGSe3DmtvLLJm2F16hDwEQSv7U0Rr8SujLUA2wHI2D2dm8kPu6Et+/y303LfjTIwSBKXB/YTUcAKpem/XEg==
   dependencies:
     "@types/lodash" "*"
 
@@ -6757,6 +6759,11 @@ fast-diff@^1.1.2:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/fast-diff/-/fast-diff-1.2.0.tgz#73ee11982d86caaf7959828d519cfe927fac5f03"
   integrity "sha1-c+4RmC2Gyq95WYKNUZz+kn+sXwM= sha512-xJuoT5+L99XlZ8twedaRf6Ax2TgQVxvgZOYoPKqZufmJib0tL2tegPBOZb1pVNgIhlqDlA0eO0c3wBvQcmzx4w=="
+
+fast-equals@^4.0.3:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/fast-equals/-/fast-equals-4.0.3.tgz#72884cc805ec3c6679b99875f6b7654f39f0e8c7"
+  integrity sha512-G3BSX9cfKttjr+2o1O22tYMLq0DPluZnYtq1rXumE1SpL/F/SLIfHx08WYQoWSIpeMYf8sRbJ8++71+v6Pnxfg==
 
 fast-glob@^3.2.11, fast-glob@^3.2.7, fast-glob@^3.2.9:
   version "3.2.11"
