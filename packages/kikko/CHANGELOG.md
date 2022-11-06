@@ -1,5 +1,15 @@
 # @kikko-land/core
 
+## 0.8.0
+
+### Minor Changes
+
+- 8f1d753: Fix reactibity. Make useRunDbQuery in transaction by default
+
+### Patch Changes
+
+- 90f46be: Use fast-equals instead of lodash.isequal
+
 ## 0.7.0
 
 ### Minor Changes

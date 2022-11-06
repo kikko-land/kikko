@@ -1,5 +1,16 @@
 # @kikko-land/vite-react-example
 
+## 0.6.0
+
+### Minor Changes
+
+- 8f1d753: Fix reactibity. Make useRunDbQuery in transaction by default
+
+### Patch Changes
+
+- @kikko-land/absurd-web-backend@0.7.1
+- @kikko-land/react@0.6.3
+
 ## 0.5.0
 
 ### Minor Changes
