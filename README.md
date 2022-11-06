@@ -25,15 +25,53 @@
 | 👯 **Multi-tab support for web**    | Insert row in one tab, and your data will be updated in the other.                                                                                                                                                                                                                                                           |
 | 🥹 **Full typescript support**       | Yes!                                                                                                                                                                                                                                                                                                                    |
 
-<br/>
-<br/>
+## Simple React component example
 
-https://user-images.githubusercontent.com/7958527/174773307-9be37e1f-0700-45b4-8d25-aa2c83df6cec.mp4
+```tsx
+import {
+  makeId,
+  sql,
+  useDbQuery,
+  useFirstRowDbQuery,
+  useRunDbQuery,
+} from "@kikko-land/react";
 
-[Source code](https://github.com/kikko-land/kikko/tree/main/packages/vite-react-example) <br/>
-[CodeSandbox example](https://codesandbox.io/s/react-trong-example-q0e9iu)
+type Note = { id: string; title: string };
+const notesTable = sql.table`notes`;
 
-> **CAUTION: Right now multi-tab mode doesn't work correctly and crashes sometimes due to [this bug](https://github.com/jlongster/absurd-sql/issues/30) at absurd-sql repo.**
+export const Notes = () => {
+  const notes = useDbQuery<Note>(sql`SELECT * FROM ${notesTable}`);
+  const notesCount = useFirstRowDbQuery<{ count: number }>(
+    sql`SELECT COUNT(*) FROM ${notesTable}`
+  );
+
+  const [addNote, addNoteState] = useRunDbQuery((db) => async () => {
+    const id = makeId();
+
+    await db.runQuery(
+      sql`INSERT INTO ${notesTable}(id, title) VALUES(${id}, ${`Note#${id}`})`
+    );
+
+    return "ok";
+  });
+
+  return (
+    <>
+      <button
+        onClick={addNote}
+        disabled={
+          addNoteState.type === "running" || addNoteState.type === "waitingDb"
+        }
+      >
+        Add note
+      </button>
+      <div>Add note result: {JSON.stringify(addNoteState)}</div>
+      <div>Query result (total notes count: {notesCount.data?.count})</div>
+      <pre>{JSON.stringify(notes)}</pre>
+    </>
+  );
+};
+```
 
 <br/>
 
@@ -49,16 +87,3 @@ https://user-images.githubusercontent.com/7958527/174773307-9be37e1f-0700-45b4-8
 | Ionic              | [@awesome-cordova-plugins/sqlite](https://www.npmjs.com/package/@awesome-cordova-plugins/sqlite)                                                                      | `@kikko-land/absurd-web-backend`<br/>`@kikko-land/native-ionic-backend` | [Link](https://github.com/kikko-land/kikko-ionic-example)                         | [Link](https://kikko-doc.netlify.app/backends/ionic)                                             |
 | React Native       | [react-native-sqlite-storage](https://github.com/andpor/react-native-sqlite-storage)                                                                                  | `@kikko-land/react-native-backend`                                      | [Link](https://github.com/kikko-land/kikko-react-native-example)                  | [Link](https://kikko-doc.netlify.app/backends/react-native/)                                     |
 
-## WASM SQLite is better than IndexedDB
-
-Read performance: doing something like `SELECT SUM(value) FROM kv`:
-
-<img width="610" src="https://user-images.githubusercontent.com/7958527/174833698-50083d30-2c2d-44a0-9f86-1e4ea644f4c4.png" />
-
-Write performance: doing a bulk insert:
-
-<img width="610" src="https://user-images.githubusercontent.com/7958527/174833809-0fe78929-1c01-4ad9-b39e-12baf3f196ce.png" />
-
-The graphs are taken from [absurd-sql](https://github.com/jlongster/absurd-sql) repo.
-
-Overall, it works more consistent than IndexedDB. It is very often the case when IndexedDB crashes, but due to absurd-sql makes simple blocks read and writes, SQLite works more consistently.
