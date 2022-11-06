@@ -1,5 +1,13 @@
 # @kikko-land/tauri-backend
 
+## 0.6.1
+
+### Patch Changes
+
+- Updated dependencies [90f46be]
+- Updated dependencies [8f1d753]
+  - @kikko-land/kikko@0.8.0
+
 ## 0.6.0
 
 ### Minor Changes
