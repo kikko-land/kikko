@@ -1,5 +1,17 @@
 # @kikko-land/reactive-queries-plugin
 
+## 0.7.0
+
+### Minor Changes
+
+- 8f1d753: Fix reactibity. Make useRunDbQuery in transaction by default
+
+### Patch Changes
+
+- Updated dependencies [90f46be]
+- Updated dependencies [8f1d753]
+  - @kikko-land/kikko@0.8.0
+
 ## 0.6.0
 
 ### Minor Changes
