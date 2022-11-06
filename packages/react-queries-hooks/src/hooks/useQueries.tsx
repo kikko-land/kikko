@@ -218,7 +218,7 @@ export function useRunDbQuery<
   const { suppressLog, inTransaction } = {
     suppressLog: _opts?.suppressLog !== undefined ? _opts.suppressLog : false,
     inTransaction:
-      _opts?.inTransaction !== undefined ? _opts.inTransaction : false,
+      _opts?.inTransaction !== undefined ? _opts.inTransaction : true,
   };
 
   const dbState = useDbState(dbKey);

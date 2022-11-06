@@ -28,7 +28,7 @@ export const reactiveQueriesPlugin: (opts?: {
   const webMultiTabSupport =
     opts?.webMultiTabSupport !== undefined ? opts.webMultiTabSupport : true;
 
-  const reactiveQueriesMiddleware: IQueriesMiddleware = (state) => {
+  const reactiveQueriesMiddleware: IQueriesMiddleware = async (state) => {
     const transaction = state.db.__state.localState.transactionState.current;
 
     const writeTables = state.queries
@@ -52,8 +52,11 @@ export const reactiveQueriesPlugin: (opts?: {
           transactionTables[transaction.id].writeTables.add(t);
         }
       } else {
-        // dont await so notification happens after function return
-        notifyTablesContentChanged(state.db, writeTables);
+        try {
+          return await state.next(state);
+        } finally {
+          notifyTablesContentChanged(state.db, writeTables);
+        }
       }
     }
 

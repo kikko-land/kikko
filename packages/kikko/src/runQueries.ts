@@ -57,31 +57,33 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
   const endedAt = performance.now();
 
   if (!db.__state.localState.suppressLog) {
-    const queriesTimings = result
-      .map(({ performance }, i) => {
-        const times = [
-          performance.prepareTime !== undefined
-            ? `prepareTime=${(performance.prepareTime / 1000).toFixed(4)}`
-            : "",
-          performance.execTime !== undefined
-            ? `execTime=${(performance.execTime / 1000).toFixed(4)}`
-            : "",
-          performance.freeTime !== undefined
-            ? `freeTime=${(performance.freeTime / 1000).toFixed(4)}`
-            : "",
-        ]
-          .filter((t) => t.length !== 0)
-          .join(" ");
+    const queriesTimings = result.map(({ performance }, i) => {
+      const times = [
+        performance.prepareTime !== undefined
+          ? `prepareTime=${(performance.prepareTime / 1000).toFixed(4)}`
+          : "",
+        performance.execTime !== undefined
+          ? `execTime=${(performance.execTime / 1000).toFixed(4)}`
+          : "",
+        performance.freeTime !== undefined
+          ? `freeTime=${(performance.freeTime / 1000).toFixed(4)}`
+          : "",
+      ]
+        .filter((t) => t.length !== 0)
+        .join(" ");
 
-        return (
-          "{" +
-          [unwrappedQueries[i].text.slice(0, 1000), times]
-            .filter((v) => v.length !== 0)
-            .join(" ") +
-          "}"
-        );
-      })
-      .join("\n");
+      return [unwrappedQueries[i].text.slice(0, 1000), times]
+        .filter((v) => v.length !== 0)
+        .join(" ");
+    });
+
+    const resultStr = (() => {
+      if (queriesTimings.length === 1) {
+        return queriesTimings[0];
+      } else {
+        return `\n` + queriesTimings.map((s) => `{${s}}`).join("\n");
+      }
+    })();
 
     const totalTiming =
       `%c[${db.__state.sharedState.dbName}] ` +
@@ -89,7 +91,7 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
         transactionsLocalState.current?.id
           ? `[tr_id=${transactionsLocalState.current?.id.substring(0, 6)}]`
           : "",
-        queriesTimings,
+        resultStr,
         qPerformance?.sendTime !== undefined
           ? `sendTime=${(qPerformance.sendTime / 1000).toFixed(4)}`
           : "",

@@ -42,9 +42,12 @@ const Row = ({
   row: INoteRow;
   textToSearch: string;
 }) => {
-  const [deleteRecord, deleteRecordState] = useRunDbQuery((db) => async () => {
-    await db.runQuery(deleteFrom(notesTable).where({ id: row.id }));
-  });
+  const [deleteRecord, deleteRecordState] = useRunDbQuery(
+    (db) => async () => {
+      await db.runQuery(deleteFrom(notesTable).where({ id: row.id }));
+    },
+    { inTransaction: false }
+  );
 
   const [updateRecord, updateRecordState] = useRunDbQuery((db) => async () => {
     await db.runQuery(
@@ -170,7 +173,8 @@ export const List = () => {
           });
         });
       }
-    }
+    },
+    { inTransaction: false }
   );
 
   const [deleteAll, deleteAllState] = useRunDbQuery((db) => async () => {
