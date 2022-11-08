@@ -42,52 +42,35 @@ const db = await initDbClient({
 
 ```typescript
 // One query
+const title = 'title';
+const content = 'content';
+const title2 = 'title2';
+const content2 = 'content2';
 
 await db.runQuery(
-  insert({
-    title: "title",
-    content: "content",
-  }).into("notes")
+  sql`INSERT INTO notes(id, title) VALUES(${title}, ${content})`
 );
 
 // Multiple queries
 
 await db.runQueries([
-  insert({
-    title: "title",
-    content: "content",
-  }).into("notes"),
-  insert({
-    title: "title2",
-    content: "content2",
-  }).into("notes"),
+  sql`INSERT INTO notes(id, title) VALUES(${title}, ${content})`,
+  sql`INSERT INTO notes(id, title) VALUES(${title2}, ${content2})`
 ]);
 
 // You can also suppress log
 
 await withSuppressedLog(db).runQueries([
-  insert({
-    title: "title",
-    content: "content",
-  }).into("notes"),
-  insert({
-    title: "title2",
-    content: "content2",
-  }).into("notes"),
+  sql`INSERT INTO notes(id, title) VALUES(${title}, ${content})`,
+  sql`INSERT INTO notes(id, title) VALUES(${title2}, ${content2})`
 ]);
 
 // Even with transaction
 
 await withSuppressedLog(db).transaction(async (db) => {
   await db.runQueries([
-    insert({
-      title: "title",
-      content: "content",
-    }).into("notes"),
-    insert({
-      title: "title2",
-      content: "content2",
-    }).into("notes"),
+    sql`INSERT INTO notes(id, title) VALUES(${title}, ${content})`,
+    sql`INSERT INTO notes(id, title) VALUES(${title2}, ${content2})`
   ]);
 
   db.runAfterTransactionCommitted(() => {
