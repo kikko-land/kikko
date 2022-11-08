@@ -14,16 +14,24 @@
 <br/>
 <br/>
 
-|                                     | Kikko                                                                                                                                                                                                                                                                                                                   |
-| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ⚖️ **Tiny size**                    | < 15kb size in gzip [for `@kikko-land/react`](https://bundlephobia.com/package/@kikko-land/react)!                                                                                                                                                                                                                      |
-| 📱 **Wide platforms support**       | Web, mobile(react-native, expo, cordova, ionic), desktop(electron, tauri).                                                                                                                                                                                                                                              |
-| 🧰 **Lib-agnostic**                 | Use with **React**, **Vue**, Svelte (WIP), Angular (WIP) or any other lib/framework you want.                                                                                                                                                                                                                           |
-| 🐛 **Easy to debug**              | Kikko colorize queries, so, for example, you can easily understand to which transaction query belongs. He also meausures preparation, transfer and execution time. |
-| 🔐 **Secured by default** | With template literals, all vars that are used will be automatically marked as prepared statement variable that reduce chances of SQL injections a lot. |
-| 🛠 **Plugin system**                 | Allows you to integrate your own code on query/transaction run.                                                                                                                                                                                                                                                         |
-| 👯 **Multi-tab support for web**    | Insert row in one tab, and your data will be updated in the other.                                                                                                                                                                                                                                                           |
-| 🥹 **Full typescript support**       | Yes!                                                                                                                                                                                                                                                                                                                    |
+Actually, what kikko is:
+
+1. Correct transaction handling, with transaction and queries queue
+2. Middlewares api, to intercept all running queries
+3. Built-in profiler information
+
+And it also require db backend, that should implement needed interface. Other things, like reactivePlugin or migrationPlugin, are optional
+
+|                                  | Kikko                                                                                                                                                              |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| ⚖️ **Tiny size**                 | < 15kb size in gzip [for `@kikko-land/react`](https://bundlephobia.com/package/@kikko-land/react)!                                                                 |
+| 📱 **Wide platforms support**    | Web, mobile(react-native, expo, cordova, ionic), desktop(electron, tauri).                                                                                         |
+| 🧰 **Lib-agnostic**              | Use with **React**, **Vue**, Svelte (WIP), Angular (WIP) or any other lib/framework you want.                                                                      |
+| 🐛 **Easy to debug**             | Kikko colorize queries, so, for example, you can easily understand to which transaction query belongs. He also meausures preparation, transfer and execution time. |
+| 🔐 **Secured by default**        | With template literals, all vars that are used will be automatically marked as prepared statement variable that reduce chances of SQL injections a lot.            |
+| 🛠 **Plugin system**              | Allows you to integrate your own code on query/transaction run.                                                                                                    |
+| 👯 **Multi-tab support for web** | Insert row in one tab, and your data will be updated in the other.                                                                                                 |
+| 🥹 **Full typescript support**    | Yes!                                                                                                                                                               |
 
 ## Simple React component example
 
@@ -84,4 +92,3 @@ export const Notes = () => {
 | Electron           | [better-sqlite3](https://github.com/WiseLibs/better-sqlite3)                                                                                                          | `@kikko-land/electron-better-sqlite3-backend`                           | [Link](https://github.com/kikko-land/kikko-electron-better-sqlite3-example)       | [Link](https://kikko-doc.netlify.app/backends/electron)                                          |
 | Ionic              | [@awesome-cordova-plugins/sqlite](https://www.npmjs.com/package/@awesome-cordova-plugins/sqlite)                                                                      | `@kikko-land/absurd-web-backend`<br/>`@kikko-land/native-ionic-backend` | [Link](https://github.com/kikko-land/kikko-ionic-example)                         | [Link](https://kikko-doc.netlify.app/backends/ionic)                                             |
 | React Native       | [react-native-sqlite-storage](https://github.com/andpor/react-native-sqlite-storage)                                                                                  | `@kikko-land/react-native-backend`                                      | [Link](https://github.com/kikko-land/kikko-react-native-example)                  | [Link](https://kikko-doc.netlify.app/backends/react-native/)                                     |
-
