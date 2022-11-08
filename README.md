@@ -11,16 +11,15 @@
 >
 > ### Also you can check [React example at CodeSanbox](https://codesandbox.io/s/react-trong-example-q0e9iu) (multi-tab is not supported due to CORS).
 
-<br/>
-<br/>
-
 Actually, what kikko is:
 
 1. Correct transaction handling, with transaction and queries queue
 2. Middlewares api, to intercept all running queries
 3. Built-in profiler information
 
-And it also require db backend, that should implement needed interface. Other things, like reactivePlugin or migrationPlugin, are optional
+And it also require db backend, that should implement needed interface. Other things, like `reactive-queries-plugin`(which gives reactivity for React or Vue) or `migrations-plugin`, are optional to install and use.
+
+## Features
 
 |                                  | Kikko                                                                                                                                                              |
 | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -78,8 +77,6 @@ export const Notes = () => {
   );
 };
 ```
-
-<br/>
 
 ## Supported platforms
 
