@@ -11,8 +11,6 @@ Usage example:
 
 TODO
 
-About how to build complex queries please refer to [query builder doc](/building-sql/query-builder).
-
 ## useRunDbQuery
 
 Usage example:
@@ -26,9 +24,11 @@ type IRow = {
 const notesTable = sql.table("notes");
 
 const RunComponent = () => {
-  const [createRow, _createState] = useRunDbQuery((db) => async (data: IRow) => {
-    await runQuery(db, insert(data).into(notesTable));
-  });
+  const [createRow, _createState] = useRunDbQuery(
+    (db) => async (data: IRow) => {
+      await runQuery(db, insert(data).into(notesTable));
+    }
+  );
 
   const [updateRow, _updateState] = useRunDbQuery(
     (db) => async (data: Partial<IRow> & { id: string }) => {
