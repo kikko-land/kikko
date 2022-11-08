@@ -39,7 +39,7 @@ const db = await initDbClient({
 And then listen your queries:
 
 ```typescript
-const unsubscribe = listenQueries(db, [select().from("notes")], (res) => {
+const unsubscribe = listenQueries(db, [sql`SELECT * FROM ${sql.table`notes`}`], (res) => {
   console.log("Queries result: ", res);
 });
 
