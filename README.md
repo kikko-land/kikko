@@ -23,7 +23,7 @@ And it also require db backend, that should implement needed interface. Other th
 
 |                                  | Kikko                                                                                                                                                              |
 | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| ⚖️ **Tiny size**                 | < 15kb size in gzip [for `@kikko-land/react`](https://bundlephobia.com/package/@kikko-land/react)!                                                                 |
+| ⚖️ **Tiny size**                 | < 15kb size in gzip                                                                 |
 | 📱 **Wide platforms support**    | Web, mobile(react-native, expo, cordova, ionic), desktop(electron, tauri).                                                                                         |
 | 🧰 **Lib-agnostic**              | Use with **React**, **Vue**, Svelte (WIP), Angular (WIP) or any other lib/framework you want.                                                                      |
 | 🐛 **Easy to debug**             | Kikko colorize queries, so, for example, you can easily understand to which transaction query belongs. He also meausures preparation, transfer and execution time. |
