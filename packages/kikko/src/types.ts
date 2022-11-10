@@ -90,7 +90,7 @@ export interface IDb {
     func: (state: IDb) => Promise<T>,
     opts?: { type?: "deferred" | "immediate" | "exclusive" }
   ): Promise<T>;
-  runAtomicTransaction(
+  runInAtomicTransaction(
     func:
       | ((scope: IAtomicTransactionScope) => Promise<void> | void)
       | ISqlAdapter[],

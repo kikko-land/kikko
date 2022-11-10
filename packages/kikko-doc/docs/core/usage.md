@@ -48,26 +48,38 @@ const title2 = "title2";
 const content2 = "content2";
 
 await db.runQuery(
-  sql`INSERT INTO notes(id, title) VALUES(${title}, ${content})`
+  sql`INSERT INTO ${sql.table`notes`}(id, title) VALUES(${title}, ${content})`
 );
 
 // Multiple queries
 
 await db.runQueries([
-  sql`INSERT INTO notes(id, title) VALUES(${title}, ${content})`,
-  sql`INSERT INTO notes(id, title) VALUES(${title2}, ${content2})`,
+  sql`INSERT INTO ${sql.table`notes`}(id, title) VALUES(${title}, ${content})`,
+  sql`INSERT INTO ${sql.table`notes`}(id, title) VALUES(${title2}, ${content2})`,
 ]);
 
 // You can also suppress log
 
 await withSuppressedLog(db).runQueries([
-  sql`INSERT INTO notes(id, title) VALUES(${title}, ${content})`,
-  sql`INSERT INTO notes(id, title) VALUES(${title2}, ${content2})`,
+  sql`INSERT INTO ${sql.table`notes`}(id, title) VALUES(${title}, ${content})`,
+  sql`INSERT INTO ${sql.table`notes`}(id, title) VALUES(${title2}, ${content2})`,
 ]);
 
-// Even with transaction
+// Atomic transaction
 
-await withSuppressedLog(db).transaction(async (db) => {
+await db.runInAtomicTransaction(async (scope) => {
+  scope.addQuery(sql`DELETE FROM ${sql.table`comments`}`);
+
+  await new Promise((resolve) => {
+    setTimeout(() => resolve(), 2000);
+  });
+
+  scope.addQuery(sql`DELETE FROM ${sql.table`notes`}`);
+});
+
+// Usual transaction
+
+await db.runInTransaction(async (db) => {
   await db.runQueries([
     sql`INSERT INTO notes(id, title) VALUES(${title}, ${content})`,
     sql`INSERT INTO notes(id, title) VALUES(${title2}, ${content2})`,

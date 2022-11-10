@@ -157,7 +157,7 @@ export const List = () => {
         ).into(notesTable)
       );
       if (useAtomic) {
-        await db.runAtomicTransaction((scope) => {
+        await db.runInAtomicTransaction((scope) => {
           for (const q of queries) {
             scope.addQuery(q);
           }

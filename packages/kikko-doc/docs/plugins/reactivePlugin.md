@@ -62,8 +62,6 @@ CodeSandbox example:
 
 This plugin gathers information about which tables are used when you build queries.
 
-Like:
-
 ```typescript
 console.log(
   sql`SELECT * FROM ${sql.table`notes`} WHERE id = (SELECT noteId FROM ${

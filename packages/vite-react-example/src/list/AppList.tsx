@@ -41,6 +41,7 @@ const buildConfig = (config: IBackendConfig): IInitDbClientConfig => {
         migrations: [createNotesTableMigration],
       }),
     ],
+    suppressLog: true,
   };
 };
 
