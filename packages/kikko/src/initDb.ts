@@ -4,6 +4,7 @@ import { runAfterTransaction } from "./afterTransaction";
 import { createNanoEvents } from "./createNanoEvents";
 import { reactiveVar } from "./reactiveVar";
 import { runQueries } from "./runQueries";
+import { withSuppressedLog } from "./suppressLog";
 import { execAtomicTransaction, runInTransactionFunc } from "./transaction";
 import {
   IAtomicTransactionScope,
@@ -22,6 +23,7 @@ export type IInitDbClientConfig = {
   dbBackend: Promise<IDbBackend> | IDbBackend;
   plugins?: IDbClientPlugin[];
   queriesMiddlewares?: IQueriesMiddleware[];
+  suppressLog?: boolean;
 };
 
 export const initDbClient = async ({
@@ -29,6 +31,7 @@ export const initDbClient = async ({
   plugins,
   queriesMiddlewares,
   dbBackend,
+  suppressLog,
 }: IInitDbClientConfig): Promise<IDb> => {
   const runningState = reactiveVar<"running" | "stopping" | "stopped">(
     "running",
@@ -52,6 +55,7 @@ export const initDbClient = async ({
       localState: {
         queriesMiddlewares: queriesMiddlewares || [],
         transactionState: {},
+        suppressLog: Boolean(suppressLog),
       },
     },
     runInTransaction<T>(

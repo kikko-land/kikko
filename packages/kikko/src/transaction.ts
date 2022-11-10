@@ -1,13 +1,10 @@
 import { ISqlAdapter, sql } from "@kikko-land/boono-sql";
 
-import { acquireJob, IJob, IJobsState, releaseJob } from "./job";
-import { ReactiveVar } from "./reactiveVar";
 import { runQueries } from "./runQueries";
 import {
   IAtomicTransactionScope,
   IDb,
   ITransaction,
-  ITransactionOpts,
   ITransactionPerformance,
 } from "./types";
 import { assureDbIsRunning, makeId } from "./utils";
@@ -63,7 +60,6 @@ export const runInTransactionFunc = async <T>(
   const {
     localState: { transactionState: transactionsLocalState },
     sharedState: { eventsEmitter, transactionsStates },
-    sharedState,
   } = db.__state;
 
   // It's indeed that function in same transaction don't need to check db is running
