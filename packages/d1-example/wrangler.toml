@@ -1,3 +1,8 @@
 name = "d1-example"
 main = "src/index.ts"
 compatibility_date = "2022-11-10"
+
+[[ d1_databases ]]
+binding = "DB" # i.e. available in your Worker on env.DB
+database_name = "kikko"
+database_id = "e78430ab-3739-40ab-9e23-168ba7ebd0c0"

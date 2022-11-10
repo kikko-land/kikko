@@ -27,6 +27,11 @@ export default {
     ctx: ExecutionContext
   ): Promise<Response> {
     await new Promise((resolve) => setTimeout(resolve, 1000, "timoeut"));
-    return new Response("Hello World!");
+    const { results } = await env.DB.prepare(
+      "SELECT * FROM Customers WHERE CompanyName = ?"
+    )
+      .bind("Bs Beverages")
+      .all();
+    return Response.json(results);
   },
 };
