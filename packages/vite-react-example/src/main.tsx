@@ -1,3 +1,4 @@
+import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 
@@ -9,7 +10,9 @@ if (!el) {
 }
 
 ReactDOM.createRoot(el).render(
-  <BrowserRouter>
-    <AppRoutes />
-  </BrowserRouter>
+  <React.StrictMode>
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
+  </React.StrictMode>
 );
