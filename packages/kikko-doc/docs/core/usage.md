@@ -81,8 +81,8 @@ await db.runInAtomicTransaction(async (scope) => {
 
 await db.runInTransaction(async (db) => {
   await db.runQueries([
-    sql`INSERT INTO notes(id, title) VALUES(${title}, ${content})`,
-    sql`INSERT INTO notes(id, title) VALUES(${title2}, ${content2})`,
+    sql`INSERT INTO ${sql.table`notes`}(id, title) VALUES(${title}, ${content})`,
+    sql`INSERT INTO ${sql.table`notes`}(id, title) VALUES(${title2}, ${content2})`,
   ]);
 
   db.runAfterTransactionCommitted(() => {
