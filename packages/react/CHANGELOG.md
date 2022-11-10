@@ -1,5 +1,16 @@
 # @kikko-land/react
 
+## 0.6.4
+
+### Patch Changes
+
+- Updated dependencies [8ffc4e0]
+- Updated dependencies [5e6dfd3]
+  - @kikko-land/kikko@0.9.0
+  - @kikko-land/react-queries-hooks@0.9.1
+  - @kikko-land/migrations-plugin@0.6.2
+  - @kikko-land/reactive-queries-plugin@0.7.1
+
 ## 0.6.3
 
 ### Patch Changes
