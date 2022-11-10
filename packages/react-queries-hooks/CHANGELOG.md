@@ -1,5 +1,14 @@
 # @kikko-land/react-queries-hooks
 
+## 0.9.1
+
+### Patch Changes
+
+- 5e6dfd3: Add StrictMode support
+- Updated dependencies [8ffc4e0]
+  - @kikko-land/kikko@0.9.0
+  - @kikko-land/reactive-queries-plugin@0.7.1
+
 ## 0.9.0
 
 ### Minor Changes

@@ -1,5 +1,16 @@
 # @kikko-land/vite-react-example
 
+## 0.7.0
+
+### Minor Changes
+
+- 8ffc4e0: Rename atomicTtransaction -> runInAtomicTransaction
+
+### Patch Changes
+
+- @kikko-land/absurd-web-backend@0.7.2
+- @kikko-land/react@0.6.4
+
 ## 0.6.0
 
 ### Minor Changes

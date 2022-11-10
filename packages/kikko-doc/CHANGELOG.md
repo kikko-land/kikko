@@ -1,5 +1,11 @@
 # kikko-doc
 
+## 0.4.0
+
+### Minor Changes
+
+- 8ffc4e0: Rename atomicTtransaction -> runInAtomicTransaction
+
 ## 0.3.0
 
 ### Minor Changes
