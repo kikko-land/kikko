@@ -59,8 +59,14 @@ export const runInTransactionFunc = async <T>(
 ) => {
   const {
     localState: { transactionState: transactionsLocalState },
-    sharedState: { eventsEmitter, transactionsStates },
+    sharedState: { eventsEmitter, transactionsStates, dbBackend },
   } = db.__state;
+
+  if (dbBackend.isUsualTransactionDisabled) {
+    throw new Error(
+      `Usual transactions are disabled for this type of backend. Please, use atomic transactions instead.`
+    );
+  }
 
   // It's indeed that function in same transaction don't need to check db is running
   // Cause all transaction will await to execute on DB before stop
@@ -117,6 +123,7 @@ export const runInTransactionFunc = async <T>(
         containsTransactionFinish: false,
         containsTransactionRollback: false,
         rollbackOnFail: false,
+        isAtomic: false,
       }
     );
 
@@ -133,6 +140,7 @@ export const runInTransactionFunc = async <T>(
         containsTransactionFinish: true,
         containsTransactionRollback: false,
         rollbackOnFail: false,
+        isAtomic: false,
       });
 
       await eventsEmitter.emit("transactionCommitted", db, transaction);
@@ -150,6 +158,7 @@ export const runInTransactionFunc = async <T>(
           containsTransactionFinish: false,
           containsTransactionRollback: true,
           rollbackOnFail: false,
+          isAtomic: false,
         });
       } catch (e) {
         console.warn("Rollback transaction failed", e);
@@ -172,9 +181,17 @@ const initAtomicTransaction = (): IAtomicTransactionScope => {
   return {
     __state: {
       queries: [],
+      afterCommits: [],
+      afterRollbacks: [],
     },
     addQuery(q: ISqlAdapter): void {
       this.__state.queries.push(q);
+    },
+    afterCommit(cb: () => void) {
+      this.__state.afterCommits.push(cb);
+    },
+    afterRollback(cb: () => void) {
+      this.__state.afterRollbacks.push(cb);
     },
   };
 };
@@ -188,8 +205,7 @@ export const execAtomicTransaction = async (
 ): Promise<void> => {
   const {
     localState: { transactionState: transactionsLocalState },
-    sharedState: { eventsEmitter, transactionsStates },
-    sharedState,
+    sharedState: { eventsEmitter, transactionsStates, dbBackend },
   } = db.__state;
   if (transactionsLocalState.current) {
     throw new Error(
@@ -197,13 +213,21 @@ export const execAtomicTransaction = async (
     );
   }
 
-  const inputQueries = await (async () => {
+  const { inputQueries, afterCommits, afterRollbacks } = await (async () => {
     if (Array.isArray(funcOrQueries)) {
-      return funcOrQueries;
+      return {
+        inputQueries: funcOrQueries,
+        afterCommits: [],
+        afterRollbacks: [],
+      };
     } else {
       const atomicTransaction = initAtomicTransaction();
       await funcOrQueries(atomicTransaction);
-      return atomicTransaction.__state.queries;
+      return {
+        inputQueries: atomicTransaction.__state.queries,
+        afterCommits: atomicTransaction.__state.afterCommits,
+        afterRollbacks: atomicTransaction.__state.afterRollbacks,
+      };
     }
   })();
 
@@ -241,33 +265,54 @@ export const execAtomicTransaction = async (
 
   const startTime = performance.now();
 
+  const q: ISqlAdapter[] = [];
+
+  if (!dbBackend.isAtomicRollbackCommitDisabled) {
+    q.push(sql`BEGIN ${sql.raw(transactionType.toUpperCase())} TRANSACTION`);
+  }
+
+  q.push(...inputQueries);
+
+  if (!dbBackend.isAtomicRollbackCommitDisabled) {
+    q.push(sql`COMMIT`);
+  }
+
   try {
     await eventsEmitter.emit("transactionWillStart", db, transaction);
     await eventsEmitter.emit("transactionStarted", db, transaction);
 
-    await runQueries(
-      db,
-      [
-        sql`BEGIN ${sql.raw(transactionType.toUpperCase())} TRANSACTION`,
-        ...inputQueries,
-        sql`COMMIT`,
-      ],
-      {
-        transactionId: transaction.id,
-        containsTransactionStart: true,
-        containsTransactionFinish: true,
-        containsTransactionRollback: false,
-        rollbackOnFail: true,
-      }
-    );
+    await runQueries(db, q, {
+      transactionId: transaction.id,
+      containsTransactionStart: true,
+      containsTransactionFinish: true,
+      containsTransactionRollback: false,
+      rollbackOnFail: true,
+      isAtomic: true,
+    });
 
     await eventsEmitter.emit("transactionWillCommit", db, transaction);
     await eventsEmitter.emit("transactionCommitted", db, transaction);
+
+    try {
+      for (const cb of afterCommits) {
+        cb();
+      }
+    } catch (e) {
+      console.error("Error in afterCommit callback", e);
+    }
   } catch (e) {
     console.error("Rollback transaction", e);
 
     await eventsEmitter.emit("transactionWillRollback", db, transaction);
     await eventsEmitter.emit("transactionRollbacked", db, transaction);
+
+    try {
+      for (const cb of afterRollbacks) {
+        cb();
+      }
+    } catch (e) {
+      console.error("Error in afterRallback callback", e);
+    }
 
     throw e;
   } finally {

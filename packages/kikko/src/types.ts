@@ -74,8 +74,12 @@ export type IQueriesMiddleware = (
 export interface IAtomicTransactionScope {
   __state: {
     queries: ISqlAdapter[];
+    afterCommits: (() => void)[];
+    afterRollbacks: (() => void)[];
   };
   addQuery(q: ISqlAdapter): void;
+  afterCommit(cb: () => void): void;
+  afterRollback(cb: () => void): void;
 }
 
 export interface IDb {
@@ -122,6 +126,9 @@ export type IExecQueriesResult = {
 };
 
 type IDbInstance = {
+  isUsualTransactionDisabled?: true;
+  isAtomicRollbackCommitDisabled?: true;
+
   initialize(): Promise<void>;
   execQueries(
     queries: IQuery[],
@@ -177,4 +184,5 @@ export interface ITransactionOpts {
   containsTransactionFinish: boolean;
   containsTransactionRollback: boolean;
   rollbackOnFail: boolean;
+  isAtomic: boolean;
 }

@@ -51,6 +51,7 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
           containsTransactionFinish: false,
           containsTransactionRollback: false,
           rollbackOnFail: false,
+          isAtomic: false,
         }
       : undefined
   );
