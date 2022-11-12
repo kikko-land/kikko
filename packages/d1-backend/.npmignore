@@ -1,0 +1,5 @@
+node_modules
+vite.config.js
+tsconfig.json
+.eslintrc.js
+.eslintignore
