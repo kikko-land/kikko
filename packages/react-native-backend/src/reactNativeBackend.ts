@@ -1,5 +1,6 @@
 import {
   acquireWithTrJobOrWait,
+  getTime,
   IDbBackend,
   initJobsState,
   IQuery,
@@ -46,11 +47,11 @@ export const reactNativeBackend =
           );
         }
 
-        const totalStartedAt = performance.now();
+        const totalStartedAt = getTime();
 
-        const startBlockAt = performance.now();
+        const startBlockAt = getTime();
         const job = await acquireWithTrJobOrWait(jobsState, transactionOpts);
-        const endBlockAt = performance.now();
+        const endBlockAt = getTime();
         const blockTime = endBlockAt - startBlockAt;
 
         const result: {
@@ -62,13 +63,13 @@ export const reactNativeBackend =
 
         try {
           for (const q of queries) {
-            const startTime = performance.now();
+            const startTime = getTime();
 
             const rows = (
               await db.executeSql(q.text, q.values)
             )[0].rows.raw() as IQueryResult;
 
-            const endTime = performance.now();
+            const endTime = getTime();
 
             result.push({
               rows,
@@ -91,7 +92,7 @@ export const reactNativeBackend =
           releaseTrJobIfPossible(jobsState, job, transactionOpts);
         }
 
-        const totalFinishedAt = performance.now();
+        const totalFinishedAt = getTime();
 
         return {
           result,

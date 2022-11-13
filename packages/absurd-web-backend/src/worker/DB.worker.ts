@@ -1,5 +1,6 @@
 import {
   acquireWithTrJobOrWait,
+  getTime,
   initJobsState,
   IQuery,
   ITransactionOpts,
@@ -49,9 +50,9 @@ const execQueries = async (
 
   const currentDb = db;
 
-  const startBlockAt = performance.now();
+  const startBlockAt = getTime();
   const job = await acquireWithTrJobOrWait(jobsState, transactionOpts);
-  const endBlockAt = performance.now();
+  const endBlockAt = getTime();
   const blockTime = endBlockAt - startBlockAt;
 
   try {

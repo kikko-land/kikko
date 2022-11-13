@@ -1,5 +1,6 @@
 import { SQLiteFS } from "@kikko-land/better-absurd-sql";
 import IndexedDBBackend from "@kikko-land/better-absurd-sql/dist/indexeddb-backend";
+import { getTime } from "@kikko-land/kikko";
 import initSqlJs, { BindParams, Database } from "@kikko-land/sql.js";
 
 export class DbBackend {
@@ -58,19 +59,19 @@ export class DbBackend {
   } {
     const rows = [];
 
-    const startPrepareTime = performance.now();
+    const startPrepareTime = getTime();
     const stmt = this.sqlDb.prepare(sql, params);
-    const finishPrepareTime = performance.now();
+    const finishPrepareTime = getTime();
 
-    const startExecTime = performance.now();
+    const startExecTime = getTime();
     while (stmt.step()) {
       rows.push(stmt.getAsObject());
     }
-    const finishExecTime = performance.now();
+    const finishExecTime = getTime();
 
-    const startFreeTime = performance.now();
+    const startFreeTime = getTime();
     stmt.free();
-    const finishFreeTime = performance.now();
+    const finishFreeTime = getTime();
 
     return {
       rows,

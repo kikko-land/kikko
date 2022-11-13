@@ -1,6 +1,7 @@
 import { SQLite, SQLiteObject } from "@awesome-cordova-plugins/sqlite";
 import {
   acquireWithTrJobOrWait,
+  getTime,
   IDbBackend,
   IExecQueriesResult,
   initJobsState,
@@ -40,18 +41,18 @@ export const ionicBackend = (path: (dbName: string) => string): IDbBackend => {
           );
         }
 
-        const totalStartedAt = performance.now();
+        const totalStartedAt = getTime();
 
-        const startBlockAt = performance.now();
+        const startBlockAt = getTime();
         const job = await acquireWithTrJobOrWait(jobsState, transactionOpts);
-        const endBlockAt = performance.now();
+        const endBlockAt = getTime();
         const blockTime = endBlockAt - startBlockAt;
 
         const res: IExecQueriesResult["result"] = [];
 
         try {
           for (const q of queries) {
-            const startTime = performance.now();
+            const startTime = getTime();
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const execResult = await (async () => {
               try {
@@ -74,7 +75,7 @@ export const ionicBackend = (path: (dbName: string) => string): IDbBackend => {
               rows[i] = execResult.rows.item(i);
             }
 
-            const end = performance.now();
+            const end = getTime();
 
             res.push({
               rows: rows,
@@ -97,7 +98,7 @@ export const ionicBackend = (path: (dbName: string) => string): IDbBackend => {
           releaseTrJobIfPossible(jobsState, job, transactionOpts);
         }
 
-        const totalFinishedAt = performance.now();
+        const totalFinishedAt = getTime();
         return {
           result: res,
           performance: {

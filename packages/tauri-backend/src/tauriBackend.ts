@@ -1,5 +1,6 @@
 import {
   acquireWithTrJobOrWait,
+  getTime,
   IDbBackend,
   IExecQueriesResult,
   initJobsState,
@@ -35,22 +36,22 @@ export const tauriBackend =
               .join(" ")}, db not initialized`
           );
         }
-        const totalStartedAt = performance.now();
+        const totalStartedAt = getTime();
 
-        const startBlockAt = performance.now();
+        const startBlockAt = getTime();
         const job = await acquireWithTrJobOrWait(jobsState, transactionOpts);
-        const endBlockAt = performance.now();
+        const endBlockAt = getTime();
         const blockTime = endBlockAt - startBlockAt;
 
         const result: IExecQueriesResult["result"] = [];
 
         try {
           for (const q of queries) {
-            const startTime = performance.now();
+            const startTime = getTime();
 
             const rows = await db.select<IQueryResult>(q.text, q.values);
 
-            const endTime = performance.now();
+            const endTime = getTime();
 
             result.push({
               rows,
@@ -73,7 +74,7 @@ export const tauriBackend =
           releaseTrJobIfPossible(jobsState, job, transactionOpts);
         }
 
-        const totalFinishedAt = performance.now();
+        const totalFinishedAt = getTime();
 
         return {
           result,

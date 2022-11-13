@@ -29,6 +29,14 @@ await db.runInAtomicTransaction(async (scope) => {
   await new Promise((resolve) => {
     setTimeout(() => resolve(), 2000);
   });
+  
+  scope.afterCommit(() => {
+    console.log('After commit!');
+  });
+
+  scope.afterRollback(() => {
+    console.log('After rollback!');
+  });
 
   scope.addQuery(sql`DELETE FROM ${sql.table`notes`}`);
 });

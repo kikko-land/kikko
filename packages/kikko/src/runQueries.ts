@@ -1,5 +1,6 @@
 import { ISqlAdapter } from "@kikko-land/boono-sql";
 
+import { getTime } from "./measurePerformance";
 import {
   IDb,
   INextQueriesMiddleware,
@@ -39,7 +40,7 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
 
   const unwrappedQueries = unwrapQueries(queries.map((q) => q.toSql()));
 
-  const startedAt = performance.now();
+  const startedAt = getTime();
   const { result, performance: qPerformance } = await dbBackend.execQueries(
     unwrappedQueries,
     transactionOpts
@@ -51,10 +52,11 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
           containsTransactionFinish: false,
           containsTransactionRollback: false,
           rollbackOnFail: false,
+          isAtomic: false,
         }
       : undefined
   );
-  const endedAt = performance.now();
+  const endedAt = getTime();
 
   if (!db.__state.localState.suppressLog) {
     const queriesTimings = result.map(({ performance }, i) => {
