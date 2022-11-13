@@ -1,5 +1,11 @@
 # @kikko-land/core
 
+## 0.9.0
+
+### Minor Changes
+
+- 8ffc4e0: Rename atomicTtransaction -> runInAtomicTransaction
+
 ## 0.8.0
 
 ### Minor Changes

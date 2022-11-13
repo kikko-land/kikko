@@ -19,6 +19,7 @@ type IHolderState = {
   [dbKey: string]:
     | { type: "initialized"; db: IDb; config: IInitDbClientConfig }
     | { type: "initializing"; config: IInitDbClientConfig }
+    | { type: "stopping" }
     | { type: "stopped" }
     | undefined;
 };
@@ -83,31 +84,50 @@ export const DbProvider: React.FC<{
 
   const finalDbKey = dbKey || "default";
 
+  const [count, setCount] = useState(0);
+
   useEffect(() => {
     let shouldBeStopped = false;
     let initializedDb: IDb | undefined = undefined;
 
     if (
       refState.current?.[finalDbKey] &&
+      refState.current[finalDbKey]?.type === "stopping"
+    ) {
+      return;
+    }
+
+    if (
+      refState.current?.[finalDbKey] &&
       refState.current[finalDbKey]?.type !== "stopped"
     ) {
-      console.log(refState.current);
       throw new Error(
         `Db with '${finalDbKey}' is already provided. Did you call DbProvider twice for the same dbKey?`
       );
     }
+    const stop = () => {
+      const perform = async () => {
+        if (initializedDb) {
+          await stopDb(initializedDb);
+        }
+        setState((st) => ({ ...st, [finalDbKey]: { type: "stopped" } }));
+
+        setCount((c) => c + 1);
+      };
+
+      // Start stopping db in next tick to
+      // allow all react component to get state
+      // that DB is in not initialized state
+      queueMicrotask(() => void perform());
+    };
 
     const cb = async () => {
-      setState((st) => ({
-        ...st,
-        [finalDbKey]: { type: "initializing", config },
-      }));
-
       const db = await initDbClient(config);
+
       initializedDb = db;
 
       if (shouldBeStopped) {
-        void stopDb(db);
+        stop();
 
         return;
       }
@@ -118,25 +138,21 @@ export const DbProvider: React.FC<{
       }));
     };
 
+    setState((st) => ({
+      ...st,
+      [finalDbKey]: { type: "initializing", config },
+    }));
     void cb();
 
     return () => {
       shouldBeStopped = true;
-
-      setState((st) => ({ ...st, [finalDbKey]: { type: "stopped" } }));
+      setState((st) => ({ ...st, [finalDbKey]: { type: "stopping" } }));
 
       if (initializedDb) {
-        // Start stopping db in next tick to
-        // allow all react component to get state
-        // that DB is in not initialized state
-        queueMicrotask(() => {
-          if (initializedDb) {
-            void stopDb(initializedDb);
-          }
-        });
+        stop();
       }
     };
-  }, [config, finalDbKey, refState, setState]);
+  }, [config, finalDbKey, refState, setState, count]);
 
   return <>{children}</>;
 };

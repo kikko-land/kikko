@@ -41,7 +41,6 @@ const buildConfig = (config: IBackendConfig): IInitDbClientConfig => {
         migrations: [createNotesTableMigration],
       }),
     ],
-    suppressLog: true,
   };
 };
 
@@ -94,11 +93,11 @@ export const AppList = () => {
   return (
     <React.StrictMode>
       <DbsHolder defaultDbConfig={config}>
-        <DbProvider config={secondConfig} dbKey="second-db">
-          <EnsureDbLoaded fallback={<div>Loading db...</div>}>
-            <List />
-          </EnsureDbLoaded>
-        </DbProvider>
+        {/* <DbProvider config={secondConfig} dbKey="second-db"> */}
+        <EnsureDbLoaded fallback={<div>Loading db...</div>}>
+          <List />
+        </EnsureDbLoaded>
+        {/* </DbProvider> */}
       </DbsHolder>
     </React.StrictMode>
   );

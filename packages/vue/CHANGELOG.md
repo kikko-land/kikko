@@ -1,5 +1,13 @@
 # @kikko-land/vue-use
 
+## 0.4.4
+
+### Patch Changes
+
+- Updated dependencies [8ffc4e0]
+  - @kikko-land/kikko@0.9.0
+  - @kikko-land/reactive-queries-plugin@0.7.1
+
 ## 0.4.3
 
 ### Patch Changes
