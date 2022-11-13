@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@kikko-land/boono": "^0.2.1",
-    "@kikko-land/kikko": "^0.8.0"
+    "@kikko-land/kikko": "^0.9.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^3.18.0",
