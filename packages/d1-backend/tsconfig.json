@@ -1,6 +1,7 @@
 {
   "extends": "@kikko-land/common-scripts/tsconfig.base.json",
   "compilerOptions": {
+    "skipLibCheck": true,
     "types": [
       "@cloudflare/workers-types"
     ],
