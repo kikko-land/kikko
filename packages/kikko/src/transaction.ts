@@ -1,5 +1,6 @@
 import { ISqlAdapter, sql } from "@kikko-land/boono-sql";
 
+import { getTime } from "./measurePerformance";
 import { runQueries } from "./runQueries";
 import {
   IAtomicTransactionScope,
@@ -93,7 +94,7 @@ export const runInTransactionFunc = async <T>(
     },
   };
 
-  const startTime = performance.now();
+  const startTime = getTime();
 
   const transactionState = {
     i: transactionsCounter++,
@@ -169,7 +170,7 @@ export const runInTransactionFunc = async <T>(
       throw e;
     }
   } finally {
-    transactionState.performance.totalTime = performance.now() - startTime;
+    transactionState.performance.totalTime = getTime() - startTime;
 
     logTimeIfNeeded(db, transaction.id, transactionState.performance);
 
@@ -263,7 +264,7 @@ export const execAtomicTransaction = async (
 
   transactionsStates.byId[transaction.id] = transactionState;
 
-  const startTime = performance.now();
+  const startTime = getTime();
 
   const q: ISqlAdapter[] = [];
 
@@ -316,7 +317,7 @@ export const execAtomicTransaction = async (
 
     throw e;
   } finally {
-    transactionState.performance.totalTime = performance.now() - startTime;
+    transactionState.performance.totalTime = getTime() - startTime;
 
     logTimeIfNeeded(db, transaction.id, transactionState.performance);
 

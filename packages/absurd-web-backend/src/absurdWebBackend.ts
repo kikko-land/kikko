@@ -1,5 +1,6 @@
 import { initBackend } from "@kikko-land/better-absurd-sql/dist/indexeddb-main-thread";
 import {
+  getTime,
   IDbBackend,
   IQuery,
   ITransactionOpts,
@@ -48,13 +49,13 @@ export const absurdWebBackend =
         );
       },
       async execQueries(queries: IQuery[], transactionOpts?: ITransactionOpts) {
-        const startedAt = performance.now();
+        const startedAt = getTime();
         const res = await dbWorker.execQueries(
           queries,
           new Date().getTime(),
           transactionOpts
         );
-        const endAt = performance.now();
+        const endAt = getTime();
 
         return {
           result: res.result,

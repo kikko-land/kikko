@@ -11,5 +11,10 @@
     "deploy": "wrangler publish",
     "lint": "eslint \"src/**/*.{tsx,ts}\" --max-warnings=0",
     "check-typing": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@kikko-land/kikko": "*",
+    "@kikko-land/migrations-plugin": "*",
+    "@kikko-land/d1-backend": "*"
   }
 }

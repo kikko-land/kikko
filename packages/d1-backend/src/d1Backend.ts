@@ -1,4 +1,5 @@
 import {
+  getTime,
   IDbBackend,
   IQuery,
   IQueryResult,
@@ -19,17 +20,28 @@ export const d1Backend =
           throw new Error("d1Backend does not support non-atomic transactions");
         }
 
-        const startedAt = performance.now();
+        const startedAt = getTime();
+        const times: number[] = [];
+
         const res = await config.db.batch(
-          queries.map((q) => config.db.prepare(q.text).bind(...q.values))
+          queries.map((q, i) => {
+            const startPreparedAt = getTime();
+            const prepared = config.db.prepare(q.text).bind(...q.values);
+            const endPreparedAt = getTime();
+
+            times[i] = endPreparedAt - startPreparedAt;
+
+            return prepared;
+          })
         );
-        const finishedAt = performance.now();
+        const finishedAt = getTime();
 
         return {
-          result: res.map((r) => ({
+          result: res.map((r, i) => ({
             rows: r.results as IQueryResult,
             performance: {
               execTime: r.duration,
+              prepareTime: times[i],
             },
           })),
           performance: {

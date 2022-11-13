@@ -1,5 +1,6 @@
 import {
   acquireWithTrJobOrWait,
+  getTime,
   IDbBackend,
   IExecQueriesResult,
   initJobsState,
@@ -55,18 +56,18 @@ export const electronBetterSqlite3Backend =
               .join(" ")}, db not initialized`
           );
         }
-        const totalStartedAt = performance.now();
+        const totalStartedAt = getTime();
 
-        const startBlockAt = performance.now();
+        const startBlockAt = getTime();
         const job = await acquireWithTrJobOrWait(jobsState, trOpts);
-        const endBlockAt = performance.now();
+        const endBlockAt = getTime();
         const blockTime = endBlockAt - startBlockAt;
 
         const result: IExecQueriesResult["result"] = [];
 
         try {
           for (const q of queries) {
-            const startTime = performance.now();
+            const startTime = getTime();
 
             const rows = (() => {
               try {
@@ -79,7 +80,7 @@ export const electronBetterSqlite3Backend =
               }
             })();
 
-            const endTime = performance.now();
+            const endTime = getTime();
 
             result.push({
               rows,
@@ -102,7 +103,7 @@ export const electronBetterSqlite3Backend =
           releaseTrJobIfPossible(jobsState, job, trOpts);
         }
 
-        const totalFinishedAt = performance.now();
+        const totalFinishedAt = getTime();
 
         return Promise.resolve({
           result,

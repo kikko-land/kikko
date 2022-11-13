@@ -1,5 +1,6 @@
 import {
   acquireWithTrJobOrWait,
+  getTime,
   IDbBackend,
   IExecQueriesResult,
   initJobsState,
@@ -18,11 +19,11 @@ export const nativeExpoBackend =
     return {
       async initialize() {},
       async execQueries(queries: IQuery[], transactionOpts?: ITransactionOpts) {
-        const startTime = performance.now();
+        const startTime = getTime();
 
-        const startBlockAt = performance.now();
+        const startBlockAt = getTime();
         const job = await acquireWithTrJobOrWait(jobsState, transactionOpts);
-        const endBlockAt = performance.now();
+        const endBlockAt = getTime();
         const blockTime = endBlockAt - startBlockAt;
 
         try {
@@ -31,7 +32,7 @@ export const nativeExpoBackend =
               queries.map((q) => ({ sql: q.text, args: q.values })),
               false,
               (_, results) => {
-                const end = performance.now();
+                const end = getTime();
 
                 if (!results) {
                   resolve({
