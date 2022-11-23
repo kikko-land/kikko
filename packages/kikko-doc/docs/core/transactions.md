@@ -8,7 +8,7 @@ slug: /core/transactions
 There are two types of transactions — atomic and usual. The difference is that atomic runs
 all queries in single batch, while usual transaction runs queries as they go.
 
-So, if you want to execute query in usual transaction — kikko will need to send n+2 queries to backend:
+So, if you want to execute query in usual transaction — Kikko will need to send n+2 queries to backend:
 
 1. `BEGIN[send, receive]`
 2. `<your-query-1>[send, receive]`
@@ -29,13 +29,13 @@ await db.runInAtomicTransaction(async (scope) => {
   await new Promise((resolve) => {
     setTimeout(() => resolve(), 2000);
   });
-  
+
   scope.afterCommit(() => {
-    console.log('After commit!');
+    console.log("After commit!");
   });
 
   scope.afterRollback(() => {
-    console.log('After rollback!');
+    console.log("After rollback!");
   });
 
   scope.addQuery(sql`DELETE FROM ${sql.table`notes`}`);

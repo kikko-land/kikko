@@ -5,7 +5,7 @@ slug: /core/usage
 
 # Init and run queries
 
-You can use `kikko` without react or any other libs integrations.
+You can use Kikko without react or any other libs integrations.
 
 Here is CodeSandbox with examples:
 
@@ -75,11 +75,11 @@ await db.runInAtomicTransaction(async (scope) => {
   });
 
   scope.afterCommit(() => {
-    console.log('After commit!');
+    console.log("After commit!");
   });
 
   scope.afterRollback(() => {
-    console.log('After rollback!');
+    console.log("After rollback!");
   });
 
   scope.addQuery(sql`DELETE FROM ${sql.table`notes`}`);

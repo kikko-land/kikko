@@ -26,20 +26,30 @@ const notesTable = sql.table("notes");
 const RunComponent = () => {
   const [createRow, _createState] = useRunDbQuery(
     (db) => async (data: IRow) => {
-      await runQuery(db, insert(data).into(notesTable));
+      await runQuery(
+        db,
+        sql`INSERT INTO ${notesTable}(id, title) VALUES(${data.id}, ${data.title})`
+      );
     }
   );
 
   const [updateRow, _updateState] = useRunDbQuery(
     (db) => async (data: Partial<IRow> & { id: string }) => {
-      await runQuery(db, update(notesTable).set(data).where({ id: data.id }));
+      await runQuery(
+        db,
+        sql`UPDATE ${notesTable} SET id=${data.id}, title=${data.title} WHERE id=${data.id}`
+      );
     }
   );
 
   const run = useCallback(async () => {
     const row = { id: "123", title: "HEY!" };
 
-    await createRow(row);
+    await runQuery(
+      db,
+      sql`INSERT INTO ${notesTable}(id, title) VALUES(${row.id}, ${row.title})`
+    );
+
     await updateRow({ ...row, title: "updated" });
   }, [createRow, updateRow]);
 
@@ -61,7 +71,7 @@ const Component = () => {
   const exec = async () => {
     if (!db) return;
 
-    await db.runQuery(select().from("notes"));
+    await db.runQuery(sql`SELECT * FROM ${sql.table`notes`}`);
   };
 };
 ```
