@@ -1,5 +1,11 @@
 # kikko-doc
 
+## 0.5.0
+
+### Minor Changes
+
+- 185ca8f: Version bump
+
 ## 0.4.0
 
 ### Minor Changes
