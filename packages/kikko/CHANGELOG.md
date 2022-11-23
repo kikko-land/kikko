@@ -1,5 +1,12 @@
 # @kikko-land/core
 
+## 0.10.0
+
+### Minor Changes
+
+- e331160: Add custom log fns
+- 185ca8f: Version bump
+
 ## 0.9.0
 
 ### Minor Changes

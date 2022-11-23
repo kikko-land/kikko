@@ -1,6 +1,6 @@
 {
   "name": "@kikko-land/kikko",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "author": "Sergey Popov",
   "license": "MIT",
   "main": "./src/index.ts",
@@ -37,7 +37,7 @@
     "ts-essentials": "^9.3.0"
   },
   "devDependencies": {
-    "@kikko-land/common-scripts": "^0.4.0",
+    "@kikko-land/common-scripts": "^0.5.0",
     "@types/emscripten": "^1.39.6"
   }
 }

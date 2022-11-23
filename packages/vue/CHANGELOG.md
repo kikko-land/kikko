@@ -1,5 +1,18 @@
 # @kikko-land/vue-use
 
+## 0.5.0
+
+### Minor Changes
+
+- 185ca8f: Version bump
+
+### Patch Changes
+
+- Updated dependencies [e331160]
+- Updated dependencies [185ca8f]
+  - @kikko-land/kikko@0.10.0
+  - @kikko-land/reactive-queries-plugin@0.8.0
+
 ## 0.4.4
 
 ### Patch Changes

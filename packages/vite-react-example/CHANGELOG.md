@@ -1,5 +1,17 @@
 # @kikko-land/vite-react-example
 
+## 0.8.0
+
+### Minor Changes
+
+- 185ca8f: Version bump
+
+### Patch Changes
+
+- Updated dependencies [185ca8f]
+  - @kikko-land/absurd-web-backend@0.8.0
+  - @kikko-land/react@0.7.0
+
 ## 0.7.0
 
 ### Minor Changes
