@@ -18,6 +18,7 @@ const logTimeIfNeeded = (
   transactionId: string,
   performance: ITransactionPerformance
 ) => {
+  const logFns = db.__state.sharedState.logFns;
   if (db.__state.localState.suppressLog) return;
 
   const data = [
@@ -44,12 +45,11 @@ const logTimeIfNeeded = (
     .filter((v) => v.length !== 0)
     .join(" ");
 
-  console.log(
+  logFns.logTrFinish(
     `%c[${db.__state.sharedState.dbName}][tr_id=${transactionId.slice(
       0,
       6
-    )}] Transaction finished with ${data}`,
-    `color: #fff; background-color: #1da1f2; padding: 2px 4px; border-radius: 2px`
+    )}] Transaction finished with ${data}`
   );
 };
 
@@ -60,7 +60,7 @@ export const runInTransactionFunc = async <T>(
 ) => {
   const {
     localState: { transactionState: transactionsLocalState },
-    sharedState: { eventsEmitter, transactionsStates, dbBackend },
+    sharedState: { eventsEmitter, transactionsStates, dbBackend, logFns },
   } = db.__state;
 
   if (dbBackend.isUsualTransactionDisabled) {
@@ -148,7 +148,7 @@ export const runInTransactionFunc = async <T>(
 
       return result;
     } catch (e) {
-      console.error("Rollback transaction", e);
+      logFns.logError("Rollback transaction", e);
 
       await eventsEmitter.emit("transactionWillRollback", db, transaction);
 
@@ -162,7 +162,7 @@ export const runInTransactionFunc = async <T>(
           isAtomic: false,
         });
       } catch (e) {
-        console.warn("Rollback transaction failed", e);
+        logFns.logError("Rollback transaction failed", e);
       }
 
       await eventsEmitter.emit("transactionRollbacked", db, transaction);
@@ -206,7 +206,7 @@ export const execAtomicTransaction = async (
 ): Promise<void> => {
   const {
     localState: { transactionState: transactionsLocalState },
-    sharedState: { eventsEmitter, transactionsStates, dbBackend },
+    sharedState: { eventsEmitter, transactionsStates, dbBackend, logFns },
   } = db.__state;
   if (transactionsLocalState.current) {
     throw new Error(
@@ -299,10 +299,10 @@ export const execAtomicTransaction = async (
         cb();
       }
     } catch (e) {
-      console.error("Error in afterCommit callback", e);
+      logFns.logError("Error in afterCommit callback", e);
     }
   } catch (e) {
-    console.error("Rollback transaction", e);
+    logFns.logError("Rollback transaction", e);
 
     await eventsEmitter.emit("transactionWillRollback", db, transaction);
     await eventsEmitter.emit("transactionRollbacked", db, transaction);
@@ -312,7 +312,7 @@ export const execAtomicTransaction = async (
         cb();
       }
     } catch (e) {
-      console.error("Error in afterRallback callback", e);
+      logFns.logError("Error in afterRallback callback", e);
     }
 
     throw e;

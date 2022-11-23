@@ -19,7 +19,7 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
 }) => {
   const {
     localState: { transactionState: transactionsLocalState },
-    sharedState: { dbBackend },
+    sharedState: { dbBackend, logFns },
     sharedState,
   } = db.__state;
 
@@ -112,9 +112,8 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
       sharedState.transactionsStates.byId[
         transactionsLocalState.current?.id ?? ""
       ]?.i;
-    const color = typeof i === "number" ? colors[i % colors.length] : "white";
 
-    console.log(totalTiming, `color: ${color}`);
+    logFns.logQuery(totalTiming, i);
   }
 
   const perfData =

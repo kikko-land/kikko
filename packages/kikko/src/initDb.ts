@@ -4,13 +4,13 @@ import { runAfterTransaction } from "./afterTransaction";
 import { createNanoEvents } from "./createNanoEvents";
 import { reactiveVar } from "./reactiveVar";
 import { runQueries } from "./runQueries";
-import { withSuppressedLog } from "./suppressLog";
 import { execAtomicTransaction, runInTransactionFunc } from "./transaction";
 import {
   IAtomicTransactionScope,
   IDb,
   IDbBackend,
   IKikkoEvents,
+  ILogFns,
   IQueriesMiddleware,
   ITransaction,
 } from "./types";
@@ -24,7 +24,10 @@ export type IInitDbClientConfig = {
   plugins?: IDbClientPlugin[];
   queriesMiddlewares?: IQueriesMiddleware[];
   suppressLog?: boolean;
+  logFns?: ILogFns;
 };
+
+const colors = ["yellow", "cyan", "magenta"];
 
 export const initDbClient = async ({
   dbName,
@@ -32,7 +35,33 @@ export const initDbClient = async ({
   queriesMiddlewares,
   dbBackend,
   suppressLog,
+  logFns: _logFns,
 }: IInitDbClientConfig): Promise<IDb> => {
+  const logFns: ILogFns = _logFns || {
+    logQuery: (msg: string, i: number | undefined) => {
+      const color =
+        typeof i === "number" ? colors[i % colors.length] : undefined;
+
+      console.log(
+        ...(color
+          ? [
+              msg,
+              `color: ${color}; background-color: #202124; padding: 2px 4px; border-radius: 2px`,
+            ]
+          : [msg])
+      );
+    },
+    logError: (msg: string, context: unknown) => {
+      console.error(msg, context);
+    },
+    logTrFinish: (msg: string) => {
+      console.log(
+        msg,
+        `color: #fff; background-color: #1da1f2; padding: 2px 4px; border-radius: 2px`
+      );
+    },
+  };
+
   const runningState = reactiveVar<"running" | "stopping" | "stopped">(
     "running",
     { label: "runningState" }
@@ -51,6 +80,7 @@ export const initDbClient = async ({
         eventsEmitter: createNanoEvents<IKikkoEvents>(),
 
         transactionsStates: { byId: {} },
+        logFns,
       },
       localState: {
         queriesMiddlewares: queriesMiddlewares || [],

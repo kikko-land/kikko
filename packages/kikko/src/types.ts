@@ -148,9 +148,16 @@ export type ITransactionPerformance = {
   blockTime: number;
 };
 
+export type ILogFns = {
+  logQuery: (msg: string, i: number | undefined) => void;
+  logError: (msg: string, context: unknown) => void;
+  logTrFinish: (msg: string) => void;
+};
+
 export interface ISharedDbState {
   dbName: string;
   dbBackend: ReturnType<IDbBackend>;
+  logFns: ILogFns;
 
   runningState: ReactiveVar<"running" | "stopping" | "stopped">;
 
