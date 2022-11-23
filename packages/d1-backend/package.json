@@ -15,7 +15,7 @@
   "publishConfig": {
     "exports": {
       ".": {
-        "types": "./dist/absurd-web-backend/src/index.d.ts",
+        "types": "./dist/d1-backend/src/index.d.ts",
         "es2015": "./dist/index.es.js",
         "require": "./dist/index.umd.js",
         "import": "./dist/index.es.js",
@@ -24,7 +24,7 @@
     },
     "main": "./dist/index.umd.js",
     "module": "./dist/index.es.js",
-    "types": "./dist/absurd-web-backend/src/index.d.ts"
+    "types": "./dist/d1-backend/src/index.d.ts"
   },
   "scripts": {
     "build": "yarn vite build",
