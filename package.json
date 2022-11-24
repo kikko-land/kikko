@@ -2,6 +2,7 @@
   "name": "kikko",
   "version": "0.1.0",
   "author": "Sergey Popov",
+  "packageManager": "yarn@3.3.0",
   "license": "MIT",
   "private": true,
   "scripts": {
@@ -12,10 +13,16 @@
     "lint": "yarn turbo run lint",
     "check-typing": "yarn turbo run check-typing"
   },
-  "workspaces": [
-    "packages/*"
-  ],
-  "dependencies": {},
+  "workspaces": {
+    "packages": [
+      "packages/*",
+      "examples/*"
+    ],
+    "nohoist": [
+      "**/kikko-electron-example",
+      "**/kikko-electron-example/**"
+    ]
+  },
   "devDependencies": {
     "@changesets/cli": "^2.25.0",
     "turbo": "^1.5.6"

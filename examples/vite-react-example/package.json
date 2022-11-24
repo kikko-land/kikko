@@ -10,6 +10,9 @@
     "lint": "echo \"\"",
     "check-typing": "echo \"\""
   },
+  "installConfig": {
+    "hoistingLimits": "workspaces"
+  },
   "dependencies": {
     "@kikko-land/absurd-web-backend": "*",
     "@kikko-land/boono": "^0.2.1",

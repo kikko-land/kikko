@@ -13,8 +13,8 @@
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
+    "@kikko-land/d1-backend": "*",
     "@kikko-land/kikko": "*",
-    "@kikko-land/migrations-plugin": "*",
-    "@kikko-land/d1-backend": "*"
+    "@kikko-land/migrations-plugin": "*"
   }
 }

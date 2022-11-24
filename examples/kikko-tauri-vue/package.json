@@ -9,6 +9,9 @@
     "preview": "vite preview",
     "tauri": "tauri"
   },
+  "installConfig": {
+    "hoistingLimits": "workspaces"
+  },
   "dependencies": {
     "@kikko-land/kikko": "*",
     "@kikko-land/migrations-plugin": "*",

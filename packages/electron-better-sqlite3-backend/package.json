@@ -52,9 +52,9 @@
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
-    "@kikko-land/kikko": "^0.10.0",
     "@kikko-land/boono-sql": "^0.3.0",
     "@kikko-land/d1-backend": "^0.2.0",
+    "@kikko-land/kikko": "^0.10.0",
     "@kikko-land/sql.js": "^1.6.8",
     "better-sqlite3": ">=7.6.2"
   },

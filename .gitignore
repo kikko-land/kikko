@@ -138,3 +138,9 @@ app.yaml
 docker-compose.ymle
 
 .wrangler
+
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+!.yarn/install-state.gz
+.pnp.*

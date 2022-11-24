@@ -32,9 +32,9 @@
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
+    "@kikko-land/boono-sql": "^0.3.0",
     "@kikko-land/kikko": "^0.10.0",
-    "@kikko-land/reactive-queries-plugin": "^0.8.0",
-    "@kikko-land/boono-sql": "^0.3.0"
+    "@kikko-land/reactive-queries-plugin": "^0.8.0"
   },
   "peerDependencies": {
     "vue": ">=3.2.41"
