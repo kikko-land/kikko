@@ -1,0 +1,7 @@
+{
+  "name": "kikko-ionic-example",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}

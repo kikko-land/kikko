@@ -1,0 +1,32 @@
+{
+  "name": "trong-tauri-example",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri"
+  },
+  "dependencies": {
+    "@kikko-land/boono": "^0.2.1",
+    "@kikko-land/react": "*",
+    "@kikko-land/tauri-backend": "*",
+    "@tauri-apps/api": "^1.1.0",
+    "lodash-es": "^4.17.21",
+    "lorem-ipsum": "^2.0.8",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-highlight-words": "^0.18.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^1.1.1",
+    "@types/lodash-es": "^4.17.6",
+    "@types/react": "^18.0.25",
+    "@types/react-dom": "^18.0.8",
+    "@types/react-highlight-words": "^0.16.4",
+    "@vitejs/plugin-react": "^2.2.0",
+    "typescript": "^4.8.4",
+    "vite": "^3.2.2"
+  }
+}

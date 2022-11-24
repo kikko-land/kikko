@@ -1,0 +1,11 @@
+.content {
+  margin: 20px;
+}
+
+.content button {
+  margin-left: 10px;
+}
+
+.content button:first-child {
+  margin-left: 0px;
+}

@@ -1,0 +1,6 @@
+{
+  "appId": "io.ionic.starter",
+  "appName": "kikko-ionic-example",
+  "webDir": "build",
+  "bundledWebRuntime": false
+}
