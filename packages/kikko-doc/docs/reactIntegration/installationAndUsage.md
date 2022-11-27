@@ -70,9 +70,9 @@ Then use it in your child components:
 
 ```tsx
 import {
-  useQuery,
-  useQueryFirstRow,
-  useRunQuery,
+  useDbQuery,
+  useFirstRowDbQuery,
+  useRunDbQuery,
   makeId,
   runQuery,
   sql
@@ -82,12 +82,12 @@ type Note = { id: string; title: string };
 const notesTable = sql.table`notes`;
 
 export const Notes = () => {
-  const notes = useQuery<Note>(sql`SELECT * FROM ${notesTable}`);
-  const notesCount = useQueryFirstRow<{ count: number }>(
+  const notes = useDbQuery<Note>(sql`SELECT * FROM ${notesTable}`);
+  const notesCount = useFirstRowDbQuery<{ count: number }>(
     sql`SELECT COUNT(*) FROM ${notesTable}`
   );
 
-  const addNote = useRunQuery((db) => async () => {
+  const addNote = useRunDbQuery((db) => async () => {
     const id = makeId();
 
     await db.runQuery(
