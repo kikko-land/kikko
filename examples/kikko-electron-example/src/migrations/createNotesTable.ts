@@ -1,9 +1,8 @@
-import { IMigration, runQuery, sql } from "@kikko-land/react";
+import { IMigration, sql } from "@kikko-land/react";
 
 export const createNotesTableMigration: IMigration = {
   up: async (db) => {
-    await runQuery(
-      db,
+    await db.runQuery(
       sql`
       CREATE TABLE IF NOT EXISTS notes (
         id varchar(20) PRIMARY KEY,
@@ -15,8 +14,7 @@ export const createNotesTableMigration: IMigration = {
       `
     );
 
-    await runQuery(
-      db,
+    await db.runQuery(
       sql`
       CREATE INDEX IF NOT EXISTS idx_note_title ON notes(title);
       `

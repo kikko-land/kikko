@@ -1,5 +1,5 @@
 import {
-  DbProvider,
+  DbsHolder,
   EnsureDbLoaded,
   IInitDbClientConfig,
   migrationsPlugin,
@@ -10,6 +10,9 @@ import { electronBetterSqlite3Backend } from "@kikko-land/electron-better-sqlite
 
 import { List } from "./List";
 import { createNotesTableMigration } from "./migrations/createNotesTable";
+import React from "react";
+
+console.log(React);
 
 const config: IInitDbClientConfig = {
   dbName: "helloWorld",
@@ -21,13 +24,7 @@ const config: IInitDbClientConfig = {
 };
 
 export const App = () => {
-  return (
-    <DbProvider config={config}>
-      <EnsureDbLoaded fallback={<div>Loading db...</div>}>
-        <List />
-      </EnsureDbLoaded>
-    </DbProvider>
-  );
+  return <DbsHolder defaultDbConfig={config}></DbsHolder>;
 };
 
 const el = document.getElementById("root");

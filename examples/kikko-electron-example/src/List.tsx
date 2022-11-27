@@ -5,16 +5,10 @@ import {
   select,
   update,
 } from "@kikko-land/query-builder";
-import {
-  makeId,
-  runQuery,
-  sql,
-  useCacheQuery,
-  useQuery,
-  useRunQuery,
-} from "@kikko-land/react";
+import { makeId, sql, useDbQuery, useRunDbQuery } from "@kikko-land/react";
 import { chunk } from "lodash-es";
 import { LoremIpsum } from "lorem-ipsum";
+import React from "react";
 import { useState } from "react";
 import Highlighter from "react-highlight-words";
 
@@ -38,7 +32,6 @@ type INoteRow = {
   createdAt: number;
   updatedAt: number;
 };
-const notesTable = sql.table("notes");
 
 const Row = ({
   row,
@@ -47,14 +40,13 @@ const Row = ({
   row: INoteRow;
   textToSearch: string;
 }) => {
-  const [deleteRecord, deleteRecordState] = useRunQuery((db) => async () => {
-    await runQuery(db, deleteFrom(notesTable).where({ id: row.id }));
+  const [deleteRecord, deleteRecordState] = useRunDbQuery((db) => async () => {
+    await db.runQuery(deleteFrom("notes").where({ id: row.id }));
   });
 
-  const [updateRecord, updateRecordState] = useRunQuery((db) => async () => {
-    await runQuery(
-      db,
-      update(notesTable)
+  const [updateRecord, updateRecordState] = useRunDbQuery((db) => async () => {
+    await db.runQuery(
+      update("notes")
         .set({
           title: row.title + " updated!",
           content: row.content + " updated!",
@@ -100,13 +92,11 @@ const Row = ({
 export const List = () => {
   const [textToSearch, setTextToSearch] = useState<string>("");
 
-  const baseSql = useCacheQuery(
-    select()
-      .from(notesTable)
-      .where(
-        textToSearch ? { content: like$("%" + textToSearch + "%") } : sql.empty
-      )
-  );
+  const baseSql = select()
+    .from("notes")
+    .where(
+      textToSearch ? { content: like$("%" + textToSearch + "%") } : sql.empty
+    );
 
   const {
     paginatedQuery,
@@ -121,13 +111,12 @@ export const List = () => {
     perPage: 50,
     baseQuery: baseSql,
   });
-  const rowsResult = useQuery<INoteRow>(paginatedQuery);
+  const rowsResult = useDbQuery<INoteRow>(paginatedQuery);
 
-  const [createNotes, createNotesState] = useRunQuery(
+  const [createNotes, createNotesState] = useRunDbQuery(
     (db) => async (count: number) => {
       for (const ch of chunk(Array.from(Array(count).keys()), 3000)) {
-        await runQuery(
-          db,
+        await db.runQuery(
           insert(
             ch.map((i) => ({
               id: makeId(),
@@ -136,14 +125,14 @@ export const List = () => {
               createdAt: new Date().getTime(),
               updatedAt: new Date().getTime(),
             }))
-          ).into(notesTable)
+          ).into("notes")
         );
       }
     }
   );
 
-  const [deleteAll, deleteAllState] = useRunQuery((db) => async () => {
-    await runQuery(db, deleteFrom(notesTable));
+  const [deleteAll, deleteAllState] = useRunDbQuery((db) => async () => {
+    await db.runQuery(deleteFrom("notes"));
   });
 
   return (
