@@ -1,5 +1,17 @@
 # @kikko-land/d1-backend
 
+## 0.3.0
+
+### Minor Changes
+
+- d6204b9: Add preparedQueries support
+
+### Patch Changes
+
+- Updated dependencies [de4fd98]
+- Updated dependencies [d6204b9]
+  - @kikko-land/kikko@0.11.0
+
 ## 0.2.0
 
 ### Minor Changes
