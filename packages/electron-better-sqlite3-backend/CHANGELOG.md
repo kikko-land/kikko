@@ -1,5 +1,18 @@
 # @kikko-land/electron-better-sqlite3-backend
 
+## 0.8.0
+
+### Minor Changes
+
+- d6204b9: Add preparedQueries support
+
+### Patch Changes
+
+- Updated dependencies [de4fd98]
+- Updated dependencies [d6204b9]
+  - @kikko-land/kikko@0.11.0
+  - @kikko-land/d1-backend@0.3.0
+
 ## 0.7.0
 
 ### Minor Changes

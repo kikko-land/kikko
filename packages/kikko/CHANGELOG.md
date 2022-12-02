@@ -1,5 +1,12 @@
 # @kikko-land/core
 
+## 0.11.0
+
+### Minor Changes
+
+- de4fd98: Increase job timeout time
+- d6204b9: Add preparedQueries support
+
 ## 0.10.0
 
 ### Minor Changes
