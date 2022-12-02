@@ -148,7 +148,7 @@ export const reactiveVar = <T>(
 
               reject(timeoutError);
             },
-            opts?.timeout === undefined ? 60_000 : opts.timeout
+            opts?.timeout === undefined ? 120_000 : opts.timeout
           );
 
           unsubscriptions.push(() => {

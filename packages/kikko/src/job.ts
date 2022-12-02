@@ -45,7 +45,9 @@ export const acquireJob = async (
   const { current, queue } = jobsState.value;
 
   if (current || queue.length > 0) {
-    const promise = jobsState.waitTill((newVal) => newVal.current?.id === id);
+    const promise = jobsState.waitTill((newVal) => newVal.current?.id === id, {
+      timeout: 120_000,
+    });
 
     jobsState.value = {
       queue: [...queue, job],
@@ -95,7 +97,7 @@ export const whenAllJobsDone = async (jobsState: ReactiveVar<IJobsState>) => {
   try {
     return jobsState.waitTill(
       ({ queue, current }) => queue.length === 0 && current === undefined,
-      { timeout: 30_000 }
+      { timeout: 120_000 }
     );
   } catch (e) {
     if (e instanceof TimeoutError) {
