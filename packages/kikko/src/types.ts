@@ -1,4 +1,4 @@
-import { ISqlAdapter } from "@kikko-land/boono-sql";
+import { IPrimitiveValue, ISql, ISqlAdapter } from "@kikko-land/boono-sql";
 import { DeepReadonly } from "ts-essentials";
 
 import { INanoEmitter } from "./createNanoEvents";
@@ -14,7 +14,6 @@ export type ICmdPerformance = {
 export type IStatementPerformance = {
   execTime?: number;
   prepareTime?: number;
-  freeTime?: number;
 };
 
 export type IKikkoEvents = {
@@ -57,7 +56,7 @@ export type IQueriesMiddlewareState = {
     performance: IStatementPerformance;
   }[];
   performance: ICmdPerformance & { unwrapQueriesTime?: number };
-  queries: ISqlAdapter[];
+  queries: IQueriesToRun;
   transactionOpts?: ITransactionOpts;
 };
 
@@ -82,6 +81,10 @@ export interface IAtomicTransactionScope {
   afterRollback(cb: () => void): void;
 }
 
+export type IQueriesToRun =
+  | { type: "usual"; values: ISql[] }
+  | { type: "prepared"; query: ISql; preparedValues: IPrimitiveValue[][] };
+
 export interface IDb {
   __state: {
     // mutable object
@@ -105,6 +108,10 @@ export interface IDb {
     queries: ISqlAdapter[]
   ): Promise<D[][]>;
   runQuery<D extends Record<string, unknown>>(query: ISqlAdapter): Promise<D[]>;
+  runPreparedQuery<D extends Record<string, unknown>>(
+    query: ISql,
+    preparedValues: IPrimitiveValue[][]
+  ): Promise<D[][]>;
 
   runAfterTransactionCommitted(
     func: (db: IDb, transaction: ITransaction) => void
@@ -134,12 +141,16 @@ type IDbInstance = {
     queries: IQuery[],
     transactionOpts?: ITransactionOpts
   ): Promise<IExecQueriesResult>;
+  execPreparedQuery(
+    query: IQuery,
+    preparedValues: IPrimitiveValue[][],
+    transactionOpts?: ITransactionOpts
+  ): Promise<IExecQueriesResult>;
   stop(): Promise<void>;
 };
 export type IDbBackend = (db: { dbName: string }) => IDbInstance;
 
 export type ITransactionPerformance = {
-  freeTime?: number;
   sendTime?: number;
   receiveTime?: number;
   prepareTime?: number;

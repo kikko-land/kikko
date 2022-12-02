@@ -97,4 +97,13 @@ await db.runInTransaction(async (db) => {
     console.log("Notes created!");
   });
 });
+
+// Custom prepared query
+
+await db.runPreparedQuery(
+  sql`INSERT INTO ${sql.table`notes`}(id, title) VALUES(?, ?)`, [
+    ['title 1', 'content 1'],
+    ['title 2', 'content 2']
+  ]
+);
 ```

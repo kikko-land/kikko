@@ -1,4 +1,4 @@
-import { ISqlAdapter } from "@kikko-land/boono-sql";
+import { IPrimitiveValue, ISql, ISqlAdapter } from "@kikko-land/boono-sql";
 
 import { runAfterTransaction } from "./afterTransaction";
 import { createNanoEvents } from "./createNanoEvents";
@@ -48,7 +48,7 @@ export const initDbClient = async ({
               msg,
               `color: ${color}; background-color: #202124; padding: 2px 4px; border-radius: 2px`,
             ]
-          : [msg])
+          : [msg, `padding: 0`])
       );
     },
     logError: (msg: string, context: unknown) => {
@@ -106,13 +106,28 @@ export const initDbClient = async ({
     async runQueries<D extends Record<string, unknown>>(
       queries: ISqlAdapter[]
     ): Promise<D[][]> {
-      const res = await runQueries(this, queries);
+      const res = await runQueries(this, {
+        type: "usual",
+        values: queries.map((q) => q.toSql()),
+      });
       return res.result.map(({ rows }) => rows) as D[][];
     },
     async runQuery<D extends Record<string, unknown>>(
       query: ISqlAdapter
     ): Promise<D[]> {
       return (await this.runQueries<D>([query]))[0];
+    },
+    async runPreparedQuery<D extends Record<string, unknown>>(
+      query: ISql,
+      preparedValues: IPrimitiveValue[][]
+    ): Promise<D[][]> {
+      const res = await runQueries(this, {
+        type: "prepared",
+        query,
+        preparedValues,
+      });
+
+      return res.result.map(({ rows }) => rows) as D[][];
     },
     runAfterTransactionCommitted(
       func: (db: IDb, transaction: ITransaction) => void

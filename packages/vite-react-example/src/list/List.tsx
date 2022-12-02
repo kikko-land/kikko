@@ -176,6 +176,22 @@ export const List = () => {
     },
     { inTransaction: false }
   );
+  const [createPreparedNotes, createPreparedNotesState] = useRunDbQuery(
+    (db) => async () => {
+      console.log(
+        await db.runPreparedQuery(
+          sql`INSERT INTO ${notesTable} VALUES (?, ?, ?, ?, ?) RETURNING *`,
+          Array.from(Array(10000).keys()).map(() => [
+            makeId(),
+            lorem.generateWords(4),
+            lorem.generateParagraphs(1),
+            new Date().getTime(),
+            new Date().getTime(),
+          ])
+        )
+      );
+    }
+  );
 
   const [deleteAll, deleteAllState] = useRunDbQuery((db) => async () => {
     await db.runQuery(deleteFrom(notesTable));
@@ -204,6 +220,12 @@ export const List = () => {
 
       <br />
       <br />
+
+      <button onClick={() => void createPreparedNotes()}>
+        {createPreparedNotesState.type === "running"
+          ? "Loading..."
+          : `Add 10000 prepared records!`}
+      </button>
 
       {[100, 1000, 10_000, 30_000].map((count) => (
         <div style={{ padding: "5px 0" }} key={count}>

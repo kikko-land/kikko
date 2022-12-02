@@ -1,4 +1,4 @@
-import { ISqlAdapter, sql } from "@kikko-land/boono-sql";
+import { ISql, ISqlAdapter, sql } from "@kikko-land/boono-sql";
 
 import { getTime } from "./measurePerformance";
 import { runQueries } from "./runQueries";
@@ -28,9 +28,6 @@ const logTimeIfNeeded = (
     performance.execTime === undefined
       ? ""
       : `execTime=${(performance.execTime / 1000).toFixed(4)}`,
-    performance.freeTime === undefined
-      ? ""
-      : `freeTime=${(performance.freeTime / 1000).toFixed(4)}`,
     performance.sendTime === undefined
       ? ""
       : `sendTime=${(performance.sendTime / 1000).toFixed(4)}`,
@@ -117,7 +114,15 @@ export const runInTransactionFunc = async <T>(
 
     await runQueries(
       db,
-      [sql`BEGIN ${sql.raw(transactionType.toLocaleUpperCase())} TRANSACTION`],
+      {
+        type: "usual",
+        values: [
+          sql`BEGIN ${sql.raw(
+            transactionType.toLocaleUpperCase()
+          )} TRANSACTION`,
+        ],
+      },
+
       {
         transactionId: transaction.id,
         containsTransactionStart: true,
@@ -135,14 +140,18 @@ export const runInTransactionFunc = async <T>(
 
       await eventsEmitter.emit("transactionWillCommit", db, transaction);
 
-      await runQueries(db, [sql`COMMIT`], {
-        transactionId: transaction.id,
-        containsTransactionStart: false,
-        containsTransactionFinish: true,
-        containsTransactionRollback: false,
-        rollbackOnFail: false,
-        isAtomic: false,
-      });
+      await runQueries(
+        db,
+        { type: "usual", values: [sql`COMMIT`] },
+        {
+          transactionId: transaction.id,
+          containsTransactionStart: false,
+          containsTransactionFinish: true,
+          containsTransactionRollback: false,
+          rollbackOnFail: false,
+          isAtomic: false,
+        }
+      );
 
       await eventsEmitter.emit("transactionCommitted", db, transaction);
 
@@ -153,14 +162,18 @@ export const runInTransactionFunc = async <T>(
       await eventsEmitter.emit("transactionWillRollback", db, transaction);
 
       try {
-        await runQueries(db, [sql`ROLLBACK`], {
-          transactionId: transaction.id,
-          containsTransactionStart: false,
-          containsTransactionFinish: false,
-          containsTransactionRollback: true,
-          rollbackOnFail: false,
-          isAtomic: false,
-        });
+        await runQueries(
+          db,
+          { type: "usual", values: [sql`ROLLBACK`] },
+          {
+            transactionId: transaction.id,
+            containsTransactionStart: false,
+            containsTransactionFinish: false,
+            containsTransactionRollback: true,
+            rollbackOnFail: false,
+            isAtomic: false,
+          }
+        );
       } catch (e) {
         logFns.logError("Rollback transaction failed", e);
       }
@@ -266,13 +279,13 @@ export const execAtomicTransaction = async (
 
   const startTime = getTime();
 
-  const q: ISqlAdapter[] = [];
+  const q: ISql[] = [];
 
   if (!dbBackend.isAtomicRollbackCommitDisabled) {
     q.push(sql`BEGIN ${sql.raw(transactionType.toUpperCase())} TRANSACTION`);
   }
 
-  q.push(...inputQueries);
+  q.push(...inputQueries.map((q) => q.toSql()));
 
   if (!dbBackend.isAtomicRollbackCommitDisabled) {
     q.push(sql`COMMIT`);
@@ -282,14 +295,18 @@ export const execAtomicTransaction = async (
     await eventsEmitter.emit("transactionWillStart", db, transaction);
     await eventsEmitter.emit("transactionStarted", db, transaction);
 
-    await runQueries(db, q, {
-      transactionId: transaction.id,
-      containsTransactionStart: true,
-      containsTransactionFinish: true,
-      containsTransactionRollback: false,
-      rollbackOnFail: true,
-      isAtomic: true,
-    });
+    await runQueries(
+      db,
+      { type: "usual", values: q },
+      {
+        transactionId: transaction.id,
+        containsTransactionStart: true,
+        containsTransactionFinish: true,
+        containsTransactionRollback: false,
+        rollbackOnFail: true,
+        isAtomic: true,
+      }
+    );
 
     await eventsEmitter.emit("transactionWillCommit", db, transaction);
     await eventsEmitter.emit("transactionCommitted", db, transaction);

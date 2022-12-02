@@ -1,16 +1,20 @@
-import { ISqlAdapter } from "@kikko-land/boono-sql";
-
 import { getTime } from "./measurePerformance";
 import {
   IDb,
   INextQueriesMiddleware,
   IQueriesMiddleware,
   IQueriesMiddlewareState,
+  IQueriesToRun,
   ITransactionOpts,
 } from "./types";
-import { assureDbIsRunning, unwrapQueries } from "./utils";
+import { assureDbIsRunning } from "./utils";
 
-const colors = ["yellow", "cyan", "magenta"];
+const compact = <T>(arr: (T | null | undefined)[]) =>
+  arr.filter((element): element is T => {
+    return element !== null;
+  });
+const sum = (arr: number[]) => arr.reduce((partialSum, a) => partialSum + a, 0);
+const compactAndSum = (arr: (number | null | undefined)[]) => sum(compact(arr));
 
 const runQueriesMiddleware: IQueriesMiddleware = async ({
   db,
@@ -38,12 +42,13 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
     );
   }
 
-  const unwrappedQueries = unwrapQueries(queries.map((q) => q.toSql()));
-
   const startedAt = getTime();
-  const { result, performance: qPerformance } = await dbBackend.execQueries(
-    unwrappedQueries,
-    transactionOpts
+  const {
+    result,
+    performance: qPerformance,
+    textQueries,
+  } = await (async () => {
+    const opts = transactionOpts
       ? transactionOpts
       : transactionsLocalState.current
       ? {
@@ -54,30 +59,89 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
           rollbackOnFail: false,
           isAtomic: false,
         }
-      : undefined
-  );
+      : undefined;
+    if (queries.type === "prepared") {
+      const q = queries.query.toSql();
+
+      if (q._values.length !== 0) {
+        throw new Error(
+          "You can't use prepared var through ${} for runPreparedQuery. Please, manually specify variables with '?'."
+        );
+      }
+      const toExec = q.preparedQuery.text;
+
+      return {
+        ...(await dbBackend.execPreparedQuery(
+          q.preparedQuery,
+          queries.preparedValues,
+          opts
+        )),
+        textQueries: [toExec],
+      };
+    } else {
+      const toExec = queries.values.map((q) => q.preparedQuery);
+
+      return {
+        ...(await dbBackend.execQueries(toExec, opts)),
+        textQueries: toExec.map((q) => q.text),
+      };
+    }
+  })();
   const endedAt = getTime();
 
   if (!db.__state.localState.suppressLog) {
-    const queriesTimings = result.map(({ performance }, i) => {
-      const times = [
-        performance.prepareTime !== undefined
-          ? `prepareTime=${(performance.prepareTime / 1000).toFixed(4)}`
-          : "",
-        performance.execTime !== undefined
-          ? `execTime=${(performance.execTime / 1000).toFixed(4)}`
-          : "",
-        performance.freeTime !== undefined
-          ? `freeTime=${(performance.freeTime / 1000).toFixed(4)}`
-          : "",
-      ]
-        .filter((t) => t.length !== 0)
-        .join(" ");
+    const formatTime = (name: string, time: number) => {
+      return `${name}=${(time / 1000).toFixed(4)}`;
+    };
 
-      return [unwrappedQueries[i].text.slice(0, 1000), times]
-        .filter((v) => v.length !== 0)
-        .join(" ");
-    });
+    const queriesTimings = (() => {
+      if (queries.type === "prepared") {
+        const firstResult = result[0];
+        const times = [
+          firstResult.performance.prepareTime !== undefined
+            ? formatTime(
+                "prepareTime",
+                compactAndSum(result.map((r) => r.performance.prepareTime))
+              )
+            : "",
+          firstResult.performance.execTime !== undefined
+            ? formatTime(
+                "execTime",
+                compactAndSum(result.map((r) => r.performance.execTime))
+              )
+            : "",
+        ]
+          .filter((t) => t.length !== 0)
+          .join(" ");
+
+        return [
+          [
+            textQueries[0].slice(0, 1000),
+            `for ${queries.preparedValues.length} values`,
+            times,
+          ]
+            .filter((v) => v.length !== 0)
+            .join(" "),
+        ];
+      } else {
+        return result.map(({ performance }, i) => {
+          const times = [
+            performance.prepareTime !== undefined
+              ? formatTime("prepareTime", performance.prepareTime)
+              : "",
+            performance.execTime !== undefined
+              ? formatTime("execTime", performance.execTime)
+              : "",
+          ]
+            .filter((t) => t.length !== 0)
+            .join(" ");
+
+          return [textQueries[i].slice(0, 1000), times]
+            .filter((v) => v.length !== 0)
+            .join(" ");
+        });
+      }
+    })();
 
     const resultStr = (() => {
       if (queriesTimings.length === 1) {
@@ -133,17 +197,6 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
       );
     }
 
-    if (result.some((d) => d.performance.freeTime !== undefined)) {
-      if (perfData.freeTime === undefined) {
-        perfData.freeTime = 0;
-      }
-
-      perfData.freeTime += result.reduce(
-        (partialSum, a) => partialSum + (a.performance.freeTime ?? 0),
-        0
-      );
-    }
-
     if (result.some((d) => d.performance.prepareTime !== undefined)) {
       if (perfData.prepareTime === undefined) {
         perfData.prepareTime = 0;
@@ -185,7 +238,7 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
 
 export const runQueries = async (
   db: IDb,
-  queries: ISqlAdapter[],
+  queries: IQueriesToRun,
   transactionOpts?: ITransactionOpts
 ) => {
   const middlewares: IQueriesMiddleware[] = [
@@ -210,7 +263,7 @@ export const runQueries = async (
       receiveTime: undefined,
       totalTime: 0,
     },
-    queries: queries.map((q) => q.toSql()),
+    queries,
     transactionOpts: transactionOpts,
   });
 };

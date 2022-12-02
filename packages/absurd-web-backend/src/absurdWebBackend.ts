@@ -2,6 +2,8 @@ import { initBackend } from "@kikko-land/better-absurd-sql/dist/indexeddb-main-t
 import {
   getTime,
   IDbBackend,
+  IExecQueriesResult,
+  IPrimitiveValue,
   IQuery,
   ITransactionOpts,
   reactiveVar,
@@ -52,6 +54,29 @@ export const absurdWebBackend =
         const startedAt = getTime();
         const res = await dbWorker.execQueries(
           queries,
+          new Date().getTime(),
+          transactionOpts
+        );
+        const endAt = getTime();
+
+        return {
+          result: res.result,
+          performance: {
+            ...res.performance,
+            receiveTime: new Date().getTime() - res.sentAt,
+            totalTime: endAt - startedAt,
+          },
+        };
+      },
+      async execPreparedQuery(
+        query: IQuery,
+        preparedValues: IPrimitiveValue[][],
+        transactionOpts?: ITransactionOpts
+      ): Promise<IExecQueriesResult> {
+        const startedAt = getTime();
+        const res = await dbWorker.execPreparedQueries(
+          query,
+          preparedValues,
           new Date().getTime(),
           transactionOpts
         );

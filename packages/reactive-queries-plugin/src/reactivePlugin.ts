@@ -31,7 +31,11 @@ export const reactiveQueriesPlugin: (opts?: {
   const reactiveQueriesMiddleware: IQueriesMiddleware = async (state) => {
     const transaction = state.db.__state.localState.transactionState.current;
 
-    const writeTables = state.queries
+    const writeTables = (
+      state.queries.type === "usual"
+        ? state.queries.values
+        : [state.queries.query]
+    )
       .map((q) => q.toSql())
       .filter((q) => q.isModifyQuery)
       .flatMap((q) => q.tables)

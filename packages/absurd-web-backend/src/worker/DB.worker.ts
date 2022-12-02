@@ -1,7 +1,9 @@
 import {
   acquireWithTrJobOrWait,
   getTime,
+  IExecQueriesResult,
   initJobsState,
+  IPrimitiveValue,
   IQuery,
   ITransactionOpts,
   releaseTrJobIfPossible,
@@ -33,8 +35,10 @@ const initialize = async (
   await db.init();
 };
 
-const execQueries = async (
-  queries: IQuery[],
+const runQueries = async (
+  queries:
+    | { type: "usual"; values: IQuery[] }
+    | { type: "prepared"; query: IQuery; preparedValues: IPrimitiveValue[][] },
   sentAt: number,
   transactionOpts?: ITransactionOpts
 ) => {
@@ -56,16 +60,32 @@ const execQueries = async (
   const blockTime = endBlockAt - startBlockAt;
 
   try {
-    const queriesResult = queries.map((q) => {
-      try {
-        return currentDb.sqlExec(q.text, q.values);
-      } catch (e) {
-        if (e instanceof Error) {
-          e.message = `Error while executing query: ${q.text} - ${e.message}`;
+    const queriesResult = (() => {
+      if (queries.type === "usual") {
+        return queries.values.map((q) => {
+          try {
+            return currentDb.sqlExec(q.text, q.values);
+          } catch (e) {
+            if (e instanceof Error) {
+              e.message = `Error while executing query: ${q.text} - ${e.message}`;
+            }
+            throw e;
+          }
+        });
+      } else {
+        try {
+          return currentDb.execPrepared(
+            queries.query.text,
+            queries.preparedValues
+          );
+        } catch (e) {
+          if (e instanceof Error) {
+            e.message = `Error while executing query: ${queries.query.text} - ${e.message}`;
+          }
+          throw e;
         }
-        throw e;
       }
-    });
+    })();
 
     return {
       result: queriesResult,
@@ -90,13 +110,38 @@ const execQueries = async (
   }
 };
 
+const execQueries = async (
+  queries: IQuery[],
+  sentAt: number,
+  transactionOpts?: ITransactionOpts
+) => {
+  return runQueries(
+    { type: "usual", values: queries },
+    sentAt,
+    transactionOpts
+  );
+};
+
+const execPreparedQueries = async (
+  query: IQuery,
+  preparedValues: IPrimitiveValue[][],
+  sentAt: number,
+  transactionOpts?: ITransactionOpts
+) => {
+  return runQueries(
+    { type: "prepared", preparedValues, query },
+    sentAt,
+    transactionOpts
+  );
+};
+
 const stop = async () => {
   isStopped = true;
 
   await whenAllJobsDone(jobsState);
 };
 
-const DbWorker = { execQueries, initialize, stop };
+const DbWorker = { execQueries, execPreparedQueries, initialize, stop };
 
 Comlink.expose(DbWorker);
 

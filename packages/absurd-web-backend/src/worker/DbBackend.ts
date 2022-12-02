@@ -3,6 +3,14 @@ import IndexedDBBackend from "@kikko-land/better-absurd-sql/dist/indexeddb-backe
 import { getTime } from "@kikko-land/kikko";
 import initSqlJs, { BindParams, Database } from "@kikko-land/sql.js";
 
+type IRes = {
+  rows: Record<string, number | string | Uint8Array | null>[];
+  performance: {
+    prepareTime: number;
+    execTime: number;
+  };
+};
+
 export class DbBackend {
   private sqlDb!: Database;
 
@@ -46,17 +54,7 @@ export class DbBackend {
     `);
   }
 
-  sqlExec(
-    sql: string,
-    params?: BindParams
-  ): {
-    rows: Record<string, number | string | Uint8Array | null>[];
-    performance: {
-      prepareTime: number;
-      execTime: number;
-      freeTime: number;
-    };
-  } {
+  sqlExec(sql: string, params?: BindParams): IRes {
     const rows = [];
 
     const startPrepareTime = getTime();
@@ -69,17 +67,48 @@ export class DbBackend {
     }
     const finishExecTime = getTime();
 
-    const startFreeTime = getTime();
     stmt.free();
-    const finishFreeTime = getTime();
 
     return {
       rows,
       performance: {
         prepareTime: finishPrepareTime - startPrepareTime,
         execTime: finishExecTime - startExecTime,
-        freeTime: finishFreeTime - startFreeTime,
       },
     };
+  }
+
+  execPrepared(sql: string, params: BindParams[]): IRes[] {
+    const res: IRes[] = [];
+
+    const startPrepareTime = getTime();
+    const stmt = this.sqlDb.prepare(sql);
+    const finishPrepareTime = getTime();
+
+    for (const param of params) {
+      const arr: Record<string, number | string | Uint8Array | null>[] = [];
+      const startExecTime = getTime();
+      stmt.bind(param);
+      while (stmt.step()) {
+        arr.push(stmt.getAsObject());
+      }
+      const finishExecTime = getTime();
+      res.push({
+        rows: arr,
+        performance: {
+          prepareTime: finishPrepareTime - startPrepareTime,
+          execTime: finishExecTime - startExecTime,
+        },
+      });
+      stmt.reset();
+    }
+
+    if (res[0]) {
+      res[0].performance.prepareTime = finishPrepareTime - startPrepareTime;
+    }
+
+    stmt.free();
+
+    return res;
   }
 }
