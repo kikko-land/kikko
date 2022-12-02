@@ -1,6 +1,8 @@
 import {
   getTime,
   IDbBackend,
+  IExecQueriesResult,
+  IPrimitiveValue,
   IQuery,
   IQueryResult,
   ITransactionOpts,
@@ -44,6 +46,47 @@ export const d1Backend =
               prepareTime: times[i],
             },
           })),
+          performance: {
+            totalTime: finishedAt - startedAt,
+          },
+        };
+      },
+      async execPreparedQuery(
+        query: IQuery,
+        preparedValues: IPrimitiveValue[][],
+        transactionOpts?: ITransactionOpts
+      ): Promise<IExecQueriesResult> {
+        if (transactionOpts && !transactionOpts.isAtomic) {
+          throw new Error("d1Backend does not support non-atomic transactions");
+        }
+
+        const startedAt = getTime();
+        const times: number[] = [];
+
+        const prepareStartedAt = getTime();
+        const stmt = config.db.prepare(query.text);
+        const prepareFinishedAt = getTime();
+
+        const res = await config.db.batch(
+          preparedValues.map((a) => stmt.bind(...a))
+        );
+        const finishedAt = getTime();
+
+        const result = res.map((r, i) => ({
+          rows: r.results as IQueryResult,
+          performance: {
+            execTime: r.duration,
+            prepareTime: times[i],
+          },
+        }));
+
+        if (result[0]) {
+          result[0].performance["prepareTime"] =
+            prepareFinishedAt - prepareStartedAt;
+        }
+
+        return {
+          result,
           performance: {
             totalTime: finishedAt - startedAt,
           },
