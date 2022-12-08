@@ -193,9 +193,12 @@ export const List = () => {
     }
   );
 
-  const [deleteAll, deleteAllState] = useRunDbQuery((db) => async () => {
-    await db.runQuery(deleteFrom(notesTable));
-  });
+  const [deleteAll, deleteAllState] = useRunDbQuery(
+    (db) => async () => {
+      await db.runQuery(deleteFrom(notesTable));
+    },
+    { inTransaction: false }
+  );
 
   return (
     <>

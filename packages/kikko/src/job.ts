@@ -57,6 +57,11 @@ export const acquireJob = async (
     try {
       await promise;
     } catch (e) {
+      jobsState.value = {
+        ...jobsState.value,
+        queue: jobsState.value.queue.filter((j) => j.id !== id),
+      };
+
       if (e instanceof TimeoutError) {
         throw new TimeoutError(
           `Timeout error while job acquire: '${
