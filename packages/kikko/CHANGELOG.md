@@ -1,5 +1,11 @@
 # @kikko-land/core
 
+## 0.12.0
+
+### Minor Changes
+
+- fc7a4e2: Improve transactions handling
+
 ## 0.11.0
 
 ### Minor Changes

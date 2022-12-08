@@ -1,5 +1,12 @@
 # @kikko-land/react-native-backend
 
+## 0.8.1
+
+### Patch Changes
+
+- Updated dependencies [fc7a4e2]
+  - @kikko-land/kikko@0.12.0
+
 ## 0.8.0
 
 ### Minor Changes
