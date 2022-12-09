@@ -1,6 +1,6 @@
 {
   "name": "@kikko-land/vue",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "author": "Sergey Popov",
   "license": "MIT",
   "main": "./src/index.ts",
@@ -32,8 +32,8 @@
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
-    "@kikko-land/kikko": "^0.11.0",
-    "@kikko-land/reactive-queries-plugin": "^0.9.0",
+    "@kikko-land/kikko": "^0.12.0",
+    "@kikko-land/reactive-queries-plugin": "^0.9.1",
     "@kikko-land/boono-sql": "^0.3.0"
   },
   "peerDependencies": {

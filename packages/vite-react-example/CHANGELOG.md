@@ -1,5 +1,16 @@
 # @kikko-land/vite-react-example
 
+## 0.9.0
+
+### Minor Changes
+
+- fc7a4e2: Improve transactions handling
+
+### Patch Changes
+
+- @kikko-land/absurd-web-backend@0.9.1
+- @kikko-land/react@0.7.2
+
 ## 0.8.0
 
 ### Minor Changes
