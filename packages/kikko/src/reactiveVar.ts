@@ -110,12 +110,19 @@ export const reactiveVar = <T>(
         throw new Error(`reactiveVar ${rOpts.label} is stopped!`);
 
       const toWait = new Promise<void>((resolve, reject) => {
-        const unsubscriptions: (() => void)[] = [];
+        let unsubscriptions: (() => void)[] = [];
 
         const unsubAll = () => {
-          for (const unsub of unsubscriptions) {
-            unsub();
-          }
+          // We need to wait till all unsubscriptions will appear in array.
+          // We can have case when subsctibe() emitted needed values,
+          // but all other unsubscribes are not pushed
+          queueMicrotask(() => {
+            for (const unsub of unsubscriptions) {
+              unsub();
+            }
+
+            unsubscriptions = [];
+          });
         };
 
         unsubscriptions.push(
@@ -156,10 +163,18 @@ export const reactiveVar = <T>(
           });
         }
 
-        this.__state.onStop.push(() => {
+        const onStopHandler = () => {
           unsubAll();
 
           reject(stoppedError);
+        };
+
+        this.__state.onStop.push(onStopHandler);
+
+        unsubscriptions.push(() => {
+          this.__state.onStop = this.__state.onStop.filter((s) => {
+            return s !== onStopHandler;
+          });
         });
       });
 
@@ -174,6 +189,8 @@ export const reactiveVar = <T>(
       for (const unsub of this.__state.onStop) {
         unsub();
       }
+
+      this.__state.onStop = [];
 
       this.__state.isStopped = true;
     },
