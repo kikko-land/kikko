@@ -1,5 +1,12 @@
 # @kikko-land/native-expo-backend
 
+## 0.8.2
+
+### Patch Changes
+
+- Updated dependencies [085297e]
+  - @kikko-land/kikko@0.13.0
+
 ## 0.8.1
 
 ### Patch Changes

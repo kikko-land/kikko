@@ -1,5 +1,11 @@
 # @kikko-land/core
 
+## 0.13.0
+
+### Minor Changes
+
+- 085297e: Fix memmory leak
+
 ## 0.12.0
 
 ### Minor Changes

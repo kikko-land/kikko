@@ -1,5 +1,12 @@
 # @kikko-land/migrations-plugin
 
+## 0.7.3
+
+### Patch Changes
+
+- Updated dependencies [085297e]
+  - @kikko-land/kikko@0.13.0
+
 ## 0.7.2
 
 ### Patch Changes
