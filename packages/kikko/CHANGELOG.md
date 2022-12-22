@@ -1,5 +1,11 @@
 # @kikko-land/core
 
+## 0.14.0
+
+### Minor Changes
+
+- 0ac4b28: Use console.info for queries logs
+
 ## 0.13.0
 
 ### Minor Changes
