@@ -1,5 +1,12 @@
 # @kikko-land/absurd-web-backend
 
+## 0.9.3
+
+### Patch Changes
+
+- Updated dependencies [0ac4b28]
+  - @kikko-land/kikko@0.14.0
+
 ## 0.9.2
 
 ### Patch Changes

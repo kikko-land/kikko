@@ -1,5 +1,13 @@
 # @kikko-land/electron-better-sqlite3-backend
 
+## 0.8.3
+
+### Patch Changes
+
+- Updated dependencies [0ac4b28]
+  - @kikko-land/kikko@0.14.0
+  - @kikko-land/d1-backend@0.3.3
+
 ## 0.8.2
 
 ### Patch Changes

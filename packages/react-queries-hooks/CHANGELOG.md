@@ -1,5 +1,13 @@
 # @kikko-land/react-queries-hooks
 
+## 0.10.4
+
+### Patch Changes
+
+- Updated dependencies [0ac4b28]
+  - @kikko-land/kikko@0.14.0
+  - @kikko-land/reactive-queries-plugin@0.9.3
+
 ## 0.10.3
 
 ### Patch Changes
