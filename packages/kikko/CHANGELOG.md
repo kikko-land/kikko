@@ -1,5 +1,11 @@
 # @kikko-land/core
 
+## 0.15.0
+
+### Minor Changes
+
+- c0ac90e: Use console.debug for queries logs
+
 ## 0.14.0
 
 ### Minor Changes
