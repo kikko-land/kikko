@@ -42,7 +42,7 @@ export const initDbClient = async ({
       const color =
         typeof i === "number" ? colors[i % colors.length] : undefined;
 
-      console.info(
+      console.debug(
         ...(color
           ? [
               msg,
@@ -55,7 +55,7 @@ export const initDbClient = async ({
       console.error(msg, context);
     },
     logTrFinish: (msg: string) => {
-      console.info(
+      console.debug(
         msg,
         `color: #fff; background-color: #1da1f2; padding: 2px 4px; border-radius: 2px`
       );
