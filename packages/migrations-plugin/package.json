@@ -1,6 +1,6 @@
 {
   "name": "@kikko-land/migrations-plugin",
-  "version": "0.7.5",
+  "version": "0.8.0",
   "main": "./src/index.ts",
   "module": "./src/index.ts",
   "types": "./src/index.ts",
