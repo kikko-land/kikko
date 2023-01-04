@@ -1,5 +1,11 @@
 # @kikko-land/migrations-plugin
 
+## 0.8.0
+
+### Minor Changes
+
+- 7c8c5be: Improve migrations parallel run
+
 ## 0.7.5
 
 ### Patch Changes

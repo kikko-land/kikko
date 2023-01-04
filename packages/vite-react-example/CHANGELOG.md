@@ -1,5 +1,15 @@
 # @kikko-land/vite-react-example
 
+## 0.10.0
+
+### Minor Changes
+
+- 7c8c5be: Improve migrations parallel run
+
+### Patch Changes
+
+- @kikko-land/react@0.7.6
+
 ## 0.9.0
 
 ### Minor Changes
