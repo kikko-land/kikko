@@ -12,36 +12,65 @@ const handleMigrations = async <T extends IMigration | IAtomicMigration>(
 ) => {
   if (migrations.length === 0) return;
 
-  await db.runQuery(
-    sql`
+  let retriesCount = 0;
+
+  retryLoop: while (true) {
+    await db.runQuery(
+      sql`
         CREATE TABLE IF NOT EXISTS ${sql.raw(migrationsTable)} (
           id INTEGER PRIMARY KEY,
           name varchar(20) NOT NULL,
           migratedAt INTEGER NOT NULL
         )
       `
-  );
+    );
 
-  const migratedIds = new Set(
-    (
-      await db.runQuery<{ id: number }>(
-        sql`SELECT id FROM ${sql.raw(migrationsTable)}`
-      )
-    ).map(({ id }) => id)
-  );
+    const migratedIds = new Set(
+      (
+        await db.runQuery<{ id: number }>(
+          sql`SELECT id FROM ${sql.raw(migrationsTable)}`
+        )
+      ).map(({ id }) => id)
+    );
 
-  for (const migration of migrations.sort((a, b) => a.id - b.id)) {
-    if (migratedIds.has(migration.id)) return;
+    for (const migration of migrations.sort((a, b) => a.id - b.id)) {
+      if (migratedIds.has(migration.id)) return;
 
-    await migrate(migration);
+      try {
+        await migrate(migration);
+      } catch (e) {
+        if (e instanceof Error) {
+          // That may happens when other migrator is running in parallel
+          //
+          // Let's just retry to run migrations again
+          if (
+            e.message.includes("UNIQUE") &&
+            e.message.includes("migrations.id") &&
+            retriesCount < 5
+          ) {
+            retriesCount++;
+
+            await new Promise((resolve) =>
+              setTimeout(resolve, retriesCount * 500)
+            );
+
+            continue retryLoop;
+          } else {
+            throw e;
+          }
+        } else {
+          throw e;
+        }
+      }
+    }
+
+    return;
   }
 };
 
 const runMigrations = async (db: IDb, migrations: IMigration[]) => {
   return handleMigrations(db, migrations, async (migration) => {
     await db.runInTransaction(async (db) => {
-      await migration.up(db);
-
       await db.runQuery(
         generateInsert(migrationsTable, [
           {
@@ -51,6 +80,8 @@ const runMigrations = async (db: IDb, migrations: IMigration[]) => {
           },
         ])
       );
+
+      await migration.up(db);
     });
   });
 };
@@ -58,8 +89,6 @@ const runMigrations = async (db: IDb, migrations: IMigration[]) => {
 const runAtomicMigrations = async (db: IDb, migrations: IAtomicMigration[]) => {
   return handleMigrations(db, migrations, async (migration) => {
     await db.runInAtomicTransaction(async (tr) => {
-      await migration.up(tr, db);
-
       tr.addQuery(
         generateInsert(migrationsTable, [
           {
@@ -69,6 +98,8 @@ const runAtomicMigrations = async (db: IDb, migrations: IAtomicMigration[]) => {
           },
         ])
       );
+
+      await migration.up(tr, db);
     });
   });
 };

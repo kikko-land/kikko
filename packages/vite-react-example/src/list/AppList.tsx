@@ -2,6 +2,7 @@ import "../builder-examples";
 
 import { absurdWebBackend } from "@kikko-land/absurd-web-backend";
 import {
+  atomicMigrationsPlugin,
   DbProvider,
   DbsHolder,
   EnsureDbLoaded,
@@ -16,7 +17,10 @@ import React from "react";
 import { useLocation } from "react-use";
 import sqlWasmUrl from "wa-sqlite/dist/wa-sqlite-async.wasm?url";
 
-import { createNotesTableMigration } from "../migrations/createNotesTable";
+import {
+  createNotesTableAtomicMigration,
+  createNotesTableMigration,
+} from "../migrations/createNotesTable";
 import { List } from "./List";
 
 const buildConfig = (config: IBackendConfig): IInitDbClientConfig => {
@@ -37,8 +41,11 @@ const buildConfig = (config: IBackendConfig): IInitDbClientConfig => {
           }),
     plugins: [
       reactiveQueriesPlugin(),
-      migrationsPlugin({
-        migrations: [createNotesTableMigration],
+      /* migrationsPlugin({
+       *   migrations: [createNotesTableMigration],
+       * }), */
+      atomicMigrationsPlugin({
+        migrations: [createNotesTableAtomicMigration],
       }),
     ],
   };
