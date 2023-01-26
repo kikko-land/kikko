@@ -71,9 +71,12 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
       const toExec = q.preparedQuery.text;
 
       return {
-        ...(await dbBackend.execPreparedQuery(
-          q.preparedQuery,
-          queries.preparedValues,
+        ...(await dbBackend.execQueries(
+          {
+            type: "prepared",
+            query: q.preparedQuery,
+            preparedValues: queries.preparedValues,
+          },
           opts
         )),
         textQueries: [toExec],
@@ -82,7 +85,10 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
       const toExec = queries.values.map((q) => q.preparedQuery);
 
       return {
-        ...(await dbBackend.execQueries(toExec, opts)),
+        ...(await dbBackend.execQueries(
+          { type: "usual", values: toExec },
+          opts
+        )),
         textQueries: toExec.map((q) => q.text),
       };
     }

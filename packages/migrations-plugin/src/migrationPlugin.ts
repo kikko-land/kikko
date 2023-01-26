@@ -51,7 +51,7 @@ const handleMigrations = async <T extends IMigration | IAtomicMigration>(
             retriesCount++;
 
             await new Promise((resolve) =>
-              setTimeout(resolve, retriesCount * 500)
+              setTimeout(resolve, retriesCount * 500, undefined)
             );
 
             continue retryLoop;
