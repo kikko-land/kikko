@@ -1,5 +1,4 @@
 import {
-  buildAsyncQueryRunner,
   buildSyncQueryRunner,
   initJobsState,
   IPrimitiveValue,
@@ -33,7 +32,7 @@ const initialize = async (
   await db.init();
 };
 
-const queriesRunner = buildSyncQueryRunner(jobsState, {
+const queriesRunner = buildSyncQueryRunner({
   execPrepared: (query: IQuery, preparedValues: IPrimitiveValue[][]) => {
     if (!db) {
       throw new Error("DB not initialized!");
@@ -74,7 +73,7 @@ const runQueries = async (
 
   const sendTime = new Date().getTime() - sentAt;
 
-  const res = await queriesRunner.run(queries, transactionOpts);
+  const res = await queriesRunner.run(jobsState, queries, transactionOpts);
 
   return {
     ...res,

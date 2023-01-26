@@ -9,7 +9,7 @@ import {
 } from "./transactionJobs";
 import { IExecQueriesResult, IQuery, ITransactionOpts } from "./types";
 
-type IDbInstance = {
+export type IDbBackendInstance = {
   isUsualTransactionDisabled?: true;
   isAtomicRollbackCommitDisabled?: true;
 
@@ -27,7 +27,7 @@ type IDbInstance = {
   stop(): Promise<void>;
 };
 
-export type IDbBackend = (db: { dbName: string }) => IDbInstance;
+export type IDbBackend = (db: { dbName: string }) => IDbBackendInstance;
 
 export type IRunRes = {
   rows: Record<string, number | string | Uint8Array | null>[];
@@ -39,6 +39,7 @@ export type IRunRes = {
 
 export type IRunQuery = {
   run: (
+    jobsState: ReactiveVar<ITransactionsJobsState>,
     q:
       | { type: "usual"; values: IQuery[] }
       | {
@@ -51,18 +52,24 @@ export type IRunQuery = {
 };
 
 export const buildAsyncQueryRunner = (
-  jobsState: ReactiveVar<ITransactionsJobsState>,
   args: {
     execPrepared: (
       query: IQuery,
       preparedValues: IPrimitiveValue[][]
     ) => Promise<IRunRes[]>;
-    execUsual: (q: IQuery) => Promise<IRunRes>;
     rollback: () => Promise<void>;
-  }
+  } & (
+    | {
+        execUsual: (q: IQuery) => Promise<IRunRes>;
+      }
+    | {
+        execUsualBatch: (q: IQuery[]) => Promise<IRunRes[]>;
+      }
+  )
 ): IRunQuery => {
   return {
     async run(
+      jobsState: ReactiveVar<ITransactionsJobsState>,
       queries:
         | { type: "usual"; values: IQuery[] }
         | {
@@ -80,20 +87,24 @@ export const buildAsyncQueryRunner = (
       try {
         const queriesResult = await (async () => {
           if (queries.type === "usual") {
-            const res: IRunRes[] = [];
+            if ("execUsual" in args) {
+              const res: IRunRes[] = [];
 
-            for (const q of queries.values) {
-              try {
-                res.push(await args.execUsual(q));
-              } catch (e) {
-                if (e instanceof Error) {
-                  e.message = `Error while executing query: ${q.text} - ${e.message}`;
+              for (const q of queries.values) {
+                try {
+                  res.push(await args.execUsual(q));
+                } catch (e) {
+                  if (e instanceof Error) {
+                    e.message = `Error while executing query: ${q.text} - ${e.message}`;
+                  }
+                  throw e;
                 }
-                throw e;
               }
-            }
 
-            return res;
+              return res;
+            } else {
+              return args.execUsualBatch(queries.values);
+            }
           } else {
             try {
               return await args.execPrepared(
@@ -133,18 +144,24 @@ export const buildAsyncQueryRunner = (
 };
 
 export const buildSyncQueryRunner = (
-  jobsState: ReactiveVar<ITransactionsJobsState>,
   args: {
     execPrepared: (
       query: IQuery,
       preparedValues: IPrimitiveValue[][]
     ) => IRunRes[];
-    execUsual: (q: IQuery) => IRunRes;
     rollback: () => void;
-  }
+  } & (
+    | {
+        execUsual: (q: IQuery) => IRunRes;
+      }
+    | {
+        execUsualBatch: (q: IQuery[]) => IRunRes[];
+      }
+  )
 ): IRunQuery => {
   return {
     async run(
+      jobsState: ReactiveVar<ITransactionsJobsState>,
       queries:
         | { type: "usual"; values: IQuery[] }
         | {
@@ -162,16 +179,20 @@ export const buildSyncQueryRunner = (
       try {
         const queriesResult = (() => {
           if (queries.type === "usual") {
-            return queries.values.map((q) => {
-              try {
-                return args.execUsual(q);
-              } catch (e) {
-                if (e instanceof Error) {
-                  e.message = `Error while executing query: ${q.text} - ${e.message}`;
+            if ("execUsual" in args) {
+              return queries.values.map((q) => {
+                try {
+                  return args.execUsual(q);
+                } catch (e) {
+                  if (e instanceof Error) {
+                    e.message = `Error while executing query: ${q.text} - ${e.message}`;
+                  }
+                  throw e;
                 }
-                throw e;
-              }
-            });
+              });
+            } else {
+              return args.execUsualBatch(queries.values);
+            }
           } else {
             try {
               return args.execPrepared(queries.query, queries.preparedValues);
