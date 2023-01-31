@@ -85,7 +85,9 @@ export const nativeExpoBackend =
     });
 
     return {
-      async initialize() {},
+      async initialize() {
+        return Promise.resolve();
+      },
       async execQueries(
         q:
           | { type: "usual"; values: IQuery[] }

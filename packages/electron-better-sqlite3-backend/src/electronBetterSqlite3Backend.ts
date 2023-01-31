@@ -1,14 +1,13 @@
 import {
-  acquireWithTrJobOrWait,
+  buildSyncQueryRunner,
   getTime,
   IDbBackend,
-  IExecQueriesResult,
   initJobsState,
   IPrimitiveValue,
   IQuery,
   IQueryResult,
+  IRunRes,
   ITransactionOpts,
-  releaseTrJobIfPossible,
 } from "@kikko-land/kikko";
 
 declare global {
@@ -35,47 +34,22 @@ export const electronBetterSqlite3Backend =
     let db: ValueType<ReturnType<typeof window.sqliteDb>> | undefined =
       undefined;
 
-    const runQueries = async (
-      queries:
-        | { type: "usual"; values: IQuery[] }
-        | {
-            type: "prepared";
-            query: IQuery;
-            preparedValues: IPrimitiveValue[][];
-          },
-      trOpts?: ITransactionOpts
-    ) => {
-      if (!db) {
-        throw new Error(`Failed to run queries, db not initialized`);
-      }
-      const totalStartedAt = getTime();
+    const queryRunner = buildSyncQueryRunner({
+      execPrepared(query: IQuery, preparedValues: IPrimitiveValue[][]) {
+        if (!db) {
+          throw new Error(`Failed to run queries, db not initialized`);
+        }
 
-      const startBlockAt = getTime();
-      const job = await acquireWithTrJobOrWait(jobsState, trOpts);
-      const endBlockAt = getTime();
-      const blockTime = endBlockAt - startBlockAt;
-
-      const result: IExecQueriesResult["result"] = [];
-
-      try {
-        const queriesToRun =
-          queries.type === "usual"
-            ? queries.values
-            : queries.preparedValues.map(
-                (v): IQuery => ({
-                  text: queries.query.text,
-                  values: v,
-                })
-              );
-        for (const q of queriesToRun) {
+        const result: IRunRes[] = [];
+        for (const v of preparedValues) {
           const startTime = getTime();
 
           const rows = (() => {
             try {
-              return db.all(q.text, q.values) as IQueryResult;
+              return db.all(query.text, v) as IQueryResult;
             } catch (e) {
               if (e instanceof Error) {
-                e.message = `Error while executing query: ${q.text} - ${e.message}`;
+                e.message = `Error while executing query: ${query.text} - ${e.message}`;
               }
               throw e;
             }
@@ -90,30 +64,29 @@ export const electronBetterSqlite3Backend =
             },
           });
         }
-      } catch (e) {
-        if (trOpts?.rollbackOnFail) {
-          try {
-            db.all("ROLLBACK", []);
-          } catch (rollbackError) {
-            console.error(`Failed to rollback`, e, rollbackError);
-          }
+
+        return result;
+      },
+      execUsual(queriesToRun: IQuery): IRunRes {
+        if (!db) {
+          throw new Error(`Failed to run queries, db not initialized`);
         }
 
-        throw e;
-      } finally {
-        releaseTrJobIfPossible(jobsState, job, trOpts);
-      }
-
-      const totalFinishedAt = getTime();
-
-      return Promise.resolve({
-        result,
-        performance: {
-          totalTime: totalFinishedAt - totalStartedAt,
-          blockTime,
-        },
-      });
-    };
+        return {
+          rows: db.all(
+            queriesToRun.text,
+            queriesToRun.values
+          ) as IRunRes["rows"],
+          performance: {},
+        };
+      },
+      rollback() {
+        if (!db) {
+          throw new Error(`Failed to run queries, db not initialized`);
+        }
+        db.all("ROLLBACK", []);
+      },
+    });
 
     return {
       async initialize() {
@@ -126,18 +99,27 @@ export const electronBetterSqlite3Backend =
           db.close();
         }
       },
-      async execQueries(queries: IQuery[], transactionOpts?: ITransactionOpts) {
-        return runQueries({ type: "usual", values: queries }, transactionOpts);
-      },
-      async execPreparedQuery(
-        query: IQuery,
-        preparedValues: IPrimitiveValue[][],
+      async execQueries(
+        q:
+          | { type: "usual"; values: IQuery[] }
+          | {
+              type: "prepared";
+              query: IQuery;
+              preparedValues: IPrimitiveValue[][];
+            },
         transactionOpts?: ITransactionOpts
-      ): Promise<IExecQueriesResult> {
-        return runQueries(
-          { type: "prepared", query, preparedValues },
-          transactionOpts
-        );
+      ) {
+        const startedAt = getTime();
+        const res = await queryRunner.run(jobsState, q, transactionOpts);
+        const endAt = getTime();
+
+        return {
+          ...res,
+          performance: {
+            ...res.performance,
+            totalTime: endAt - startedAt,
+          },
+        };
       },
       stop() {
         isStopped = true;
