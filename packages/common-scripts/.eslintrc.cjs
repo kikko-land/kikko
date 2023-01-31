@@ -6,7 +6,8 @@ module.exports = {
   extends: [
     // "airbnb",
     // "airbnb-typescript",
-    "eslint:recommended",
+    // "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
     "plugin:jsx-a11y/recommended",
     "plugin:promise/recommended",
     "plugin:@typescript-eslint/recommended-requiring-type-checking",

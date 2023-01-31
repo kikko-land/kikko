@@ -77,7 +77,7 @@ export const nativeExpoBackend =
       },
       async rollback() {
         await new Promise<void>((resolve) => {
-          db.exec([{ sql: "ROLLBACK", args: [] }], false, (_) => {
+          db.exec([{ sql: "ROLLBACK", args: [] }], false, () => {
             resolve();
           });
         });

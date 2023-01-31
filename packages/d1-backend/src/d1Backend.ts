@@ -11,7 +11,7 @@ import {
 
 export const d1Backend =
   (config: { db: D1Database }): IDbBackend =>
-  ({}: { dbName: string }) => {
+  () => {
     const jobsState = initJobsState();
 
     const queryRunner = buildAsyncQueryRunner({
