@@ -6,12 +6,13 @@ module.exports = {
   extends: [
     // "airbnb",
     // "airbnb-typescript",
+    "eslint:recommended",
     "plugin:jsx-a11y/recommended",
     "plugin:promise/recommended",
     "plugin:@typescript-eslint/recommended-requiring-type-checking",
     "plugin:react-hooks/recommended",
     "plugin:prettier/recommended",
-    "prettier"
+    "prettier",
   ],
   parser: "@typescript-eslint/parser",
   plugins: ["jsx-a11y", "simple-import-sort", "promise"],

@@ -329,7 +329,7 @@ export const execAtomicTransaction = async (
         cb();
       }
     } catch (e) {
-      logFns.logError("Error in afterRallback callback", e);
+      logFns.logError("Error in afterRollback callback", e);
     }
 
     throw e;

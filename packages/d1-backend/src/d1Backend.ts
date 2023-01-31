@@ -64,7 +64,8 @@ export const d1Backend =
           },
         }));
       },
-      async rollback() {
+      rollback() {
+        throw new Error("Rollback not supported");
         // we don't need rollback for d1 cause it support only atomic commits
       },
     });

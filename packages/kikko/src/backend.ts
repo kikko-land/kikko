@@ -33,7 +33,7 @@ export type IRunRes = {
   rows: Record<string, number | string | Uint8Array | null>[];
   performance: {
     prepareTime?: number;
-    execTime: number;
+    execTime?: number;
   };
 };
 

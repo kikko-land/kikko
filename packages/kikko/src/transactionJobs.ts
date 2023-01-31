@@ -68,7 +68,7 @@ export const acquireJob = async (
 
       if (e instanceof TimeoutError) {
         throw new TimeoutError(
-          `Timeout error while trnsaction job acquire: '${
+          `Timeout error while transaction job acquire: '${
             e.message
           }'. Is it a dead lock? ${stateToDebugString(
             jobsState.value

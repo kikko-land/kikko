@@ -2,7 +2,6 @@ import { initBackend } from "@kikko-land/better-absurd-sql/dist/indexeddb-main-t
 import {
   getTime,
   IDbBackend,
-  IExecQueriesResult,
   IPrimitiveValue,
   IQuery,
   ITransactionOpts,
@@ -18,7 +17,6 @@ import RawWorker from "./worker/DB.worker?worker&inline";
 export const absurdWebBackend =
   ({
     wasmUrl,
-    queryTimeout,
     pageSize,
     cacheSize,
   }: {
