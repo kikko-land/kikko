@@ -41,6 +41,6 @@
   },
   "devDependencies": {
     "@kikko-land/common-scripts": "^0.5.0",
-    "vue": "^3.2.39"
+    "vue": "^3.2.46"
   }
 }
