@@ -1,6 +1,6 @@
 import { SQLiteFS } from "@kikko-land/better-absurd-sql";
 import IndexedDBBackend from "@kikko-land/better-absurd-sql/dist/indexeddb-backend";
-import { buildAsyncQueryRunner, getTime } from "@kikko-land/kikko";
+import { getTime } from "@kikko-land/kikko";
 import initSqlJs, { BindParams, Database } from "@kikko-land/sql.js";
 
 type IRes = {

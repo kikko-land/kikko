@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 declare module "@kikko-land/sql.js" {
   /// <reference types="emscripten" />
   import { SQLiteFS } from "@kikko-land/better-absurd-sql";

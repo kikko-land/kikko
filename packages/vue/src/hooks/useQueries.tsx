@@ -42,6 +42,7 @@ export const useInitDb = (
   config: IInitDbClientConfig
 ) => {
   let isStopped = false;
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   let cleanup = () => {};
 
   const stopWatch = watchEffect(() => {
@@ -65,6 +66,7 @@ export const useInitDb = (
       cleanup = () => {
         void stopDb(db);
 
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         cleanup = () => {};
       };
     })();
@@ -97,8 +99,7 @@ export type IUseQueryResult<D> =
 
 export const useQueries = <D extends Record<string, unknown>>(
   dbStateRef: Ref<IDbInitState>,
-  queries: ISqlAdapter[] | Falsy,
-  _opts?: { suppressLog?: boolean; mapToObject?: boolean } | undefined
+  queries: ISqlAdapter[] | Falsy
 ): ComputedRef<IUseQueryResult<D[]>> => {
   const queriesRef = shallowRef(queries);
   const dataRef = shallowRef<D[][]>([]) as Ref<D[][]>;
