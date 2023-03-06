@@ -43,11 +43,7 @@ const initDb = (db: D1Database) =>
   });
 
 export default {
-  async fetch(
-    request: Request,
-    env: Env,
-    ctx: ExecutionContext
-  ): Promise<Response> {
+  async fetch(request: Request, env: Env): Promise<Response> {
     const db = await initDb(env.DB);
     const id = makeId();
 

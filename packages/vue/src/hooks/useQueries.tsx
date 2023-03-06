@@ -99,7 +99,9 @@ export type IUseQueryResult<D> =
 
 export const useQueries = <D extends Record<string, unknown>>(
   dbStateRef: Ref<IDbInitState>,
-  queries: ISqlAdapter[] | Falsy
+  queries: ISqlAdapter[] | Falsy,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _opts?: { suppressLog?: boolean; mapToObject?: boolean } | undefined
 ): ComputedRef<IUseQueryResult<D[]>> => {
   const queriesRef = shallowRef(queries);
   const dataRef = shallowRef<D[][]>([]) as Ref<D[][]>;
