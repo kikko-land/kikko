@@ -1,12 +1,9 @@
 import {
-  acquireWithTrJobOrWait,
-  getTime,
-  IExecQueriesResult,
+  buildSyncQueryRunner,
   initJobsState,
   IPrimitiveValue,
   IQuery,
   ITransactionOpts,
-  releaseTrJobIfPossible,
   whenAllJobsDone,
 } from "@kikko-land/kikko";
 import * as Comlink from "comlink";
@@ -35,6 +32,30 @@ const initialize = async (
   await db.init();
 };
 
+const queriesRunner = buildSyncQueryRunner({
+  execPrepared: (query: IQuery, preparedValues: IPrimitiveValue[][]) => {
+    if (!db) {
+      throw new Error("DB not initialized!");
+    }
+
+    return db.execPrepared(query.text, preparedValues);
+  },
+  execUsual: (q: IQuery) => {
+    if (!db) {
+      throw new Error("DB not initialized!");
+    }
+
+    return db.sqlExec(q.text, q.values);
+  },
+  rollback: () => {
+    if (!db) {
+      throw new Error("DB not initialized!");
+    }
+
+    db.sqlExec("ROLLBACK");
+  },
+});
+
 const runQueries = async (
   queries:
     | { type: "usual"; values: IQuery[] }
@@ -52,87 +73,16 @@ const runQueries = async (
 
   const sendTime = new Date().getTime() - sentAt;
 
-  const currentDb = db;
+  const res = await queriesRunner.run(jobsState, queries, transactionOpts);
 
-  const startBlockAt = getTime();
-  const job = await acquireWithTrJobOrWait(jobsState, transactionOpts);
-  const endBlockAt = getTime();
-  const blockTime = endBlockAt - startBlockAt;
-
-  try {
-    const queriesResult = (() => {
-      if (queries.type === "usual") {
-        return queries.values.map((q) => {
-          try {
-            return currentDb.sqlExec(q.text, q.values);
-          } catch (e) {
-            if (e instanceof Error) {
-              e.message = `Error while executing query: ${q.text} - ${e.message}`;
-            }
-            throw e;
-          }
-        });
-      } else {
-        try {
-          return currentDb.execPrepared(
-            queries.query.text,
-            queries.preparedValues
-          );
-        } catch (e) {
-          if (e instanceof Error) {
-            e.message = `Error while executing query: ${queries.query.text} - ${e.message}`;
-          }
-          throw e;
-        }
-      }
-    })();
-
-    return {
-      result: queriesResult,
-      performance: {
-        sendTime,
-        blockTime,
-      },
-      sentAt: new Date().getTime(),
-    };
-  } catch (e) {
-    if (transactionOpts?.rollbackOnFail) {
-      try {
-        currentDb.sqlExec("ROLLBACK");
-      } catch (rollbackError) {
-        console.error(`Failed to rollback`, e, rollbackError);
-      }
-    }
-
-    throw e;
-  } finally {
-    releaseTrJobIfPossible(jobsState, job, transactionOpts);
-  }
-};
-
-const execQueries = async (
-  queries: IQuery[],
-  sentAt: number,
-  transactionOpts?: ITransactionOpts
-) => {
-  return runQueries(
-    { type: "usual", values: queries },
-    sentAt,
-    transactionOpts
-  );
-};
-
-const execPreparedQueries = async (
-  query: IQuery,
-  preparedValues: IPrimitiveValue[][],
-  sentAt: number,
-  transactionOpts?: ITransactionOpts
-) => {
-  return runQueries(
-    { type: "prepared", preparedValues, query },
-    sentAt,
-    transactionOpts
-  );
+  return {
+    ...res,
+    performance: {
+      ...res.performance,
+      sendTime,
+    },
+    sentAt: new Date().getTime(),
+  };
 };
 
 const stop = async () => {
@@ -141,7 +91,7 @@ const stop = async () => {
   await whenAllJobsDone(jobsState);
 };
 
-const DbWorker = { execQueries, execPreparedQueries, initialize, stop };
+const DbWorker = { runQueries, initialize, stop };
 
 Comlink.expose(DbWorker);
 

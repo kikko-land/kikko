@@ -4,6 +4,7 @@
 // I didn't use original due to lack of cjs support
 
 export type EventsMap = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [eventName: string]: (...args: any[]) => Promise<void> | void;
 };
 

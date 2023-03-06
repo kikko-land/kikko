@@ -1,14 +1,13 @@
 import {
-  acquireWithTrJobOrWait,
+  buildAsyncQueryRunner,
   getTime,
   IDbBackend,
-  IExecQueriesResult,
   initJobsState,
   IPrimitiveValue,
   IQuery,
   IQueryResult,
+  IRunRes,
   ITransactionOpts,
-  releaseTrJobIfPossible,
 } from "@kikko-land/kikko";
 import SQLite from "tauri-plugin-sqlite-api";
 
@@ -26,69 +25,55 @@ export const tauriBackend =
             type: "prepared";
             query: IQuery;
             preparedValues: IPrimitiveValue[][];
-          },
-      transactionOpts?: ITransactionOpts
-    ) => {
+          }
+    ): Promise<IRunRes[]> => {
       if (!db) {
         throw new Error("Failed to run queries, db not initialized");
       }
-      const totalStartedAt = getTime();
 
-      const startBlockAt = getTime();
-      const job = await acquireWithTrJobOrWait(jobsState, transactionOpts);
-      const endBlockAt = getTime();
-      const blockTime = endBlockAt - startBlockAt;
+      const result: IRunRes[] = [];
 
-      const result: IExecQueriesResult["result"] = [];
+      const queriesToRun =
+        queries.type === "usual"
+          ? queries.values
+          : queries.preparedValues.map(
+              (v): IQuery => ({
+                text: queries.query.text,
+                values: v,
+              })
+            );
+      for (const q of queriesToRun) {
+        const startTime = getTime();
 
-      try {
-        const queriesToRun =
-          queries.type === "usual"
-            ? queries.values
-            : queries.preparedValues.map(
-                (v): IQuery => ({
-                  text: queries.query.text,
-                  values: v,
-                })
-              );
-        for (const q of queriesToRun) {
-          const startTime = getTime();
+        const rows = await db.select<IQueryResult>(q.text, q.values);
 
-          const rows = await db.select<IQueryResult>(q.text, q.values);
+        const endTime = getTime();
 
-          const endTime = getTime();
-
-          result.push({
-            rows,
-            performance: {
-              execTime: endTime - startTime,
-            },
-          });
-        }
-      } catch (e) {
-        if (transactionOpts?.rollbackOnFail) {
-          try {
-            await db.execute("ROLLBACK", []);
-          } catch (rollbackError) {
-            console.error(`Failed to rollback`, e, rollbackError);
-          }
-        }
-
-        throw e;
-      } finally {
-        releaseTrJobIfPossible(jobsState, job, transactionOpts);
+        result.push({
+          rows,
+          performance: {
+            execTime: endTime - startTime,
+          },
+        });
       }
+      // await db.execute("ROLLBACK", []);
 
-      const totalFinishedAt = getTime();
-
-      return {
-        result,
-        performance: {
-          totalTime: totalFinishedAt - totalStartedAt,
-          blockTime,
-        },
-      };
+      return result;
     };
+
+    const queryRunner = buildAsyncQueryRunner({
+      async execPrepared(query: IQuery, preparedValues: IPrimitiveValue[][]) {
+        return await runQueries({ type: "prepared", query, preparedValues });
+      },
+      async execUsualBatch(queriesToRun: IQuery[]): Promise<IRunRes[]> {
+        return await runQueries({ type: "usual", values: queriesToRun });
+      },
+      async rollback() {
+        if (!db) throw new Error("db not present");
+
+        await db?.execute("ROLLBACK", []);
+      },
+    });
 
     return {
       async initialize() {
@@ -98,20 +83,26 @@ export const tauriBackend =
         db = await SQLite.open(path(dbName));
       },
       async execQueries(
-        queries: IQuery[],
+        q:
+          | { type: "usual"; values: IQuery[] }
+          | {
+              type: "prepared";
+              query: IQuery;
+              preparedValues: IPrimitiveValue[][];
+            },
         transactionOpts?: ITransactionOpts
-      ): Promise<IExecQueriesResult> {
-        return runQueries({ type: "usual", values: queries }, transactionOpts);
-      },
-      async execPreparedQuery(
-        query: IQuery,
-        preparedValues: IPrimitiveValue[][],
-        transactionOpts?: ITransactionOpts
-      ): Promise<IExecQueriesResult> {
-        return runQueries(
-          { type: "prepared", query, preparedValues },
-          transactionOpts
-        );
+      ) {
+        const startedAt = getTime();
+        const res = await queryRunner.run(jobsState, q, transactionOpts);
+        const endAt = getTime();
+
+        return {
+          ...res,
+          performance: {
+            ...res.performance,
+            totalTime: endAt - startedAt,
+          },
+        };
       },
       async stop() {
         isStopped = true;

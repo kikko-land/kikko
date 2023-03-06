@@ -1,13 +1,12 @@
 import {
-  acquireWithTrJobOrWait,
+  buildAsyncQueryRunner,
   getTime,
   IDbBackend,
-  IExecQueriesResult,
   initJobsState,
   IPrimitiveValue,
   IQuery,
+  IRunRes,
   ITransactionOpts,
-  releaseTrJobIfPossible,
 } from "@kikko-land/kikko";
 import { openDatabase, ResultSet, ResultSetError } from "expo-sqlite";
 
@@ -16,6 +15,7 @@ export const nativeExpoBackend =
   ({ dbName }) => {
     const jobsState = initJobsState();
     const db = openDatabase(dbName + ".db");
+
     const runQueries = async (
       queries:
         | { type: "usual"; values: IQuery[] }
@@ -23,96 +23,92 @@ export const nativeExpoBackend =
             type: "prepared";
             query: IQuery;
             preparedValues: IPrimitiveValue[][];
-          },
-      transactionOpts?: ITransactionOpts
-    ) => {
-      const startTime = getTime();
-
-      const startBlockAt = getTime();
-      const job = await acquireWithTrJobOrWait(jobsState, transactionOpts);
-      const endBlockAt = getTime();
-      const blockTime = endBlockAt - startBlockAt;
-
-      try {
-        const queriesToRun =
-          queries.type === "usual"
-            ? queries.values
-            : queries.preparedValues.map(
-                (v): IQuery => ({
-                  text: queries.query.text,
-                  values: v,
-                })
-              );
-        return await new Promise<IExecQueriesResult>((resolve, reject) => {
-          db.exec(
-            queriesToRun.map((q) => ({ sql: q.text, args: q.values })),
-            false,
-            (_, results) => {
-              const end = getTime();
-
-              if (!results) {
-                resolve({
-                  result: [],
-                  performance: { totalTime: end - startTime },
-                });
-
-                return;
-              }
-
-              const errors = (
-                results.filter((res) => "error" in res) as ResultSetError[]
-              ).map((er) => er.error);
-
-              if (errors.length > 0) {
-                reject(`Failed execute queries: ${errors.join(" ")}`);
-                return;
-              }
-
-              const goodResults = results as ResultSet[];
-
-              resolve({
-                result: goodResults.map(({ rows }) => ({
-                  rows,
-                  performance: {},
-                })),
-                performance: { totalTime: end - startTime, blockTime },
-              });
-            }
-          );
-        });
-      } catch (e) {
-        if (transactionOpts?.rollbackOnFail) {
-          try {
-            await new Promise<void>((resolve) => {
-              db.exec([{ sql: "ROLLBACK", args: [] }], false, (_) => {
-                resolve();
-              });
-            });
-          } catch (rollbackError) {
-            console.error(`Failed to rollback`, e, rollbackError);
           }
-        }
+    ): Promise<IRunRes[]> => {
+      const queriesToRun =
+        queries.type === "usual"
+          ? queries.values
+          : queries.preparedValues.map(
+              (v): IQuery => ({
+                text: queries.query.text,
+                values: v,
+              })
+            );
 
-        throw e;
-      } finally {
-        releaseTrJobIfPossible(jobsState, job, transactionOpts);
-      }
+      return await new Promise<IRunRes[]>((resolve, reject) => {
+        db.exec(
+          queriesToRun.map((q) => ({ sql: q.text, args: q.values })),
+          false,
+          (_, results) => {
+            if (!results) {
+              resolve([]);
+
+              return;
+            }
+
+            const errors = (
+              results.filter((res) => "error" in res) as ResultSetError[]
+            ).map((er) => er.error);
+
+            if (errors.length > 0) {
+              reject(`Failed execute queries: ${errors.join(" ")}`);
+              return;
+            }
+
+            const goodResults = results as ResultSet[];
+
+            resolve(
+              goodResults.map(({ rows }) => ({
+                rows,
+                performance: {},
+              }))
+            );
+          }
+        );
+      });
     };
 
-    return {
-      async initialize() {},
-      async execQueries(queries: IQuery[], transactionOpts?: ITransactionOpts) {
-        return runQueries({ type: "usual", values: queries }, transactionOpts);
+    const queryRunner = buildAsyncQueryRunner({
+      async execPrepared(query: IQuery, preparedValues: IPrimitiveValue[][]) {
+        return await runQueries({ type: "prepared", query, preparedValues });
       },
-      async execPreparedQuery(
-        query: IQuery,
-        preparedValues: IPrimitiveValue[][],
+      async execUsualBatch(queriesToRun: IQuery[]): Promise<IRunRes[]> {
+        return await runQueries({ type: "usual", values: queriesToRun });
+      },
+      async rollback() {
+        await new Promise<void>((resolve) => {
+          db.exec([{ sql: "ROLLBACK", args: [] }], false, () => {
+            resolve();
+          });
+        });
+      },
+    });
+
+    return {
+      async initialize() {
+        return Promise.resolve();
+      },
+      async execQueries(
+        q:
+          | { type: "usual"; values: IQuery[] }
+          | {
+              type: "prepared";
+              query: IQuery;
+              preparedValues: IPrimitiveValue[][];
+            },
         transactionOpts?: ITransactionOpts
-      ): Promise<IExecQueriesResult> {
-        return runQueries(
-          { type: "prepared", query, preparedValues },
-          transactionOpts
-        );
+      ) {
+        const startedAt = getTime();
+        const res = await queryRunner.run(jobsState, q, transactionOpts);
+        const endAt = getTime();
+
+        return {
+          ...res,
+          performance: {
+            ...res.performance,
+            totalTime: endAt - startedAt,
+          },
+        };
       },
       async stop() {
         if (db) {

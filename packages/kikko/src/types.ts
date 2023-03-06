@@ -1,6 +1,7 @@
 import { IPrimitiveValue, ISql, ISqlAdapter } from "@kikko-land/boono-sql";
 import { DeepReadonly } from "ts-essentials";
 
+import { IDbBackend } from "./backend";
 import { INanoEmitter } from "./createNanoEvents";
 import { ReactiveVar } from "./reactiveVar";
 
@@ -131,24 +132,6 @@ export type IExecQueriesResult = {
   }[];
   performance: ICmdPerformance;
 };
-
-type IDbInstance = {
-  isUsualTransactionDisabled?: true;
-  isAtomicRollbackCommitDisabled?: true;
-
-  initialize(): Promise<void>;
-  execQueries(
-    queries: IQuery[],
-    transactionOpts?: ITransactionOpts
-  ): Promise<IExecQueriesResult>;
-  execPreparedQuery(
-    query: IQuery,
-    preparedValues: IPrimitiveValue[][],
-    transactionOpts?: ITransactionOpts
-  ): Promise<IExecQueriesResult>;
-  stop(): Promise<void>;
-};
-export type IDbBackend = (db: { dbName: string }) => IDbInstance;
 
 export type ITransactionPerformance = {
   sendTime?: number;

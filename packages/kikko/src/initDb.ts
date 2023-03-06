@@ -1,6 +1,7 @@
 import { IPrimitiveValue, ISql, ISqlAdapter } from "@kikko-land/boono-sql";
 
 import { runAfterTransaction } from "./afterTransaction";
+import { IDbBackend } from "./backend";
 import { createNanoEvents } from "./createNanoEvents";
 import { reactiveVar } from "./reactiveVar";
 import { runQueries } from "./runQueries";
@@ -8,7 +9,6 @@ import { execAtomicTransaction, runInTransactionFunc } from "./transaction";
 import {
   IAtomicTransactionScope,
   IDb,
-  IDbBackend,
   IKikkoEvents,
   ILogFns,
   IQueriesMiddleware,

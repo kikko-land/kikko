@@ -26,7 +26,6 @@ And it also require db backend that should implement required interface. Other t
 | 🔐 **Secured by default**        | With template literals, all vars that are used will be automatically marked as prepared statement variable that reduce chances of SQL injections a lot.            |
 | 🛠 **Plugin system**              | Allows you to integrate your own code on query/transaction run.                                                                                                    |
 | 👯 **Multi-tab support for web** | Insert row in one tab, and your data will be updated in the other.                                                                                                 |
-| 🥹 **Full typescript support**    | Yes!                                                                                                                                                               |
 
 ## Simple React component example
 

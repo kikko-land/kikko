@@ -2,7 +2,6 @@ import { initBackend } from "@kikko-land/better-absurd-sql/dist/indexeddb-main-t
 import {
   getTime,
   IDbBackend,
-  IExecQueriesResult,
   IPrimitiveValue,
   IQuery,
   ITransactionOpts,
@@ -18,7 +17,6 @@ import RawWorker from "./worker/DB.worker?worker&inline";
 export const absurdWebBackend =
   ({
     wasmUrl,
-    queryTimeout,
     pageSize,
     cacheSize,
   }: {
@@ -50,33 +48,19 @@ export const absurdWebBackend =
           cacheSize !== undefined ? cacheSize : -5000
         );
       },
-      async execQueries(queries: IQuery[], transactionOpts?: ITransactionOpts) {
-        const startedAt = getTime();
-        const res = await dbWorker.execQueries(
-          queries,
-          new Date().getTime(),
-          transactionOpts
-        );
-        const endAt = getTime();
-
-        return {
-          result: res.result,
-          performance: {
-            ...res.performance,
-            receiveTime: new Date().getTime() - res.sentAt,
-            totalTime: endAt - startedAt,
-          },
-        };
-      },
-      async execPreparedQuery(
-        query: IQuery,
-        preparedValues: IPrimitiveValue[][],
+      async execQueries(
+        q:
+          | { type: "usual"; values: IQuery[] }
+          | {
+              type: "prepared";
+              query: IQuery;
+              preparedValues: IPrimitiveValue[][];
+            },
         transactionOpts?: ITransactionOpts
-      ): Promise<IExecQueriesResult> {
+      ) {
         const startedAt = getTime();
-        const res = await dbWorker.execPreparedQueries(
-          query,
-          preparedValues,
+        const res = await dbWorker.runQueries(
+          q,
           new Date().getTime(),
           transactionOpts
         );

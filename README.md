@@ -2,7 +2,6 @@
   
 ![Dark-mix](https://user-images.githubusercontent.com/7958527/184724299-1ca49493-c35d-4ad7-82e7-c4375e07086f.svg)
 
-
 <p align="center">
   <i>Kikko is a wrapper around SQLite interfaces. It brings transaction support, middlewares for queries, and SQLite adapters for the most popular platforms. <br> <br> It also allows you to build data heavy reactive interfaces on top of SQLite for any platform with any framework or lib.</i>
 </p>
@@ -32,7 +31,6 @@ And it also require db backend, that should implement needed interface. Other th
 | 🐛 **Easy to debug**          | Kikko colorize queries, so, for example, you can easily understand to which transaction query belongs. He also meausures preparation, transfer and execution time. |
 | 🔐 **Secured by default**     | With template literals, all vars that are used will be automatically marked as prepared statement variable that reduce chances of SQL injections a lot.            |
 | 🛠 **Plugin system**           | Allows you to integrate your own code on query/transaction run.                                                                                                    |
-| 🥹 **Full typescript support** | Yes!                                                                                                                                                               |
 
 ## Simple React component example
 
