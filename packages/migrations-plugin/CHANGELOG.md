@@ -1,5 +1,11 @@
 # @kikko-land/migrations-plugin
 
+## 0.9.0
+
+### Minor Changes
+
+- 7f43c3b: Fix migration runner
+
 ## 0.8.0
 
 ### Minor Changes
