@@ -1,5 +1,12 @@
 # @kikko-land/react
 
+## 0.7.7
+
+### Patch Changes
+
+- Updated dependencies [7f43c3b]
+  - @kikko-land/migrations-plugin@0.9.0
+
 ## 0.7.6
 
 ### Patch Changes
