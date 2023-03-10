@@ -34,7 +34,7 @@ const handleMigrations = async <T extends IMigration | IAtomicMigration>(
     );
 
     for (const migration of migrations.sort((a, b) => a.id - b.id)) {
-      if (migratedIds.has(migration.id)) return;
+      if (migratedIds.has(migration.id)) continue;
 
       try {
         await migrate(migration);
