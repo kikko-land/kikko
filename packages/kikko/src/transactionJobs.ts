@@ -31,7 +31,7 @@ export const initJobsState = (): ReactiveVar<ITransactionsJobsState> =>
       queue: [],
       current: undefined,
     } as ITransactionsJobsState,
-    { label: "jobsState" }
+    { label: "jobsState", deduplicate: false }
   );
 
 const buildJob = (id: string): ITransactionJob => {

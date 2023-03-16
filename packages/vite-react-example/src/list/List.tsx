@@ -200,6 +200,49 @@ export const List = () => {
     { inTransaction: false }
   );
 
+  const [spamQueries] = useRunDbQuery(
+    (db) => async () => {
+      void db.runInTransaction(async (db) => {
+        await db.runQuery(
+          insert({
+            id: makeId(),
+            title: lorem.generateWords(4),
+            content: lorem.generateParagraphs(1),
+            createdAt: new Date().getTime(),
+            updatedAt: new Date().getTime(),
+          }).into(notesTable)
+        );
+
+        await new Promise<void>((resolve) => {
+          setTimeout(() => {
+            resolve();
+          }, 3000);
+        });
+      });
+
+      await new Promise<void>((resolve) => {
+        setTimeout(() => {
+          resolve();
+        }, 100);
+      });
+
+      Array.from(Array(1000).keys()).forEach(() => {
+        void db.runQuery(
+          insert({
+            id: makeId(),
+            title: lorem.generateWords(4),
+            content: lorem.generateParagraphs(1),
+            createdAt: new Date().getTime(),
+            updatedAt: new Date().getTime(),
+          }).into(notesTable)
+        );
+      });
+
+      return Promise.resolve();
+    },
+    { inTransaction: false }
+  );
+
   return (
     <>
       <select
@@ -263,6 +306,14 @@ export const List = () => {
         {deleteAllState.type === "running"
           ? "Loading..."
           : "Delete all records!"}
+      </button>
+
+      <button
+        onClick={() => {
+          spamQueries();
+        }}
+      >
+        Spam with 1000 queries
       </button>
 
       <br />

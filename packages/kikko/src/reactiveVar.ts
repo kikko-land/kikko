@@ -1,5 +1,7 @@
 import { deepEqual } from "fast-equals";
 
+import { makeId } from "./utils";
+
 export interface ReactiveVar<T> {
   __state: {
     subscriptions: ((val: T) => void)[];
@@ -23,6 +25,57 @@ export interface ReactiveVar<T> {
 
 export class TimeoutError extends Error {}
 export class StoppedError extends Error {}
+
+const startTimeoutChecker = (() => {
+  const timeoutMap = new Map<
+    string,
+    { toCall: () => void; callAfter: number }
+  >();
+
+  let isLoopRunning = false;
+  let stopLoopAfter: number | undefined;
+
+  const startLoopIfPossible = async () => {
+    if (isLoopRunning) return;
+    isLoopRunning = true;
+
+    while (isLoopRunning) {
+      if (timeoutMap.size === 0) {
+        if (!stopLoopAfter) {
+          stopLoopAfter = Date.now() + 10_000;
+        } else if (stopLoopAfter < Date.now()) {
+          isLoopRunning = false;
+          stopLoopAfter = undefined;
+          break;
+        }
+      } else {
+        stopLoopAfter = undefined;
+
+        for (const [id, { toCall, callAfter }] of timeoutMap.entries()) {
+          if (callAfter < Date.now()) {
+            toCall();
+
+            timeoutMap.delete(id);
+          }
+        }
+      }
+
+      await new Promise<void>((resolve) => {
+        setTimeout(() => resolve(), 1_000);
+      });
+    }
+  };
+
+  return (toCall: () => void, after: number) => {
+    const id = makeId();
+    timeoutMap.set(id, { toCall, callAfter: Date.now() + after });
+    void startLoopIfPossible();
+
+    return () => {
+      timeoutMap.delete(id);
+    };
+  };
+})();
 
 export const reactiveVar = <T>(
   val: T,
@@ -109,73 +162,92 @@ export const reactiveVar = <T>(
       if (this.isStopped)
         throw new Error(`reactiveVar ${rOpts.label} is stopped!`);
 
+      if (filter(this.value)) return Promise.resolve();
+
       const toWait = new Promise<void>((resolve, reject) => {
+        let isUnsubscribed = false;
         let unsubscriptions: (() => void)[] = [];
 
         const unsubAll = () => {
-          // We need to wait till all unsubscriptions will appear in array.
-          // We can have case when subsctibe() emitted needed values,
-          // but all other unsubscribes are not pushed
-          queueMicrotask(() => {
-            for (const unsub of unsubscriptions) {
-              unsub();
-            }
+          if (isUnsubscribed) return;
+          for (const unsub of unsubscriptions) {
+            unsub();
+          }
 
-            unsubscriptions = [];
-          });
+          isUnsubscribed = true;
+          unsubscriptions = [];
         };
 
-        unsubscriptions.push(
-          opts?.stopIf?.subscribe((newVal) => {
-            if (!newVal) return;
+        const addUnsub = (unsub: () => void) => {
+          if (isUnsubscribed) {
+            unsub();
+          } else {
+            unsubscriptions.push(unsub);
+          }
+        };
 
-            unsubAll();
+        if (!isUnsubscribed) {
+          addUnsub(
+            this.subscribe((newVal) => {
+              if (!filter(newVal)) return;
 
-            reject(stopError);
-          }, true) ||
-            (() => {
-              return undefined;
-            })
-        );
-
-        unsubscriptions.push(
-          this.subscribe((newVal) => {
-            if (!filter(newVal)) return;
-
-            unsubAll();
-
-            resolve();
-          }, true)
-        );
-
-        if (opts?.timeout === undefined || typeof opts?.timeout === "number") {
-          const id = setTimeout(
-            () => {
               unsubAll();
 
-              reject(timeoutError);
-            },
-            opts?.timeout === undefined ? 120_000 : opts.timeout
+              resolve();
+            }, true)
           );
-
-          unsubscriptions.push(() => {
-            clearTimeout(id);
-          });
         }
 
-        const onStopHandler = () => {
-          unsubAll();
+        if (!isUnsubscribed) {
+          addUnsub(
+            opts?.stopIf?.subscribe((newVal) => {
+              if (!newVal) return;
 
-          reject(stoppedError);
-        };
+              unsubAll();
 
-        this.__state.onStop.push(onStopHandler);
+              reject(stopError);
+            }, true) ||
+              (() => {
+                return undefined;
+              })
+          );
+        }
 
-        unsubscriptions.push(() => {
-          this.__state.onStop = this.__state.onStop.filter((s) => {
-            return s !== onStopHandler;
+        if (!isUnsubscribed) {
+          if (
+            opts?.timeout === undefined ||
+            typeof opts?.timeout === "number"
+          ) {
+            const unsub = startTimeoutChecker(
+              () => {
+                unsubAll();
+
+                reject(timeoutError);
+              },
+              opts?.timeout === undefined ? 120_000 : opts.timeout
+            );
+
+            addUnsub(() => {
+              unsub();
+            });
+          }
+        }
+
+        if (!isUnsubscribed) {
+          const onStopHandler = () => {
+            unsubAll();
+
+            reject(stoppedError);
+          };
+
+          this.__state.onStop.push(onStopHandler);
+
+          addUnsub(() => {
+            this.__state.onStop = this.__state.onStop.filter((s) => {
+              return s !== onStopHandler;
+            });
           });
-        });
+        }
       });
 
       return toWait;
