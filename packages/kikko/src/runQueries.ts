@@ -1,3 +1,4 @@
+import { QueryRunError } from "./errors";
 import { getTime } from "./measurePerformance";
 import {
   IDb,
@@ -43,11 +44,8 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
   }
 
   const startedAt = getTime();
-  const {
-    result,
-    performance: qPerformance,
-    textQueries,
-  } = await (async () => {
+
+  const argsToRun = (() => {
     const opts = transactionOpts
       ? transactionOpts
       : transactionsLocalState.current
@@ -71,28 +69,52 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
       const toExec = q.preparedQuery.text;
 
       return {
-        ...(await dbBackend.execQueries(
-          {
-            type: "prepared",
-            query: q.preparedQuery,
-            preparedValues: queries.preparedValues,
-          },
-          opts
-        )),
+        toExecArg: {
+          type: "prepared",
+          query: q.preparedQuery,
+          preparedValues: queries.preparedValues,
+        },
+        toExecArgOpts: opts,
         textQueries: [toExec],
-      };
+      } as const;
     } else {
       const toExec = queries.values.map((q) => q.preparedQuery);
 
       return {
-        ...(await dbBackend.execQueries(
-          { type: "usual", values: toExec },
-          opts
-        )),
+        toExecArg: {
+          type: "usual",
+          values: toExec,
+        },
+        toExecArgOpts: opts,
         textQueries: toExec.map((q) => q.text),
-      };
+      } as const;
     }
   })();
+
+  const getResult = async () => {
+    try {
+      return {
+        ...(await dbBackend.execQueries(
+          argsToRun.toExecArg,
+          argsToRun.toExecArgOpts
+        )),
+        textQueries: argsToRun.textQueries,
+      };
+    } catch (e) {
+      if (e instanceof Error) {
+        const queryRunError = new QueryRunError(
+          e,
+          db.__state.sharedState.dbName,
+          argsToRun.textQueries as string[]
+        );
+
+        throw queryRunError;
+      }
+
+      throw e;
+    }
+  };
+  const { result, performance: qPerformance, textQueries } = await getResult();
   const endedAt = getTime();
 
   if (!db.__state.localState.suppressLog) {

@@ -1,4 +1,5 @@
 export * from "./backend";
+export * from "./errors";
 export * from "./initDb";
 export * from "./measurePerformance";
 export * from "./reactiveVar";

@@ -242,6 +242,12 @@ export const List = () => {
     },
     { inTransaction: false }
   );
+  const [runQueryWithError] = useRunDbQuery(
+    (db) => async () => {
+      await db.runQuery(sql`SELECT ';`);
+    },
+    { inTransaction: false }
+  );
 
   return (
     <>
@@ -314,6 +320,14 @@ export const List = () => {
         }}
       >
         Spam with 1000 queries
+      </button>
+
+      <button
+        onClick={() => {
+          void runQueryWithError();
+        }}
+      >
+        Run query with error
       </button>
 
       <br />
