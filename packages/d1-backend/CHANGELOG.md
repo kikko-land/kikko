@@ -1,5 +1,18 @@
 # @kikko-land/d1-backend
 
+## 0.4.0
+
+### Minor Changes
+
+- a0170a6: Introduce new backend API
+
+### Patch Changes
+
+- Updated dependencies [dc4ac77]
+- Updated dependencies [a0170a6]
+- Updated dependencies [bf55118]
+  - @kikko-land/kikko@0.16.0
+
 ## 0.3.4
 
 ### Patch Changes

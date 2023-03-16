@@ -1,5 +1,13 @@
 # @kikko-land/core
 
+## 0.16.0
+
+### Minor Changes
+
+- dc4ac77: Add custom query error
+- a0170a6: Introduce new backend API
+- bf55118: Improve performance of reactiveVar
+
 ## 0.15.0
 
 ### Minor Changes
