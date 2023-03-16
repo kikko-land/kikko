@@ -1,5 +1,17 @@
 # @kikko-land/vite-react-example
 
+## 0.11.0
+
+### Minor Changes
+
+- bf55118: Improve performance of reactiveVar
+
+### Patch Changes
+
+- Updated dependencies [a0170a6]
+  - @kikko-land/absurd-web-backend@0.10.0
+  - @kikko-land/react@0.8.0
+
 ## 0.10.0
 
 ### Minor Changes
