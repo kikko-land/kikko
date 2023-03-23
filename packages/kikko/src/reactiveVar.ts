@@ -1,7 +1,5 @@
 import { deepEqual } from "fast-equals";
 
-import { makeId } from "./utils";
-
 export interface ReactiveVar<T> {
   __state: {
     subscriptions: ((val: T) => void)[];
@@ -27,10 +25,7 @@ export class TimeoutError extends Error {}
 export class StoppedError extends Error {}
 
 const startTimeoutChecker = (() => {
-  const timeoutMap = new Map<
-    string,
-    { toCall: () => void; callAfter: number }
-  >();
+  const timeoutMap = new Map<() => void, number>();
 
   let isLoopRunning = false;
   let stopLoopAfter: number | undefined;
@@ -46,16 +41,17 @@ const startTimeoutChecker = (() => {
         } else if (stopLoopAfter < Date.now()) {
           isLoopRunning = false;
           stopLoopAfter = undefined;
+          console.log("loop stopped");
           break;
         }
       } else {
         stopLoopAfter = undefined;
 
-        for (const [id, { toCall, callAfter }] of timeoutMap.entries()) {
+        for (const [toCall, callAfter] of timeoutMap.entries()) {
           if (callAfter < Date.now()) {
             toCall();
 
-            timeoutMap.delete(id);
+            timeoutMap.delete(toCall);
           }
         }
       }
@@ -67,12 +63,11 @@ const startTimeoutChecker = (() => {
   };
 
   return (toCall: () => void, after: number) => {
-    const id = makeId();
-    timeoutMap.set(id, { toCall, callAfter: Date.now() + after });
+    timeoutMap.set(toCall, Date.now() + after);
     void startLoopIfPossible();
 
     return () => {
-      timeoutMap.delete(id);
+      timeoutMap.delete(toCall);
     };
   };
 })();
