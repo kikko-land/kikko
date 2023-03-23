@@ -3,11 +3,9 @@ import "../builder-examples";
 import { absurdWebBackend } from "@kikko-land/absurd-web-backend";
 import {
   atomicMigrationsPlugin,
-  DbProvider,
   DbsHolder,
   EnsureDbLoaded,
   IInitDbClientConfig,
-  migrationsPlugin,
   reactiveQueriesPlugin,
 } from "@kikko-land/react";
 import absurdSqlWasmUrl from "@kikko-land/sql.js/dist/sql-wasm.wasm?url";
@@ -17,10 +15,7 @@ import React from "react";
 import { useLocation } from "react-use";
 import sqlWasmUrl from "wa-sqlite/dist/wa-sqlite-async.wasm?url";
 
-import {
-  createNotesTableAtomicMigration,
-  createNotesTableMigration,
-} from "../migrations/createNotesTable";
+import { createNotesTableAtomicMigration } from "../migrations/createNotesTable";
 import { List } from "./List";
 
 const buildConfig = (config: IBackendConfig): IInitDbClientConfig => {
@@ -37,7 +32,6 @@ const buildConfig = (config: IBackendConfig): IInitDbClientConfig => {
             wasmUrl: sqlWasmUrl,
             pageSize: 32 * 1024,
             cacheSize: -5000,
-            vfs: config.vfs,
           }),
     plugins: [
       reactiveQueriesPlugin(),

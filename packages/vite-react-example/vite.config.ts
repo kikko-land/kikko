@@ -16,4 +16,12 @@ export default defineConfig({
     checker({ typescript: true, enableBuild: false }),
     visualizer({ open: true, filename: "dist/stats.html" }),
   ],
+  optimizeDeps: {
+    esbuildOptions: {
+      target: "es2020",
+    },
+  },
+  build: {
+    target: "es2020",
+  },
 });

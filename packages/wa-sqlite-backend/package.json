@@ -1,0 +1,61 @@
+{
+  "name": "@kikko-land/wa-sqlite-web-backend",
+  "version": "0.7.2",
+  "author": "Sergey Popov",
+  "license": "MIT",
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "types": "./src/index.ts",
+  "type": "module",
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/src/index.d.ts",
+        "es2015": "./dist/index.js",
+        "require": "./dist/index.js",
+        "import": "./dist/index.js",
+        "default": "./dist/index.js"
+      }
+    },
+    "main": "./dist/index.js",
+    "module": "./dist/index.js",
+    "types": "./dist/src/index.d.ts"
+  },
+  "scripts": {
+    "build": "yarn rollup --config",
+    "lint": "eslint \"src/**/*.{tsx,ts}\"",
+    "check-typing": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@kikko-land/boono-sql": "^0.3.0",
+    "@kikko-land/kikko": "^0.16.0",
+    "@kikko-land/sql.js": "^1.6.8",
+    "wa-sqlite": "rhashimoto/wa-sqlite#buildless"
+  },
+  "devDependencies": {
+    "@kikko-land/boono": "^0.2.1",
+    "@kikko-land/common-scripts": "^0.4.0",
+    "@kikko-land/react": "^0.6.3",
+    "@rollup/plugin-commonjs": "^23.0.2",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@types/emscripten": "^1.39.6",
+    "@types/lodash-es": "^4.17.6",
+    "@types/react": "^18.0.25",
+    "@types/react-dom": "^18.0.8",
+    "@vitejs/plugin-react": "^2.2.0",
+    "await-lock": "^2.2.2",
+    "lodash-es": "^4.17.21",
+    "patch-package": "^6.5.0",
+    "postinstall-postinstall": "^2.1.0",
+    "prettier": "^2.7.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "rollup": "^3.2.5",
+    "rollup-plugin-dts": "^5.0.0",
+    "rollup-plugin-typescript2": "^0.34.1",
+    "ts-essentials": "^9.3.0",
+    "tslib": "^2.4.1",
+    "typescript": "^4.8.4",
+    "vite": "^3.2.2"
+  }
+}

@@ -2,6 +2,7 @@ import { DeepReadonly } from "ts-essentials";
 
 import { ReactiveVar, reactiveVar, TimeoutError } from "./reactiveVar";
 import { ITransactionOpts } from "./types";
+import { makeId } from "./utils";
 
 export type DistributiveOmit<
   T,
@@ -139,7 +140,13 @@ export const acquireWithTrJobOrWait = async (
 
     job = newJob;
   } else {
-    await jobsState.waitTill((state) => state.current?.id === undefined);
+    // We still want to add other none-transaction queries to queue
+    // cause SQLite is always single-threaded, and we will not have any benefits
+    // from running it concurrent. And, as a bonus, we will have more precise measure
+    // of blocking time
+    const newJob = buildJob(makeId());
+    await acquireJob(jobsState, newJob);
+    job = newJob;
   }
 
   return job;

@@ -213,11 +213,12 @@ export const List = () => {
           }).into(notesTable)
         );
 
-        await new Promise<void>((resolve) => {
-          setTimeout(() => {
-            resolve();
-          }, 3000);
-        });
+        // await new Promise<void>((resolve) => {
+        //   setTimeout(() => {
+        //     resolve();
+        //   }, 3000);
+        // });
+        console.log("done insert");
       });
 
       await new Promise<void>((resolve) => {

@@ -29,7 +29,6 @@ const buildConfig = (config: IBackendConfig): IInitDbClientConfig => {
             wasmUrl: sqlWasmUrl,
             pageSize: 8 * 1024,
             cacheSize: -100,
-            vfs: "minimal",
           }),
     plugins: [
       migrationsPlugin({
