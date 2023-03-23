@@ -133,15 +133,8 @@ export class IDBContext {
   }
 
   async sync() {
-    const request = this.request;
-    if (request?.readyState === "pending") {
-      await new Promise((resolve) => {
-        request.addEventListener("success", resolve);
-        request.addEventListener("error", resolve);
-      });
+    await new Promise((resolve) => void this.run("readwrite", resolve));
 
-      request.transaction?.commit();
-    }
     return this.txComplete;
   }
 
