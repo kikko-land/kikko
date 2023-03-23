@@ -95,7 +95,9 @@ export const buildAsyncQueryRunner = (
                   res.push(await args.execUsual(q));
                 } catch (e) {
                   if (e instanceof Error) {
-                    e.message = `Error while executing query: ${q.text} - ${e.message}`;
+                    e.message = `Error(${
+                      e.message
+                    }) while executing query: ${q.text.slice(0, 500)}`;
                   }
                   throw e;
                 }
@@ -113,7 +115,9 @@ export const buildAsyncQueryRunner = (
               );
             } catch (e) {
               if (e instanceof Error) {
-                e.message = `Error while executing query: ${queries.query.text} - ${e.message}`;
+                e.message = `Error(${
+                  e.message
+                }) while executing query: ${queries.query.text.slice(0, 500)}`;
               }
               throw e;
             }
@@ -185,7 +189,9 @@ export const buildSyncQueryRunner = (
                   return args.execUsual(q);
                 } catch (e) {
                   if (e instanceof Error) {
-                    e.message = `Error while executing query: ${q.text} - ${e.message}`;
+                    e.message = `Error(${
+                      e.message
+                    }) while executing query: ${q.text.slice(0, 500)}`;
                   }
                   throw e;
                 }
@@ -198,7 +204,9 @@ export const buildSyncQueryRunner = (
               return args.execPrepared(queries.query, queries.preparedValues);
             } catch (e) {
               if (e instanceof Error) {
-                e.message = `Error while executing query: ${queries.query.text} - ${e.message}`;
+                e.message = `Error(${
+                  e.message
+                }) while executing query: ${queries.query.text.slice(0, 500)}`;
               }
               throw e;
             }
