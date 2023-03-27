@@ -1,5 +1,19 @@
 # @kikko-land/vite-react-example
 
+## 0.12.0
+
+### Minor Changes
+
+- 2c9a6f4: Remove console.trace
+
+### Patch Changes
+
+- Updated dependencies [2c9a6f4]
+- Updated dependencies [a44c084]
+  - @kikko-land/wa-sqlite-web-backend@0.8.0
+  - @kikko-land/absurd-web-backend@0.10.1
+  - @kikko-land/react@0.8.1
+
 ## 0.11.0
 
 ### Minor Changes
