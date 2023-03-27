@@ -1,5 +1,12 @@
 # @kikko-land/vite-react-example
 
+## 0.12.1
+
+### Patch Changes
+
+- Updated dependencies [59cb7a1]
+  - @kikko-land/wa-sqlite-web-backend@0.9.0
+
 ## 0.12.0
 
 ### Minor Changes
