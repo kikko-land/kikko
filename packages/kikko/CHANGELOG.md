@@ -1,5 +1,12 @@
 # @kikko-land/core
 
+## 0.17.0
+
+### Minor Changes
+
+- 15a9a4d: Improve performance & error msg
+- a44c084: Add wa-sqlite backend
+
 ## 0.16.0
 
 ### Minor Changes
