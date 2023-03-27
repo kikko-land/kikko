@@ -1,5 +1,11 @@
 # @kikko-land/wa-sqlite-web-backend
 
+## 0.9.0
+
+### Minor Changes
+
+- 59cb7a1: Fix wa-sqlite typing
+
 ## 0.8.0
 
 ### Minor Changes
