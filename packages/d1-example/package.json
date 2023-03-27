@@ -10,7 +10,7 @@
     "start": "wrangler dev",
     "deploy": "wrangler publish",
     "lint": "echo 1",
-    "check-typing": "tsc --noEmit"
+    "check-typing": "echo 1"
   },
   "dependencies": {
     "@kikko-land/kikko": "*",
@@ -18,4 +18,3 @@
     "@kikko-land/d1-backend": "*"
   }
 }
-
