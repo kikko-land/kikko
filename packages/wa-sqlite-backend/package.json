@@ -10,7 +10,7 @@
   "publishConfig": {
     "exports": {
       ".": {
-        "types": "./dist/src/index.d.ts",
+        "types": "./dist/wa-sqlite-backend/src/index.d.ts",
         "es2015": "./dist/index.js",
         "require": "./dist/index.js",
         "import": "./dist/index.js",
@@ -19,7 +19,7 @@
     },
     "main": "./dist/index.js",
     "module": "./dist/index.js",
-    "types": "./dist/src/index.d.ts"
+    "types": "./dist/wa-sqlite-backend/src/index.d.ts"
   },
   "scripts": {
     "build": "yarn rollup --config",
