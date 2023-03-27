@@ -26,12 +26,12 @@ const buildConfig = (config: IBackendConfig): IInitDbClientConfig => {
         ? absurdWebBackend({
             wasmUrl: absurdSqlWasmUrl,
             pageSize: 32 * 1024,
-            cacheSize: -5000,
+            cacheSize: 5000,
           })
         : waSqliteWebBackend({
             wasmUrl: sqlWasmUrl,
             pageSize: 32 * 1024,
-            cacheSize: -5000,
+            cacheSize: 5000,
           }),
     plugins: [
       reactiveQueriesPlugin(),

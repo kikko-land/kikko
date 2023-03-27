@@ -212,7 +212,6 @@ class Store {
   }
 
   delete(query: IDBValidKey | IDBKeyRange) {
-    console.trace();
     log(`delete ${this.store.name}`, query);
     const request = this.store.delete(query);
     return this.addRequest(request);
