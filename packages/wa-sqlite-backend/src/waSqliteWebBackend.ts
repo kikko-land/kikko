@@ -159,16 +159,16 @@ export const waSqliteWebBackend =
         const klass = IDBBatchAtomicVFS;
 
         sqlite3.vfs_register(
-          new klass(`idb-batch`, {
+          new klass("wa-sqlite-db-atomic-batched", {
             purge: "manual",
             durability: "relaxed",
           })
         );
 
         db = await sqlite3.open_v2(
-          "wa-sqlite-" + dbName,
+          dbName,
           undefined,
-          `idb-batch`
+          "wa-sqlite-db-atomic-batched"
         );
 
         await sqlite3.exec(
@@ -179,8 +179,7 @@ export const waSqliteWebBackend =
           db,
           `PRAGMA page_size=${pageSize === undefined ? 32 * 1024 : pageSize};`
         );
-        await sqlite3.exec(db, `PRAGMA journal_mode=MEMORY;`);
-        await sqlite3.exec(db, `PRAGMA temp_store=MEMORY;`);
+        await sqlite3.exec(db, `PRAGMA journal_mode=DELETE;`);
       },
       async execQueries(
         q:
