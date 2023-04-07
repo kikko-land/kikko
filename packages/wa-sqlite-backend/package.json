@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "@kikko-land/boono": "^0.2.1",
-    "@kikko-land/common-scripts": "^0.4.0",
+    "@kikko-land/common-scripts": "*",
     "@kikko-land/react": "^0.8.1",
     "@rollup/plugin-commonjs": "^23.0.2",
     "@rollup/plugin-node-resolve": "^15.0.1",
