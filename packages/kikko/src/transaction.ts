@@ -1,4 +1,4 @@
-import { ISql, ISqlAdapter, sql } from "@kikko-land/boono-sql";
+import { sql } from "@kikko-land/boono-sql";
 
 import { getTime } from "./measurePerformance";
 import { runQueries } from "./runQueries";
