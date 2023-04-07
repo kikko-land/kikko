@@ -1,5 +1,16 @@
 # @kikko-land/wa-sqlite-web-backend
 
+## 0.10.0
+
+### Minor Changes
+
+- eb496a0: Add original batched vfs
+
+### Patch Changes
+
+- Updated dependencies [eb496a0]
+  - @kikko-land/kikko@0.18.0
+
 ## 0.9.0
 
 ### Minor Changes

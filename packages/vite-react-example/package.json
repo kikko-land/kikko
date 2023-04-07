@@ -1,7 +1,7 @@
 {
   "name": "@kikko-land/vite-react-example",
   "private": true,
-  "version": "0.12.1",
+  "version": "0.13.0",
   "scripts": {
     "dev": "vite",
     "build": "echo \"\"",
@@ -15,7 +15,7 @@
     "@kikko-land/boono": "^0.2.1",
     "@kikko-land/react": "*",
     "@kikko-land/sql.js": "^1.6.8",
-    "@kikko-land/wa-sqlite-web-backend": "^0.9.0",
+    "@kikko-land/wa-sqlite-web-backend": "^0.10.0",
     "kysely": "^0.24.2",
     "lodash-es": "^4.17.21",
     "lorem-ipsum": "^2.0.8",

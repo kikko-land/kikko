@@ -1,5 +1,11 @@
 # @kikko-land/core
 
+## 0.18.0
+
+### Minor Changes
+
+- eb496a0: Add Kysely support
+
 ## 0.17.0
 
 ### Minor Changes

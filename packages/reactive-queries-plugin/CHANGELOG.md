@@ -1,5 +1,16 @@
 # @kikko-land/reactive-queries-plugin
 
+## 0.11.0
+
+### Minor Changes
+
+- eb496a0: Add Kysely support
+
+### Patch Changes
+
+- Updated dependencies [eb496a0]
+  - @kikko-land/kikko@0.18.0
+
 ## 0.10.1
 
 ### Patch Changes
