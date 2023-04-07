@@ -6,6 +6,7 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "isolatedModules": true,
+    "allowJs": true,
     "noEmit": true,
     "strict": true,
     "lib": ["es2020"]

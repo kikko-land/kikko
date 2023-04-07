@@ -3211,52 +3211,6 @@
     ts-node "^10.9.1"
     typescript "^4.8.4"
 
-"@kikko-land/kikko@^0.9.0":
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/@kikko-land/kikko/-/kikko-0.9.0.tgz#ac08063e4d5e40e5a10a6b4d186efc3df2ad62d7"
-  integrity sha512-GxuOhtrLiCGX/UD7T9DBSN6+1MVj4EweAgPb6YIZh2NrumNdPHouQlSyRMh4UzCokZ8IC/G8ODglqn1xASEHIQ==
-  dependencies:
-    "@kikko-land/boono-sql" "^0.3.0"
-    fast-equals "^4.0.3"
-    ts-essentials "^9.3.0"
-
-"@kikko-land/migrations-plugin@^0.6.2":
-  version "0.6.2"
-  resolved "https://registry.yarnpkg.com/@kikko-land/migrations-plugin/-/migrations-plugin-0.6.2.tgz#7d16f9ac2546387f936b2d82acd95981c00ff051"
-  integrity sha512-k/Rdggd8fQKku1qYxFKLVb5y0BHTHmK/XXAUH0eEnfQm3OY4b8vIFumH9iTXQ3QoHgIp8Ka3+geWTzON+eaP7Q==
-  dependencies:
-    "@kikko-land/boono-sql" "^0.3.0"
-    "@kikko-land/kikko" "^0.9.0"
-
-"@kikko-land/react-queries-hooks@^0.9.1":
-  version "0.9.1"
-  resolved "https://registry.yarnpkg.com/@kikko-land/react-queries-hooks/-/react-queries-hooks-0.9.1.tgz#f514d1d4b1daabafc4a070df4be181e7567833e6"
-  integrity sha512-5F4DfD07KEflapRYXdKYFkDBAjgOUGS9ouPOSax3jTgjShDhEQ9mNQGehmjxUD9VcA6s85Ty9IBe6qWvcYrI+Q==
-  dependencies:
-    "@kikko-land/boono-sql" "^0.3.0"
-    "@kikko-land/kikko" "^0.9.0"
-    "@kikko-land/reactive-queries-plugin" "^0.7.1"
-
-"@kikko-land/react@^0.6.3":
-  version "0.6.4"
-  resolved "https://registry.yarnpkg.com/@kikko-land/react/-/react-0.6.4.tgz#2fcc771d21dafac4ee2d95436c69f384c2d32799"
-  integrity sha512-D7ArNCGev9XPdqg4F/DS5fCWW95e97QrxsL2OlFpnko4M4kWRozvQHGtifmEvXdBTpfqmaIGaKNuaU4WEYfX4g==
-  dependencies:
-    "@kikko-land/boono-sql" "^0.3.0"
-    "@kikko-land/kikko" "^0.9.0"
-    "@kikko-land/migrations-plugin" "^0.6.2"
-    "@kikko-land/react-queries-hooks" "^0.9.1"
-    "@kikko-land/reactive-queries-plugin" "^0.7.1"
-
-"@kikko-land/reactive-queries-plugin@^0.7.1":
-  version "0.7.1"
-  resolved "https://registry.yarnpkg.com/@kikko-land/reactive-queries-plugin/-/reactive-queries-plugin-0.7.1.tgz#ca220f2d2388440cc83be1a64c8a24c3f1f6e9d8"
-  integrity sha512-KxuoiH3h6g3dCvpLLwPfZJJ6GgSoSNML9I9u398h5chuZFcj3ZjilRMV/2ywdjBOhgp7WGL0KeRf4JuXt8LqhA==
-  dependencies:
-    "@kikko-land/boono-sql" "^0.3.0"
-    "@kikko-land/kikko" "^0.9.0"
-    broadcast-channel "^4.18.0"
-
 "@kikko-land/sql.js@^1.6.8":
   version "1.6.8"
   resolved "https://registry.yarnpkg.com/@kikko-land/sql.js/-/sql.js-1.6.8.tgz#e388e11b7ec5b6c534e7e1474860e31f39ba3d58"
@@ -9031,6 +8985,11 @@ kolorist@^1.6.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/kolorist/-/kolorist-1.6.0.tgz#f43ac794305b30032a5bedcae7799d0f91d2ff36"
   integrity sha512-dLkz37Ab97HWMx9KTes3Tbi3D1ln9fCAy2zr2YVExJasDRPGRaKcoE4fycWNtnCAJfjFqe0cnY+f8KT2JePEXQ==
+
+kysely@^0.24.2:
+  version "0.24.2"
+  resolved "https://registry.yarnpkg.com/kysely/-/kysely-0.24.2.tgz#caf3be037939bd20449c0b7840e932f074b4d12c"
+  integrity sha512-+7eaTJNUYm2yRq1x+lEOZc+78TO35dTZ9b0dh49+Z9CTt2byMSbMiOKpwPlOyCAaHD4kILkAYWYZNywFlmBwRA==
 
 language-subtag-registry@~0.3.2:
   version "0.3.21"

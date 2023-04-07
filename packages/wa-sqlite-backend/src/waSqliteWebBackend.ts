@@ -12,6 +12,7 @@ import {
 import * as SQLite from "wa-sqlite";
 import SQLiteAsyncModule from "wa-sqlite/dist/wa-sqlite-async.mjs";
 
+// @ts-expect-error without type for now
 import { IDBBatchAtomicVFS } from "./IDBBatchAtomicVFS";
 
 export const waSqliteWebBackend =
