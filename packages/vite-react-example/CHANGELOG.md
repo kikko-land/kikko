@@ -1,5 +1,18 @@
 # @kikko-land/vite-react-example
 
+## 0.13.0
+
+### Minor Changes
+
+- eb496a0: Add Kysely support
+
+### Patch Changes
+
+- Updated dependencies [eb496a0]
+  - @kikko-land/wa-sqlite-web-backend@0.10.0
+  - @kikko-land/absurd-web-backend@0.10.2
+  - @kikko-land/react@0.8.2
+
 ## 0.12.1
 
 ### Patch Changes

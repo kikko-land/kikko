@@ -1,6 +1,6 @@
 {
   "name": "@kikko-land/d1-backend",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "author": "Sergey Popov",
   "license": "MIT",
   "main": "./src/index.ts",
@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@kikko-land/boono": "^0.2.1",
-    "@kikko-land/kikko": "^0.17.0"
+    "@kikko-land/kikko": "^0.18.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^3.18.0",

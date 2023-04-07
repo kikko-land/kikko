@@ -1,5 +1,12 @@
 # @kikko-land/d1-backend
 
+## 0.4.2
+
+### Patch Changes
+
+- Updated dependencies [eb496a0]
+  - @kikko-land/kikko@0.18.0
+
 ## 0.4.1
 
 ### Patch Changes
