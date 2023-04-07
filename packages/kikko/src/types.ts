@@ -73,18 +73,29 @@ export type IQueriesMiddleware = (
 
 export interface IAtomicTransactionScope {
   __state: {
-    queries: ISqlAdapter[];
+    queries: ISqlToRun[];
     afterCommits: (() => void)[];
     afterRollbacks: (() => void)[];
   };
-  addQuery(q: ISqlAdapter): void;
+  addQuery(q: ISqlToRun): void;
   afterCommit(cb: () => void): void;
   afterRollback(cb: () => void): void;
 }
 
+export type ISqlToRun =
+  | { sql: string; parameters: unknown[] }
+  | {
+      compile: () => {
+        readonly sql: string;
+        readonly parameters: ReadonlyArray<unknown>;
+      };
+    }
+  | ISql
+  | ISqlAdapter;
+
 export type IQueriesToRun =
-  | { type: "usual"; values: ISql[] }
-  | { type: "prepared"; query: ISql; preparedValues: IPrimitiveValue[][] };
+  | { type: "usual"; values: ISqlToRun[] }
+  | { type: "prepared"; query: ISqlToRun; preparedValues: IPrimitiveValue[][] };
 
 export interface IDb {
   __state: {
@@ -94,6 +105,8 @@ export interface IDb {
     localState: DeepReadonly<ILocalDbState>;
   };
 
+  get isInTransaction(): boolean;
+
   runInTransaction<T>(
     func: (state: IDb) => Promise<T>,
     opts?: { type?: "deferred" | "immediate" | "exclusive" }
@@ -101,16 +114,16 @@ export interface IDb {
   runInAtomicTransaction(
     func:
       | ((scope: IAtomicTransactionScope) => Promise<void> | void)
-      | ISqlAdapter[],
+      | ISqlToRun[],
     opts?: { type?: "deferred" | "immediate" | "exclusive" }
   ): Promise<void>;
 
   runQueries<D extends Record<string, unknown>>(
-    queries: ISqlAdapter[]
+    queries: ISqlToRun[]
   ): Promise<D[][]>;
-  runQuery<D extends Record<string, unknown>>(query: ISqlAdapter): Promise<D[]>;
+  runQuery<D extends Record<string, unknown>>(query: ISqlToRun): Promise<D[]>;
   runPreparedQuery<D extends Record<string, unknown>>(
-    query: ISql,
+    query: ISqlToRun,
     preparedValues: IPrimitiveValue[][]
   ): Promise<D[][]>;
 

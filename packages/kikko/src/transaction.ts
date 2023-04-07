@@ -5,6 +5,7 @@ import { runQueries } from "./runQueries";
 import {
   IAtomicTransactionScope,
   IDb,
+  ISqlToRun,
   ITransaction,
   ITransactionPerformance,
 } from "./types";
@@ -198,7 +199,7 @@ const initAtomicTransaction = (): IAtomicTransactionScope => {
       afterCommits: [],
       afterRollbacks: [],
     },
-    addQuery(q: ISqlAdapter): void {
+    addQuery(q: ISqlToRun): void {
       this.__state.queries.push(q);
     },
     afterCommit(cb: () => void) {
@@ -215,7 +216,7 @@ export const execAtomicTransaction = async (
   transactionType: "deferred" | "immediate" | "exclusive",
   funcOrQueries:
     | ((scope: IAtomicTransactionScope) => Promise<void> | void)
-    | ISqlAdapter[]
+    | ISqlToRun[]
 ): Promise<void> => {
   const {
     localState: { transactionState: transactionsLocalState },
@@ -279,13 +280,13 @@ export const execAtomicTransaction = async (
 
   const startTime = getTime();
 
-  const q: ISql[] = [];
+  const q: ISqlToRun[] = [];
 
   if (!dbBackend.isAtomicRollbackCommitDisabled) {
     q.push(sql`BEGIN ${sql.raw(transactionType.toUpperCase())} TRANSACTION`);
   }
 
-  q.push(...inputQueries.map((q) => q.toSql()));
+  q.push(...inputQueries);
 
   if (!dbBackend.isAtomicRollbackCommitDisabled) {
     q.push(sql`COMMIT`);

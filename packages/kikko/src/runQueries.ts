@@ -1,3 +1,5 @@
+import { IPrimitiveValue } from "@kikko-land/boono-sql";
+
 import { QueryRunError } from "./errors";
 import { getTime } from "./measurePerformance";
 import {
@@ -6,6 +8,7 @@ import {
   IQueriesMiddleware,
   IQueriesMiddlewareState,
   IQueriesToRun,
+  ISqlToRun,
   ITransactionOpts,
 } from "./types";
 import { assureDbIsRunning } from "./utils";
@@ -16,6 +19,30 @@ const compact = <T>(arr: (T | null | undefined)[]) =>
   });
 const sum = (arr: number[]) => arr.reduce((partialSum, a) => partialSum + a, 0);
 const compactAndSum = (arr: (number | null | undefined)[]) => sum(compact(arr));
+
+export const sqlToValues = (
+  q: ISqlToRun
+): { text: string; values: IPrimitiveValue[] } => {
+  if ("compile" in q) {
+    const { sql, parameters } = q.compile();
+
+    return {
+      text: sql,
+      values: parameters as IPrimitiveValue[],
+    };
+  } else if ("preparedQuery" in q) {
+    return q.preparedQuery;
+  } else if ("toSql" in q) {
+    return sqlToValues(q.toSql());
+  } else {
+    const { sql, parameters } = q;
+
+    return {
+      text: sql,
+      values: parameters as IPrimitiveValue[],
+    };
+  }
+};
 
 const runQueriesMiddleware: IQueriesMiddleware = async ({
   db,
@@ -59,26 +86,25 @@ const runQueriesMiddleware: IQueriesMiddleware = async ({
         }
       : undefined;
     if (queries.type === "prepared") {
-      const q = queries.query.toSql();
+      const toExec = sqlToValues(queries.query);
 
-      if (q._values.length !== 0) {
+      if (toExec.values.length !== 0) {
         throw new Error(
           "You can't use prepared var through ${} for runPreparedQuery. Please, manually specify variables with '?'."
         );
       }
-      const toExec = q.preparedQuery.text;
 
       return {
         toExecArg: {
           type: "prepared",
-          query: q.preparedQuery,
+          query: toExec,
           preparedValues: queries.preparedValues,
         },
         toExecArgOpts: opts,
-        textQueries: [toExec],
+        textQueries: [toExec.text],
       } as const;
     } else {
-      const toExec = queries.values.map((q) => q.preparedQuery);
+      const toExec = queries.values.map((q) => sqlToValues(q));
 
       return {
         toExecArg: {

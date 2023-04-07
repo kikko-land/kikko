@@ -41,7 +41,6 @@ const startTimeoutChecker = (() => {
         } else if (stopLoopAfter < Date.now()) {
           isLoopRunning = false;
           stopLoopAfter = undefined;
-          console.log("loop stopped");
           break;
         }
       } else {

@@ -4,11 +4,20 @@ import {
   sql,
   useCacheDbQuery,
   useDbQuery,
+  useDbState,
+  useDbStrict,
   useRunDbQuery,
 } from "@kikko-land/react";
+import {
+  DummyDriver,
+  Kysely,
+  SqliteAdapter,
+  SqliteIntrospector,
+  SqliteQueryCompiler,
+} from "kysely";
 import { chunk } from "lodash-es";
 import { LoremIpsum } from "lorem-ipsum";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Highlighter from "react-highlight-words";
 import { useSearchParam } from "react-use";
 
@@ -32,6 +41,7 @@ type INoteRow = {
   content: string;
   createdAt: number;
   updatedAt: number;
+  isDone: number;
 };
 const notesTable = sql.table("notes");
 
@@ -60,8 +70,25 @@ const Row = ({
     );
   });
 
+  const [tickRow] = useRunDbQuery((db) => async () => {
+    await db.runQuery(
+      update(notesTable)
+        .set({
+          isDone: +!row.isDone,
+        })
+        .where({ id: row.id })
+    );
+  });
+
   return (
     <tr key={row.id}>
+      <td>
+        <input
+          type="checkbox"
+          checked={row.isDone === 0}
+          onChange={() => void tickRow()}
+        />
+      </td>
       <td>{row.title}</td>
       <td>
         <Highlighter
@@ -93,6 +120,32 @@ const Row = ({
     </tr>
   );
 };
+export interface DatabaseAppTables {
+  notes: {
+    id: string;
+    title: string;
+    content: string;
+    updatedAt: number;
+    createdAt: number;
+  };
+}
+
+export const Q = new Kysely<DatabaseAppTables>({
+  dialect: {
+    createAdapter() {
+      return new SqliteAdapter();
+    },
+    createDriver() {
+      return new DummyDriver();
+    },
+    createIntrospector(db: Kysely<DatabaseAppTables>) {
+      return new SqliteIntrospector(db);
+    },
+    createQueryCompiler() {
+      return new SqliteQueryCompiler();
+    },
+  },
+});
 
 export const List = () => {
   const backendName = (useSearchParam("backend") ||
@@ -138,7 +191,7 @@ export const List = () => {
     nextPage,
     prevPage,
   } = usePaginator({
-    perPage: 50,
+    perPage: 1000,
     baseQuery: baseSql,
   });
   const rowsResult = useDbQuery<INoteRow>(paginatedQuery);
@@ -153,6 +206,7 @@ export const List = () => {
             content: lorem.generateParagraphs(1),
             createdAt: new Date().getTime(),
             updatedAt: new Date().getTime(),
+            isDone: 0,
           }))
         ).into(notesTable)
       );
@@ -180,13 +234,14 @@ export const List = () => {
     (db) => async () => {
       console.log(
         await db.runPreparedQuery(
-          sql`INSERT INTO ${notesTable} VALUES (?, ?, ?, ?, ?) RETURNING *`,
+          sql`INSERT INTO ${notesTable} VALUES (?, ?, ?, ?, ?, ?) RETURNING *`,
           Array.from(Array(10000).keys()).map(() => [
             makeId(),
             lorem.generateWords(4),
             lorem.generateParagraphs(1),
             new Date().getTime(),
             new Date().getTime(),
+            0,
           ])
         )
       );
@@ -200,6 +255,17 @@ export const List = () => {
     { inTransaction: false }
   );
 
+  const db = useDbStrict();
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    // Check that Q works
+
+    void (async () => {
+      await db.runQuery(Q.selectFrom("notes").selectAll().limit(10));
+    })();
+  }, [db]);
+
   const [spamQueries] = useRunDbQuery(
     (db) => async () => {
       void db.runInTransaction(async (db) => {
@@ -210,6 +276,7 @@ export const List = () => {
             content: lorem.generateParagraphs(1),
             createdAt: new Date().getTime(),
             updatedAt: new Date().getTime(),
+            isDone: 0,
           }).into(notesTable)
         );
 
@@ -235,6 +302,7 @@ export const List = () => {
             content: lorem.generateParagraphs(1),
             createdAt: new Date().getTime(),
             updatedAt: new Date().getTime(),
+            isDone: 0,
           }).into(notesTable)
         );
       });

@@ -1,4 +1,4 @@
-import { IPrimitiveValue, ISql, ISqlAdapter } from "@kikko-land/boono-sql";
+import { IPrimitiveValue, ISql } from "@kikko-land/boono-sql";
 
 import { runAfterTransaction } from "./afterTransaction";
 import { IDbBackend } from "./backend";
@@ -12,6 +12,7 @@ import {
   IKikkoEvents,
   ILogFns,
   IQueriesMiddleware,
+  ISqlToRun,
   ITransaction,
 } from "./types";
 import { makeId } from "./utils";
@@ -88,6 +89,9 @@ export const initDbClient = async ({
         suppressLog: Boolean(suppressLog),
       },
     },
+    get isInTransaction() {
+      return this.__state.localState.transactionState.current !== undefined;
+    },
     runInTransaction<T>(
       func: (state: IDb) => Promise<T>,
       opts?: { type?: "deferred" | "immediate" | "exclusive" }
@@ -97,23 +101,23 @@ export const initDbClient = async ({
     async runInAtomicTransaction(
       func:
         | ((scope: IAtomicTransactionScope) => Promise<void> | void)
-        | ISqlAdapter[],
+        | ISqlToRun[],
 
       opts?: { label?: string; type?: "deferred" | "immediate" | "exclusive" }
     ): Promise<void> {
       return await execAtomicTransaction(this, opts?.type || "deferred", func);
     },
     async runQueries<D extends Record<string, unknown>>(
-      queries: ISqlAdapter[]
+      queries: ISqlToRun[]
     ): Promise<D[][]> {
       const res = await runQueries(this, {
         type: "usual",
-        values: queries.map((q) => q.toSql()),
+        values: queries,
       });
       return res.result.map(({ rows }) => rows) as D[][];
     },
     async runQuery<D extends Record<string, unknown>>(
-      query: ISqlAdapter
+      query: ISqlToRun
     ): Promise<D[]> {
       return (await this.runQueries<D>([query]))[0];
     },

@@ -32,6 +32,7 @@ export const createNotesTableAtomicMigration: IAtomicMigration = {
         id varchar(20) PRIMARY KEY,
         title TEXT NOT NULL,
         content TEXT NOT NULL,
+        isDone INTEGER NOT NULL,
         updatedAt INTEGER NOT NULL,
         createdAt INTEGER NOT NULL
       );

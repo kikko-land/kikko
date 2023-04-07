@@ -1,4 +1,9 @@
-import { IDb, IDbClientPlugin, IQueriesMiddleware } from "@kikko-land/kikko";
+import {
+  IDb,
+  IDbClientPlugin,
+  IQueriesMiddleware,
+  ISqlAdapter,
+} from "@kikko-land/kikko";
 
 import { getBroadcastCh } from "./getBroadcastCh";
 import { getReactiveState } from "./utils";
@@ -36,7 +41,10 @@ export const reactiveQueriesPlugin: (opts?: {
         ? state.queries.values
         : [state.queries.query]
     )
-      .map((q) => q.toSql())
+      .filter((q) => "toSql" in q)
+      .map((q) => {
+        return (q as ISqlAdapter).toSql();
+      })
       .filter((q) => q.isModifyQuery)
       .flatMap((q) => q.tables)
       .flatMap((def) => [
