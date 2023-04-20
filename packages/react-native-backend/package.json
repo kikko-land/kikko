@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@kikko-land/kikko": "^0.18.0",
-    "@kikko-land/boono-sql": "^0.3.0",
+    "@kikko-land/boono-sql": "^0.4.0",
     "react-native-sqlite-storage": "^6.0.1"
   },
   "devDependencies": {
@@ -41,3 +41,4 @@
     "@types/react-native-sqlite-storage": "^5.0.2"
   }
 }
+

@@ -32,7 +32,7 @@
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
-    "@kikko-land/boono-sql": "^0.3.0",
+    "@kikko-land/boono-sql": "^0.4.0",
     "fast-equals": "^4.0.3",
     "ts-essentials": "^9.3.0"
   },
@@ -41,3 +41,4 @@
     "@types/emscripten": "^1.39.6"
   }
 }
+

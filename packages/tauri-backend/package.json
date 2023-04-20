@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@kikko-land/kikko": "^0.18.0",
-    "@kikko-land/boono-sql": "^0.3.0",
+    "@kikko-land/boono-sql": "^0.4.0",
     "@kikko-land/sql.js": "^1.6.8",
     "tauri-plugin-sqlite-api": "github:lzdyes/tauri-plugin-sqlite#v0.1.1"
   },
@@ -43,3 +43,4 @@
     "ts-essentials": "^9.3.0"
   }
 }
+

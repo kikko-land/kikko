@@ -53,7 +53,7 @@
   },
   "dependencies": {
     "@kikko-land/kikko": "^0.18.0",
-    "@kikko-land/boono-sql": "^0.3.0",
+    "@kikko-land/boono-sql": "^0.4.0",
     "@kikko-land/d1-backend": "^0.4.2",
     "@kikko-land/sql.js": "^1.6.8",
     "better-sqlite3": ">=7.6.2"
@@ -67,3 +67,4 @@
     "ts-essentials": "^9.3.0"
   }
 }
+

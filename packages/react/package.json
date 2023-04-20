@@ -37,9 +37,10 @@
     "@kikko-land/migrations-plugin": "^0.10.2",
     "@kikko-land/react-queries-hooks": "^0.11.2",
     "@kikko-land/reactive-queries-plugin": "^0.11.0",
-    "@kikko-land/boono-sql": "^0.3.0"
+    "@kikko-land/boono-sql": "^0.4.0"
   },
   "devDependencies": {
     "@kikko-land/common-scripts": "^0.5.0"
   }
 }
+
