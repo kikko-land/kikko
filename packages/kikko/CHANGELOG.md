@@ -1,5 +1,11 @@
 # @kikko-land/core
 
+## 0.19.0
+
+### Minor Changes
+
+- 71c1bea: Upgrade boono-sql
+
 ## 0.18.0
 
 ### Minor Changes
