@@ -1,5 +1,17 @@
 # @kikko-land/electron-better-sqlite3-backend
 
+## 0.10.0
+
+### Minor Changes
+
+- 71c1bea: Upgrade boono-sql
+
+### Patch Changes
+
+- Updated dependencies [71c1bea]
+  - @kikko-land/kikko@0.19.0
+  - @kikko-land/d1-backend@0.4.3
+
 ## 0.9.2
 
 ### Patch Changes

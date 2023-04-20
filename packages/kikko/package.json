@@ -1,6 +1,6 @@
 {
   "name": "@kikko-land/kikko",
-  "version": "0.18.0",
+  "version": "0.19.0",
   "author": "Sergey Popov",
   "license": "MIT",
   "main": "./src/index.ts",
@@ -41,4 +41,3 @@
     "@types/emscripten": "^1.39.6"
   }
 }
-

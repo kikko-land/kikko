@@ -1,5 +1,16 @@
 # @kikko-land/react-native-backend
 
+## 0.10.0
+
+### Minor Changes
+
+- 71c1bea: Upgrade boono-sql
+
+### Patch Changes
+
+- Updated dependencies [71c1bea]
+  - @kikko-land/kikko@0.19.0
+
 ## 0.9.2
 
 ### Patch Changes

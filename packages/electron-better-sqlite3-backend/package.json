@@ -1,6 +1,6 @@
 {
   "name": "@kikko-land/electron-better-sqlite3-backend",
-  "version": "0.9.2",
+  "version": "0.10.0",
   "author": "Sergey Popov",
   "license": "MIT",
   "main": "./src/index.ts",
@@ -52,9 +52,9 @@
     "check-typing": "tsc --noEmit"
   },
   "dependencies": {
-    "@kikko-land/kikko": "^0.18.0",
+    "@kikko-land/kikko": "^0.19.0",
     "@kikko-land/boono-sql": "^0.4.0",
-    "@kikko-land/d1-backend": "^0.4.2",
+    "@kikko-land/d1-backend": "^0.4.3",
     "@kikko-land/sql.js": "^1.6.8",
     "better-sqlite3": ">=7.6.2"
   },
@@ -67,4 +67,3 @@
     "ts-essentials": "^9.3.0"
   }
 }
-
