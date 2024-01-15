@@ -34,6 +34,13 @@ export const sqlToValues = (
     return q.preparedQuery;
   } else if ("toSql" in q) {
     return sqlToValues(q.toSql());
+  } else if ("toSQL" in q) {
+    const { sql, params } = q.toSQL();
+
+    return {
+      text: sql,
+      values: params as IPrimitiveValue[],
+    };
   } else {
     const { sql, parameters } = q;
 

@@ -90,6 +90,13 @@ export type ISqlToRun =
         readonly parameters: ReadonlyArray<unknown>;
       };
     }
+  | {
+      // Drizzle ORM
+      toSQL: () => {
+        sql: string;
+        params: unknown[];
+      };
+    }
   | ISql
   | ISqlAdapter;
 

@@ -1,5 +1,11 @@
 # @kikko-land/core
 
+## 0.19.1
+
+### Patch Changes
+
+- 39e9f77: Add srizzle orm support
+
 ## 0.19.0
 
 ### Minor Changes
